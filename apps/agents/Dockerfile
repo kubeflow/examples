@@ -10,8 +10,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Tensorflow 1.4.1, CPU,
-FROM gcr.io/kubeflow-rl/base-agents:tf1.4.1-0202-0829-a186
+# Tensorflow 1.4.1, CPU, agents@14669421f6a1699b9100cc42071a79c4dca2f1c3
+#FROM gcr.io/kubeflow-rl/base-agents:tf1.4.1-0202-0829-a186
+
+# Tensorflow 1.4.1, CPU, agents@459c4f88ece996eac3489e6e97a6ee0b30bdd6b3
+FROM gcr.io/kubeflow-rl/base-agents:tf1.4.1-0204-0938-c870
 
 ADD trainer /app/trainer/
 

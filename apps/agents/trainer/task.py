@@ -19,6 +19,7 @@ import datetime
 import logging
 import os
 import pprint
+import uuid
 
 import pip
 import tensorflow as tf
@@ -73,7 +74,7 @@ flags.DEFINE_string("render_out_dir", None,
                     "The path to which to copy generated renders.")
 
 # Algorithm
-flags.DEFINE_string("algorithm", "agents.algorithms.PPO",
+flags.DEFINE_string("algorithm", "agents.ppo.PPOAlgorithm",
                     "The name of the algorithm to use.")
 flags.DEFINE_integer("num_agents", 30,
                      "The number of agents to use.")
@@ -132,7 +133,7 @@ def hparams_base():
   """Base hparams tf/Agents PPO """
 
   # General
-  algorithm = agents.algorithms.PPO
+  algorithm = agents.ppo.PPOAlgorithm
   num_agents = 30
   eval_episodes = 30
   use_gpu = False
@@ -299,14 +300,18 @@ def main(unused_argv):
       for score in agents.scripts.train.train(agents_config, env_processes=True):
         logging.info('Score {}.'.format(score))
   if FLAGS.run_mode == 'render':
-    render_tmp_dir = "/tmp/agents-render"
-    os.system('mkdir %s' % render_tmp_dir)
+    now = datetime.datetime.now()
+    subdir = now.strftime("%m%d-%H%M") + "-" + uuid.uuid4().hex[0:4]
+    render_tmp_dir = "/tmp/agents-render/"
+    os.system('mkdir -p %s' % render_tmp_dir)
     agents.scripts.visualize.visualize(
         logdir=FLAGS.logdir, outdir=render_tmp_dir, num_agents=1, num_episodes=1,
         checkpoint=None, env_processes=True)
     render_out_dir = FLAGS.render_out_dir
+    # Unless a render out dir is specified explicitly upload to a unique subdir
+    # of the log dir with the parent render/
     if render_out_dir is None:
-      render_out_dir = os.path.join(FLAGS.logdir, "render")
+      render_out_dir = os.path.join(FLAGS.logdir, "render", subdir)
     gcs_upload(render_tmp_dir, render_out_dir)
 
 
