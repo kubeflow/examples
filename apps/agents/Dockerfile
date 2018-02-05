@@ -14,7 +14,11 @@
 #FROM gcr.io/kubeflow-rl/base-agents:tf1.4.1-0202-0829-a186
 
 # Tensorflow 1.4.1, CPU, agents@459c4f88ece996eac3489e6e97a6ee0b30bdd6b3
-FROM gcr.io/kubeflow-rl/base-agents:tf1.4.1-0204-0938-c870
+#FROM gcr.io/kubeflow-rl/base-agents:tf1.4.1-0204-0938-c870
+
+# Tensorflow 1.4.1, CPU, agents@459c4f88ece996eac3489e6e97a6ee0b30bdd6b3
+# Fixed versions
+FROM gcr.io/kubeflow-rl/base-agents:tf1.4.1-0205-1012-7aec
 
 ADD trainer /app/trainer/
 
