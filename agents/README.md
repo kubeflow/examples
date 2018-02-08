@@ -2,6 +2,6 @@
 
 Train a robot arm with reinforcement learning!
 
-Please refer to the [demo notebook](demo.ipynb) for a usage information.
+Please refer to the [demo notebook](demo/demo.ipynb) for a usage information.
 
-[![](render_preview.png)](render.mp4)
+[![](demo/render_preview.png)](demo/render.mp4)
