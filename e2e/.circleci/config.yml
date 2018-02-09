@@ -14,7 +14,7 @@ jobs:
             build_container
   argo:
     docker:
-      - image: nervana/circleci:nan_argo
+      - image: nervana/circleci:master
     working_directory: ~/repo
     steps:
       - checkout
@@ -24,7 +24,9 @@ jobs:
             export KUBE_CONFIG="${GKE_KUBECONFIG_ARGO}"
             mkdir -p "${HOME}/.kube"
             echo "${KUBE_CONFIG}" | base64 --decode > "${HOME}/.kube/config"
-            argo list
+            id=$(argo submit -o json tfslim.yaml |jq -r ".metadata.name")
+            argo wait "${id}"
+            argo get "${id}"
 workflows:
   version: 2
   test:

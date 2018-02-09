@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: tf-slim-
+spec:
+  entrypoint: tf-slim
+  templates:
+  - name: tf-slim
+    steps:
+    - - name: prepare-datasets
+        template: datasets
+
+  - name: datasets
+    container:
+      image: gcr.io/constant-cubist-173123/tf_workflow:nan_workflow
+      command: [bash]
+      source: |
+        cd /notebooks/models/research/slim
+        python download_and_convert_data.py \
+          --dataset_name=flowers \
+          --dataset_dir="${DATA_DIR}"
