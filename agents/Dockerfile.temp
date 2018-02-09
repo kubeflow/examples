@@ -10,15 +10,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM gcr.io/kubeflow/tensorflow-notebook-gpu
+FROM tensorflow/tensorflow:1.4.1
 
-USER jovyan
-RUN mkdir -p ${HOME}/bin && mkdir -p ${HOME}/lib && cd ${HOME}/lib && curl -L -o ${HOME}/lib/ks.tgz "https://github.com/ksonnet/ksonnet/releases/download/v0.8.0/ks_0.8.0_linux_amd64.tar.gz" && tar -xzvf ${HOME}/lib/ks.tgz && rm ${HOME}/lib/ks.tgz && ln -s ${HOME}/lib/ks_0.8.0_linux_amd64/ks ${HOME}/bin/ks
+# Needed for rendering and uploading renders
+RUN apt-get update
+RUN apt-get install -y libav-tools ffmpeg git
+RUN pip install google-cloud-storage==1.7.0
 
-#TODO: Best method to put ks on path...?
+ADD requirements.txt /app/
+RUN pip install -r /app/requirements.txt
 
-RUN curl https://sdk.cloud.google.com | bash
+ADD trainer /app/trainer/
 
-RUN mkdir -p /home/jovyan/kubeflow-examples/agents
+WORKDIR /app/
 
-ADD . /home/jovyan/kubeflow-examples/agents/
+ENTRYPOINT ["python", "-m", "trainer.task"]

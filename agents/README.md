@@ -65,7 +65,7 @@ TODO
 You can run the demonstration container locally using the following
 
 ```bash
-docker run -p 8888:8888 -it gcr.io/kubeflow-rl/agents-demo:0.1-0209-1106-3869
+docker run -p 8888:8888 -it gcr.io/kubeflow-rl/agents-demo:0.1-0209-1216-b7fd
 ```
 
 Then opening up the localhost:8888... url printed to STDOUT.
@@ -74,9 +74,7 @@ TODO: Will need to have provided GCP credentials as env. var or gcloud auth logi
 
 #### Remote JupyterHub
 
-To run the examples on a Kubeflow JupyterHub deployment simply provide the examples container name, `gcr.io/kubeflow-rl/agents-demo:0.1-0209-1106-3869`, in the image field of the spawner options dialog, e.g. like so
-
-![](demo/jhub-spawn.png)
+To run the examples on a Kubeflow JupyterHub deployment simply provide the examples container name, `gcr.io/kubeflow-rl/agents-demo:0.1-0209-1216-b7fd`, in the image field of the spawner options dialog.
 
 TODO: How are credentials obtained when running on jhub?
 
