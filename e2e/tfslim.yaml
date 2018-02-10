@@ -33,17 +33,8 @@ spec:
       - name: prepare-datasets
         template: datasets
     - - name: train
-        template: circleci
-        arguments:
-          parameters:
-            - name: args
-              value: |
-                echo "Submit TFjob" | tee /tmp/results/test.txt
-        outputs:
-          artifacts:
-          - name: train-result
-            path: /tmp/results
-    - - name: Store artifacts
+        template: train
+    - - name: store-artifacts
         template: circleci
         arguments:
           parameters:
@@ -62,6 +53,16 @@ spec:
         python download_and_convert_data.py \
           --dataset_name=flowers \
           --dataset_dir="${DATA_DIR}"
+  - name: train
+    container:
+      image: nervana/circleci:master
+      command: [bash]
+      source: |
+        echo "Submit TFjob" | tee /tmp/results/test.txt
+    outputs:
+      artifacts:
+      - name: train-result
+        path: /tmp/results
   - name: circleci
     inputs:
       parameters:
