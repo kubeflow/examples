@@ -1,23 +1,58 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: tf-slim-
+  generateName: tf-workflow-
 spec:
-  entrypoint: tf-slim
+  entrypoint: tests
+  #onExit: exit-handler
   # Parameters can be passed/overridden via the argo CLI.
   # To override the printed message, run `argo submit` with the -p option:
   # $ argo submit examples/arguments-parameters.yaml -p message="goodbye world"
   arguments:
     parameters:
     - name: datasets-image
-      # default
+      # default image
       value: gcr.io/constant-cubist-173123/tf_workflow:nan_workflow
   templates:
-  - name: tf-slim
+  - name: tests
     steps:
-    - - name: prepare-datasets
+    - - name: build-container
+        template: circleci
+        arguments:
+          parameters:
+            - name: args
+              value: |
+                echo "hello"
+      - name: download-dataset
+        template: circleci
+        arguments:
+          parameters:
+            - name: args
+              value: |
+                echo "Submit a volumeManager"
+      - name: prepare-datasets
         template: datasets
-
+    - - name: train
+        template: circleci
+        arguments:
+          parameters:
+            - name: args
+              value: |
+                echo "Submit TFjob" | tee /tmp/results/test.txt
+        outputs:
+          artifacts:
+          - name: train-result
+            path: /tmp/results
+    - - name: Store artifacts
+        template: circleci
+        arguments:
+          parameters:
+            - name: args
+              value: |
+                echo "Save argo artifacts"
+          artifacts:
+          - name: train-result
+            from: "{{steps.train.outputs.artifacts.train-result}}"
   - name: datasets
     container:
       image: "{{workflow.parameters.datasets-image}}"
@@ -27,3 +62,11 @@ spec:
         python download_and_convert_data.py \
           --dataset_name=flowers \
           --dataset_dir="${DATA_DIR}"
+  - name: circleci
+    inputs:
+      parameters:
+      - name: args
+    container:
+      image: nervana/circleci:master
+      command: [/bin/bash, -c]
+      args: ["{{inputs.parameters.args}}"]
