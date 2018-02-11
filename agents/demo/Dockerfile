@@ -12,8 +12,6 @@
 
 FROM gcr.io/kubeflow/tensorflow-notebook-gpu
 
-USER jovyan
-
 RUN mkdir -p ${HOME}/bin && mkdir -p ${HOME}/lib && cd ${HOME}/lib && curl -L -o ${HOME}/lib/ks.tgz "https://github.com/ksonnet/ksonnet/releases/download/v0.8.0/ks_0.8.0_linux_amd64.tar.gz" && tar -xzvf ${HOME}/lib/ks.tgz && rm ${HOME}/lib/ks.tgz && ln -s ${HOME}/lib/ks_0.8.0_linux_amd64/ks ${HOME}/bin/ks
 
 #TODO: Best method to put ks on path...?
@@ -23,3 +21,9 @@ RUN curl https://sdk.cloud.google.com | bash
 RUN mkdir -p /home/jovyan/kubeflow-examples/agents
 
 ADD . /home/jovyan/kubeflow-examples/agents/
+
+USER root
+
+RUN chown -R jovyan /home/jovyan/kubeflow-examples
+
+USER jovyan
