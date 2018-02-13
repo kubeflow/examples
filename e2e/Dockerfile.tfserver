@@ -1,0 +1,8 @@
+#FROM tensorflow/tf_grpc_test_server:ccbc039fbe5a
+FROM tensorflow/tf_grpc_test_server:latest
+
+ADD tf_job_shim.py /tf_job_shim.py
+RUN chmod +x /tf_job_shim.py
+
+ENTRYPOINT ["/tf_job_shim.py"]
+CMD ["python", "/var/tf-k8s/server/grpc_tensorflow_server.py"]

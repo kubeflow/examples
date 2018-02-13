@@ -1,0 +1,33 @@
+apiVersion: "kubeflow.org/v1alpha1"
+kind: "TFJob"
+metadata:
+  name: "myjob11"
+spec:
+  replicaSpecs:
+    - replicas: 1
+      tfReplicaType: MASTER
+      template:
+        spec:
+          containers:
+            - image: elsonrodriguez/mytfmodel:1.4
+              name: tensorflow
+              imagePullPolicy: Always
+          restartPolicy: OnFailure
+    - replicas: 1
+      tfReplicaType: WORKER
+      template:
+        spec:
+          containers:
+            - image: elsonrodriguez/mytfserver:1.4
+              name: tensorflow
+              imagePullPolicy: Always
+          restartPolicy: OnFailure
+    - replicas: 2
+      tfReplicaType: PS
+      template:
+        spec:
+          containers:
+            - image: elsonrodriguez/mytfserver:1.4
+              name: tensorflow
+              imagePullPolicy: Always
+          restartPolicy: OnFailure
