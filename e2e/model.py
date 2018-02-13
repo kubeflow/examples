@@ -47,7 +47,7 @@ from tensorflow.examples.tutorials.mnist import input_data
 flags = tf.app.flags
 flags.DEFINE_string("data_dir", "/tmp/mnist-data",
                     "Directory for storing mnist data")
-flags.DEFINE_string("train_dir", "/tmp/train",
+flags.DEFINE_string("train_dir", "/tmp/mnist-train",
                     "Directory for training output")
 flags.DEFINE_boolean("download_only", False,
                      "Only perform downloading of data; Do not proceed to "

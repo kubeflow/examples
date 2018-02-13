@@ -1,7 +1,7 @@
 apiVersion: "kubeflow.org/v1alpha1"
 kind: "TFJob"
 metadata:
-  name: "myjob13"
+  name: "myjob15"
 spec:
   replicaSpecs:
     - replicas: 1
@@ -9,9 +9,10 @@ spec:
       template:
         spec:
           containers:
-            - image: elsonrodriguez/mytfmodel:1.7
+            - image: elsonrodriguez/mytfmodel:1.9
               name: tensorflow
               imagePullPolicy: Always
+              args: ["python", "/opt/model.py", "--data_dir=/tmp/data", "--train_dir=/tmp/train", "--download=true"] 
           restartPolicy: OnFailure
     - replicas: 1
       tfReplicaType: WORKER
