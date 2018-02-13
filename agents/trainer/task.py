@@ -50,13 +50,10 @@ flags.DEFINE_integer("num_gpus", 0,
                      "If you don't use GPU, please set it to '0'")
 flags.DEFINE_integer("save_checkpoint_secs", 600,
                      "Number of seconds between checkpoint save.")
-
 flags.DEFINE_boolean("log_device_placement", False,
                      "Whether to output logs listing the devices on which "
                      "variables are placed.")
 flags.DEFINE_boolean("debug", True,
-                     "Run in debug mode.")
-flags.DEFINE_boolean("dump_dependency_versions", False,
                      "Run in debug mode.")
 
 # Render
@@ -154,7 +151,6 @@ def hparams_base():
 
 
 def _object_import_from_string(name):
-
   components = name.split('.')
   mod = __import__(components[0])
   for comp in components[1:]:
@@ -197,17 +193,6 @@ def _get_agents_configuration(hparam_set_name, log_dir=None, is_chief=False):
 
   pprint.pprint(hparams)
   return hparams
-
-
-def _dump_dependency_versions():
-  tf.logging.info("Tensorflow version: %s", tf.__version__)
-  tf.logging.info("Tensorflow git version: %s", tf.__git_version__)
-
-  pprint.pprint(sorted(["%s==%s" % (i.key, i.version)
-                        for i in pip.get_installed_distributions()]))
-
-  if FLAGS.run_mode == 'render':
-    os.system("ffmpeg -version")
 
 
 def gcs_upload(local_dir, gcs_out_dir):
@@ -262,9 +247,6 @@ def main(unused_argv):
   """Run training."""
   tf.logging.set_verbosity(tf.logging.INFO)
 
-  if FLAGS.dump_dependency_versions:
-    _dump_dependency_versions()
-
   if FLAGS.debug:
     tf.logging.set_verbosity(tf.logging.DEBUG)
 
@@ -276,7 +258,6 @@ def main(unused_argv):
       FLAGS.hparam_set_id, log_dir, run_config.is_chief)
 
   if FLAGS.run_mode == 'train':
-    if run_config.is_chief:
     for score in agents.scripts.train.train(agents_config, env_processes=True):
       logging.info('Score {}.'.format(score))
   if FLAGS.run_mode == 'render':
