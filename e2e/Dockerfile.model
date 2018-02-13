@@ -1,4 +1,4 @@
-FROM elsonrodriguez/mytfserver:1.4
+FROM elsonrodriguez/mytfserver:1.5
 
 ADD model.py /opt/model.py
 RUN chmod +x /opt/model.py

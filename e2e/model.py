@@ -79,6 +79,8 @@ flags.DEFINE_string("ps_hosts", "localhost:2222",
                     "Comma-separated list of hostname:port pairs")
 flags.DEFINE_string("worker_hosts", "localhost:2223,localhost:2224",
                     "Comma-separated list of hostname:port pairs")
+flags.DEFINE_string("master_hosts", "localhost:2222",
+                    "Comma-separated list of hostname:port pairs")
 flags.DEFINE_string("job_name", None, "job name: worker or ps")
 
 FLAGS = flags.FLAGS
@@ -102,11 +104,12 @@ def main(unused_argv):
   #Construct the cluster and start the server
   ps_spec = FLAGS.ps_hosts.split(",")
   worker_spec = FLAGS.worker_hosts.split(",")
+  master_spec = FLAGS.master_hosts.split(",")
 
   # Get the number of workers.
   num_workers = len(worker_spec)
 
-  cluster = tf.train.ClusterSpec({"ps": ps_spec, "worker": worker_spec})
+  cluster = tf.train.ClusterSpec({"master": master_spec, "ps": ps_spec, "worker": worker_spec})
 
   if not FLAGS.existing_servers:
     # Not using existing servers. Create an in-process server.

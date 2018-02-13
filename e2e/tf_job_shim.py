@@ -70,10 +70,12 @@ if __name__ == "__main__":
   command = sys.argv[1:]
   ps_hosts = ",".join(cluster.get("ps", []))
   worker_hosts = ",".join(cluster.get("worker", []))
+  master_hosts = ",".join(cluster.get("master", []))
   cluster_spec = "master|" + ";".join(cluster.get("master", [])) + "," + "ps|" + ";".join(cluster.get("ps", [])) + "," + "worker|" + ";".join(cluster.get("worker", []))
   command.append("--job_name=" + job_name)
   command.append("--ps_hosts=" + ps_hosts)
   command.append("--worker_hosts=" + worker_hosts)
+  command.append("--master_hosts=" + master_hosts)
   command.append("--cluster_spec=" + cluster_spec)
   command.append("--task_id={0}".format(task_index))
 
