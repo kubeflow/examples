@@ -45,19 +45,11 @@ flags.DEFINE_string("run_base_tag",
 flags.DEFINE_boolean("env_processes", True,
                      "Step environments in separate processes to circumvent "
                      "the GIL.")
-flags.DEFINE_boolean("sync_replicas", False,
-                     "Use the sync_replicas (synchronized replicas) mode, "
-                     "wherein the parameter updates from workers are "
-                     "aggregated before applied to avoid stale gradients.")
 flags.DEFINE_integer("num_gpus", 0,
                      "Total number of gpus for each machine."
                      "If you don't use GPU, please set it to '0'")
 flags.DEFINE_integer("save_checkpoint_secs", 600,
                      "Number of seconds between checkpoint save.")
-flags.DEFINE_boolean("use_monitored_training_session", True,
-                     "Whether to use tf.train.MonitoredTrainingSession to "
-                     "manage the training session. If not, use "
-                     "tf.train.Supervisor.")
 
 flags.DEFINE_boolean("log_device_placement", False,
                      "Whether to output logs listing the devices on which "
@@ -90,13 +82,6 @@ flags.DEFINE_integer("steps", 10000000,
 # Network
 flags.DEFINE_string("network", "agents.scripts.networks.feed_forward_gaussian",
                     "The registered network name to use for policy and value.")
-# TODO: Make it possible to pass policy and value layers via hparam config.
-# flags.DEFINE_string("policy_layers", "200,100",
-#                      "A comma-separates list of the size of a series of layers "
-#                      "to comprise the policy network.")
-# flags.DEFINE_string("value_layers", "200,100",
-#                      "A comma-separates list of the size of a series of layers "
-#                      "to comprise the value network.")
 flags.DEFINE_float("init_mean_factor", 0.1,
                    "")
 flags.DEFINE_float("init_std", 0.35,
@@ -111,8 +96,6 @@ flags.DEFINE_integer("update_epochs", 25,
                      "The number of update epochs.")
 flags.DEFINE_integer("update_every", 60,
                      "The update frequency.")
-# flags.DEFINE_boolean("optimizer_pre_initialize", True,
-#                      "Whether to pre-initialize the optimizer.")
 
 # Losses
 flags.DEFINE_float("discount", 0.995,
@@ -182,11 +165,11 @@ def _object_import_from_string(name):
 def _realize_import_attrs(d, filter):
   for k, v in d.items():
     if k in filter:
-      # try:
       imported = _object_import_from_string(v)
+      # TODO: Provide an appropriately informative error if the import fails
       # except ImportError as e:
-      #     msg = ("Failed to realize import path %s." % v)
-      #     raise e
+      #   msg = ("Failed to realize import path %s." % v)
+      #   raise e
       d[k] = imported
   return d
 
@@ -210,10 +193,7 @@ def _get_agents_configuration(hparam_set_name, log_dir=None, is_chief=False):
     # --------
 
     hparams = agents.tools.AttrDict(hparams)
-
-    if is_chief:
-      # Write the hyperparameters for this run to a config YAML for posteriority
-      hparams = agents.scripts.utility.save_config(hparams, log_dir)
+    hparams = agents.scripts.utility.save_config(hparams, log_dir)
 
   pprint.pprint(hparams)
   return hparams
@@ -297,8 +277,8 @@ def main(unused_argv):
 
   if FLAGS.run_mode == 'train':
     if run_config.is_chief:
-      for score in agents.scripts.train.train(agents_config, env_processes=True):
-        logging.info('Score {}.'.format(score))
+    for score in agents.scripts.train.train(agents_config, env_processes=True):
+      logging.info('Score {}.'.format(score))
   if FLAGS.run_mode == 'render':
     now = datetime.datetime.now()
     subdir = now.strftime("%m%d-%H%M") + "-" + uuid.uuid4().hex[0:4]

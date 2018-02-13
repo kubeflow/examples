@@ -30,7 +30,7 @@ get_project_id() {
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 IMAGE_BASE_NAME=agents
-TENSORFLOW_IMAGE_TAG=1.4.1
+TENSORFLOW_IMAGE_TAG=${TENSORFLOW_IMAGE_TAG:-1.4.1}
 PROJECT_ID=$(get_project_id)
 SALT=`python -c 'import datetime; import uuid; now=datetime.datetime.now(); print(now.strftime("%m%d-%H%M") + "-" + uuid.uuid4().hex[0:4])'`
 
@@ -44,7 +44,5 @@ sed s/{tensorflow_image_tag}/${TENSORFLOW_IMAGE_TAG}/g Dockerfile > \
 cd ${SCRIPT_DIR}
 
 docker build -t ${IMAGE_TAG} -f Dockerfile.temp .
-
-gcloud docker -- push ${IMAGE_TAG}
 
 rm Dockerfile.temp
