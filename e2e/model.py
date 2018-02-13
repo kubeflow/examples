@@ -39,6 +39,7 @@ import math
 import sys
 import tempfile
 import time
+import os
 
 import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
@@ -46,9 +47,13 @@ from tensorflow.examples.tutorials.mnist import input_data
 flags = tf.app.flags
 flags.DEFINE_string("data_dir", "/tmp/mnist-data",
                     "Directory for storing mnist data")
+flags.DEFINE_string("train_dir", "/tmp/train",
+                    "Directory for training output")
 flags.DEFINE_boolean("download_only", False,
                      "Only perform downloading of data; Do not proceed to "
                      "session preparation, model definition or training")
+flags.DEFINE_boolean("download", True,
+                     "Whether or not to download data")
 flags.DEFINE_integer("task_id", None,
                      "Worker task index, should be >= 0. task_id=0 is "
                      "the master worker task the performs the variable "
@@ -89,7 +94,9 @@ IMAGE_PIXELS = 28
 
 
 def main(unused_argv):
-  mnist = input_data.read_data_sets(FLAGS.data_dir, one_hot=True)
+  if FLAGS.download:
+    mnist = input_data.read_data_sets(FLAGS.data_dir, one_hot=True)
+
   if FLAGS.download_only:
     sys.exit(0)
 
@@ -192,12 +199,17 @@ def main(unused_argv):
       sync_init_op = opt.get_init_tokens_op()
 
     init_op = tf.global_variables_initializer()
-    train_dir = tempfile.mkdtemp()
+
+    try:
+      os.makedirs(FLAGS.train_dir)
+    except OSError:
+      if not os.path.isdir(FLAGS.train_dir):
+        raise
 
     if FLAGS.sync_replicas:
       sv = tf.train.Supervisor(
           is_chief=is_chief,
-          logdir=train_dir,
+          logdir=FLAGS.train_dir,
           init_op=init_op,
           local_init_op=local_init_op,
           ready_for_local_init_op=ready_for_local_init_op,
@@ -206,7 +218,7 @@ def main(unused_argv):
     else:
       sv = tf.train.Supervisor(
           is_chief=is_chief,
-          logdir=train_dir,
+          logdir=FLAGS.train_dir,
           init_op=init_op,
           recovery_wait_secs=1,
           global_step=global_step)
