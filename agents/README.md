@@ -102,7 +102,7 @@ gcloud docker -- push ${IMAGE_TAG}
 
 #### JupyterHub
 
-To run the examples on a Kubeflow JupyterHub deployment simply provide the address of the public demonstration container, `gcr.io/kubeflow-rl/agents-demo:0.1-0209-1216-b7fd`, in the image field of the spawner options dialog.
+To run the examples on a Kubeflow JupyterHub deployment simply provide the address of the public demonstration container, `gcr.io/kubeflow-rl/agents-demo:0.1-0213-1609-11ca`, in the image field of the spawner options dialog.
 
 TODO: Indeed make a demo container image public once we figure out how we want to do that.
 
