@@ -9,7 +9,7 @@ this repo the destination for top models and examples, which show the power of K
 proposed manifests. Please feel free to self-assign these examples, by following a simple 3 step process:
 
 * Identify an **example** in table below and put your github id against it
-* Create a Github issue with the details of the manifest and self-assign
+* Create a Github issue with the details of the **example** and self-assign
 * Send a PR to this repo with the actual work for the example
 
 We have assigned priorities to the items below. See priority guidance: 
