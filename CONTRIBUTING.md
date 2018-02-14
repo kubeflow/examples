@@ -14,9 +14,9 @@ proposed manifests, based on what we think developers need the most guidance. Pl
 
 We have assigned priorities to the items below. See priority guidance: 
 
-* P0: Very important, try to self-assign if there is a P0 available
-* P1: Important, try to self-assign if there is no P0 available
-* P2: Nice to have
+* **P0**: Very important, try to self-assign if there is a P0 available
+* **P1**: Important, try to self-assign if there is no P0 available
+* **P2**: Nice to have
 
 # Proposed Manifests
 
