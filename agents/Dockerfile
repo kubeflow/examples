@@ -10,7 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM tensorflow/tensorflow:{tensorflow_image_tag}
+FROM tensorflow/tensorflow:1.4.1
 
 # Needed for rendering and uploading renders
 RUN apt-get update

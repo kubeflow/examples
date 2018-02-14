@@ -32,14 +32,37 @@ Note that you'll need to set the path to this bucket at the beginning of the [de
 
 ###### Deploying Kubernetes
 
-You can deploy a Kubernetes cluster on Google Kubernetes Engine that will support Kubeflow by following [these](https://cloud.google.com/kubernetes-engine/docs/quickstart) [instructions](https://github.com/kubeflow/kubeflow/blob/master/user_guide.md) if you haven't already done so.
+If you haven't already you can deploy a Kubernetes cluster on Google Kubernetes Engine that will support Kubeflow with the following command:
+
+```bash
+# Your project here
+PROJECT=kubeflow-rl
+CLUSTER=kubeflow-dev
+ZONE=us-east1-d
+
+gcloud beta container clusters create \
+       $CLUSTER \
+       --project ${PROJECT} \
+       --zone=$ZONE \
+       --cluster-version=1.9.2-gke.1 \
+       --machine-type=n1-highmem-32 \
+       --image-type=COS \
+       --disk-size=100 \
+       --num-nodes=1 \
+       --enable-autoscaling \
+       --max-nodes=8 \
+       --min-nodes=1 \
+       --scopes=https://www.googleapis.com/auth/cloud-platform
+```
 
 We'll pull the Kubernetes credentials for that cluster to the machine we're using for setup to permit us to perform the subsequent steps of creating a service account secret and a namespace for our jobs.
 
 ```bash
-gcloud container clusters --project={PROJECT} \
-  --zone={ZONE} get-credentials {CLUSTER}
+gcloud container clusters --project=${PROJECT} \
+  --zone=${ZONE} get-credentials ${CLUSTER}
 ```
+
+The rest of this tutorial assumes the cluster for which you have pulled credentials already has Kubeflow deployed. The steps to do so are described [here](https://github.com/kubeflow/kubeflow#steps); see also the [Kubeflow User Guide](https://github.com/kubeflow/kubeflow/blob/master/user_guide.md).
 
 ###### Creating a GCP secret for TensorBoard
 
@@ -49,7 +72,7 @@ First, create a service account credential by following [these](https://cloud.go
 
 This service account key will need read access to Google Cloud Storage in order to permit TensorBoard to read training log data that it will then display in the TensorBoard UI.
 
-Next we need to specify the path of the key that was just downloaded in a command that will store the contents of the key in our kubernetes cluster.
+Next we need to specify the path of the key that was just downloaded in a command that will store the contents of the key in our Kubernetes cluster.
 
 ```bash
 SECRET_FILE_NAME="secret.json"
