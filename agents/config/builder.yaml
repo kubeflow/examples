@@ -1,0 +1,38 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: kubeflow-builder-
+spec:
+  entrypoint: workflow
+  arguments:
+    parameters:
+    - name: bundle
+      value: unspecified
+    - name: app-name
+      value: unspecified
+    - name: trainer-tag
+      value: unspecified
+    - name: project
+      value: unspecified
+  templates:
+  - name: workflow
+    steps:
+    - - name: build-push
+        template: build-and-push
+  - name: build-and-push
+    container:
+      image: gcr.io/kubeflow-rl/builder:0.2
+      command: [bash,-c]
+      # args: ["mkdir -p /build; gsutil cp gs://{{workflow.parameters.project}}-builder/{{workflow.parameters.app-name}}/cache/image.tar /build/; until docker ps; do sleep 3; done; if [ -e /build/image.tar ]; then echo 'Found build cache; restoring.'; docker load --input /build/image.tar; fi"]
+      # TODO: The above gives error: open /var/lib/docker/tmp/docker-import-533054174/repositories: no such file or directory
+      args: ["mkdir -p /build; gsutil cp {{workflow.parameters.bundle}} /build/ && cd /build && tar -xzvf {{workflow.parameters.app-name}}.tgz; cd {{workflow.parameters.app-name}}; docker build -t {{workflow.parameters.trainer-tag}} .; gcloud docker -- push {{workflow.parameters.trainer-tag}}; docker save {{workflow.parameters.trainer-tag}} $(docker history -q {{workflow.parameters.trainer-tag}}) > /build/cache.tar; gsutil cp /build/cache.tar gs://{{workflow.parameters.project}}-builder/{{workflow.parameters.app-name}}/cache/"]
+      # TODO: Move this command string into a builder script built into the builder image
+      env:
+      - name: DOCKER_HOST               #the docker daemon can be access on the standard port on localhost
+        value: 127.0.0.1
+    sidecars:
+    - name: dind
+      image: docker:17.10-dind          #Docker already provides an image for running a Docker daemon
+      securityContext:
+        privileged: true                #the Docker daemon can only run in a privileged container
+      mirrorVolumeMounts: true
