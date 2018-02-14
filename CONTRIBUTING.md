@@ -22,5 +22,6 @@ We have assigned priorities to the items below. See priority guidance:
 
 | Manifest | What does it accomplish? | Priority | Priority reasoning | ML framework | Owner (github_id) | Company | PR link |
 | -------- | :-----------------------: | :------: | :----------------: | :-----------: | :---------------: | :----: | :-----: |
-| TensorFlow serving end-to-end | How to perform TensorFlow serving on Kubeflow e2e | P0 | TODO | TensorFlow | TODO | TODO | TODO |
-| [Zillow housing prediction](https://www.kaggle.com/c/zillow-prize-1/kernels) | Zillow's home value prediction on Kaggle | P0 | High prize Kaggle competition w/ opportunity to show XGBoost | XGBoost | puneith | Google | TODO
+| TensorFlow serving end-to-end | How to perform TensorFlow serving on Kubeflow e2e | **P0** | TODO | TensorFlow | TODO | TODO | TODO |
+| [Zillow housing prediction](https://www.kaggle.com/c/zillow-prize-1/kernels) | Zillow's home value prediction on Kaggle | **P0** | High prize Kaggle competition w/ opportunity to show XGBoost | XGBoost | puneith | Google | TODO |
+| [Mercari price suggestion challenge](https://www.kaggle.com/c/mercari-price-suggestion-challenge) | Automatically suggest product proces to online sellers | **P0** | | | | | |
