@@ -62,6 +62,7 @@ if __name__ == "__main__":
                       )
   logging.info("Launcher started.")
   tf_config = os.environ.get('TF_CONFIG', '{}')
+  sleep_after_completion = os.environ.get('SLEEP_AFTER_COMPLETION', False)
   tf_config_json = json.loads(tf_config)
   cluster = tf_config_json.get('cluster', {})
   job_name = tf_config_json.get('task', {}).get('type', "")
@@ -89,6 +90,7 @@ if __name__ == "__main__":
   logging.info("Finished: %s", " ".join(command))
   # We don't want to terminate because TfJob will
   # just restart the job.
-  while True:
-    logging.info("Command ran successfully sleep for ever.")
-    time.sleep(600)
+  if sleep_after_completion:
+    while True:
+      logging.info("Command ran successfully sleep for ever.")
+      time.sleep(600)
