@@ -12,6 +12,12 @@ proposed manifests, based on what we think developers need the most guidance. Pl
 * Create a Github issue with the details of the manifest and self-assign
 * Send a PR to this repo with the actual work for the manifest
 
+We have assigned priorities to the items below. See priority guidance: 
+
+* P0: Very important, try to self-assign if there is a P0 available
+* P1: Important, try to self-assign if there is no P0 available
+* P2: Nice to have
+
 # Proposed Manifests
 
 | Manifest | What does it accomplish? | Priority | Priority reasoning | ML framework | Owner (github_id) | Company | PR link |
