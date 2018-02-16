@@ -257,6 +257,7 @@ def main(unused_argv):
     print("Training begins @ %f" % time_begin)
 
     local_step = 0
+    saver = tf.train.Saver(max_to_keep=None)
     while True:
       # Training feed
       batch_xs, batch_ys = mnist.train.next_batch(FLAGS.batch_size)
@@ -271,7 +272,7 @@ def main(unused_argv):
 
       if step >= FLAGS.train_steps:
         break
-
+    saver.save(sess, "/tmp/datpath")
     time_end = time.time()
     print("Training ends @ %f" % time_end)
     training_time = time_end - time_begin
