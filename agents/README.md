@@ -1,5 +1,7 @@
 # Reinforcement Learning with [tensorflow/agents](https://github.com/tensorflow/agents)
 
+[![Docker Repository on Quay](https://quay.io/repository/cwbeitel/agents-demo/status "Docker Repository on Quay")](https://quay.io/repository/cwbeitel/agents-demo)
+
 Here we provide a demonstration of training a reinforcement learning agent to perform a robotic grasping task using Kubeflow running on Google Kubernetes Engine. In this demonstration you will learn how to paramaeterize a training job, submit it to run on your cluster, monitor the job including launching a tensorboard instance, and finally producing renders of the agent performing the robotic grasping task.
 
 For clarity and fun you can check out what the product of this tutorial will look like by clicking through the render screenshot below to a short video of a trained agent performing a simulated robotic block grasping task:
@@ -64,6 +66,15 @@ gcloud container clusters --project=${PROJECT} \
 
 The rest of this tutorial assumes the cluster for which you have pulled credentials already has Kubeflow deployed. The steps to do so are described [here](https://github.com/kubeflow/kubeflow#steps); see also the [Kubeflow User Guide](https://github.com/kubeflow/kubeflow/blob/master/user_guide.md).
 
+**Note:** Beyond the core dependencies this demo depends on also having [Argo](https://applatix.com/open-source/argo/) (a Kubernetes-native workflow manager) deployed which for an existing Kubeflow deployment can be added as follows:
+
+```bash
+# From the root of your ksonnet workspace
+ks pkg install kubeflow/argo
+ks generate argo kubeflow-argo --name=kubeflow-argo --namespace=kubeflow
+ks apply default -c kubeflow-argo
+```
+
 ###### Creating a GCP secret for TensorBoard
 
 Next we need to deploy a Kubernetes secret which will provide the GCP credentials needed to run TensorBoard.
@@ -93,43 +104,27 @@ NAMESPACE="rl"
 kubectl create namespace ${NAMESPACE}
 ```
 
-### Running the demo
+### Running the demo on JupyterHub
 
-As mentioned above this example demonstrates the training of a reinforcement learning agent in performing a robotic control task. There are two aspects to discuss:
-1. The docker image the encapsulates all that is needed to define the training task, and
-2. The Jupyter Notebook container that is sufficient to view the demonstration notebook and dispatch training jobs that utilize the preceding.
+In order to run this demo on a Kubeflow JupyterHub deployment you'll need the registry address of a demo container that is accessible to that Kubeflow deployment. This can be accomplished using the public container image for this demo, `quay.io/cwbeitel/agents-demo:0.1`, or by building the demo container yourself.
 
-#### Job container
+##### Building your own development container
 
-If you're only interested in running this example and examining the intermediate and final outputs you don't necessarily need to re-build the training container. A public version of this container can be found here:
+We might want to include various additional dependencies in our notebook container to aid in development of our model. In that case we might be interested in modifying the demo Dockerfile and re-building the container.
 
-TODO: Indeed make a training container image public once we figure out how we want to do that.
+The demo container can be built using the standard workflow:
 
-If you look ahead to the demonstration notebook you'll see we specify the address of this container when parameterizing our training job.
-
-Alternatively, especially in the case where you want to make modifications to the example, you may want to re-build the training container image. This can be done by running:
-
-```bash
-sh build.sh
+```bashM
+TAG=quay.io/someuser/agents-demo:version
+docker build -t ${TAG} .
+docker push ${TAG}
 ```
 
-Once built the image needs to be made available on a container registry accessible to the kubeflow deployment that will be pulling and running it. If your Kubernetes cluster is running on the Google Cloud Platform then a good pattern is to push your image to a Google Container Registry (GCR) that is either
-1. Owned by the same project as your GKE cluster, or
-2. Public
+##### Launching
 
-You can push your recent container build to GCR with the following command:
+To run the examples on a Kubeflow JupyterHub deployment simply provide the registry address of your demonstration container, e.g. `quay.io/cwbeitel/agents-demo:0.1`, in the image field of the spawner options dialog.
 
-```bash
-gcloud docker -- push ${IMAGE_TAG}
-```
-
-#### JupyterHub
-
-To run the examples on a Kubeflow JupyterHub deployment simply provide the address of the public demonstration container, `gcr.io/kubeflow-rl/agents-demo:0.1-0213-1609-11ca`, in the image field of the spawner options dialog.
-
-TODO: Indeed make a demo container image public once we figure out how we want to do that.
-
-Here's what that looks like for me:
+Here's approximately what that looks like for me:
 
 ![](demo/jhub-spawn.png)
 
