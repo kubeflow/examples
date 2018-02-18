@@ -15,11 +15,13 @@ FROM gcr.io/kubeflow/tensorflow-notebook-gpu
 RUN curl https://sdk.cloud.google.com | bash
 RUN mkdir -p ${HOME}/bin && mkdir -p ${HOME}/lib && cd ${HOME}/lib && curl -L -o ${HOME}/lib/ks.tgz "https://github.com/ksonnet/ksonnet/releases/download/v0.8.0/ks_0.8.0_linux_amd64.tar.gz" && tar -xzvf ${HOME}/lib/ks.tgz && rm ${HOME}/lib/ks.tgz && ln -s ${HOME}/lib/ks_0.8.0_linux_amd64/ks ${HOME}/bin/ks
 
+RUN curl -sSL -o /home/jovyan/bin/argo https://github.com/argoproj/argo/releases/download/v2.0.0/argo-linux-amd64
+
 RUN mkdir -p /home/jovyan/kubeflow-examples/agents
 ADD . /home/jovyan/kubeflow-examples/agents/
+
+RUN chmod +x /home/jovyan/bin/argo
 
 USER root
 
 RUN chown -R jovyan /home/jovyan/kubeflow-examples
-
-USER jovyan
