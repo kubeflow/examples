@@ -27,3 +27,5 @@ We have assigned priorities to the items below. See priority guidance:
 | [Mercari price suggestion challenge](https://www.kaggle.com/c/mercari-price-suggestion-challenge) | Automatically suggest product proces to online sellers | **P0** | | | | | |
 | [Airbnb new user bookings](https://www.kaggle.com/c/airbnb-recruiting-new-user-bookings) | Where will a new guest book their first travel experience | | | | | | |
 | [TensorFlow object detection](https://github.com/tensorflow/models/tree/master/research/object_detection) | Object detection using TensorFlow API | | | | | | |
+| [TFGAN](https://github.com/tensorflow/models/blob/master/research/gan/tutorial.ipynb) | Define, Train and Evaluate GAN | GANs are of great interest currently | | | | | |
+| [Nested LSTM](https://github.com/hannw/nlstm) | TensorFlow implementation of nested LSTM cell | LSTM are the canonical implementation of RNN to solve vanishing gradient problem and widely used for Time Series | | | | | |
