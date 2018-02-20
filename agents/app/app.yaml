@@ -7,6 +7,12 @@ libraries:
       refSpec: master
     name: core
     registry: kubeflow
+  tf-job:
+    gitVersion:
+      commitSha: 30f913986607bb8414d51ef6a23fe60fec9afe3c
+      refSpec: master
+    name: tf-job
+    registry: kubeflow
 name: app
 registries:
   incubator:
@@ -17,7 +23,7 @@ registries:
     uri: github.com/ksonnet/parts/tree/master/incubator
   kubeflow:
     gitVersion:
-      commitSha: d7d859206f52168665cbc312391c67c162927e96
+      commitSha: 30f913986607bb8414d51ef6a23fe60fec9afe3c
       refSpec: master
     protocol: github
     uri: github.com/kubeflow/kubeflow/tree/master/kubeflow

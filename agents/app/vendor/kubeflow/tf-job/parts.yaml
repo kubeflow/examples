@@ -1,8 +1,8 @@
 {
-   "name": "core",
+   "name": "tf-job",
    "apiVersion": "0.0.1",
    "kind": "ksonnet.io/parts",
-   "description": "Core components of Kubeflow.\n",
+   "description": "Prototypes for running TensorFlow jobs.\n",
    "author": "kubeflow team <kubeflow-team@google.com>",
    "contributors": [
       {
@@ -19,17 +19,17 @@
    },
    "keywords": [
       "kubeflow",
-      "tensorflow"
+      "tensorflow",
+      "database"
    ],
    "quickStart": {
-      "prototype": "io.ksonnet.pkg.kubeflow",
-      "componentName": "core",
+      "prototype": "io.ksonnet.pkg.tf-job",
+      "componentName": "tf-job",
       "flags": {
-         "name": "core",
-         "namespace": "default",
-         "disks": ""
+         "name": "tf-job",
+         "namespace": "default"
       },
-      "comment": "Core Kubeflow components."
+      "comment": "Run TensorFlow Job"
    },
    "license": "Apache 2.0"
 }
