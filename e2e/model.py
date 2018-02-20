@@ -198,7 +198,7 @@ def main(unused_argv):
       chief_queue_runner = opt.get_chief_queue_runner()
       sync_init_op = opt.get_init_tokens_op()
 
-    init_op = tf.global_variables_initializer()
+#    init_op = tf.global_variables_initializer()
 
     try:
       os.makedirs(FLAGS.train_dir)
@@ -210,7 +210,7 @@ def main(unused_argv):
       sv = tf.train.Supervisor(
           is_chief=is_chief,
           logdir=FLAGS.train_dir,
-          init_op=init_op,
+#          init_op=init_op,
           local_init_op=local_init_op,
           ready_for_local_init_op=ready_for_local_init_op,
           recovery_wait_secs=1,
@@ -219,7 +219,7 @@ def main(unused_argv):
       sv = tf.train.Supervisor(
           is_chief=is_chief,
           logdir=FLAGS.train_dir,
-          init_op=init_op,
+#          init_op=init_op,
           recovery_wait_secs=1,
           global_step=global_step)
 
@@ -257,6 +257,7 @@ def main(unused_argv):
     print("Training begins @ %f" % time_begin)
 
     local_step = 0
+    sess.graph._unsafe_unfinalize()
     saver = tf.train.Saver(max_to_keep=None)
     while True:
       # Training feed
@@ -272,7 +273,8 @@ def main(unused_argv):
 
       if step >= FLAGS.train_steps:
         break
-    saver.save(sess, "/tmp/datpath")
+#    os.mkdir("/tmp/datpath")
+    saver.save(sess, FLAGS.train_dir)
     time_end = time.time()
     print("Training ends @ %f" % time_end)
     training_time = time_end - time_begin
