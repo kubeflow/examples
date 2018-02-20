@@ -25,9 +25,6 @@ kubectl create namespace ${NAMESPACE}
 
 Note the above command assumes you have already pulled the credentials for your Kubernetes cluster locally as described in the [Kubeflow User Guide](https://github.com/kubeflow/kubeflow/blob/master/user_guide.md).
 
-TODO: Update kubeflow setup docs
-TODO: Configure demo to work with NFS instead of GCS
-
 ### Running the demo on JupyterHub
 
 In order to run this demo on a Kubeflow JupyterHub deployment you'll need the registry address of a demo container that is accessible to that Kubeflow deployment. This can be accomplished using the public container image for this demo, `quay.io/cwbeitel/agents-demo`, or by building the demo container yourself.
