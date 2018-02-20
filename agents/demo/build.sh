@@ -40,8 +40,7 @@ cd ${APP_DIR}
 
 docker build -t ${IMAGE_TAG} -f ${SCRIPT_DIR}/Dockerfile .
 
-gcloud docker -- push ${IMAGE_TAG}
-
 echo "Ready to rock! 🎉"
-echo "Here's the image tag you can provide to JupyterHub to launch the demo:"
+echo "Just push the following tag to your registry of choice then provide that "
+echo "to JupyterHub to launch the demo:"
 echo ${IMAGE_TAG}

@@ -1,0 +1,37 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: kubeflow-builder-
+spec:
+  entrypoint: workflow
+  arguments:
+    parameters:
+    - name: bundle
+      value: unspecified
+    - name: app-name
+      value: unspecified
+    - name: trainer-tag
+      value: unspecified
+    - name: project
+      value: unspecified
+    - name: builder-image
+      value: quay.io/cwbeitel/builder:0.1
+  templates:
+  - name: workflow
+    steps:
+    - - name: build-push
+        template: build-and-push
+  - name: build-and-push
+    container:
+      image: "{{workflow.parameters.builder-image}}"
+      command: [bash,-c]
+      args: ["mkdir -p /build; gsutil cp {{workflow.parameters.bundle}} /build/ && cd /build && tar -xzvf {{workflow.parameters.app-name}}.tgz; cd {{workflow.parameters.app-name}}; until docker ps; do sleep 3; done; docker build -t {{workflow.parameters.trainer-tag}} .; gcloud docker -- push {{workflow.parameters.trainer-tag}}; docker save {{workflow.parameters.trainer-tag}} $(docker history -q {{workflow.parameters.trainer-tag}}) > /build/cache.tar; gsutil cp /build/cache.tar gs://{{workflow.parameters.project}}-builder/{{workflow.parameters.app-name}}/cache/"]
+      env:
+      - name: DOCKER_HOST               #the docker daemon can be access on the standard port on localhost
+        value: 127.0.0.1
+    sidecars:
+    - name: dind
+      image: docker:17.10-dind          #Docker already provides an image for running a Docker daemon
+      securityContext:
+        privileged: true                #the Docker daemon can only run in a privileged container
+      mirrorVolumeMounts: true
