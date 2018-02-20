@@ -6,7 +6,7 @@ Here we provide a demonstration of training a reinforcement learning agent to pe
 
 For clarity and fun you can check out what the product of this tutorial will look like by clicking through the render screenshot below to a short video of a trained agent performing a simulated robotic block grasping task:
 
-[![](demo/render_preview.png)](https://youtu.be/0X0w5XOtcHw)
+[![](doc/render_preview.png)](https://youtu.be/0X0w5XOtcHw)
 
 Below are instructions to first set up various preliminaries then launch the example notebook in a variety of forms.
 
@@ -40,7 +40,7 @@ To run the examples on a Kubeflow JupyterHub deployment simply provide the regis
 
 Here's approximately what that looks like for me:
 
-![](demo/jhub-spawn.png)
+![](doc/jhub-spawn.png)
 
 For troubleshooting of your JupyterHub spawn or anything else related to your Kubeflow deployment please refer to the [Kubeflow User Guide](https://github.com/kubeflow/kubeflow/blob/master/user_guide.md).
 
