@@ -49,7 +49,7 @@ fi
 echo "Building release with tag: ${IMAGE_TAG}"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-APP_DIR=${SCRIPT_DIR}/../../
+APP_DIR=${SCRIPT_DIR}/../../../
 cd ${APP_DIR}
 
 docker build -t ${IMAGE_TAG} -f Dockerfile.${WHICH_CONTAINER} .

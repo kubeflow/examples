@@ -10,7 +10,7 @@ spec:
       value: unspecified
     - name: app-name
       value: unspecified
-    - name: trainer-tag
+    - name: image-tag
       value: unspecified
     - name: project
       value: unspecified
@@ -25,7 +25,7 @@ spec:
     container:
       image: "{{workflow.parameters.builder-image}}"
       command: [bash,-c]
-      args: ["mkdir -p /build; gsutil cp {{workflow.parameters.bundle}} /build/ && cd /build && tar -xzvf {{workflow.parameters.app-name}}.tgz; cd {{workflow.parameters.app-name}}; until docker ps; do sleep 3; done; docker build -t {{workflow.parameters.trainer-tag}} .; gcloud docker -- push {{workflow.parameters.trainer-tag}}; docker save {{workflow.parameters.trainer-tag}} $(docker history -q {{workflow.parameters.trainer-tag}}) > /build/cache.tar; gsutil cp /build/cache.tar gs://{{workflow.parameters.project}}-builder/{{workflow.parameters.app-name}}/cache/"]
+      args: ["mkdir -p /build; gsutil cp {{workflow.parameters.bundle}} /build/ && cd /build && tar -xzvf {{workflow.parameters.app-name}}.tgz; cd {{workflow.parameters.app-name}}; until docker ps; do sleep 3; done; docker build -t {{workflow.parameters.image-tag}} .; gcloud docker -- push {{workflow.parameters.trainer-tag}}; docker save {{workflow.parameters.image-tag}} $(docker history -q {{workflow.parameters.image-tag}}) > /build/cache.tar; gsutil cp /build/cache.tar gs://{{workflow.parameters.project}}-builder/{{workflow.parameters.app-name}}/cache/"]
       env:
       - name: DOCKER_HOST               #the docker daemon can be access on the standard port on localhost
         value: 127.0.0.1
