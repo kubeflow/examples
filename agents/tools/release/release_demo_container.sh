@@ -14,9 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Build and release containers
+# Build and release demo container
 
 RELEASE_VERSION=0.0.1
+APP_TAG=agents-demo
 
 RELEASE_TYPE=${RELEASE_TYPE:-dirty}
 
@@ -25,20 +26,7 @@ if [ -z ${RELEASE_REGISTRY+x} ]; then
   exit 1
 fi
 
-if [ -z ${APP_NAME+x} ]; then
-  echo "Please declare an app name by setting APP_NAME."
-  exit 1
-fi
-
-if [ -z $1 ]; then
-  echo "Please specify whether to build the demo or training containers with "
-  echo "release_containers.sh [demo or train]"
-  exit 1
-fi
-
-WHICH_CONTAINER=$1
-
-IMAGE_TAG=${RELEASE_REGISTRY}/${APP_NAME}-${WHICH_CONTAINER}:${RELEASE_VERSION}
+IMAGE_TAG=${RELEASE_REGISTRY}/${APP_TAG}:${RELEASE_VERSION}
 
 if [ ${RELEASE_TYPE} == 'dirty' ]; then
   echo "Building dirty release."
@@ -49,9 +37,11 @@ fi
 echo "Building release with tag: ${IMAGE_TAG}"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-APP_DIR=${SCRIPT_DIR}/../../../
+APP_DIR=${SCRIPT_DIR}/../../
 cd ${APP_DIR}
 
-docker build -t ${IMAGE_TAG} -f Dockerfile.${WHICH_CONTAINER} .
+docker build -t ${IMAGE_TAG} -f doc/Dockerfile .
 
-docker push ${IMAGE_TAG}
+gcloud docker -- push ${IMAGE_TAG}
+#docker push ${IMAGE_TAG}
+
