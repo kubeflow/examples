@@ -107,32 +107,77 @@ kubectl ....
 
 ### Deploying Argo
 
+Argo is a workflow system used ot automate workloads on Kubernetes. This is what will tie the room together.
+
 ```
 ks...
 ```
 
-### Deploying Kube Volume Manager
+We can check on the status of Argo by typing
 
 ```
-helm blah blah
+argo ....
+```
+
+### Deploying Kube Volume Manager
+
+Kube Volume Manager is a utility that can seed replicas of datasets across nodes.
+
+```
+helm .... 
+```
+
+And again verify
+```
+kubectl ...
 ```
 
 ## Defining your training workflow
 
-How to modify the basic argo templawte
+This is the bulk of the work, let's walk through what is needed:
+
+1. Download our datasets
+2. Train the model
+3. Export the model
+4. Serve the model
+
+Now let's look at how this is represented in our [example workflow](workflow.yaml)
 
 ```
 dat: yaml
 ```
 ## Submitting your training workflow
 
+First we need to set a few variables in our workflow.
+
+```
+TF_SERVER_IMAGE=docker.io/...
+MODEL_IMAGE=docker.io/...
+AWS_SECRET_ACCESS_KEY=
+AWS_ACCESS_KEY_ID=
+AWS_ENDPOINT_URL=http://
+DATA_S3_URL=
+TRAINING_S3_BASE_URL=
+
+argo ...?
+```
+
+Your training workflow should now be executing.
+
 ## Monitoring
 
-### dashboard
+There are various ways to visualize what your workflow is doing.
 
-### tensorflow visualizer
+### Argo UI
 
+#TODO how to argo UI
+
+### Tensorboard
+
+TODO how to tensorboar 
 
 ## Serving your model
 
-???
+Once the workflow has completed, your model should be serving:
+
+#TODO how to access model with an mnist client

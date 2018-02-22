@@ -90,7 +90,7 @@ if __name__ == "__main__":
   logging.info("Finished: %s", " ".join(command))
   # We don't want to terminate because TfJob will
   # just restart the job.
-  if sleep_after_completion:
+  if sleep_after_completion == "True":
     while True:
       logging.info("Command ran successfully sleep for ever.")
       time.sleep(600)
