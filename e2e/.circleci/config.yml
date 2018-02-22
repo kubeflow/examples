@@ -28,6 +28,7 @@ jobs:
                    -p datasets-image="gcr.io/constant-cubist-173123/tf_workflow:${CIRCLE_SHA1}" \
                    -p aws-access-key-id="${AWS_ACCESS_KEY_ID}" \
                    -p aws-secret-access-key="${AWS_SECRET_ACCESS_KEY}" \
+                   -p job-name="job-${CIRCLE_BUILD_NUM}" \
                    tfargo.yaml | jq -r ".metadata.name")
             argo wait -n argo "${id}"
             argo get -n argo "${id}" | grep -v aws
