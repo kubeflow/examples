@@ -2,11 +2,22 @@
 
 This example guides you through the process of taking a distributed model, modifying it to work with the tf-operator, providing data to your model, and serving the resulting trained model. We will be using Argo to manage the workflow, Kube Volume Controller to supply data via s3, and Kubeflow to serve the model.
 
-## Prepare model
+## Prerequisites
+
+- A 1.9 Kubernetes cluster with RBAC
+- S3-compatabile object store
+
+## Modifying existing examples
+
+Most examples online use containers with pre-canned data, or scripts with certain assumptions as to the cluster spec, we will modify one of these [examples](https://github.com/tensorflow/tensorflow/tree/0375ffcf83e16c3d6818fa67c9c13de810c1dacf/tensorflow/tools/dist_test) to work with the tensorflow operator, and to work more like a real-world example. 
+
+### Prepare model
 
 There is a delta between existing distributed mnist examples and the typical tfjob spec. This can be summarized with the following diff:
 
 (link to github diff of stock mnist and modify mnist)
+https://github.com/tensorflow/tensorflow/blob/0375ffcf83e16c3d6818fa67c9c13de810c1dacf/tensorflow/tools/dist_test/python/mnist_replica.py
+https://github.com/elsonrodriguez/examples/blob/e2e/e2e/model.py
 
 Basically, we must
 
@@ -17,31 +28,88 @@ Basically, we must
 
 TODO: change all cluster spec stuff to just natively parse tfjob.
 
-The resulting model is model.py.
+The resulting model is [model.py](model.py).
 
-### How to interface with TFJob
+### Prepare distribued tensorflow grpc components.
 
-The stock grpc example expects the cluster spec to be provided via command line flags. We have modified  
-show diff between mnist starting point and tfjob-ready mnist
+The stock distributed tensorflow grpc [example](https://github.com/tensorflow/tensorflow/blob/3af03be757b63ea6fbd28cc351d5d2323c526354/tensorflow/tools/dist_test/server/grpc_tensorflow_server.py) expects the cluster spec to be provided via command line arguments. We have modified an [existing shim](https://github.com/kubeflow/kubeflow/blob/d5caf230ff50260c1a6565db35edeeddd5d407e6/tf-controller-examples/tf-cnn/launcher.py) to be more [generic](tf_job_shim.py), and will be wrapping the standard grpc server in order to process TF_CONFIG into something it understands.
 
-explain how to shim out all junk except the actual model
+### Build and push images.
+
+With our code ready, we will now build/push the docker images
+
+```
+DOCKER_BASE_URL=docker.io/elsonrodriguez
+docker build . --no-cache  -f Dockerfile.tfserver -t ${DOCKER_BASE_URL}/mytfserver:1.0
+docker build . --no-cache  -f Dockerfile.model -t ${DOCKER_BASE_URL}/mytfmodel:1.0
+
+docker push elsonrodriguez/mytserver:1.0
+docker push elsonrodriguez/mytfmodel:1.0
+```
+
+Alternately, you can use these existing images:
+
+- gcr.io/kubeflow/mytfserver:1.0
+- gcr.io/kubeflow/mytmodel:1.0
 
 ## Upload data
 
-Show how to upload to s3 bucket
+First, we need to grab the mnist training data set:
+
+```
+curl ...
+```
+
+Next create a bucket or path in your S3-compatible object store.
+
+```
+aws mb...
+```
+
+Now upload your training data
+
+```
+aws cp..
+```
 
 ## Preparing your Kubernetes Cluster
 
-Provide links to GKE or EKS, assumption is that you have a cluster
+With our data and workloads ready, no the cluster must be prepared. We will be deploying the TF Operator, Argo, and Kubernetes Volume Manager to help manage our training job.
 
 ### Deploying Tensorflow Operator
 
+We are using the tensorflow operator to automate our distributed training. The easiest way to install the operator is by using ksonnet:
+
 ```
-ks blah blah
+APP_NAME=my-kubeflow
+ks init ${APP_NAME}
+cd ${APP_NAME}
+
+#todo pin this to a tag
+ks registry add kubeflow github.com/kubeflow/kubeflow/tree/master/kubeflow
+
+ks pkg install kubeflow/core
+ks pkg install kubeflow/tf-serving
+ks pkg install kubeflow/tf-job
+
+# Deploy Kubeflow
+NAMESPACE=kubeflow
+kubectl create namespace ${NAMESPACE}
+ks generate core kubeflow-core --name=kubeflow-core --namespace=${NAMESPACE}
+ks apply default -c kubeflow-core
+```
+
+Check to ensure things have deployed:
+
+```
+kubectl ....
 ```
 
 ### Deploying Argo
 
+```
+ks...
+```
 
 ### Deploying Kube Volume Manager
 
@@ -56,7 +124,6 @@ How to modify the basic argo templawte
 ```
 dat: yaml
 ```
-
 ## Submitting your training workflow
 
 ## Monitoring
