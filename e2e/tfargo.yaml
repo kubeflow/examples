@@ -1,0 +1,124 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: tf-workflow-
+spec:
+  entrypoint: tests
+  #onExit: exit-handler
+  # Parameters can be passed/overridden via the argo CLI.
+  # To override the printed message, run `argo submit` with the -p option:
+  # $ argo submit examples/arguments-parameters.yaml -p message="goodbye world"
+  arguments:
+    parameters:
+    - name: datasets-image
+      # default image
+      value: gcr.io/constant-cubist-173123/tf_workflow:nan_workflow
+    - name: aws-access-key-id
+      value: ""
+    - name: aws-secret-access-key
+      value: ""
+    - name: tf-master # number of tf masters
+      value: 1
+    - name: tf-worker # number of tf workers
+      value: 1
+    - name: tf-ps # number of tf parameter servers
+      value: 2
+    - name: tf-image
+      value: elsonrodriguez/mytfmodel:1.45
+    - name: job-name
+      value: job21
+  volumes:
+  - name: training-data
+    emptyDir: {}
+  - name: training-output
+  templates:
+  - name: tests
+    steps:
+      - - name: tf
+          template: tf-train
+    # - - name: prepare-datasets
+    #     template: download-and-convert-data
+    #   - name: mount-datasets
+    #     template: kvc
+  - name: download-and-convert-data
+    container:
+      image: gcr.io/constant-cubist-173123/tf_workflow:nan_workflow
+      imagePullPolicy: Always
+      command: ["bash", "-c",  "python /notebooks/models/research/slim/download_and_convert_data.py --dataset_name=flowers --dataset_dir=/tmp/data"]
+      outputs:
+        artifacts:
+        - name: training-data
+          path: /tmp/data
+  - name: kvc
+    resource:
+      action: apply
+      successCondition: status.state == Running
+      manifest: |
+        apiVersion: aipg.intel.com/v1
+        kind: VolumeManager
+        metadata:
+          name: flowerdata
+          namespace: argo
+        spec:
+          volumeConfigs:
+            - id: "flower-{{workflow.uid}}"
+              replicas: 1
+              sourceType: "S3"
+              sourceURL: "s3://tfoperator/data/flower"
+              AccessMode: "ReadWriteOnce"
+              Capacity: 1Gi
+              Labels:
+                tfdata: flower
+              Options:
+                awsAccessKey: {{workflow.parameters.aws-access-key-id}}
+                awsAccessKeyID: {{workflow.parameters.aws-secret-access-key}}
+  - name: tf-train
+    resource:
+      action: apply
+      # NOTE: need to detect master node complete
+      successCondition: status.state == Succeeded
+      manifest: |
+        apiVersion: "kubeflow.org/v1alpha1"
+        kind: "TFJob"
+        metadata:
+          name: {{workflow.parameters.job-name}}
+        spec:
+          replicaSpecs:
+            - replicas: {{workflow.parameters.tf-master}}
+              tfReplicaType: MASTER
+              template:
+                spec:
+                  containers:
+                    - image: {{workflow.parameters.tf-image}}
+                      name: tensorflow
+                      imagePullPolicy: Always
+                      # NOTE: set download=false next
+                      # NOTE: add side pod
+                      args: ["python", "/opt/model.py", "--data_dir=/tmp/data", "--train_dir=/tmp/train", "--download=true", "--sync_replicas=true"] 
+                  restartPolicy: OnFailure
+            - replicas: {{workflow.parameters.tf-worker}}
+              tfReplicaType: WORKER
+              template:
+                spec:
+                  containers:
+                    - image: {{workflow.parameters.tf-image}}
+                      name: tensorflow
+                      imagePullPolicy: Always
+                  restartPolicy: OnFailure
+            - replicas: {{workflow.parameters.tf-ps}}
+              tfReplicaType: PS
+              template:
+                spec:
+                  containers:
+                    - image: {{workflow.parameters.tf-image}}
+                      name: tensorflow
+                      imagePullPolicy: Always
+                  restartPolicy: OnFailure
+
+# NOTE: export mnodel
+#   - name: tf_model_export
+#                 spec:
+#                   containers:
+#                     - image: elsonrodriguez/mytfmodel:1.45
+#                       name: tensorflow
+#     command: python export.py  --checkpoint_dir=/combined_training_results/ --output_dir=/saved_model

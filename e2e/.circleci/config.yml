@@ -24,9 +24,13 @@ jobs:
             export KUBE_CONFIG="${GKE_KUBECONFIG_ARGO}"
             mkdir -p "${HOME}/.kube"
             echo "${KUBE_CONFIG}" | base64 --decode > "${HOME}/.kube/config"
-            id=$(argo submit -p datasets-image="gcr.io/constant-cubist-173123/tf_workflow:${CIRCLE_SHA1}" -o json tfslim.yaml |jq -r ".metadata.name")
-            argo wait "${id}"
-            argo get "${id}"
+            id=$(argo submit -o json -n argo --serviceaccount argo \
+                   -p datasets-image="gcr.io/constant-cubist-173123/tf_workflow:${CIRCLE_SHA1}" \
+                   -p aws-access-key-id="${AWS_ACCESS_KEY_ID}" \
+                   -p aws-secret-access-key="${AWS_SECRET_ACCESS_KEY}" \
+                   tfargo.yaml | jq -r ".metadata.name")
+            argo wait -n argo "${id}"
+            argo get -n argo "${id}" | grep -v aws
 workflows:
   version: 2
   test:
