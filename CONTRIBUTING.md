@@ -6,7 +6,7 @@ You want to contribute to Kubeflow examples? That's awesome! Please refer to the
 
 The [Kubeflow](https://github.com/kubeflow/kubeflow/blob/master/README.md) project is dedicated to making machine learning on Kubernetes simple, portable and scalable. We need your support in making
 this repo the destination for top models and examples, which show the power of Kubeflow. We have created an initial list of
-proposed manifests. Please feel free to self-assign these examples, by following a simple 3 step process:
+proposed examples. Please feel free to self-assign these examples, by following a simple 3 step process:
 
 * Identify an **example** in table below and put your github id against it
 * Create a Github issue with the details of the **example** and self-assign
