@@ -88,22 +88,70 @@ spec:
               tfReplicaType: MASTER
               template:
                 spec:
+                  serviceAccountName: tf-job-operator
                   containers:
                     - image: {{workflow.parameters.tf-image}}
                       name: tensorflow
                       imagePullPolicy: Always
                       # NOTE: set download=false next
                       # NOTE: add side pod
-                      args: ["python", "/opt/model.py", "--data_dir=/tmp/data", "--train_dir=/tmp/train", "--download=true", "--sync_replicas=true"] 
+                      args: ["python", "/opt/model.py", "--data_dir=/tmp/data", "--train_dir=/tmp/train", "--download=true", "--sync_replicas=true"]
+                      volumeMounts:
+                      - name: training-result
+                        mountPath: /tmp/train
+                    - image: nervana/circleci:jose_wait_for_master
+                      name: upload
+                      env:
+                      - name: POD_NAME
+                        valueFrom:
+                          fieldRef:
+                            apiVersion: v1
+                            fieldPath: metadata.name
+                      - name: POD_NAMESPACE
+                        valueFrom:
+                          fieldRef:
+                            apiVersion: v1
+                            fieldPath: metadata.namespace
+                      command: ['sh', '-c', "./bin/wait_for_master $POD_NAMESPACE $POD_NAME; ls /tmp/train"]
+                      volumeMounts:
+                      - name: training-result
+                        mountPath: /tmp/train
+                  volumes:
+                  - name: training-result
+                    emptyDir: {}
                   restartPolicy: OnFailure
             - replicas: {{workflow.parameters.tf-worker}}
               tfReplicaType: WORKER
               template:
                 spec:
+                  serviceAccountName: tf-job-operator
                   containers:
                     - image: {{workflow.parameters.tf-image}}
                       name: tensorflow
                       imagePullPolicy: Always
+                      volumeMounts:
+                      - name: training-result
+                        mountPath: /tmp/train
+                    - image: nervana/circleci:jose_wait_for_master
+                      name: upload
+                      env:
+                      - name: POD_NAME
+                        valueFrom:
+                          fieldRef:
+                            apiVersion: v1
+                            fieldPath: metadata.name
+                      - name: POD_NAMESPACE
+                        valueFrom:
+                          fieldRef:
+                            apiVersion: v1
+                            fieldPath: metadata.namespace
+                      command: ['sh', '-c', "./bin/wait_for_master $POD_NAMESPACE $POD_NAME; ls /tmp/train"]
+                      volumeMounts:
+                      - name: training-result
+                        mountPath: /tmp/train
+                  volumes:
+                  - name: training-result
+                    emptyDir: {}
                   restartPolicy: OnFailure
             - replicas: {{workflow.parameters.tf-ps}}
               tfReplicaType: PS
