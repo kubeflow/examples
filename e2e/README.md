@@ -57,7 +57,13 @@ Alternately, you can use these existing images:
 First, we need to grab the mnist training data set:
 
 ```
-curl ...
+mkdir /tmp/mnistdata
+cd /tmp/mnistdata
+
+curl -O https://storage.googleapis.com/cvdf-datasets/mnist/train-images-idx3-ubyte.gz
+curl -O https://storage.googleapis.com/cvdf-datasets/mnist/train-labels-idx1-ubyte.gz
+curl -O https://storage.googleapis.com/cvdf-datasets/mnist/ t10k-images-idx3-ubyte.gz
+curl -O https://storage.googleapis.com/cvdf-datasets/mnist/t10k-labels-idx1-ubyte.gz
 ```
 
 Next create a bucket or path in your S3-compatible object store.
@@ -69,7 +75,7 @@ aws mb...
 Now upload your training data
 
 ```
-aws cp..
+aws cp /tmp/mnistdata ...
 ```
 
 ## Preparing your Kubernetes Cluster
@@ -181,3 +187,7 @@ TODO how to tensorboar
 Once the workflow has completed, your model should be serving:
 
 #TODO how to access model with an mnist client
+
+## Next Steps
+
+As you noticed, there were many portions of this example that are shimming functionality around data. In the next part, we will be modifying these examples further to directly utilize object stores.
