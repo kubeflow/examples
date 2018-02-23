@@ -1,11 +1,12 @@
-# Kubeflow End to End
+# Kubeflow End to End - Part 1
 
 This example guides you through the process of taking a distributed model, modifying it to work with the tf-operator, providing data to your model, and serving the resulting trained model. We will be using Argo to manage the workflow, Kube Volume Controller to supply data via s3, and Kubeflow to serve the model.
 
 ## Prerequisites
 
 - A 1.9 Kubernetes cluster with RBAC
-- S3-compatabile object store
+- S3-compatabile object store ([Amazon S3](https://aws.amazon.com/s3/), [Google Storage](https://cloud.google.com/storage/docs/interoperability), [Minio](https://www.minio.io/kubernetes.html)
+- Clis for Argo, Ksonnet, Helm, S3
 
 ## Modifying existing examples
 
@@ -57,7 +58,7 @@ Alternately, you can use these existing images:
 First, we need to grab the mnist training data set:
 
 ```
-mkdir /tmp/mnistdata
+mkdir -p /tmp/mnistdata
 cd /tmp/mnistdata
 
 curl -O https://storage.googleapis.com/cvdf-datasets/mnist/train-images-idx3-ubyte.gz
@@ -69,13 +70,14 @@ curl -O https://storage.googleapis.com/cvdf-datasets/mnist/t10k-labels-idx1-ubyt
 Next create a bucket or path in your S3-compatible object store.
 
 ```
-aws mb...
+aws mb s3://...
 ```
 
 Now upload your training data
 
 ```
-aws cp /tmp/mnistdata ...
+#Note if not using AWS S3, you must specify --endpoint-url
+aws cp /tmp/mnistdata s3://...
 ```
 
 ## Preparing your Kubernetes Cluster
@@ -130,7 +132,8 @@ argo ....
 Kube Volume Manager is a utility that can seed replicas of datasets across nodes.
 
 ```
-helm .... 
+#TODO how to install from a git url
+helm install helm-charts/kube-volume-controller/ -n kvc --wait
 ```
 
 And again verify
@@ -157,6 +160,7 @@ dat: yaml
 First we need to set a few variables in our workflow.
 
 ```
+JOB_NAME=myjob
 TF_SERVER_IMAGE=docker.io/...
 MODEL_IMAGE=docker.io/...
 AWS_SECRET_ACCESS_KEY=
@@ -164,8 +168,19 @@ AWS_ACCESS_KEY_ID=
 AWS_ENDPOINT_URL=http://
 DATA_S3_URL=
 TRAINING_S3_BASE_URL=
+```
 
-argo ...?
+Next, submit your workflow.
+
+```
+argo submit tfargo.yaml -n argo --serviceaccount argo -p aws-access-key-id=${AWS_ACCESS_KEY_ID} \
+                                                      -p aws-secret-access-key=${AWS_SECRET_ACCESS_KEY} \
+                                                      -p aws_endpoint_url=${AWS_ENDPOINT_URL} \
+                                                      -p tf-server-image=${TF_SERVER_IMAGE} \
+                                                      -p model-image=${MODEL_IMAGE} \
+                                                      -p data-s3-url=${DATA_S3_URL} \
+                                                      -p training-s3-base-url=${TRAINING_S3_BASE_URL} \
+                                                      -p job-name=${JOB_NAME}
 ```
 
 Your training workflow should now be executing.
@@ -176,17 +191,23 @@ There are various ways to visualize what your workflow is doing.
 
 ### Argo UI
 
-#TODO how to argo UI
+TODO how to argo UI
 
 ### Tensorboard
 
-TODO how to tensorboar 
+TODO how to tensorboard
 
-## Serving your model
+## Using Tensorflow serving
 
-Once the workflow has completed, your model should be serving:
+Once the workflow has completed, your model should be serving.
 
-#TODO how to access model with an mnist client
+TODO modify mnist client to use invidiual number images, seems more exciting than just submitting a batch of files.
+
+```
+POD_NAME=`kubectl get pod -l=app=${JOB_NAME}`
+kubectl port-forward ${POD_NAME} -p 9000:9000
+python mnist_client.py  --server localhost:9000 --data_dir /tmp/mnistdata
+```
 
 ## Next Steps
 
