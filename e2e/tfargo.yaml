@@ -34,12 +34,20 @@ spec:
   templates:
   - name: tests
     steps:
+      - - name: mount-datasets
+          template: kvc
+      - - name: get-volumemanager-info
+          template: get-volumemanager-info
       - - name: tf
           template: tf-train
+          arguments:
+            parameters:
+            - name: nodeaffinity
+              value: "{{steps.get-volumemanager-info.outputs.parameters.nodeaffinity}}"
+            - name: hostpath
+              value: "{{steps.get-volumemanager-info.outputs.parameters.hostpath}}"
     # - - name: prepare-datasets
     #     template: download-and-convert-data
-    #   - name: mount-datasets
-    #     template: kvc
   - name: download-and-convert-data
     container:
       image: gcr.io/constant-cubist-173123/tf_workflow:nan_workflow
@@ -103,7 +111,7 @@ spec:
                 spec:
                   affinity:
                     nodeAffinity:
-                      {{steps.get-volumemanager-info.outputs.parameters.nodeaffinity}}
+                      {{inputs.parameters.nodeaffinity}}
                   serviceAccountName: tf-job-operator
                   containers:
                     - image: {{workflow.parameters.tf-image}}
@@ -137,7 +145,7 @@ spec:
                     emptyDir: {}
                   - name: training-data
                     hostPath:
-                      path: "{{steps.get-volumemanager-info.outputs.parameters.hostpath}}"
+                      path: "{{inputs.parameters.hostpath}}"
                   restartPolicy: OnFailure
             - replicas: {{workflow.parameters.tf-worker}}
               tfReplicaType: WORKER
@@ -145,7 +153,7 @@ spec:
                 spec:
                   affinity:
                     nodeAffinity:
-                      {{steps.get-volumemanager-info.outputs.parameters.nodeaffinity}}
+                      {{inputs.parameters.nodeaffinity}}
                   serviceAccountName: tf-job-operator
                   containers:
                     - image: {{workflow.parameters.tf-image}}
@@ -176,7 +184,7 @@ spec:
                     emptyDir: {}
                   - name: training-data
                     hostPath:
-                      path: "{{steps.get-volumemanager-info.outputs.parameters.hostpath}}"
+                      path: "{{inputs.parameters.hostpath}}"
                   restartPolicy: OnFailure
             - replicas: {{workflow.parameters.tf-ps}}
               tfReplicaType: PS
