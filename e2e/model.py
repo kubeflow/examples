@@ -122,8 +122,7 @@ def mnist_inference(hidden_units):
     return x, y, y_, cross_entropy
 
 def main(unused_argv):
-  if FLAGS.download:
-    mnist = input_data.read_data_sets(FLAGS.data_dir, one_hot=True)
+  mnist = input_data.read_data_sets(FLAGS.data_dir, one_hot=True)
 
   if FLAGS.download_only:
     sys.exit(0)
