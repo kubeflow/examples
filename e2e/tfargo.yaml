@@ -64,7 +64,7 @@ spec:
             - id: "flower-{{workflow.uid}}"
               replicas: 1
               sourceType: "S3"
-              sourceURL: "s3://tfoperator/data/flower"
+              sourceURL: "s3://tfoperator/data/mnist/"
               AccessMode: "ReadWriteOnce"
               Capacity: 1Gi
               Labels:
@@ -72,6 +72,19 @@ spec:
               Options:
                 awsAccessKey: {{workflow.parameters.aws-access-key-id}}
                 awsAccessKeyID: {{workflow.parameters.aws-secret-access-key}}
+  - name: get-volumemanager-info
+    container:
+      image: nervana/circleci:master
+      imagePullPolicy: Always
+      command: ["bash", "-c", "kubectl get volumemanager flowerdata -o json | jq '.status.volumes[].volumeSource.hostPath.path' > /tmp/hostpath; kubectl get volumemanager flowerdata -o json | jq '.status.volumes[].nodeAffinity' > /tmp/nodeaffinity"]
+      outputs:
+        parameters:
+        - name: hostpath
+          valueFrom:
+            path: /tmp/hostpath
+        - name: nodeaffinity
+          valueFrom:
+            path: /tmp/nodeaffinity
   - name: tf-train
     resource:
       action: apply
@@ -88,6 +101,9 @@ spec:
               tfReplicaType: MASTER
               template:
                 spec:
+                  affinity:
+                    nodeAffinity:
+                      {{steps.get-volumemanager-info.outputs.parameters.nodeaffinity}}
                   serviceAccountName: tf-job-operator
                   containers:
                     - image: {{workflow.parameters.tf-image}}
@@ -119,11 +135,17 @@ spec:
                   volumes:
                   - name: training-result
                     emptyDir: {}
+                  - name: training-data
+                    hostPath:
+                      path: "{{steps.get-volumemanager-info.outputs.parameters.hostpath}}"
                   restartPolicy: OnFailure
             - replicas: {{workflow.parameters.tf-worker}}
               tfReplicaType: WORKER
               template:
                 spec:
+                  affinity:
+                    nodeAffinity:
+                      {{steps.get-volumemanager-info.outputs.parameters.nodeaffinity}}
                   serviceAccountName: tf-job-operator
                   containers:
                     - image: {{workflow.parameters.tf-image}}
@@ -152,6 +174,9 @@ spec:
                   volumes:
                   - name: training-result
                     emptyDir: {}
+                  - name: training-data
+                    hostPath:
+                      path: "{{steps.get-volumemanager-info.outputs.parameters.hostpath}}"
                   restartPolicy: OnFailure
             - replicas: {{workflow.parameters.tf-ps}}
               tfReplicaType: PS
