@@ -36,16 +36,16 @@ spec:
     steps:
       - - name: mount-datasets
           template: kvc
-      - - name: get-volumemanager-info
+      - - name: get-volume
           template: get-volumemanager-info
       - - name: tf
           template: tf-train
           arguments:
             parameters:
             - name: nodeaffinity
-              value: "{{steps.get-volumemanager-info.outputs.parameters.nodeaffinity}}"
+              value: "{{steps.get-volume.outputs.parameters.nodeaffinity}}"
             - name: hostpath
-              value: "{{steps.get-volumemanager-info.outputs.parameters.hostpath}}"
+              value: "{{steps.get-volume.outputs.parameters.hostpath}}"
     # - - name: prepare-datasets
     #     template: download-and-convert-data
   - name: download-and-convert-data
@@ -84,16 +84,20 @@ spec:
     container:
       image: nervana/circleci:master
       imagePullPolicy: Always
-      command: ["bash", "-c", "kubectl get volumemanager flowerdata -o json | jq '.status.volumes[].volumeSource.hostPath.path' > /tmp/hostpath; kubectl get volumemanager flowerdata -o json | jq '.status.volumes[].nodeAffinity' > /tmp/nodeaffinity"]
-      outputs:
-        parameters:
-        - name: hostpath
-          valueFrom:
-            path: /tmp/hostpath
-        - name: nodeaffinity
-          valueFrom:
-            path: /tmp/nodeaffinity
+      command: ["bash", "-c", "kubectl get volumemanager flowerdata -o json | jq -r '.status.volumes[].volumeSource.hostPath.path' > /tmp/hostpath; kubectl get volumemanager flowerdata -o json | jq '.status.volumes[].nodeAffinity' > /tmp/nodeaffinity"]
+    outputs:
+      parameters:
+      - name: hostpath
+        valueFrom:
+          path: /tmp/hostpath
+      - name: nodeaffinity
+        valueFrom:
+          path: /tmp/nodeaffinity
   - name: tf-train
+    inputs:
+      parameters:
+      - name: nodeaffinity
+      - name: hostpath
     resource:
       action: apply
       # NOTE: need to detect master node complete
