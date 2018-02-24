@@ -20,7 +20,7 @@ We have assigned priorities to the items below. See priority guidance:
 
 # Proposed Examples
 
-| Example | What does it accomplish? | Priority | Priority reasoning | ML framework | Owner (github_id) | Company | PR link |
+| Example | What does it accomplish? | Priority | Priority reasoning | ML framework | Owner (github_id) | Company | Github issue |
 | -------- | :-----------------------: | :------: | :----------------: | :-----------: | :---------------: | :----: | :-----: |
 | TensorFlow serving end-to-end | How to perform TensorFlow serving on Kubeflow e2e | **P0** | TODO | TensorFlow | [nkash](https://github.com/nkashy1) | TODO | TODO |
 | [Zillow housing prediction](https://www.kaggle.com/c/zillow-prize-1/kernels) | Zillow's home value prediction on Kaggle | **P0** | High prize Kaggle competition w/ opportunity to show XGBoost | XGBoost | [puneith](https://github.com/puneith) | Google | TODO |
