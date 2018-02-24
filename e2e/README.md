@@ -5,7 +5,7 @@ This example guides you through the process of taking a distributed model, modif
 ## Prerequisites
 
 - A 1.9 Kubernetes cluster with RBAC
-- S3-compatabile object store ([Amazon S3](https://aws.amazon.com/s3/), [Google Storage](https://cloud.google.com/storage/docs/interoperability), [Minio](https://www.minio.io/kubernetes.html)
+- S3-compatabile object store ([Amazon S3](https://aws.amazon.com/s3/), [Google Storage](https://cloud.google.com/storage/docs/interoperability), [Minio](https://www.minio.io/kubernetes.html))
 - Clis for Argo, Ksonnet, Helm, S3
 
 ## Modifying existing examples
@@ -77,12 +77,12 @@ Now upload your training data
 
 ```
 #Note if not using AWS S3, you must specify --endpoint-url
-aws cp /tmp/mnistdata s3://...
+aws cp --recursive /tmp/mnistdata s3://...
 ```
 
 ## Preparing your Kubernetes Cluster
 
-With our data and workloads ready, no the cluster must be prepared. We will be deploying the TF Operator, Argo, and Kubernetes Volume Manager to help manage our training job.
+With our data and workloads ready, now the cluster must be prepared. We will be deploying the TF Operator, Argo, and Kubernetes Volume Manager to help manage our training job.
 
 ### Deploying Tensorflow Operator
 
@@ -118,13 +118,14 @@ kubectl ....
 Argo is a workflow system used ot automate workloads on Kubernetes. This is what will tie the room together.
 
 ```
+#TODO see if argo's being installed by kubeflow yet
 ks...
 ```
 
 We can check on the status of Argo by typing
 
 ```
-argo ....
+argo list 
 ```
 
 ### Deploying Kube Volume Manager
@@ -132,7 +133,7 @@ argo ....
 Kube Volume Manager is a utility that can seed replicas of datasets across nodes.
 
 ```
-#TODO how to install from a git url
+#TODO how to install from a git url, fix namespace
 helm install helm-charts/kube-volume-controller/ -n kvc --wait
 ```
 
@@ -173,14 +174,15 @@ TRAINING_S3_BASE_URL=
 Next, submit your workflow.
 
 ```
-argo submit tfargo.yaml -n argo --serviceaccount argo -p aws-access-key-id=${AWS_ACCESS_KEY_ID} \
-                                                      -p aws-secret-access-key=${AWS_SECRET_ACCESS_KEY} \
-                                                      -p aws_endpoint_url=${AWS_ENDPOINT_URL} \
-                                                      -p tf-server-image=${TF_SERVER_IMAGE} \
-                                                      -p model-image=${MODEL_IMAGE} \
-                                                      -p data-s3-url=${DATA_S3_URL} \
-                                                      -p training-s3-base-url=${TRAINING_S3_BASE_URL} \
-                                                      -p job-name=${JOB_NAME}
+argo submit tfargo.yaml -n argo --serviceaccount argo \
+    -p aws-access-key-id=${AWS_ACCESS_KEY_ID} \
+    -p aws-secret-access-key=${AWS_SECRET_ACCESS_KEY} \
+    -p aws_endpoint_url=${AWS_ENDPOINT_URL} \
+    -p tf-server-image=${TF_SERVER_IMAGE} \
+    -p model-image=${MODEL_IMAGE} \
+    -p data-s3-url=${DATA_S3_URL} \
+    -p training-s3-base-url=${TRAINING_S3_BASE_URL} \
+    -p job-name=${JOB_NAME}
 ```
 
 Your training workflow should now be executing.
