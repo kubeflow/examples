@@ -94,7 +94,7 @@ ks init ${APP_NAME}
 cd ${APP_NAME}
 
 #todo pin this to a tag
-ks registry add kubeflow github.com/kubeflow/kubeflow/tree/master/kubeflow
+ks registry add kubeflow github.com/kubeflow/kubeflow/tree/1a6fc9d0e19e456b784ba1c23c03ec47648819d0/kubeflow
 
 ks pkg install kubeflow/core
 ks pkg install kubeflow/tf-serving
@@ -110,7 +110,17 @@ ks apply default -c kubeflow-core
 Check to ensure things have deployed:
 
 ```
-kubectl ....
+$ kubectl logs -l name=tf-job-operator
+...
+I0226 18:25:16.553804       1 leaderelection.go:184] successfully acquired lease default/tf-operator
+I0226 18:25:16.554615       1 controller.go:132] Starting TFJob controller
+I0226 18:25:16.554630       1 controller.go:135] Waiting for informer caches to sync
+I0226 18:25:16.654781       1 controller.go:140] Starting %v workers1
+I0226 18:25:16.654813       1 controller.go:146] Started workers
+...
+$ kubectl  get crd
+NAME                    AGE
+tfjobs.kubeflow.org     22m
 ```
 
 ### Deploying Argo
@@ -119,13 +129,23 @@ Argo is a workflow system used ot automate workloads on Kubernetes. This is what
 
 ```
 #TODO see if argo's being installed by kubeflow yet
-ks...
+ks pkg install kubeflow/argo
+ks prototype use io.ksonnet.pkg.argo argo --namespace default --name argo
+ks apply ${KF_ENV} -c argo
 ```
 
-We can check on the status of Argo by typing
+We can check on the status of Argo by checking the logs and listing workflows.
 
 ```
-argo list 
+$ kubectl  logs -l app=workflow-controller
+time="2018-02-26T18:35:48Z" level=info msg="workflow controller configuration from workflow-controller-configmap:\nexecutorImage: argoproj/argoexec:v2.0.0-beta1"
+time="2018-02-26T18:35:48Z" level=info msg="Workflow Controller (version: v2.0.0-beta1) starting"
+time="2018-02-26T18:35:48Z" level=info msg="Watch Workflow controller config map updates"
+time="2018-02-26T18:35:48Z" level=info msg="Detected ConfigMap update. Updating the controller config."
+time="2018-02-26T18:35:48Z" level=info msg="workflow controller configuration from workflow-controller-configmap:\nexecutorImage: argoproj/argoexec:v2.0.0-beta1"
+time="2018-02-26T18:40:48Z" level=info msg="Alloc=2623 TotalAlloc=45740 Sys=11398 NumGC=20 Goroutines=50"
+$ argo list
+NAME   STATUS   AGE   DURATION
 ```
 
 ### Deploying Kube Volume Manager
@@ -166,7 +186,7 @@ TF_SERVER_IMAGE=docker.io/...
 MODEL_IMAGE=docker.io/...
 AWS_SECRET_ACCESS_KEY=
 AWS_ACCESS_KEY_ID=
-AWS_ENDPOINT_URL=http://
+AWS_ENDPOINT_URL=http://...
 DATA_S3_URL=
 TRAINING_S3_BASE_URL=
 ```
