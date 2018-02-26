@@ -87,7 +87,7 @@ spec:
     container:
       image: nervana/circleci:master
       imagePullPolicy: Always
-      command: ["bash", "-c", "kubectl get volumemanager mnist -o json | jq -r '.status.volumes[].volumeSource.hostPath.path' > /tmp/hostpath; kubectl get volumemanager mnist -o json | jq '.status.volumes[].nodeAffinity' > /tmp/nodeaffinity"]
+      command: ["bash", "-c", "kubectl get volumemanager mnist -o json | jq -r '.status.volumes[].volumeSource.hostPath.path' | tee /tmp/hostpath; kubectl get volumemanager mnist -o json | jq '.status.volumes[].nodeAffinity' | tee /tmp/nodeaffinity"]
     outputs:
       parameters:
       - name: hostpath
@@ -152,7 +152,7 @@ spec:
                     emptyDir: {}
                   - name: training-data
                     hostPath:
-                      path: "{{inputs.parameters.hostpath}}"
+                      path: {{inputs.parameters.hostpath}}
                   restartPolicy: OnFailure
             - replicas: {{workflow.parameters.tf-worker}}
               tfReplicaType: WORKER
@@ -193,7 +193,7 @@ spec:
                     emptyDir: {}
                   - name: training-data
                     hostPath:
-                      path: "{{inputs.parameters.hostpath}}"
+                      path: {{inputs.parameters.hostpath}}
                   restartPolicy: OnFailure
             - replicas: {{workflow.parameters.tf-ps}}
               tfReplicaType: PS
