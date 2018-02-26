@@ -25,6 +25,8 @@ spec:
       value: 2
     - name: tf-image
       value: elsonrodriguez/mytfmodel:1.45
+    - name: tf-server-image
+      value: elsonrodriguez/mytfserver:1.6
     - name: job-name
       value: job21
   volumes:
@@ -48,15 +50,15 @@ spec:
               value: "{{steps.get-volume.outputs.parameters.hostpath}}"
     # - - name: prepare-datasets
     #     template: download-and-convert-data
-  - name: download-and-convert-data
-    container:
-      image: gcr.io/constant-cubist-173123/tf_workflow:nan_workflow
-      imagePullPolicy: Always
-      command: ["bash", "-c",  "python /notebooks/models/research/slim/download_and_convert_data.py --dataset_name=flowers --dataset_dir=/tmp/data"]
-      outputs:
-        artifacts:
-        - name: training-data
-          path: /tmp/data
+  # - name: download-and-convert-data
+  #   container:
+  #     image: gcr.io/constant-cubist-173123/tf_workflow:nan_workflow
+  #     imagePullPolicy: Always
+  #     command: ["bash", "-c",  "python /notebooks/models/research/slim/download_and_convert_data.py --dataset_name=flowers --dataset_dir=/tmp/data"]
+  #     outputs:
+  #       artifacts:
+  #       - name: training-data
+  #         path: /tmp/data
   - name: kvc
     resource:
       action: apply
@@ -65,26 +67,27 @@ spec:
         apiVersion: aipg.intel.com/v1
         kind: VolumeManager
         metadata:
-          name: flowerdata
+          name: mnist
           namespace: argo
         spec:
           volumeConfigs:
-            - id: "flower-{{workflow.uid}}"
+            - id: "mnist-{{workflow.uid}}"
               replicas: 1
               sourceType: "S3"
-              sourceURL: "s3://tfoperator/data/mnist/"
+              #TODO: Download all files from this directory
+              sourceURL: "s3://tfoperator/data/mnist/t10k-labels-idx1-ubyte.gz"
               AccessMode: "ReadWriteOnce"
               Capacity: 1Gi
               Labels:
-                tfdata: flower
+                tfdata: mnist
               Options:
-                awsAccessKey: {{workflow.parameters.aws-access-key-id}}
-                awsAccessKeyID: {{workflow.parameters.aws-secret-access-key}}
+                awsAccessKeyID: {{workflow.parameters.aws-access-key-id}}
+                awsAccessKey: {{workflow.parameters.aws-secret-access-key}}
   - name: get-volumemanager-info
     container:
       image: nervana/circleci:master
       imagePullPolicy: Always
-      command: ["bash", "-c", "kubectl get volumemanager flowerdata -o json | jq -r '.status.volumes[].volumeSource.hostPath.path' > /tmp/hostpath; kubectl get volumemanager flowerdata -o json | jq '.status.volumes[].nodeAffinity' > /tmp/nodeaffinity"]
+      command: ["bash", "-c", "kubectl get volumemanager mnist -o json | jq -r '.status.volumes[].volumeSource.hostPath.path' > /tmp/hostpath; kubectl get volumemanager mnist -o json | jq '.status.volumes[].nodeAffinity' > /tmp/nodeaffinity"]
     outputs:
       parameters:
       - name: hostpath
@@ -121,12 +124,12 @@ spec:
                     - image: {{workflow.parameters.tf-image}}
                       name: tensorflow
                       imagePullPolicy: Always
-                      # NOTE: set download=false next
-                      # NOTE: add side pod
                       args: ["python", "/opt/model.py", "--data_dir=/tmp/data", "--train_dir=/tmp/train", "--download=true", "--sync_replicas=true"]
                       volumeMounts:
                       - name: training-result
                         mountPath: /tmp/train
+                      - name: training-data
+                        mountPath: /tmp/data
                     - image: nervana/circleci:jose_wait_for_master
                       name: upload
                       env:
@@ -160,12 +163,14 @@ spec:
                       {{inputs.parameters.nodeaffinity}}
                   serviceAccountName: tf-job-operator
                   containers:
-                    - image: {{workflow.parameters.tf-image}}
+                    - image: {{workflow.parameters.tf-server-image}}
                       name: tensorflow
                       imagePullPolicy: Always
                       volumeMounts:
                       - name: training-result
                         mountPath: /tmp/train
+                      - name: training-data
+                        mountPath: /tmp/data
                     - image: nervana/circleci:jose_wait_for_master
                       name: upload
                       env:
@@ -195,7 +200,7 @@ spec:
               template:
                 spec:
                   containers:
-                    - image: {{workflow.parameters.tf-image}}
+                    - image: {{workflow.parameters.tf-server-image}}
                       name: tensorflow
                       imagePullPolicy: Always
                   restartPolicy: OnFailure
