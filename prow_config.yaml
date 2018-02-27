@@ -1,0 +1,4 @@
+workflows:
+  - app_dir: kubeflow/examples/agents/workflows
+    component: test-e2e
+    name: kubeflow-examples-agents-e2e
