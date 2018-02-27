@@ -153,8 +153,9 @@ NAME   STATUS   AGE   DURATION
 Kube Volume Manager is a utility that can seed replicas of datasets across nodes.
 
 ```
-#TODO how to install from a git url, fix namespace
-helm install helm-charts/kube-volume-controller/ -n kvc --wait
+#TODO change to plain http based on github releases once we're open source
+aws s3 cp s3://helm-packages/kube-volume-controller-v0.1.0.tgz ./
+helm install kube-volume-controller-v0.1.0.tgz
 ```
 
 And again verify
