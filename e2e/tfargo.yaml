@@ -74,8 +74,7 @@ spec:
             - id: "mnist-{{workflow.uid}}"
               replicas: 1
               sourceType: "S3"
-              #TODO: Download all files from this directory
-              sourceURL: "s3://tfoperator/data/mnist/t10k-labels-idx1-ubyte.gz"
+              sourceURL: "s3://tfoperator/data/mnist/"
               AccessMode: "ReadWriteOnce"
               Capacity: 1Gi
               Labels:
