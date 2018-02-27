@@ -46,6 +46,13 @@
       update_epochs: 25,
       update_every: 60,
     },
+    "build_and_train": {
+      name: "untitled",
+      num_cpu: 1,
+      namespace: "rl",
+      base_image: "gcr.io/kubeflow-rl/agents:0221-2315-5b40",
+      log_dir: "gs://kubeflow-rl/studies/replicated-kuka-demo/kuka-0221-1650-31dc"
+    },
     "agents_render": {
       image: "gcr.io/kubeflow-rl/agents:0221-1635-d869",
       log_dir: "gs://kubeflow-rl/studies/replicated-kuka-demo/kuka-0221-1650-31dc",
@@ -60,6 +67,30 @@
       namespace: "rl",
       secret: "gcp-credentials",
       secret_file_name: "secret.json",
+    },
+    workflows: {
+      bucket: "kubeflow-rl-testing",
+      name: "cwbeitel-kubeflow-examples-agents-test-33-a3bc",
+      namespace: "kubeflow-test-infra",
+      prow_env: "JOB_NAME=kubeflow-test-presubmit-test,JOB_TYPE=presubmit,PULL_NUMBER=33,REPO_NAME=testing,REPO_OWNER=kubeflow,BUILD_NUMBER=a3bc",
+    },
+    "kubeflow-core": {
+      cloud: "null",
+      disks: "null",
+      jupyterHubAuthenticator: "null",
+      jupyterHubImage: "gcr.io/kubeflow/jupyterhub-k8s:1.0.1",
+      jupyterHubServiceType: "ClusterIP",
+      name: "kubeflow-core",
+      namespace: "kubeflow",
+      tfDefaultImage: "null",
+      tfJobImage: "gcr.io/tf-on-k8s-dogfood/tf_operator:v20180131-cabc1c0-dirty-e3b0c44",
+      tfJobUiServiceType: "ClusterIP",
+    },
+    "kubeflow-argo": {
+      name: "kubeflow-argo",
+      namespace: "kubeflow",
+    },
+    "test-e2e": {
     },
   },
 }

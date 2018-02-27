@@ -1,6 +1,6 @@
 apiVersion: "0.1"
 gitVersion:
-  commitSha: d7d859206f52168665cbc312391c67c162927e96
+  commitSha: 845f2a02e6ef4e25cae8555a37924d3510d07b36
   refSpec: master
 kind: ksonnet.io/registry
 libraries:

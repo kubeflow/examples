@@ -23,13 +23,41 @@ ADD . /home/jovyan/kubeflow-examples/agents/
 
 USER root
 
-# Needed for rendering and uploading renders
-RUN apt-get update
-RUN apt-get install -y libav-tools ffmpeg git
+RUN mkdir -p /usr/lib/golang && cd /usr/lib/golang && \
+  wget https://dl.google.com/go/go1.10.linux-amd64.tar.gz && \
+  tar -xzf go1.10.linux-amd64.tar.gz && mv go /usr/local/
 
-RUN curl https://get.docker.com | bash
-RUN usermod -aG docker jovyan
+RUN apt-get install -y make gcc git pkg-config
 
-#RUN pip install -r /home/jovyan/kubeflow-examples/agents/requirements.txt
+USER jovyan
+
+RUN echo "export PATH=\$PATH:/usr/local/go/bin" >> $HOME/.bash_profile
+RUN echo "export GOROOT=/usr/local/go" >> $HOME/.bash_profile
+RUN echo "export GOPATH=\$HOME/go" >> $HOME/.bash_profile
+RUN echo "export PATH=\$PATH:\$GOROOT/bin" >> $HOME/.bash_profile
+RUN source $HOME/.bash_profile
+
+RUN mkdir -p $GOPATH/src/github.com/opencontainers
+RUN cd $GOPATH/src/github.com/opencontainers && \
+    git clone https://github.com/AkihiroSuda/runc.git && cd runc && \
+    git checkout unshare-m-r && make BUILDTAGS=""
+
+RUN go get github.com/jessfraz/img
+
+RUN unshare -m -U --map-root-user
+RUN echo "FROM ubuntu" >> Dockerfile && img build -t something .
+
+USER root
+
+RUN cd runc && make && make install
 
 RUN chown -R jovyan /home/jovyan/kubeflow-examples
+
+# Needed for rendering and uploading renders
+#RUN apt-get update
+#RUN apt-get install -y libav-tools ffmpeg git
+
+#RUN curl https://get.docker.com | bash
+#RUN usermod -aG docker jovyan
+
+#RUN pip install -r /home/jovyan/kubeflow-examples/agents/requirements.txt
