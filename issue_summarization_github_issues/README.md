@@ -26,4 +26,5 @@ By the end of this tutorial, you should learn how to:
 ## Steps:
 
 1.  [Setup a Kubeflow cluster](setup_a_kubeflow_cluster.md)
+2.  [Training the model](training_the_model.md)
 1.  [Teardown](teardown.md)
