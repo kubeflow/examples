@@ -4,11 +4,13 @@ metadata:
   name: workflow-controller-configmap
 data:
   config: |
+    artifactRepository: {}
+    executorImage: argoproj/argoexec:v2.0.0
     artifactRepository:
       s3:
-        bucket: argo-artifacts
-        endpoint: s3.amazonaws.com
-        insecure: false
+        bucket: argo-gcs-bucket
+        endpoint: storage.googleapis.com
+        insecure: true
         accessKeySecret:
           name: artifact-repo-creds
           key: accessKey
