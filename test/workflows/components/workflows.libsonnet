@@ -97,10 +97,10 @@
                   },
                 },
               },
-	      {
-	        name: "EXTRA_REPOS",
-	        value: "kubeflow/testing@HEAD",
-	      },
+              {
+                name: "EXTRA_REPOS",
+                value: "kubeflow/testing@HEAD",
+              },
             ] + prow_env,
             volumeMounts: [
               {
@@ -160,6 +160,10 @@
                 }],
                 [
                   {
+                    name: "build",
+                    template: "build",
+                  },
+                  {
                     name: "create-pr-symlink",
                     template: "create-pr-symlink",
                   },
@@ -172,6 +176,26 @@
                     template: "py-lint",
                   },
                 ],
+                [  // Setup cluster needs to run after build because we depend on the chart
+                  // created by the build statement.
+                  {
+                    name: "setup-cluster",
+                    template: "setup-cluster",
+                  },
+                ],
+              ],
+            },
+            {
+              name: "exit-handler",
+              steps: [
+                [{
+                  name: "teardown-cluster",
+                  template: "teardown-cluster",
+                },],
+                [{
+                  name: "copy-artifacts",
+                  template: "copy-artifacts",
+                }],
               ],
             },
             {
@@ -194,6 +218,15 @@
                 ],
               },
             },  // checkout
+            $.parts(namespace, name).e2e(prow_env, bucket).buildTemplate("build", [
+              "python",
+              "-m",
+              "kubeflow.testing.release",
+              "build",
+              "--src_dir=" + srcDir,
+              "--project=mlkube-testing",
+              "--version_tag=" + versionTag,
+            ]),  // build
             $.parts(namespace, name).e2e(prow_env, bucket).buildTemplate("py-test", [
               "python",
               "-m",
@@ -212,6 +245,18 @@
               "--project=mlkube-testing",
               "--junit_path=" + artifactsDir + "/junit_pycheckslint.xml",
             ]),  // py lint
+            $.parts(namespace, name).e2e(prow_env, bucket).buildTemplate("setup-cluster", [
+              "python",
+              "-m",
+              "kubeflow.testing.deploy",
+              "setup",
+              "--cluster=" + cluster,
+              "--zone=" + zone,
+              "--project=" + project,
+              "--chart=" + chart,
+              "--accelerator=nvidia-tesla-k80=1",
+              "--junit_path=" + artifactsDir + "/junit_setupcluster.xml",
+            ]),  // setup cluster
             $.parts(namespace, name).e2e(prow_env, bucket).buildTemplate("create-pr-symlink", [
               "python",
               "-m",
@@ -220,6 +265,24 @@
               "create_pr_symlink",
               "--bucket=" + bucket,
             ]),  // create-pr-symlink
+            $.parts(namespace, name).e2e(prow_env, bucket).buildTemplate("teardown-cluster", [
+              "python",
+              "-m",
+              "kubeflow.testing.deploy",
+              "teardown",
+              "--cluster=" + cluster,
+              "--zone=" + zone,
+              "--project=" + project,
+              "--junit_path=" + artifactsDir + "/junit_teardown.xml",
+            ]),  // teardown cluster
+            $.parts(namespace, name).e2e(prow_env, bucket).buildTemplate("copy-artifacts", [
+              "python",
+              "-m",
+              "kubeflow.testing.prow_artifacts",
+              "--artifacts_dir=" + outputDir,
+              "copy_artifacts",
+              "--bucket=" + bucket,
+            ]),  // copy-artifacts
           ],  // templates
         },
       },  // e2e
