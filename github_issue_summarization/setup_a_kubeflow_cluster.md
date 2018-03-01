@@ -51,7 +51,7 @@ For this example, provision a `10GB` NFS mount with the name
 
 After the NFS is ready, delete the `tf-hub-0` pod so that it gets recreated and
 picks up the NFS mount. You can delete it by running `kubectl delete pod
-tf-hub-0 -n={NAMESPACE}`
+tf-hub-0 -n=${NAMESPACE}`
 
 At this point you should have a 10GB mount `/mnt/github-issues-data` in your
 Jupyter Notebook pod. Check this by running `!df` in your Jupyter Notebook.
