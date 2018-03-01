@@ -40,7 +40,7 @@ spec:
           template: kvc
       - - name: get-volume
           template: get-volumemanager-info
-      - - name: tf
+      - - name: train
           template: tf-train
           arguments:
             parameters:
@@ -48,6 +48,8 @@ spec:
               value: "{{steps.get-volume.outputs.parameters.nodeaffinity}}"
             - name: hostpath
               value: "{{steps.get-volume.outputs.parameters.hostpath}}"
+      - - name: inference
+          template: tf-inference
     # - - name: prepare-datasets
     #     template: download-and-convert-data
   # - name: download-and-convert-data
@@ -203,6 +205,22 @@ spec:
                       name: tensorflow
                       imagePullPolicy: Always
                   restartPolicy: OnFailure
+  - name: tf-inference
+    script:
+      image: elsonrodriguez/ksonnet:0.8.0-test3
+      command: [/ksonnet-entrypoint.sh]
+      source: |
+        MODEL_COMPONENT=serveMnist
+        MODEL_PATH=gs://superpuke/mnist
+        MODEL_SERVER_IMAGE=gcr.io/constant-cubist-173123/model-server:1.0
+
+        ks init my-model-server
+        cd my-model-server
+        ks registry add kubeflow github.com/kubeflow/kubeflow/tree/master/kubeflow
+        ks pkg install kubeflow/tf-serving
+        ks env add  cloud
+        ks generate tf-serving ${MODEL_COMPONENT} --name={{workflow.parameters.job-name}} --namespace=argo --model_path=${MODEL_PATH} --model_server_image=${MODEL_SERVER_IMAGE}
+        ks apply cloud -c ${MODEL_COMPONENT}
 
 # NOTE: export mnodel
 #   - name: tf_model_export
