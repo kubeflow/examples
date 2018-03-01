@@ -160,10 +160,6 @@
                 }],
                 [
                   {
-                    name: "build",
-                    template: "build",
-                  },
-                  {
                     name: "create-pr-symlink",
                     template: "create-pr-symlink",
                   },
@@ -218,15 +214,6 @@
                 ],
               },
             },  // checkout
-            $.parts(namespace, name).e2e(prow_env, bucket).buildTemplate("build", [
-              "python",
-              "-m",
-              "kubeflow.testing.release",
-              "build",
-              "--src_dir=" + srcDir,
-              "--project=mlkube-testing",
-              "--version_tag=" + versionTag,
-            ]),  // build
             $.parts(namespace, name).e2e(prow_env, bucket).buildTemplate("py-test", [
               "python",
               "-m",
