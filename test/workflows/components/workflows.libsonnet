@@ -172,22 +172,11 @@
                     template: "py-lint",
                   },
                 ],
-                [  // Setup cluster needs to run after build because we depend on the chart
-                  // created by the build statement.
-                  {
-                    name: "setup-cluster",
-                    template: "setup-cluster",
-                  },
-                ],
               ],
             },
             {
               name: "exit-handler",
               steps: [
-                [{
-                  name: "teardown-cluster",
-                  template: "teardown-cluster",
-                },],
                 [{
                   name: "copy-artifacts",
                   template: "copy-artifacts",
@@ -232,18 +221,6 @@
               "--project=mlkube-testing",
               "--junit_path=" + artifactsDir + "/junit_pycheckslint.xml",
             ]),  // py lint
-            $.parts(namespace, name).e2e(prow_env, bucket).buildTemplate("setup-cluster", [
-              "python",
-              "-m",
-              "kubeflow.testing.deploy",
-              "setup",
-              "--cluster=" + cluster,
-              "--zone=" + zone,
-              "--project=" + project,
-              "--chart=" + chart,
-              "--accelerator=nvidia-tesla-k80=1",
-              "--junit_path=" + artifactsDir + "/junit_setupcluster.xml",
-            ]),  // setup cluster
             $.parts(namespace, name).e2e(prow_env, bucket).buildTemplate("create-pr-symlink", [
               "python",
               "-m",
@@ -252,16 +229,6 @@
               "create_pr_symlink",
               "--bucket=" + bucket,
             ]),  // create-pr-symlink
-            $.parts(namespace, name).e2e(prow_env, bucket).buildTemplate("teardown-cluster", [
-              "python",
-              "-m",
-              "kubeflow.testing.deploy",
-              "teardown",
-              "--cluster=" + cluster,
-              "--zone=" + zone,
-              "--project=" + project,
-              "--junit_path=" + artifactsDir + "/junit_teardown.xml",
-            ]),  // teardown cluster
             $.parts(namespace, name).e2e(prow_env, bucket).buildTemplate("copy-artifacts", [
               "python",
               "-m",
