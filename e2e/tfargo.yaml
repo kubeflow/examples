@@ -207,11 +207,11 @@ spec:
                   restartPolicy: OnFailure
   - name: tf-inference
     script:
-      image: elsonrodriguez/ksonnet:0.8.0-test3
-      command: [/ksonnet-entrypoint.sh]
+      image: elsonrodriguez/ksonnet:0.8.0-test6
+      command: ["/ksonnet-entrypoint.sh"]
       source: |
         MODEL_COMPONENT=serveMnist
-        MODEL_PATH=gs://superpuke/mnist
+        MODEL_PATH=gs://superpuke/mnist_serv
         MODEL_SERVER_IMAGE=gcr.io/constant-cubist-173123/model-server:1.0
 
         ks init my-model-server
@@ -219,8 +219,12 @@ spec:
         ks registry add kubeflow github.com/kubeflow/kubeflow/tree/master/kubeflow
         ks pkg install kubeflow/tf-serving
         ks env add  cloud
-        ks generate tf-serving ${MODEL_COMPONENT} --name={{workflow.parameters.job-name}} --namespace=argo --model_path=${MODEL_PATH} --model_server_image=${MODEL_SERVER_IMAGE}
+        # TODO change mnist name to be specific to a job. Right now mnist name is required to serve the model.
+        ks generate tf-serving ${MODEL_COMPONENT} --name=mnist2 --namespace=argo --model_path=${MODEL_PATH} --model_server_image=${MODEL_SERVER_IMAGE}
         ks apply cloud -c ${MODEL_COMPONENT}
+      env:
+      - name: SERVICE_ACCOUNT
+        value: argo
 
 # NOTE: export mnodel
 #   - name: tf_model_export
