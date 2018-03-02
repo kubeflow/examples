@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SERVICE_ACCOUNT=${SERVICE_ACCOUNT:-argo}
+SERVICE_ACCOUNT=${SERVICE_ACCOUNT:-default}
 
 create-kubeconfig ${SERVICE_ACCOUNT} > kubeconfig.tmp
 cp kubeconfig.tmp ~/.kube/config

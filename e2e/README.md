@@ -198,7 +198,7 @@ Next, submit your workflow.
 argo submit tfargo.yaml -n argo --serviceaccount argo \
     -p aws-access-key-id=${AWS_ACCESS_KEY_ID} \
     -p aws-secret-access-key=${AWS_SECRET_ACCESS_KEY} \
-    -p aws_endpoint_url=${AWS_ENDPOINT_URL} \
+    -p aws-endpoint-url=${AWS_ENDPOINT_URL} \
     -p tf-server-image=${TF_SERVER_IMAGE} \
     -p model-image=${MODEL_IMAGE} \
     -p data-s3-url=${DATA_S3_URL} \
