@@ -25,6 +25,8 @@ spec:
       value: elsonrodriguez/mytfserver:1.6
     - name: job-name
       value: job21
+    - name: namespace
+      value: default
     - name: s3sourceURL
       value: s3://tfoperator/data/mnist/
     - name: s3resultURL
@@ -82,13 +84,13 @@ spec:
         kind: VolumeManager
         metadata:
           name: mnist
-          namespace: argo
+          namespace: {{workflow.parameters.namespace}}
         spec:
           volumeConfigs:
             - id: "mnist-{{workflow.uid}}"
               replicas: 1
               sourceType: "S3"
-              sourceURL: "{{workflow.parameters.s3resultURL}}"
+              sourceURL: "{{workflow.parameters.s3sourceURL}}"
               AccessMode: "ReadWriteOnce"
               Capacity: 1Gi
               Labels:
@@ -122,6 +124,7 @@ spec:
         kind: "TFJob"
         metadata:
           name: {{workflow.parameters.job-name}}
+          namespace: {{workflow.parameters.namespace}}
         spec:
           replicaSpecs:
             - replicas: {{workflow.parameters.tf-master}}
@@ -328,7 +331,7 @@ spec:
         ks pkg install kubeflow/tf-serving
         ks env add  cloud
         # TODO change mnist name to be specific to a job. Right now mnist name is required to serve the model.
-        ks generate tf-serving ${MODEL_COMPONENT} --name=mnist2 --namespace=argo --model_path=${MODEL_PATH} --model_server_image=${MODEL_SERVER_IMAGE}
+        ks generate tf-serving ${MODEL_COMPONENT} --name=mnist2 --namespace={{workflow.parameters.namespace}} --model_path=${MODEL_PATH} --model_server_image=${MODEL_SERVER_IMAGE}
         ks apply cloud -c ${MODEL_COMPONENT}
       env:
       - name: SERVICE_ACCOUNT
