@@ -4,7 +4,7 @@ metadata:
   generateName: tf-workflow-
 spec:
   entrypoint: tests
-  #  onExit: exit-handler
+  onExit: exit-handler
   # Parameters can be passed/overridden via the argo CLI.
   # To override the printed message, run `argo submit` with the -p option:
   # $ argo submit examples/arguments-parameters.yaml -p message="goodbye world"
@@ -170,6 +170,8 @@ spec:
                           secretKeyRef:
                             name: {{workflow.parameters.aws-secret}}
                             key: awsSecretAccessKey
+                      - name: AWS_DEFAULT_REGION
+                        value: {{workflow.parameters.aws-region}}
                       command: ['sh', '-c', "./bin/wait_for_master $POD_NAMESPACE $POD_NAME; aws --endpoint-url {{workflow.parameters.aws-endpoint-url}} s3 cp --recursive /tmp/train {{workflow.parameters.s3-train-base-url}}/unfinished/{{workflow.parameters.job-name}}/"]
                       volumeMounts:
                       - name: training-result
@@ -221,6 +223,8 @@ spec:
                           secretKeyRef:
                             name: {{workflow.parameters.aws-secret}}
                             key: awsSecretAccessKey
+                      - name: AWS_DEFAULT_REGION
+                        value: {{workflow.parameters.aws-region}}
                       command: ['sh', '-c', "./bin/wait_for_master $POD_NAMESPACE $POD_NAME; aws --endpoint-url {{workflow.parameters.aws-endpoint-url}} s3 cp --recursive /tmp/train {{workflow.parameters.s3-train-base-url}}/unfinished/{{workflow.parameters.job-name}}/"]
                       volumeMounts:
                       - name: training-result
