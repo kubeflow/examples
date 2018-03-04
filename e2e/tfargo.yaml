@@ -4,7 +4,7 @@ metadata:
   generateName: tf-workflow-
 spec:
   entrypoint: tests
-  onExit: exit-handler
+  #  onExit: exit-handler
   # Parameters can be passed/overridden via the argo CLI.
   # To override the printed message, run `argo submit` with the -p option:
   # $ argo submit examples/arguments-parameters.yaml -p message="goodbye world"
@@ -24,19 +24,21 @@ spec:
     - name: tf-server-image
       value: elsonrodriguez/mytfserver:1.6
     - name: job-name
-      value: job21
+      value: myjob
     - name: namespace
       value: default
-    - name: s3sourceURL
+    - name: s3-data-url
       value: s3://tfoperator/data/mnist/
-    - name: s3resultURL
+    - name: s3-train-base-url
       value: s3://tfoperator/models
     - name: aws-endpoint-url
-      value: https://s3.amazonaws.com
+      value: https://s3.us-west-2.amazonaws.com
+    - name: s3-endpoint
+      value: s3.us-west-2.amazonaws.com
+    - name: aws-region
+      value: us-west-2
     - name: aws-secret
       value: aws-creds
-    - name: gcsresultURL
-      value: s3://superpuke/models
   volumes:
   - name: training-data
     emptyDir: {}
@@ -90,7 +92,7 @@ spec:
             - id: "mnist-{{workflow.uid}}"
               replicas: 1
               sourceType: "S3"
-              sourceURL: "{{workflow.parameters.s3sourceURL}}"
+              sourceURL: "{{workflow.parameters.s3-data-url}}"
               AccessMode: "ReadWriteOnce"
               Capacity: 1Gi
               Labels:
@@ -168,7 +170,7 @@ spec:
                           secretKeyRef:
                             name: {{workflow.parameters.aws-secret}}
                             key: awsSecretAccessKey
-                      command: ['sh', '-c', "./bin/wait_for_master $POD_NAMESPACE $POD_NAME; aws --endpoint-url {{workflow.parameters.aws-endpoint-url}} s3 cp --recursive /tmp/train {{workflow.parameters.s3resultURL}}/unfinished/{{workflow.parameters.job-name}}/"]
+                      command: ['sh', '-c', "./bin/wait_for_master $POD_NAMESPACE $POD_NAME; aws --endpoint-url {{workflow.parameters.aws-endpoint-url}} s3 cp --recursive /tmp/train {{workflow.parameters.s3-train-base-url}}/unfinished/{{workflow.parameters.job-name}}/"]
                       volumeMounts:
                       - name: training-result
                         mountPath: /tmp/train
@@ -219,7 +221,7 @@ spec:
                           secretKeyRef:
                             name: {{workflow.parameters.aws-secret}}
                             key: awsSecretAccessKey
-                      command: ['sh', '-c', "./bin/wait_for_master $POD_NAMESPACE $POD_NAME; aws --endpoint-url {{workflow.parameters.aws-endpoint-url}} s3 cp --recursive /tmp/train {{workflow.parameters.s3resultURL}}/unfinished/{{workflow.parameters.job-name}}/"]
+                      command: ['sh', '-c', "./bin/wait_for_master $POD_NAMESPACE $POD_NAME; aws --endpoint-url {{workflow.parameters.aws-endpoint-url}} s3 cp --recursive /tmp/train {{workflow.parameters.s3-train-base-url}}/unfinished/{{workflow.parameters.job-name}}/"]
                       volumeMounts:
                       - name: training-result
                         mountPath: /tmp/train
@@ -267,7 +269,9 @@ spec:
                   key: awsSecretAccessKey
             - name: AWS_ENDPOINT_URL
               value: {{workflow.parameters.aws-endpoint-url}}
-            command: ['sh', '-c', "aws s3 cp --recursive {{workflow.parameters.s3resultURL}}/unfinished/{{workflow.parameters.job-name}}/ /tmp/train && touch /tmp/download-done/done"]
+            - name: AWS_DEFAULT_REGION
+              value: {{workflow.parameters.aws-region}}
+            command: ['sh', '-c', "aws s3 cp --recursive {{workflow.parameters.s3-train-base-url}}/unfinished/{{workflow.parameters.job-name}}/ /tmp/train && touch /tmp/download-done/done"]
             volumeMounts:
             - name: training-result
               mountPath: /tmp/train
@@ -292,16 +296,18 @@ spec:
             - name: AWS_ACCESS_KEY_ID
               valueFrom:
                 secretKeyRef:
-                  name: gcs-creds
+                  name: {{workflow.parameters.aws-secret}}
                   key: awsAccessKeyID
             - name: AWS_SECRET_ACCESS_KEY
               valueFrom:
                 secretKeyRef:
-                  name: gcs-creds
+                  name: {{workflow.parameters.aws-secret}}
                   key: awsSecretAccessKey
             - name: AWS_ENDPOINT_URL
-              value: https://storage.googleapis.com
-            command: ['sh', '-c', 'while [ ! -f /tmp/export-done/done ]; do sleep 5; done; aws s3 cp --recursive /tmp/export/model/ {{workflow.parameters.gcsresultURL}}/exported/{{workflow.parameters.job-name}}/']
+              value: {{workflow.parameters.aws-endpoint-url}}
+            - name: AWS_DEFAULT_REGION
+              value: {{workflow.parameters.aws-region}}
+            command: ['sh', '-c', 'while [ ! -f /tmp/export-done/done ]; do sleep 5; done; aws s3 cp --recursive /tmp/export/model/ {{workflow.parameters.s3-train-base-url}}/exported/{{workflow.parameters.job-name}}/']
             volumeMounts:
             - name: export-result
               mountPath: /tmp/export
@@ -322,17 +328,26 @@ spec:
       command: ["/ksonnet-entrypoint.sh"]
       source: |
         MODEL_COMPONENT=serveMnist
-        MODEL_PATH=gs://superpuke/models/exported/{{workflow.parameters.job-name}} #{{workflow.parameters.gcsresultURL}}/exported/{{workflow.parameters.job-name}}
+        MODEL_PATH={{workflow.parameters.s3-train-base-url}}/exported/{{workflow.parameters.job-name}}
         MODEL_SERVER_IMAGE=gcr.io/constant-cubist-173123/model-server:1.0
 
         ks init my-model-server
         cd my-model-server
-        ks registry add kubeflow github.com/kubeflow/kubeflow/tree/master/kubeflow
-        ks pkg install kubeflow/tf-serving
-        ks env add  cloud
+        ks registry add kubeflow github.com/elsonrodriguez/kubeflow/tree/serving-s3/kubeflow
+        ks pkg install kubeflow/tf-serving@serving-s3
+        ks env add default
         # TODO change mnist name to be specific to a job. Right now mnist name is required to serve the model.
-        ks generate tf-serving ${MODEL_COMPONENT} --name=mnist2 --namespace={{workflow.parameters.namespace}} --model_path=${MODEL_PATH} --model_server_image=${MODEL_SERVER_IMAGE}
-        ks apply cloud -c ${MODEL_COMPONENT}
+        ks generate tf-serving ${MODEL_COMPONENT} --name=mnist-{{workflow.parameters.job-name}} --namespace={{workflow.parameters.namespace}} --model_path=${MODEL_PATH}
+        ks param set ${MODEL_COMPONENT} model_server_image ${MODEL_SERVER_IMAGE}
+        ks param set ${MODEL_COMPONENT} namespace {{workflow.parameters.namespace}}
+        ks param set ${MODEL_COMPONENT} service_type LoadBalancer
+        ks param set ${MODEL_COMPONENT} s3_create_secret false
+        ks param set ${MODEL_COMPONENT} s3_secret_name {{workflow.parameters.aws-secret}}
+        ks param set ${MODEL_COMPONENT} s3_secret_accesskeyid_key_name awsAccessKeyID
+        ks param set ${MODEL_COMPONENT} s3_secret_secretaccesskey_key_name awsSecretAccessKey
+        ks param set ${MODEL_COMPONENT} s3_aws_region {{workflow.parameters.aws-region}}
+        ks param set ${MODEL_COMPONENT} s3_endpoint {{workflow.parameters.s3-endpoint}}
+        ks apply default -c ${MODEL_COMPONENT}
       env:
       - name: SERVICE_ACCOUNT
         value: argo
