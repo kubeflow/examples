@@ -6,7 +6,7 @@ This example guides you through the process of taking a distributed model, modif
 
 - A 1.9 Kubernetes cluster with RBAC
 - S3-compatabile object store ([Amazon S3](https://aws.amazon.com/s3/), [Google Storage](https://cloud.google.com/storage/docs/interoperability), [Minio](https://www.minio.io/kubernetes.html))
-- Clis for Argo, Ksonnet, Helm, S3
+- Clis for [Argo](https://github.com/argoproj/argo/blob/master/demo.md#1-download-argo), [Ksonnet](https://github.com/ksonnet/ksonnet#install), [Helm](https://github.com/kubernetes/helm/blob/master/docs/install.md#installing-the-helm-client), [S3](https://docs.aws.amazon.com/cli/latest/userguide/installing.html)
 
 ## Modifying existing examples
 
@@ -96,9 +96,9 @@ cd ${APP_NAME}
 #todo pin this to a tag
 ks registry add kubeflow github.com/kubeflow/kubeflow/tree/1a6fc9d0e19e456b784ba1c23c03ec47648819d0/kubeflow
 
-ks pkg install kubeflow/core
-ks pkg install kubeflow/tf-serving
-ks pkg install kubeflow/tf-job
+ks pkg install kubeflow/core@1a6fc9d0e19e456b784ba1c23c03ec47648819d0
+ks pkg install kubeflow/tf-serving@1a6fc9d0e19e456b784ba1c23c03ec47648819d0
+ks pkg install kubeflow/tf-job@1a6fc9d0e19e456b784ba1c23c03ec47648819d0
 
 # Deploy Kubeflow
 NAMESPACE=kubeflow
@@ -182,43 +182,55 @@ dat: yaml
 First we need to set a few variables in our workflow.
 
 ```
-JOB_NAME=myjob
-TF_SERVER_IMAGE=docker.io/...
-MODEL_IMAGE=docker.io/...
-AWS_SECRET_ACCESS_KEY=
-AWS_ACCESS_KEY_ID=
-AWS_ENDPOINT_URL=http://...
-DATA_S3_URL=
-TRAINING_S3_BASE_URL=
+export AWS_REGION=us-west-2
+export AWS_ENDPOINT_URL=https://s3.us-west-2.amazonaws.com
+export S3_ENDPOINT=s3.us-west-2.amazonaws.com
+export S3_DATA_URL=s3://tfoperator/data/mnist/
+export S3_TRAIN_BASE_URL=s3://tfoperator/models
+export JOB_NAME=myjob-$(uuidgen  | cut -c -5 | tr '[:upper:]' '[:lower:]')
+export TF_SERVER_IMAGE=elsonrodriguez/mytfserver:1.6
+export MODEL_IMAGE=elsonrodriguez/mytfmodel:1.45
+export NAMESPACE=demo
 ```
 
 Next, submit your workflow.
 
 ```
-argo submit tfargo.yaml -n argo --serviceaccount argo \
-    -p aws-access-key-id=${AWS_ACCESS_KEY_ID} \
-    -p aws-secret-access-key=${AWS_SECRET_ACCESS_KEY} \
+argo submit tfargo.yaml -n ${NAMESPACE} --serviceaccount argo \
     -p aws-endpoint-url=${AWS_ENDPOINT_URL} \
+    -p s3-endpoint=${S3_ENDPOINT} \
+    -p aws-region=${AWS_REGION} \
     -p tf-server-image=${TF_SERVER_IMAGE} \
     -p model-image=${MODEL_IMAGE} \
-    -p data-s3-url=${DATA_S3_URL} \
-    -p training-s3-base-url=${TRAINING_S3_BASE_URL} \
-    -p job-name=${JOB_NAME}
+    -p s3-data-url=${S3_DATA_URL} \
+    -p s3-train-base-url=${S3_TRAIN_BASE_URL} \
+    -p job-name=${JOB_NAME} \
+    -p namespace=${NAMESPACE}
 ```
 
 Your training workflow should now be executing.
 
 ## Monitoring
 
-There are various ways to visualize what your workflow is doing.
+There are various ways to visualize your workflow/training job.
 
 ### Argo UI
 
-TODO how to argo UI
+The Argo UI is useful for seeing what stage your worfklow is in:
+
+```
+PODNAME=$(kubectl get pod -l app=argo-ui -nargo -o jsonpath='{.items[0].metadata.name}')
+kubectl port-forward ${PODNAME} 8001:8001 -n argo
+```
 
 ### Tensorboard
 
-TODO how to tensorboard
+Tensorboard is deployed after training is done. To connect:
+
+```
+PODNAME=$(kubectl get pod -l app=tensorboard-${JOB_NAME}
+kubectl port-forward ${PODNAME} 6006:6006 -n argo
+```
 
 ## Using Tensorflow serving
 

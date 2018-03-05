@@ -1,3 +1,4 @@
+#!/usr/bin/env python2.7
 # Copyright 2016 Google Inc. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +14,6 @@
 # limitations under the License.
 # ==============================================================================
 
-# !/usr/bin/env python2.7
 
 """A client that talks to tensorflow_model_server loaded with mnist model.
 
@@ -46,6 +46,7 @@ tf.app.flags.DEFINE_integer('concurrency', 1,
                             'maximum number of concurrent inference requests')
 tf.app.flags.DEFINE_integer('num_tests', 100, 'Number of test images')
 tf.app.flags.DEFINE_string('server', '', 'PredictionService host:port')
+tf.app.flags.DEFINE_string('model_name', 'mnist', 'name of the model in the servable bundle, TEMPORARY HACK')
 FLAGS = tf.app.flags.FLAGS
 
 
@@ -146,7 +147,7 @@ def do_inference(hostport, data_dir, concurrency, num_tests):
     result_counter = _ResultCounter(num_tests, concurrency)
     for _ in range(num_tests):
         request = predict_pb2.PredictRequest()
-        request.model_spec.name = 'mnist-myjob-46bce'
+        request.model_spec.name = FLAGS.model_name 
         request.model_spec.signature_name = 'predict_images'
         image, label = test_data_set.next_batch(1)
         request.inputs['images'].CopyFrom(
