@@ -131,7 +131,7 @@ Argo is a workflow system used ot automate workloads on Kubernetes. This is what
 #TODO see if argo's being installed by kubeflow yet
 ks pkg install kubeflow/argo
 ks prototype use io.ksonnet.pkg.argo argo --namespace default --name argo
-ks apply ${KF_ENV} -c argo
+ks apply default -c argo
 ```
 
 We can check on the status of Argo by checking the logs and listing workflows.
