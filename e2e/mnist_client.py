@@ -146,7 +146,7 @@ def do_inference(hostport, data_dir, concurrency, num_tests):
     result_counter = _ResultCounter(num_tests, concurrency)
     for _ in range(num_tests):
         request = predict_pb2.PredictRequest()
-        request.model_spec.name = 'mnist2'
+        request.model_spec.name = 'mnist-myjob-46bce'
         request.model_spec.signature_name = 'predict_images'
         image, label = test_data_set.next_batch(1)
         request.inputs['images'].CopyFrom(

@@ -62,6 +62,8 @@ spec:
           template: tf-export
       - - name: inference
           template: tf-inference
+      - - name: tensorboard
+          template: tf-tensorboard
     # - - name: prepare-datasets
     #     template: download-and-convert-data
   - name: exit-handler
@@ -326,6 +328,76 @@ spec:
             emptyDir: {}
           - name: export-done
             emptyDir: {}
+  - name: tf-tensorboard
+    resource:
+      action: apply
+      manifest: |
+        apiVersion: extensions/v1beta1
+        kind: Deployment
+        metadata:
+          labels:
+            app: tensorboard-{{workflow.parameters.job-name}}
+          name: tensorboard-{{workflow.parameters.job-name}}
+          namespace: {{workflow.parameters.namespace}}
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              app: tensorboard-{{workflow.parameters.job-name}}
+          template:
+            metadata:
+              labels:
+                app: tensorboard-{{workflow.parameters.job-name}}
+            spec:
+              containers:
+              - name: tensorboard-{{workflow.parameters.job-name}}
+                image: elsonrodriguez/tensorboard:1.0
+                imagePullPolicy: Always
+                args:
+                - {{workflow.parameters.s3-train-base-url}}/unfinished/{{workflow.parameters.job-name}}/
+                env:
+                - name: AWS_ACCESS_KEY_ID
+                  valueFrom:
+                    secretKeyRef:
+                      key: awsAccessKeyID
+                      name: {{workflow.parameters.aws-secret}}
+                - name: AWS_SECRET_ACCESS_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      key: awsSecretAccessKey
+                      name: {{workflow.parameters.aws-secret}}
+                - name: AWS_REGION
+                  value: {{workflow.parameters.aws-region}}
+                - name: S3_REGION
+                  value: {{workflow.parameters.aws-region}}
+                - name: S3_USE_HTTPS
+                  value: "true"
+                - name: S3_VERIFY_SSL
+                  value: "true"
+                - name: S3_ENDPOINT
+                  value: {{workflow.parameters.s3-endpoint}}
+                ports:
+                - containerPort: 6006
+                  protocol: TCP
+              dnsPolicy: ClusterFirst
+              restartPolicy: Always
+        ---
+        apiVersion: v1
+        kind: Service
+        metadata:
+          labels:
+            app: tensorboard-{{workflow.parameters.job-name}}
+          name: tensorboard-{{workflow.parameters.job-name}}
+          namespace: {{workflow.parameters.namespace}}
+        spec:
+          ports:
+          - port: 80
+            protocol: TCP
+            targetPort: 6006
+          selector:
+            app: tensorboard-{{workflow.parameters.job-name}}
+          sessionAffinity: None
+          type: LoadBalancer
   - name: tf-inference
     script:
       image: elsonrodriguez/ksonnet:0.8.0-test6
