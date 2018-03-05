@@ -1,0 +1,6 @@
+FROM gcr.io/kubeflow/jupyterhub-k8s:1.0.1
+
+RUN pip install tensorboard==1.6.0 tensorflow==1.5.0
+
+
+ENTRYPOINT ["/usr/local/bin/tensorboard", "--logdir"]
