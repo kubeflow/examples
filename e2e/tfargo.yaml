@@ -432,11 +432,3 @@ spec:
       image: nervana/circleci:master
       imagePullPolicy: Always
       command: ["bash", "-c", "kubectl delete tfjob {{workflow.parameters.job-name}} || true; kubectl delete pod exporter-{{workflow.parameters.job-name}} || true"]
-
-# NOTE: export mnodel
-#   - name: tf_model_export
-#                 spec:
-#                   containers:
-#                     - image: elsonrodriguez/mytfmodel:1.45
-#                       name: tensorflow
-#     command: python export.py  --checkpoint_dir=/combined_training_results/ --output_dir=/saved_model
