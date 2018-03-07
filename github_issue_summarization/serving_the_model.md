@@ -4,6 +4,8 @@ We are going to use a simple tornado server to serve the model. The [server.py](
 
 Start the server using `python server.py --port=8888`.
 
+> The model is written in Keras and when exported as a TensorFlow model seems to be incompatible with TensorFlow Serving. So we're using our own webserver to serve this model.
+
 ## Sample request
 
 ```
