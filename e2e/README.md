@@ -134,7 +134,7 @@ tfjobs.kubeflow.org     22m
 
 ### Deploying Argo
 
-Argo is a workflow system used ot automate workloads on Kubernetes.
+Argo is a workflow system used to automate workloads on Kubernetes.
 
 ```
 NAMESPACE=tfworkflow
@@ -155,7 +155,7 @@ $ argo list
 NAME   STATUS   AGE   DURATION
 ```
 
-Lastly we need to modify the argo cluster role to run the workflow. We need to do this in order to create tfjobs and volumemanagers:
+Lastly we need to modify the argo cluster role used to run the workflow. We need to do this in order to create tfjobs and volumemanagers:
 ```
 kubectl apply -f argo-cluster-role.yaml
 ```
@@ -166,6 +166,7 @@ Kube Volume Controller is a utility that can seed replicas of datasets across no
 
 First we need to install tiller on the cluster with rbac. Instructions can be found [here](https://github.com/kubernetes/helm/blob/master/docs/rbac.md).
 
+Then install Kube Volume Controller:
 ```
 NAMESPACE=tfworkflow
 git clone https://github.com/kubeflow/experimental-kvc.git
@@ -174,6 +175,7 @@ helm install helm-charts/kube-volume-controller/ -n kvc --wait \
   --set clusterrole.install=true \
   --set storageclass.install=true \
   --set namespace=${NAMESPACE}
+cd ..
 ```
 
 We can check on the status of kube-volume-controller:
@@ -201,11 +203,8 @@ This is the bulk of the work, let's walk through what is needed:
 3. Export the model
 4. Serve the model
 
-Now let's look at how this is represented in our [example workflow](workflow.yaml)
+Now let's look at how this is represented in our [example workflow](tfargo.yaml)
 
-```
-dat: yaml
-```
 ## Submitting your training workflow
 
 First we need to set a few variables in our workflow. Make sure to set your docker registry or remove the `IMAGE` parameters in order to use our defaults:
