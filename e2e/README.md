@@ -43,19 +43,16 @@ The stock distributed tensorflow grpc [example](https://github.com/tensorflow/te
 ### Build and push images.
 
 With our code ready, we will now build/push the docker images
-
+For our case we will be creating one single image which will serve master, workers and Parameter servers. feel free to create different images if that's what you need.
 ```
 DOCKER_BASE_URL=docker.io/elsonrodriguez # Put your docker registry here
-docker build . --no-cache  -f Dockerfile.tfserver -t ${DOCKER_BASE_URL}/mytfserver:1.0
 docker build . --no-cache  -f Dockerfile.model -t ${DOCKER_BASE_URL}/mytfmodel:1.0
 
-docker push ${DOCKER_BASE_URL}/mytserver:1.0
 docker push ${DOCKER_BASE_URL}/mytfmodel:1.0
 ```
 
 Alternately, you can use these existing images:
 
-- gcr.io/kubeflow/mytfserver:1.0
 - gcr.io/kubeflow/mytfmodel:1.0
 
 ## Upload data
@@ -75,7 +72,7 @@ curl -O https://storage.googleapis.com/cvdf-datasets/mnist/t10k-labels-idx1-ubyt
 Next create a bucket or path in your S3-compatible object store.
 
 ```
-aws mb s3://...
+aws s3 mb s3://...
 ```
 
 Now upload your training data
@@ -98,6 +95,7 @@ We are using the tensorflow operator to automate our distributed training. The e
 Make sure you export your github token first `export GITHUB_TOKEN=xxxxxxxx`
 ```
 NAMESPACE=tfworkflow
+kubectl create namespace ${NAMESPACE}
 APP_NAME=my-kubeflow
 ks init ${APP_NAME}
 cd ${APP_NAME}
@@ -119,7 +117,7 @@ ks apply default -c kubeflow-core
 Check to ensure things have deployed:
 
 ```
-$ kubectl logs -l name=tf-job-operator
+$ kubectl logs -l name=tf-job-operator -n ${NAMESPACE}
 ...
 I0226 18:25:16.553804       1 leaderelection.go:184] successfully acquired lease default/tf-operator
 I0226 18:25:16.554615       1 controller.go:132] Starting TFJob controller
@@ -144,7 +142,7 @@ argo install --install-namespace ${NAMESPACE}
 We can check on the status of Argo by checking the logs and listing workflows.
 
 ```
-$ kubectl logs -l app=workflow-controller
+$ kubectl logs -l app=workflow-controller -n ${NAMESPACE}
 time="2018-02-26T18:35:48Z" level=info msg="workflow controller configuration from workflow-controller-configmap:\nexecutorImage: argoproj/argoexec:v2.0.0-beta1"
 time="2018-02-26T18:35:48Z" level=info msg="Workflow Controller (version: v2.0.0-beta1) starting"
 time="2018-02-26T18:35:48Z" level=info msg="Watch Workflow controller config map updates"
@@ -217,8 +215,8 @@ export S3_ENDPOINT=s3.us-west-2.amazonaws.com
 export S3_DATA_URL=s3://tfoperator/data/mnist/
 export S3_TRAIN_BASE_URL=s3://tfoperator/models
 export JOB_NAME=myjob-$(uuidgen  | cut -c -5 | tr '[:upper:]' '[:lower:]')
-export TF_SERVER_IMAGE=${DOCKER_BASE_URL}/mytserver:1.0
-export MODEL_IMAGE=${DOCKER_BASE_URL}/mytfmodel:1.0
+export TF_SERVER_IMAGE=${DOCKER_BASE_URL}/mytfmodel:1.0
+export TF_MODEL_IMAGE=${DOCKER_BASE_URL}/mytfmodel:1.0
 export NAMESPACE=tfworkflow
 ```
 
@@ -230,7 +228,7 @@ argo submit tfargo.yaml -n ${NAMESPACE} --serviceaccount argo \
     -p s3-endpoint=${S3_ENDPOINT} \
     -p aws-region=${AWS_REGION} \
     -p tf-server-image=${TF_SERVER_IMAGE} \
-    -p model-image=${MODEL_IMAGE} \
+    -p tf-model-image=${TF_MODEL_IMAGE} \
     -p s3-data-url=${S3_DATA_URL} \
     -p s3-train-base-url=${S3_TRAIN_BASE_URL} \
     -p job-name=${JOB_NAME} \
@@ -241,11 +239,11 @@ Your training workflow should now be executing.
 
 You can verify and keep track of your workflow using the argo commands:
 ```
-$ argo list
+$ argo list -n ${NAMESPACE}
 NAME                STATUS    AGE   DURATION
 tf-workflow-h7hwh   Running   1h    1h
 
-$ argo get tf-workflow-h7hwh
+$ argo get tf-workflow-h7hwh -n ${NAMESPACE}
 ```
 
 ## Monitoring
