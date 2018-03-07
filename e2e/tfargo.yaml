@@ -23,6 +23,16 @@ spec:
       value: elsonrodriguez/mytfmodel:1.45
     - name: tf-server-image
       value: elsonrodriguez/mytfserver:1.6
+    - name: tf-serving-image
+      value: gcr.io/constant-cubist-173123/model-server:1.0
+    - name: model-hidden-units
+      value: 100
+    - name: model-train-steps
+      value: 200
+    - name: model-batch-size
+      value: 100
+    - name: model-learning-rate
+      value: 0.01
     - name: job-name
       value: myjob
     - name: namespace
@@ -46,24 +56,25 @@ spec:
   templates:
   - name: tests
     steps:
-      - - name: mount-datasets
+      - - name: download-dataset
           template: kvc
-      - - name: get-volume
+      - - name: get-dataset-info
           template: get-volumemanager-info
-      - - name: train
+      - - name: train-model
           template: tf-train
           arguments:
             parameters:
             - name: nodeaffinity
-              value: "{{steps.get-volume.outputs.parameters.nodeaffinity}}"
+              value: "{{steps.get-dataset-info.outputs.parameters.nodeaffinity}}"
             - name: hostpath
-              value: "{{steps.get-volume.outputs.parameters.hostpath}}"
+              value: "{{steps.get-dataset-info.outputs.parameters.hostpath}}"
       - - name: export-model
           template: tf-export
-      - - name: inference
+      - - name: serve-model
           template: tf-inference
       - - name: tensorboard
           template: tf-tensorboard
+    # This is an example of how to do data conversion.
     # - - name: prepare-datasets
     #     template: download-and-convert-data
   - name: exit-handler
@@ -143,7 +154,7 @@ spec:
                     - image: {{workflow.parameters.tf-image}}
                       name: tensorflow
                       imagePullPolicy: Always
-                      args: ["python", "/opt/model.py", "--data_dir=/tmp/data", "--train_dir=/tmp/train", "--download=true", "--sync_replicas=true"]
+                      args: ["python", "/opt/model.py", "--data_dir=/tmp/data", "--train_dir=/tmp/train", "--download=true", "--sync_replicas=true", "--hidden_units={{workflow.parameters.model-hidden-units}}", "--train_steps={{workflow.parameters.model-train-steps}}", "--batch_size={{workflow.parameters.model-batch-size}}", "--learning_rate={{workflow.parameters.model-learning-rate}}"]
                       volumeMounts:
                       - name: training-result
                         mountPath: /tmp/train
@@ -405,7 +416,7 @@ spec:
       source: |
         MODEL_COMPONENT=serveMnist
         MODEL_PATH={{workflow.parameters.s3-train-base-url}}/exported/{{workflow.parameters.job-name}}
-        MODEL_SERVER_IMAGE=gcr.io/constant-cubist-173123/model-server:1.0
+        MODEL_SERVER_IMAGE={{workflow.parameters.tf-serving-image}}
 
         ks init my-model-server
         cd my-model-server
