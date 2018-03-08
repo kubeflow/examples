@@ -43,16 +43,19 @@ The stock distributed tensorflow grpc [example](https://github.com/tensorflow/te
 ### Build and push images.
 
 With our code ready, we will now build/push the docker images
-For this example we will be creating one single image which will serve as master, workers and parameter servers. Different images can also be used for each purpose depending on the use case.
+
 ```
 DOCKER_BASE_URL=docker.io/elsonrodriguez # Put your docker registry here
+docker build . --no-cache  -f Dockerfile.tfserver -t ${DOCKER_BASE_URL}/mytfserver:1.0
 docker build . --no-cache  -f Dockerfile.model -t ${DOCKER_BASE_URL}/mytfmodel:1.0
 
+docker push ${DOCKER_BASE_URL}/mytserver:1.0
 docker push ${DOCKER_BASE_URL}/mytfmodel:1.0
 ```
 
 Alternately, you can use these existing images:
 
+- gcr.io/kubeflow/mytfserver:1.0
 - gcr.io/kubeflow/mytfmodel:1.0
 
 ## Upload data
@@ -72,7 +75,7 @@ curl -O https://storage.googleapis.com/cvdf-datasets/mnist/t10k-labels-idx1-ubyt
 Next create a bucket or path in your S3-compatible object store.
 
 ```
-aws s3 mb s3://...
+aws mb s3://...
 ```
 
 Now upload your training data
@@ -95,7 +98,6 @@ We are using the tensorflow operator to automate our distributed training. The e
 Make sure you export your github token first `export GITHUB_TOKEN=xxxxxxxx`
 ```
 NAMESPACE=tfworkflow
-kubectl create namespace ${NAMESPACE}
 APP_NAME=my-kubeflow
 ks init ${APP_NAME}
 cd ${APP_NAME}
@@ -117,7 +119,7 @@ ks apply default -c kubeflow-core
 Check to ensure things have deployed:
 
 ```
-$ kubectl logs -l name=tf-job-operator -n ${NAMESPACE}
+$ kubectl logs -l name=tf-job-operator
 ...
 I0226 18:25:16.553804       1 leaderelection.go:184] successfully acquired lease default/tf-operator
 I0226 18:25:16.554615       1 controller.go:132] Starting TFJob controller
@@ -137,12 +139,6 @@ Argo is a workflow system used to automate workloads on Kubernetes.
 ```
 NAMESPACE=tfworkflow
 argo install --install-namespace ${NAMESPACE}
-```
-
-set kubectl context to the new namespace
-
-```
-kubectl config set-context $(kubectl config current-context) --namespace=${NAMESPACE}
 ```
 
 We can check on the status of Argo by checking the logs and listing workflows.
@@ -221,8 +217,8 @@ export S3_ENDPOINT=s3.us-west-2.amazonaws.com
 export S3_DATA_URL=s3://tfoperator/data/mnist/
 export S3_TRAIN_BASE_URL=s3://tfoperator/models
 export JOB_NAME=myjob-$(uuidgen  | cut -c -5 | tr '[:upper:]' '[:lower:]')
-export TF_SERVER_IMAGE=${DOCKER_BASE_URL}/mytfmodel:1.0
-export TF_MODEL_IMAGE=${DOCKER_BASE_URL}/mytfmodel:1.0
+export TF_SERVER_IMAGE=${DOCKER_BASE_URL}/mytserver:1.0
+export MODEL_IMAGE=${DOCKER_BASE_URL}/mytfmodel:1.0
 export NAMESPACE=tfworkflow
 ```
 
@@ -234,7 +230,7 @@ argo submit model-train.yaml -n ${NAMESPACE} --serviceaccount argo \
     -p s3-endpoint=${S3_ENDPOINT} \
     -p aws-region=${AWS_REGION} \
     -p tf-server-image=${TF_SERVER_IMAGE} \
-    -p tf-model-image=${TF_MODEL_IMAGE} \
+    -p model-image=${MODEL_IMAGE} \
     -p s3-data-url=${S3_DATA_URL} \
     -p s3-train-base-url=${S3_TRAIN_BASE_URL} \
     -p job-name=${JOB_NAME} \
