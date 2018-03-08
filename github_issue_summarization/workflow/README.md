@@ -2,9 +2,9 @@
 
 # Prerequisites.
 
-*   [Create a GKE cluster and configuring kubectl.](https://cloud.google.com/kubernetes-engine/docs/how-to/creating-a-container-cluster)
+*   [Create a GKE cluster and configure kubectl.](https://cloud.google.com/kubernetes-engine/docs/how-to/creating-a-container-cluster)
 *   [Install Argo.](https://github.com/argoproj/argo/blob/master/demo.md)
-*   [Configuring the defautl artifact repository.](https://github.com/argoproj/argo/blob/master/ARTIFACT_REPO.md#configure-the-default-artifact-repository)
+*   [Configure the defautl artifact repository.](https://github.com/argoproj/argo/blob/master/ARTIFACT_REPO.md#configure-the-default-artifact-repository)
 
 # Get the input data and upload it to GCS.
 
