@@ -35,6 +35,12 @@ spec:
       value: 0.01
     - name: model-serving
       value: true
+    - name: model-serving-servicetype
+      value: ClusterIP
+    - name: model-serving-ks-url
+      value: github.com/elsonrodriguez/kubeflow/tree/serving-s3/kubeflow
+    - name: model-serving-ks-tag
+      value: serving-s3
     - name: job-name
       value: myjob
     - name: namespace
@@ -429,14 +435,14 @@ spec:
 
         ks init my-model-server
         cd my-model-server
-        ks registry add kubeflow github.com/elsonrodriguez/kubeflow/tree/serving-s3/kubeflow
-        ks pkg install kubeflow/tf-serving@serving-s3
+        ks registry add kubeflow {{workflow.parameters.model-serving-ks-url}}
+        ks pkg install kubeflow/tf-serving@{{workflow.parameters.model-serving-ks-tag}}
         ks env add default
         # TODO change mnist name to be specific to a job. Right now mnist name is required to serve the model.
         ks generate tf-serving ${MODEL_COMPONENT} --name=mnist-{{workflow.parameters.job-name}} --namespace={{workflow.parameters.namespace}} --model_path=${MODEL_PATH}
         ks param set ${MODEL_COMPONENT} model_server_image ${MODEL_SERVER_IMAGE}
         ks param set ${MODEL_COMPONENT} namespace {{workflow.parameters.namespace}}
-        ks param set ${MODEL_COMPONENT} service_type LoadBalancer
+        ks param set ${MODEL_COMPONENT} service_type {{workflow.parameters.model-serving-servicetype}}
         ks param set ${MODEL_COMPONENT} s3_create_secret false
         ks param set ${MODEL_COMPONENT} s3_secret_name {{workflow.parameters.aws-secret}}
         ks param set ${MODEL_COMPONENT} s3_secret_accesskeyid_key_name awsAccessKeyID
