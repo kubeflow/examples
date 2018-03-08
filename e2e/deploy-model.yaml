@@ -40,7 +40,7 @@ spec:
     container:
       image: nervana/circleci:master
       imagePullPolicy: Always
-      command: ["bash", "-c", 'for var in job-name namespace aws-secret aws-region aws-s3-endpoint s3-unfinished-url s3-exported-url tf-serving-image; do kubectl get workflow {{workflow.parameters.workflow}} -o json | jq -r ".status.nodes[] | select(.name|match(\".*get-workflow-info\")) | .outputs.parameters[] | select(.name == \"${var}\" | .value\" > /tmp/${var} ; done']
+      command: ["bash", "-c", "-x", 'for var in s3-unfinished-url s3-exported-url; do kubectl get workflow {{workflow.parameters.workflow}} -o json | jq -r ".status.nodes[] | select(.name|contains(\"get-workflow-info\")) | .outputs.parameters[] | select(.name == \"${var}\") | .value" > /tmp/${var} ; done; for var in job-name namespace aws-secret aws-region aws-s3-endpoint tf-serving-image; do kubectl get workflow {{workflow.parameters.workflow}} -o jsonpath="{.spec.arguments.parameters[?(.name==\"${var}\")].value}" > /tmp/${var}; done']
     outputs:
       parameters:
       - name: s3-unfinished-url
@@ -68,9 +68,6 @@ spec:
         valueFrom:
           path: /tmp/tf-serving-image
   - name: tf-inference
-    script:
-      image: elsonrodriguez/ksonnet:0.8.0-test6
-      command: ["/ksonnet-entrypoint.sh"]
     inputs:
       parameters:
       - name: s3-unfinished-url
@@ -81,6 +78,9 @@ spec:
       - name: aws-s3-endpoint
       - name: job-name
       - name: tf-serving-image
+    script:
+      image: elsonrodriguez/ksonnet:0.8.0-test6
+      command: ["/ksonnet-entrypoint.sh"]
       source: |
         MODEL_COMPONENT=serveMnist
         MODEL_PATH={{inputs.parameters.s3-exported-url}}
@@ -101,7 +101,7 @@ spec:
         ks param set ${MODEL_COMPONENT} s3_secret_accesskeyid_key_name awsAccessKeyID
         ks param set ${MODEL_COMPONENT} s3_secret_secretaccesskey_key_name awsSecretAccessKey
         ks param set ${MODEL_COMPONENT} s3_aws_region {{inputs.parameters.aws-region}}
-        ks param set ${MODEL_COMPONENT} s3_endpoint {{inputs.parameters.s3-endpoint}}
+        ks param set ${MODEL_COMPONENT} s3_endpoint {{inputs.parameters.aws-s3-endpoint}}
         ks apply default -c ${MODEL_COMPONENT}
       env:
       - name: SERVICE_ACCOUNT
