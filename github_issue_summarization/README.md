@@ -21,10 +21,11 @@ By the end of this tutorial, you should learn how to:
     datasets
 *   Train a Sequence-to-Sequence model using TensorFlow on the cluster using
     GPUs
-*   Serve the model using TensorFlow Serving
+*   Serve the model using a Tornado Server
 
 ## Steps:
 
 1.  [Setup a Kubeflow cluster](setup_a_kubeflow_cluster.md)
 1.  [Training the model](training_the_model.md)
+1.  [Serving the model](serving_the_model.md)
 1.  [Teardown](teardown.md)
