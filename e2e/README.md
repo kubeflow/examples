@@ -207,7 +207,7 @@ This is the bulk of the work, let's walk through what is needed:
 3. Export the model
 4. Serve the model
 
-Now let's look at how this is represented in our [example workflow](tfargo.yaml)
+Now let's look at how this is represented in our [example workflow](model-train.yaml)
 
 ## Submitting your training workflow
 
@@ -229,7 +229,7 @@ export NAMESPACE=tfworkflow
 Next, submit your workflow.
 
 ```
-argo submit tfargo.yaml -n ${NAMESPACE} --serviceaccount argo \
+argo submit model-train.yaml -n ${NAMESPACE} --serviceaccount argo \
     -p aws-endpoint-url=${AWS_ENDPOINT_URL} \
     -p s3-endpoint=${S3_ENDPOINT} \
     -p aws-region=${AWS_REGION} \
@@ -278,7 +278,7 @@ kubectl port-forward ${PODNAME} 6006:6006 -n${NAMESPACE}
 
 ## Using Tensorflow serving
 
-Once the workflow has completed, your model should be serving.
+By default the workflow deploys our model via Tensorflow Serving. Included in this example is a client that can query your model and provide results:
 
 TODO modify mnist client to use invidiual number images, seems more exciting than just submitting a batch of files.
 
@@ -287,6 +287,13 @@ NAMESPACE=tfworkflow
 POD_NAME=$(kubectl get pod -l=app=${JOB_NAME} -n${NAMESPACE} -o jsonpath='{.items[0].metadata.name}')
 kubectl port-forward -n${NAMESPACE} ${POD_NAME} -p 9000:9000
 python mnist_client.py  --server 127.0.0.1:9000 --data_dir /tmp/mnistdata
+```
+
+Model serving can be turned off by passing in `-p model-serving=false` to the `model-train.yaml` workflow. If you wish to serve your model after training, use the `model-deploy.yaml` workflow. Simply pass in the desired finished argo workflow as an argument:
+
+```
+WORKFLOW=<the workflowname>
+argo submit model-deploy.yaml -n ${NAMESPACE} -p workflow=${WORKFLOW} --serviceaccount=argo
 ```
 
 ## Next Steps
