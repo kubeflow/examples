@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+
 """Distributed MNIST training and validation, with model replicas.
 
 A simple softmax model with one hidden layer is defined. The parameters
@@ -44,6 +45,7 @@ import os
 import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
 
+
 flags = tf.app.flags
 flags.DEFINE_string("data_dir", "/tmp/mnist-data",
                     "Directory for storing mnist data")
@@ -70,25 +72,25 @@ flags.DEFINE_integer("train_steps", 200,
                      "Number of (global) training steps to perform")
 flags.DEFINE_integer("batch_size", 100, "Training batch size")
 flags.DEFINE_float("learning_rate", 0.01, "Learning rate")
-flags.DEFINE_boolean(
-    "sync_replicas", False,
-    "Use the sync_replicas (synchronized replicas) mode, "
-    "wherein the parameter updates from workers are aggregated "
-    "before applied to avoid stale gradients")
+flags.DEFINE_boolean("sync_replicas", False,
+                     "Use the sync_replicas (synchronized replicas) mode, "
+                     "wherein the parameter updates from workers are aggregated "
+                     "before applied to avoid stale gradients")
 flags.DEFINE_boolean(
     "existing_servers", False, "Whether servers already exists. If True, "
     "will use the worker hosts via their GRPC URLs (one client process "
     "per worker host). Otherwise, will create an in-process TensorFlow "
     "server.")
-flags.DEFINE_string("ps_hosts", "localhost:2222",
+flags.DEFINE_string("ps_hosts","localhost:2222",
                     "Comma-separated list of hostname:port pairs")
 flags.DEFINE_string("worker_hosts", "localhost:2223,localhost:2224",
                     "Comma-separated list of hostname:port pairs")
 flags.DEFINE_string("master_hosts", "localhost:2222",
                     "Comma-separated list of hostname:port pairs")
-flags.DEFINE_string("job_name", None, "job name: worker or ps")
+flags.DEFINE_string("job_name", None,"job name: worker or ps")
 
 FLAGS = flags.FLAGS
+
 
 IMAGE_PIXELS = 28
 
@@ -121,6 +123,7 @@ def mnist_inference(hidden_units):
 
     return x, y, y_, cross_entropy
 
+
 def main(unused_argv):
   mnist = input_data.read_data_sets(FLAGS.data_dir, one_hot=True)
 
@@ -142,14 +145,22 @@ def main(unused_argv):
 
   # Get the number of workers.
   num_workers = len(worker_spec)
-
-  cluster = tf.train.ClusterSpec({"master": master_spec, "ps": ps_spec, "worker": worker_spec})
+  cluster_specc = {"ps": ps_spec, "worker": worker_spec}
+  print("cluster_specc = %s" % str(cluster_specc))
+  print("num_workers = %d" % num_workers)
+  cluster = tf.train.ClusterSpec({
+      "master": master_spec,
+      "ps": ps_spec,
+      "worker": worker_spec})
 
   if not FLAGS.existing_servers:
     # Not using existing servers. Create an in-process server.
-    server = tf.train.Server(
-        cluster, job_name=FLAGS.job_name, task_index=FLAGS.task_id)
+    server = tf.train.Server(cluster, job_name=FLAGS.job_name, task_index=FLAGS.task_id)
     if FLAGS.job_name == "ps":
+      print("Running ps.")
+      server.join()
+    if FLAGS.job_name == "master":
+      print("Running master.")
       server.join()
 
   is_chief = (FLAGS.task_id == 0)
@@ -202,7 +213,6 @@ def main(unused_argv):
       sync_init_op = opt.get_init_tokens_op()
 
     init_op = tf.global_variables_initializer()
-
     try:
       os.makedirs(FLAGS.train_dir)
     except OSError:
@@ -229,8 +239,7 @@ def main(unused_argv):
     sess_config = tf.ConfigProto(
         allow_soft_placement=True,
         log_device_placement=False,
-        device_filters=["/job:ps",
-                        "/job:worker/task:%d" % FLAGS.task_id])
+        device_filters=["/job:ps", "/job:worker/task:%d" % FLAGS.task_id])
 
     # The chief worker (task_id==0) session will prepare the session,
     # while the remaining workers will wait for the preparation to complete.
@@ -244,7 +253,8 @@ def main(unused_argv):
       server_grpc_url = "grpc://" + worker_spec[FLAGS.task_id]
       print("Using existing server at: %s" % server_grpc_url)
 
-      sess = sv.prepare_or_wait_for_session(server_grpc_url, config=sess_config)
+      sess = sv.prepare_or_wait_for_session(server_grpc_url,
+                                            config=sess_config)
     else:
       sess = sv.prepare_or_wait_for_session(server.target, config=sess_config)
 
@@ -259,9 +269,9 @@ def main(unused_argv):
     time_begin = time.time()
     print("Training begins @ %f" % time_begin)
 
-    local_step = 0
     sess.graph._unsafe_unfinalize()
     saver = tf.train.Saver(max_to_keep=None)
+    local_step = 0
     while True:
       # Training feed
       batch_xs, batch_ys = mnist.train.next_batch(FLAGS.batch_size)
@@ -276,7 +286,7 @@ def main(unused_argv):
 
       if step >= FLAGS.train_steps:
         break
-#    os.mkdir("/tmp/datpath")
+
     saver.save(sess, FLAGS.train_dir)
     time_end = time.time()
     print("Training ends @ %f" % time_end)
