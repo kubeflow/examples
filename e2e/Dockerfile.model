@@ -1,0 +1,9 @@
+FROM elsonrodriguez/mytfserver:1.6
+
+ADD model.py /opt/model.py
+ADD export.py /opt/export.py
+
+RUN chmod +x /opt/model.py
+RUN chmod +x /opt/export.py
+
+CMD ["python", "/opt/model.py"]
