@@ -43,7 +43,7 @@ The stock distributed tensorflow grpc [example](https://github.com/tensorflow/te
 ### Build and push images.
 
 With our code ready, we will now build/push the docker images
-For our case we will be creating one single image which will serve master, workers and Parameter servers. feel free to create different images if that's what you need.
+For this example we will be creating one single image which will serve as master, workers and parameter servers. Different images can also be used for each purpose depending on the use case.
 ```
 DOCKER_BASE_URL=docker.io/elsonrodriguez # Put your docker registry here
 docker build . --no-cache  -f Dockerfile.model -t ${DOCKER_BASE_URL}/mytfmodel:1.0
@@ -139,10 +139,16 @@ NAMESPACE=tfworkflow
 argo install --install-namespace ${NAMESPACE}
 ```
 
+set kubectl context to the new namespace
+
+```
+kubectl config set-context $(kubectl config current-context) --namespace=${NAMESPACE}
+```
+
 We can check on the status of Argo by checking the logs and listing workflows.
 
 ```
-$ kubectl logs -l app=workflow-controller -n ${NAMESPACE}
+$ kubectl logs -l app=workflow-controller
 time="2018-02-26T18:35:48Z" level=info msg="workflow controller configuration from workflow-controller-configmap:\nexecutorImage: argoproj/argoexec:v2.0.0-beta1"
 time="2018-02-26T18:35:48Z" level=info msg="Workflow Controller (version: v2.0.0-beta1) starting"
 time="2018-02-26T18:35:48Z" level=info msg="Watch Workflow controller config map updates"
@@ -239,11 +245,11 @@ Your training workflow should now be executing.
 
 You can verify and keep track of your workflow using the argo commands:
 ```
-$ argo list -n ${NAMESPACE}
+$ argo list
 NAME                STATUS    AGE   DURATION
 tf-workflow-h7hwh   Running   1h    1h
 
-$ argo get tf-workflow-h7hwh -n ${NAMESPACE}
+$ argo get tf-workflow-h7hwh
 ```
 
 ## Monitoring
