@@ -18,7 +18,7 @@ cd into the notebooks directory and run the following docker command. This will 
 
 ```
 cd notebooks/
-docker run -v $(pwd):/my_model seldonio/core-python-wrapper:0.7 /my_model IssueSummarization 0.1 seldonio --base-image=python:3.6
+docker run -v $(pwd):/my_model seldonio/core-python-wrapper:0.7 /my_model IssueSummarization 0.1 gcr.io --base-image=python:3.6 --image-name=gcr-repository-name/issue-summarization
 ```
 
 The build/ directory contains all the necessary files to build the seldon-core microservice image
@@ -28,9 +28,11 @@ cd build/
 ./build_image.sh
 ```
 
-Now you should see an image named `seldonio/issuesummarization:0.1` in your docker images. To test the model, you can run it locally using
+Now you should see an image named `gcr.io/gcr-repository-name/issue-summarization:0.1` in your docker images. To test the model, you can run it locally using
 
-`docker run -p 5000:5000 seldonio/issuesummarization:0.1`
+`docker run -p 5000:5000 gcr.io/gcr-repository-name/issue-summarization:0.1`
+
+You can push the image by running `gcloud docker -- push gcr.io/gcr-repository-name/issue-summarization:0.1`
 
 > You can find more details about wrapping a model with seldon-core [here](https://github.com/SeldonIO/seldon-core/blob/master/docs/wrappers/python.md)
 
