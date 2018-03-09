@@ -21,7 +21,7 @@ By the end of this tutorial, you should learn how to:
     datasets
 *   Train a Sequence-to-Sequence model using TensorFlow on the cluster using
     GPUs
-*   Serve the model using a Tornado Server
+*   Serve the model using [Seldon Core](https://github.com/SeldonIO/seldon-core/)
 
 ## Steps:
 
