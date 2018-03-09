@@ -16,7 +16,7 @@ You also need the following command line tools:
 
 ## Modifying existing examples
 
-Most examples online use containers with pre-canned data, or scripts with certain assumptions as to the cluster spec, we will modify one of these [examples](https://github.com/tensorflow/tensorflow/tree/0375ffcf83e16c3d6818fa67c9c13de810c1dacf/tensorflow/tools/dist_test) to work with the tensorflow operator, and to work more like a real-world example. 
+Most examples online use containers with pre-canned data, or scripts with certain assumptions as to the cluster spec. We will modify one of these [examples](https://github.com/tensorflow/tensorflow/tree/0375ffcf83e16c3d6818fa67c9c13de810c1dacf/tensorflow/tools/dist_test) to work with the tensorflow operator, and to work more like a real-world example.
 
 ### Prepare model
 
@@ -29,7 +29,7 @@ Basically, we must
 3. Save the graph in a way that's exportable
 4. Add an option to control the training directory
 
-TODO: Verify that all the changes were neccessary
+TODO: Verify that all the changes were neccessary, especially #3
 
 The resulting model is [model.py](model.py).
 
@@ -46,7 +46,7 @@ DOCKER_BASE_URL=docker.io/elsonrodriguez # Put your docker registry here
 docker build . --no-cache  -f Dockerfile.tfserver -t ${DOCKER_BASE_URL}/mytfserver:1.0
 docker build . --no-cache  -f Dockerfile.model -t ${DOCKER_BASE_URL}/mytfmodel:1.0
 
-docker push ${DOCKER_BASE_URL}/mytserver:1.0
+docker push ${DOCKER_BASE_URL}/mytfserver:1.0
 docker push ${DOCKER_BASE_URL}/mytfmodel:1.0
 ```
 
@@ -68,20 +68,21 @@ curl -O https://storage.googleapis.com/cvdf-datasets/mnist/train-images-idx3-uby
 curl -O https://storage.googleapis.com/cvdf-datasets/mnist/train-labels-idx1-ubyte.gz
 curl -O https://storage.googleapis.com/cvdf-datasets/mnist/t10k-images-idx3-ubyte.gz
 curl -O https://storage.googleapis.com/cvdf-datasets/mnist/t10k-labels-idx1-ubyte.gz
+cd -
 ```
 
 Next create a bucket or path in your S3-compatible object store.
 
 ```
 BUCKET_NAME=mybucket
-aws mb s3://${BUCKET_NAME}
+aws s3 mb s3://${BUCKET_NAME}
 ```
 
 Now upload your training data
 
 ```
 #Note if not using AWS S3, you must specify --endpoint-url
-aws cp --recursive /tmp/mnistdata s3://${BUCKET_NAME}/data
+aws s3 cp --recursive /tmp/mnistdata s3://${BUCKET_NAME}/data
 ```
 
 ## Preparing your Kubernetes Cluster
@@ -109,10 +110,13 @@ ks pkg install kubeflow/tf-serving@1a6fc9d0e19e456b784ba1c23c03ec47648819d0
 ks pkg install kubeflow/tf-job@1a6fc9d0e19e456b784ba1c23c03ec47648819d0
 
 # Deploy Kubeflow
-NAMESPACE=kubeflow
 kubectl create namespace ${NAMESPACE}
 ks generate core kubeflow-core --name=kubeflow-core --namespace=${NAMESPACE}
 ks apply default -c kubeflow-core
+
+# Switch context for the rest of the example
+kubectl config set-context $(kubectl config current-context) --namespace=${NAMESPACE}
+cd -
 ```
 
 Check to ensure things have deployed:
@@ -136,8 +140,7 @@ tfjobs.kubeflow.org     22m
 Argo is a workflow system used to automate workloads on Kubernetes. The Argo cli can automatically install argo on your Kubernetes cluster.
 
 ```
-NAMESPACE=tfworkflow
-argo install --install-namespace ${NAMESPACE}
+argo install --install-namespace=${NAMESPACE}
 ```
 
 We can check on the status of Argo by checking the logs and listing workflows.
@@ -167,9 +170,9 @@ First we need to install tiller on the cluster with rbac. Instructions can be fo
 
 Then install Kube Volume Controller:
 ```
-NAMESPACE=tfworkflow
+TODO pin to version and double check after open sourcing
 git clone https://github.com/kubeflow/experimental-kvc.git
-cd kube-volume-controller
+cd experimental-kvc
 helm install helm-charts/kube-volume-controller/ -n kvc --wait \
   --set clusterrole.install=true \
   --set storageclass.install=true \
@@ -219,7 +222,7 @@ export S3_ENDPOINT=s3.us-west-2.amazonaws.com
 export S3_DATA_URL=s3://${BUCKET_NAME}/data/mnist/
 export S3_TRAIN_BASE_URL=s3://${BUCKET_NAME}/models
 export JOB_NAME=myjob-$(uuidgen  | cut -c -5 | tr '[:upper:]' '[:lower:]')
-export TF_SERVER_IMAGE=${DOCKER_BASE_URL}/mytserver:1.0
+export TF_SERVER_IMAGE=${DOCKER_BASE_URL}/mytfserver:1.0
 export MODEL_IMAGE=${DOCKER_BASE_URL}/mytfmodel:1.0
 export NAMESPACE=tfworkflow
 ```
@@ -252,17 +255,25 @@ $ argo get tf-workflow-h7hwh
 
 ## Monitoring
 
-There are various ways to visualize your workflow/training job.
+There are various ways to monitor workflow/training job. In addition to using `kubectl` to query for the status of `pods`, you can see the status of the mnist data volume:
+
+```
+kubectl describe volumemanager mnist
+
+```
+
+Some basic dashboards are also available.
 
 ### Argo UI
 
 The Argo UI is useful for seeing what stage your worfklow is in:
 
 ```
-NAMESPACE=tfworkflow
 PODNAME=$(kubectl get pod -l app=argo-ui -n${NAMESPACE} -o jsonpath='{.items[0].metadata.name}')
-kubectl port-forward ${PODNAME} 8001:8001 -n${NAMESPACE}
+kubectl port-forward ${PODNAME} 8001:8001
 ```
+
+You should now be able to visit [http://127.0.0.1:8001](http://127.0.0.1:8001) to see the status of your workflows.
 
 ### Tensorboard
 
@@ -271,8 +282,10 @@ Tensorboard is deployed after training is done. To connect:
 ```
 NAMESPACE=tfworkflow
 PODNAME=$(kubectl get pod -n${NAMESPACE} -l app=tensorboard-${JOB_NAME} -o jsonpath='{.items[0].metadata.name}')
-kubectl port-forward ${PODNAME} 6006:6006 -n${NAMESPACE}
+kubectl port-forward ${PODNAME} 6006:6006
 ```
+
+Tensorboard can now be accessed at [http://127.0.0.1:6006](http://127.0.0.1:6006).
 
 ## Using Tensorflow serving
 
@@ -281,10 +294,9 @@ By default the workflow deploys our model via Tensorflow Serving. Included in th
 TODO modify mnist client to use invidiual number images, seems more exciting than just submitting a batch of files.
 
 ```
-NAMESPACE=tfworkflow
-POD_NAME=$(kubectl get pod -l=app=${JOB_NAME} -n${NAMESPACE} -o jsonpath='{.items[0].metadata.name}')
-kubectl port-forward -n${NAMESPACE} ${POD_NAME} -p 9000:9000
-python mnist_client.py  --server 127.0.0.1:9000 --data_dir /tmp/mnistdata
+POD_NAME=$(kubectl get pod -l=app=mnist-${JOB_NAME} -o jsonpath='{.items[0].metadata.name}')
+kubectl port-forward ${POD_NAME} 9000:9000 &
+python mnist_client.py  --server 127.0.0.1:9000 --data_dir /tmp/mnistdata --model_name=mnist-${JOB_NAME}
 ```
 
 Model serving can be turned off by passing in `-p model-serving=false` to the `model-train.yaml` workflow. If you wish to serve your model after training, use the `model-deploy.yaml` workflow. Simply pass in the desired finished argo workflow as an argument:
