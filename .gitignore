@@ -39,3 +39,7 @@ examples/.ipynb_checkpoints/
 
 # pyenv
 .python-version
+
+# Data files
+*.h5
+*.dpkl
