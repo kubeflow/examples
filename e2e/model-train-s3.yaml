@@ -4,7 +4,7 @@ metadata:
   generateName: tf-workflow-
 spec:
   entrypoint: tests
-#  onExit: exit-handler
+  onExit: exit-handler
   # Parameters can be passed/overridden via the argo CLI.
   # To override the printed message, run `argo submit` with the -p option:
   # $ argo submit examples/arguments-parameters.yaml -p message="goodbye world"
@@ -68,6 +68,8 @@ spec:
           template: kvc
       - - name: get-workflow-info
           template: get-workflow-info
+      - - name: tensorboard
+          template: tf-tensorboard
       - - name: train-model
           template: tf-train
           arguments:
@@ -89,8 +91,6 @@ spec:
       - - name: serve-model
           template: tf-inference
           when: "{{workflow.parameters.model-serving}} == true"
-      - - name: tensorboard
-          template: tf-tensorboard
   - name: exit-handler
     steps:
       - - name: cleanup
@@ -193,42 +193,6 @@ spec:
                         value: "true"
                       - name: S3_ENDPOINT
                         value: {{workflow.parameters.s3-endpoint}}
-                    - image: nervana/circleci:jose_wait_for_master
-                      name: upload
-                      env:
-                      - name: POD_NAME
-                        valueFrom:
-                          fieldRef:
-                            apiVersion: v1
-                            fieldPath: metadata.name
-                      - name: POD_NAMESPACE
-                        valueFrom:
-                          fieldRef:
-                            apiVersion: v1
-                            fieldPath: metadata.namespace
-                      - name: AWS_ACCESS_KEY_ID
-                        valueFrom:
-                          secretKeyRef:
-                            name: {{workflow.parameters.aws-secret}}
-                            key: awsAccessKeyID
-                      - name: AWS_SECRET_ACCESS_KEY
-                        valueFrom:
-                          secretKeyRef:
-                            name: {{workflow.parameters.aws-secret}}
-                            key: awsSecretAccessKey
-                      - name: AWS_DEFAULT_REGION
-                        value: {{workflow.parameters.aws-region}}
-                      - name: AWS_REGION
-                        value: {{workflow.parameters.aws-region}}
-                      - name: S3_REGION
-                        value: {{workflow.parameters.aws-region}}
-                      - name: S3_USE_HTTPS
-                        value: "true"
-                      - name: S3_VERIFY_SSL
-                        value: "true"
-                      - name: S3_ENDPOINT
-                        value: {{workflow.parameters.s3-endpoint}}
-                      command: ['sh', '-c', "./bin/wait_for_master $POD_NAMESPACE $POD_NAME"]
                   volumes:
                   - name: training-data
                     hostPath:
@@ -272,42 +236,6 @@ spec:
                         value: "true"
                       - name: S3_ENDPOINT
                         value: {{workflow.parameters.s3-endpoint}}
-                    - image: nervana/circleci:jose_wait_for_master
-                      name: upload
-                      env:
-                      - name: POD_NAME
-                        valueFrom:
-                          fieldRef:
-                            apiVersion: v1
-                            fieldPath: metadata.name
-                      - name: POD_NAMESPACE
-                        valueFrom:
-                          fieldRef:
-                            apiVersion: v1
-                            fieldPath: metadata.namespace
-                      - name: AWS_ACCESS_KEY_ID
-                        valueFrom:
-                          secretKeyRef:
-                            name: {{workflow.parameters.aws-secret}}
-                            key: awsAccessKeyID
-                      - name: AWS_SECRET_ACCESS_KEY
-                        valueFrom:
-                          secretKeyRef:
-                            name: {{workflow.parameters.aws-secret}}
-                            key: awsSecretAccessKey
-                      - name: AWS_DEFAULT_REGION
-                        value: {{workflow.parameters.aws-region}}
-                      - name: AWS_REGION
-                        value: {{workflow.parameters.aws-region}}
-                      - name: S3_REGION
-                        value: {{workflow.parameters.aws-region}}
-                      - name: S3_USE_HTTPS
-                        value: "true"
-                      - name: S3_VERIFY_SSL
-                        value: "true"
-                      - name: S3_ENDPOINT
-                        value: {{workflow.parameters.s3-endpoint}}
-                      command: ['sh', '-c', "./bin/wait_for_master $POD_NAMESPACE $POD_NAME"]
                   volumes:
                   - name: training-data
                     hostPath:
