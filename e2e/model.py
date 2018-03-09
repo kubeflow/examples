@@ -52,8 +52,6 @@ flags.DEFINE_string("train_dir", "/tmp/mnist-train",
 flags.DEFINE_boolean("download_only", False,
                      "Only perform downloading of data; Do not proceed to "
                      "session preparation, model definition or training")
-flags.DEFINE_boolean("download", True,
-                     "Whether or not to download data")
 flags.DEFINE_integer("task_id", None,
                      "Worker task index, should be >= 0. task_id=0 is "
                      "the master worker task the performs the variable "
