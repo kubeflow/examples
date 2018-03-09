@@ -12,6 +12,6 @@ This means our workflow can be simplified:
 
 TODO simplified diagram
 
-The s3-native workflow can seen here: (model-train-s3.yaml)[model-train-s3.yaml]
+The s3-native workflow can seen here: [model-train-s3.yaml](model-train-s3.yaml)
 
 One notable change is that Tensorboard is now deployed before training to allow for monitoring. This couldn't be done in the previous part since the data was only collected at the end.
