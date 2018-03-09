@@ -31,8 +31,6 @@ Basically, we must
 
 TODO: Verify that all the changes were neccessary
 
-TODO: change all cluster spec stuff to just natively parse tfjob.
-
 The resulting model is [model.py](model.py).
 
 ### Prepare distribued tensorflow grpc components.

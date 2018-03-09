@@ -290,7 +290,7 @@ spec:
         spec:
           restartPolicy: Never
           containers:
-          - image: elsonrodriguez/mytfmodel:1.45
+          - image: {{workflow.parameters.tf-image}}
             name: export
             imagePullPolicy: Always
             command: ['/bin/bash','-c', 'python /opt/export.py --checkpoint_dir={{inputs.parameters.s3-unfinished-url}} --output_dir={{inputs.parameters.s3-exported-url}}']

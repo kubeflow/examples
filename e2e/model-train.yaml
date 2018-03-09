@@ -309,7 +309,7 @@ spec:
               mountPath: /tmp/train
             - name: download-done
               mountPath: /tmp/download-done
-          - image: elsonrodriguez/mytfmodel:1.45
+          - image: {{workflow.parameters.tf-image}}
             name: export
             imagePullPolicy: Always
             command: ['/bin/bash','-c', 'while [ ! -f /tmp/download-done/done ]; do sleep 5; done; ls -r /tmp/export/model; python /opt/export.py --checkpoint_dir=/tmp/train --output_dir=/tmp/export/model && touch /tmp/export-done/done']
