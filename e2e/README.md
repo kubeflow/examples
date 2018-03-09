@@ -297,4 +297,4 @@ argo submit model-deploy.yaml -n ${NAMESPACE} -p workflow=${WORKFLOW} --servicea
 
 ## Next Steps
 
-As you noticed, there were many portions of this example that are shimming functionality around data. In the [next part](part-two.md), we will be modifying these examples further to directly utilize object stores.
+As you noticed, there were many portions of this example that are shimming functionality around data and the TFJob spec. In the [next part](part-two.md), we will be optimizing our example to improve these pain points.
