@@ -19,19 +19,16 @@ Most examples online use containers with pre-canned data, or scripts with certai
 
 ### Prepare model
 
-There is a delta between existing distributed mnist examples and the typical tfjob spec. This can be summarized with the following diff:
-
-(link to github diff of stock mnist and modify mnist)
-https://github.com/tensorflow/tensorflow/blob/0375ffcf83e16c3d6818fa67c9c13de810c1dacf/tensorflow/tools/dist_test/python/mnist_replica.py
-https://github.com/elsonrodriguez/examples/blob/e2e/e2e/model.py
+There is a delta between existing distributed mnist examples and what's needed to run well as a TFJob. These changes can be viewed in the (included diff)[mnist-changes.md]
 
 Basically, we must
 
 1. Add handling for the tfjob Master
 2. Convert the model itself to be importable as a python module
-3. Make the download functionality configurable
+3. Save the graph in a way that's exportable
 4. Add an option to control the training directory
 
+TODO: Verify that all the changes were neccessary
 TODO: change all cluster spec stuff to just natively parse tfjob.
 
 The resulting model is [model.py](model.py).
@@ -58,6 +55,7 @@ Alternately, you can use these existing images:
 - gcr.io/kubeflow/mytfserver:1.0
 - gcr.io/kubeflow/mytfmodel:1.0
 
+TODO: Actually put images at these urls, or replace with another url.
 ## Upload data
 
 First, we need to grab the mnist training data set:
@@ -75,14 +73,15 @@ curl -O https://storage.googleapis.com/cvdf-datasets/mnist/t10k-labels-idx1-ubyt
 Next create a bucket or path in your S3-compatible object store.
 
 ```
-aws mb s3://...
+BUCKET_NAME=mybucket
+aws mb s3://${BUCKET_NAME}
 ```
 
 Now upload your training data
 
 ```
 #Note if not using AWS S3, you must specify --endpoint-url
-aws cp --recursive /tmp/mnistdata s3://...
+aws cp --recursive /tmp/mnistdata s3://${BUCKET_NAME}/data
 ```
 
 ## Preparing your Kubernetes Cluster
@@ -134,7 +133,7 @@ tfjobs.kubeflow.org     22m
 
 ### Deploying Argo
 
-Argo is a workflow system used to automate workloads on Kubernetes.
+Argo is a workflow system used to automate workloads on Kubernetes. The Argo cli can automatically install argo on your Kubernetes cluster.
 
 ```
 NAMESPACE=tfworkflow
@@ -203,8 +202,11 @@ This is the bulk of the work, let's walk through what is needed:
 3. Export the model
 4. Serve the model
 
+TODO add diagram
+
 Now let's look at how this is represented in our [example workflow](model-train.yaml)
 
+TODO add verbose comments to workflow
 ## Submitting your training workflow
 
 First we need to set a few variables in our workflow. Make sure to set your docker registry or remove the `IMAGE` parameters in order to use our defaults:
@@ -214,8 +216,8 @@ DOCKER_BASE_URL=docker.io/elsonrodriguez # Put your docker registry here
 export AWS_REGION=us-west-2
 export AWS_ENDPOINT_URL=https://s3.us-west-2.amazonaws.com
 export S3_ENDPOINT=s3.us-west-2.amazonaws.com
-export S3_DATA_URL=s3://tfoperator/data/mnist/
-export S3_TRAIN_BASE_URL=s3://tfoperator/models
+export S3_DATA_URL=s3://${BUCKET_NAME}/data/mnist/
+export S3_TRAIN_BASE_URL=s3://${BUCKET_NAME}/models
 export JOB_NAME=myjob-$(uuidgen  | cut -c -5 | tr '[:upper:]' '[:lower:]')
 export TF_SERVER_IMAGE=${DOCKER_BASE_URL}/mytserver:1.0
 export MODEL_IMAGE=${DOCKER_BASE_URL}/mytfmodel:1.0
@@ -294,4 +296,4 @@ argo submit model-deploy.yaml -n ${NAMESPACE} -p workflow=${WORKFLOW} --servicea
 
 ## Next Steps
 
-As you noticed, there were many portions of this example that are shimming functionality around data. In the next part, we will be modifying these examples further to directly utilize object stores.
+As you noticed, there were many portions of this example that are shimming functionality around data. In the (next part)[part-two.md], we will be modifying these examples further to directly utilize object stores.
