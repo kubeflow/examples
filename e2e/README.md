@@ -12,6 +12,7 @@ You also need the following command line tools:
 - [argo](https://github.com/argoproj/argo/blob/master/demo.md#1-download-argo)
 - [helm](https://docs.helm.sh/using_helm/#installing-helm)
 - [ksonnet](https://ksonnet.io/#get-started)
+- [aws](https://docs.aws.amazon.com/cli/latest/userguide/installing.html)
 
 ## Modifying existing examples
 
