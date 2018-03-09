@@ -19,7 +19,7 @@ Most examples online use containers with pre-canned data, or scripts with certai
 
 ### Prepare model
 
-There is a delta between existing distributed mnist examples and what's needed to run well as a TFJob. These changes can be viewed in the (included diff)[mnist-changes.md]
+There is a delta between existing distributed mnist examples and what's needed to run well as a TFJob. These changes can be viewed in the [included diff](mnist-changes.md)
 
 Basically, we must
 
@@ -29,6 +29,7 @@ Basically, we must
 4. Add an option to control the training directory
 
 TODO: Verify that all the changes were neccessary
+
 TODO: change all cluster spec stuff to just natively parse tfjob.
 
 The resulting model is [model.py](model.py).
@@ -296,4 +297,4 @@ argo submit model-deploy.yaml -n ${NAMESPACE} -p workflow=${WORKFLOW} --servicea
 
 ## Next Steps
 
-As you noticed, there were many portions of this example that are shimming functionality around data. In the (next part)[part-two.md], we will be modifying these examples further to directly utilize object stores.
+As you noticed, there were many portions of this example that are shimming functionality around data. In the [next part](part-two.md), we will be modifying these examples further to directly utilize object stores.
