@@ -171,9 +171,9 @@ First we need to install tiller on the cluster with rbac. Instructions can be fo
 Then install Kube Volume Controller:
 ```
 #TODO pin to version and double check after open sourcing
-git clone https://github.com/balajismaniam/experimental-kvc.git
+git clone https://github.com/elsonrodriguez/experimental-kvc.git
 cd experimental-kvc
-git checkout replay-history
+git checkout 3773234ef26cf588dc2b5b79367b4d7dd4ad18da
 helm install helm-charts/kube-volume-controller/ -n kvc --wait \
   --set clusterrole.install=true \
   --set storageclass.install=true \
