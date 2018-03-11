@@ -19,7 +19,7 @@ spec:
       value: 1
     - name: tf-ps # number of tf parameter servers
       value: 2
-    - name: tf-image
+    - name: tf-model-image
       value: elsonrodriguez/mytfmodel:1.45
     - name: tf-server-image
       value: elsonrodriguez/mytfserver:1.6
@@ -166,7 +166,7 @@ spec:
                       {{inputs.parameters.nodeaffinity}}
                   serviceAccountName: tf-job-operator
                   containers:
-                    - image: {{workflow.parameters.tf-image}}
+                    - image: {{workflow.parameters.tf-model-image}}
                       name: tensorflow
                       imagePullPolicy: Always
                       args: ["python", "/opt/model.py", "--data_dir=/tmp/data", "--train_dir=/tmp/train", "--download=true", "--sync_replicas=true", "--hidden_units={{workflow.parameters.model-hidden-units}}", "--train_steps={{workflow.parameters.model-train-steps}}", "--batch_size={{workflow.parameters.model-batch-size}}", "--learning_rate={{workflow.parameters.model-learning-rate}}"]
@@ -309,7 +309,7 @@ spec:
               mountPath: /tmp/train
             - name: download-done
               mountPath: /tmp/download-done
-          - image: {{workflow.parameters.tf-image}}
+          - image: {{workflow.parameters.tf-model-image}}
             name: export
             imagePullPolicy: Always
             command: ['/bin/bash','-c', 'while [ ! -f /tmp/download-done/done ]; do sleep 5; done; ls -r /tmp/export/model; python /opt/export.py --checkpoint_dir=/tmp/train --output_dir=/tmp/export/model && touch /tmp/export-done/done']

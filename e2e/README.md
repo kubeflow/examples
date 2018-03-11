@@ -224,10 +224,13 @@ export S3_ENDPOINT=s3.us-west-2.amazonaws.com
 export S3_DATA_URL=s3://${BUCKET_NAME}/data/mnist/
 export S3_TRAIN_BASE_URL=s3://${BUCKET_NAME}/models
 export JOB_NAME=myjob-$(uuidgen  | cut -c -5 | tr '[:upper:]' '[:lower:]')
-export TF_SERVER_IMAGE=${DOCKER_BASE_URL}/mytfserver:1.0
-export MODEL_IMAGE=${DOCKER_BASE_URL}/mytfmodel:1.0
+export TF_SERVER_IMAGE=${DOCKER_BASE_URL}/mytfmodel:1.0
+export TF_MODEL_IMAGE=${DOCKER_BASE_URL}/mytfmodel:1.0
 export NAMESPACE=tfworkflow
+export TF_WORKER=3
+export MODEL_TRAIN_STEPS=200
 ```
+TODO: figure out why master crashes when steps are higher than 200. Might be related to train.Supervisor. Maybe.
 
 Next, submit your workflow.
 
@@ -237,10 +240,12 @@ argo submit model-train.yaml -n ${NAMESPACE} --serviceaccount argo \
     -p s3-endpoint=${S3_ENDPOINT} \
     -p aws-region=${AWS_REGION} \
     -p tf-server-image=${TF_SERVER_IMAGE} \
-    -p model-image=${MODEL_IMAGE} \
+    -p tf-model-image=${TF_MODEL_IMAGE} \
     -p s3-data-url=${S3_DATA_URL} \
     -p s3-train-base-url=${S3_TRAIN_BASE_URL} \
     -p job-name=${JOB_NAME} \
+    -p tf-worker=${TF_WORKER} \
+    -p model-train-steps=${MODEL_TRAIN_STEPS} \
     -p namespace=${NAMESPACE}
 ```
 

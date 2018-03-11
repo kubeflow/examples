@@ -273,6 +273,10 @@ spec:
                       - name: S3_ENDPOINT
                         value: {{workflow.parameters.s3-endpoint}}
                   restartPolicy: OnFailure
+          terminationPolicy:
+            chief:
+              replicaIndex: 0
+              replicaName: WORKER
   - name: tf-export
     inputs:
       parameters:

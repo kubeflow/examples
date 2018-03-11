@@ -141,6 +141,9 @@ def main(unused_argv):
   # Get the number of workers.
   num_workers = len(worker_spec)
 
+  cluster_specc = {"ps": ps_spec, "worker": worker_spec}
+  print("cluster_specc = %s" % str(cluster_specc))
+  print("num_workers = %d" % num_workers)
   cluster = tf.train.ClusterSpec({"master": master_spec, "ps": ps_spec, "worker": worker_spec})
 
   if not FLAGS.existing_servers:
@@ -148,9 +151,10 @@ def main(unused_argv):
     server = tf.train.Server(
         cluster, job_name=FLAGS.job_name, task_index=FLAGS.task_id)
     if FLAGS.job_name == "ps":
+      print("Running ps.")
       server.join()
 
-  is_chief = (FLAGS.task_id == 0)
+  is_chief = (FLAGS.task_id == 0) and (FLAGS.job_name == "master")
   if FLAGS.num_gpus > 0:
     # Avoid gpu allocation conflict: now allocate task_num -> #gpu
     # for each worker in the corresponding machine
@@ -257,9 +261,9 @@ def main(unused_argv):
     time_begin = time.time()
     print("Training begins @ %f" % time_begin)
 
-    local_step = 0
     sess.graph._unsafe_unfinalize()
     saver = tf.train.Saver(max_to_keep=None)
+    local_step = 0
     while True:
       # Training feed
       batch_xs, batch_ys = mnist.train.next_batch(FLAGS.batch_size)
@@ -274,7 +278,6 @@ def main(unused_argv):
 
       if step >= FLAGS.train_steps:
         break
-#    os.mkdir("/tmp/datpath")
     saver.save(sess, FLAGS.train_dir)
     time_end = time.time()
     print("Training ends @ %f" % time_end)

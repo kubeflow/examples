@@ -40,11 +40,20 @@
 > 
 104a139
 >   master_spec = FLAGS.master_hosts.split(",")
-109c144
+109c144,147
 <   cluster = tf.train.ClusterSpec({"ps": ps_spec, "worker": worker_spec})
 ---
+>   cluster_specc = {"ps": ps_spec, "worker": worker_spec}
+>   print("cluster_specc = %s" % str(cluster_specc))
+>   print("num_workers = %d" % num_workers)
 >   cluster = tf.train.ClusterSpec({"master": master_spec, "ps": ps_spec, "worker": worker_spec})
-138,162c173
+115a154
+>       print("Running ps.")
+118c157
+<   is_chief = (FLAGS.task_id == 0)
+---
+>   is_chief = (FLAGS.task_id == 0) and (FLAGS.job_name == "master")
+138,162c177
 <     # Variables of the hidden layer
 <     hid_w = tf.Variable(
 <         tf.truncated_normal(
@@ -72,7 +81,7 @@
 <     cross_entropy = -tf.reduce_sum(y_ * tf.log(tf.clip_by_value(y, 1e-10, 1.0)))
 ---
 >     x, y, y_, cross_entropy = mnist_inference(FLAGS.hidden_units)
-192c203,208
+192c207,212
 <     train_dir = tempfile.mkdtemp()
 ---
 > 
@@ -81,16 +90,19 @@
 >     except OSError:
 >       if not os.path.isdir(FLAGS.train_dir):
 >         raise
-197c213
+197c217
 <           logdir=train_dir,
 ---
 >           logdir=FLAGS.train_dir,
-206c222
+206c226
 <           logdir=train_dir,
 ---
 >           logdir=FLAGS.train_dir,
-244a261,262
+243a264,265
 >     sess.graph._unsafe_unfinalize()
 >     saver = tf.train.Saver(max_to_keep=None)
+259c281
+< 
+---
 >     saver.save(sess, FLAGS.train_dir)
 ```
