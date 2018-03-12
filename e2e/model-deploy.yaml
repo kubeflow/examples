@@ -30,8 +30,8 @@ spec:
               value: "{{steps.get-workflow-info.outputs.parameters.namespace}}"
             - name: aws-region 
               value: "{{steps.get-workflow-info.outputs.parameters.aws-region}}"
-            - name: aws-s3-endpoint
-              value: "{{steps.get-workflow-info.outputs.parameters.aws-s3-endpoint}}"
+            - name: s3-endpoint
+              value: "{{steps.get-workflow-info.outputs.parameters.s3-endpoint}}"
             - name: job-name
               value: "{{steps.get-workflow-info.outputs.parameters.job-name}}"
             - name: tf-serving-image 
@@ -46,7 +46,7 @@ spec:
     container:
       image: nervana/circleci:master
       imagePullPolicy: Always
-      command: ["bash", "-c", "-x", 'for var in s3-unfinished-url s3-exported-url; do kubectl get workflow {{workflow.parameters.workflow}} -o json | jq -r ".status.nodes[] | select(.name|contains(\"get-workflow-info\")) | .outputs.parameters[] | select(.name == \"${var}\") | .value" > /tmp/${var} ; done; for var in job-name namespace aws-secret aws-region aws-s3-endpoint tf-serving-image model-serving-servicetype model-serving-ks-url model-serving-ks-tag; do kubectl get workflow {{workflow.parameters.workflow}} -o jsonpath="{.spec.arguments.parameters[?(.name==\"${var}\")].value}" > /tmp/${var}; done']
+      command: ["bash", "-c", "-x", 'for var in s3-unfinished-url s3-exported-url; do kubectl get workflow {{workflow.parameters.workflow}} -o json | jq -r ".status.nodes[] | select(.name|contains(\"get-workflow-info\")) | .outputs.parameters[] | select(.name == \"${var}\") | .value" > /tmp/${var} ; done; for var in job-name namespace aws-secret aws-region s3-endpoint tf-serving-image model-serving-servicetype model-serving-ks-url model-serving-ks-tag; do kubectl get workflow {{workflow.parameters.workflow}} -o jsonpath="{.spec.arguments.parameters[?(.name==\"${var}\")].value}" > /tmp/${var}; done']
     outputs:
       parameters:
       - name: s3-unfinished-url
@@ -64,9 +64,9 @@ spec:
       - name: aws-region
         valueFrom:
           path: /tmp/aws-region
-      - name: aws-s3-endpoint
+      - name: s3-endpoint
         valueFrom:
-          path: /tmp/aws-s3-endpoint
+          path: /tmp/s3-endpoint
       - name: job-name
         valueFrom:
           path: /tmp/job-name
@@ -90,7 +90,7 @@ spec:
       - name: aws-secret
       - name: namespace
       - name: aws-region
-      - name: aws-s3-endpoint
+      - name: s3-endpoint
       - name: job-name
       - name: tf-serving-image
       - name: model-serving-servicetype
@@ -119,7 +119,7 @@ spec:
         ks param set ${MODEL_COMPONENT} s3_secret_accesskeyid_key_name awsAccessKeyID
         ks param set ${MODEL_COMPONENT} s3_secret_secretaccesskey_key_name awsSecretAccessKey
         ks param set ${MODEL_COMPONENT} s3_aws_region {{inputs.parameters.aws-region}}
-        ks param set ${MODEL_COMPONENT} s3_endpoint {{inputs.parameters.aws-s3-endpoint}}
+        ks param set ${MODEL_COMPONENT} s3_endpoint {{inputs.parameters.s3-endpoint}}
         ks apply default -c ${MODEL_COMPONENT}
       env:
       - name: SERVICE_ACCOUNT

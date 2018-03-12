@@ -108,7 +108,7 @@ spec:
         spec:
           volumeConfigs:
             - id: "mnist-{{workflow.uid}}"
-              replicas: 1
+              replicas: {{workflow.parameters.tf-worker}}
               sourceType: "S3"
               sourceURL: "{{workflow.parameters.s3-data-url}}"
               AccessMode: "ReadWriteOnce"
@@ -121,7 +121,7 @@ spec:
     container:
       image: nervana/circleci:master
       imagePullPolicy: Always
-      command: ["bash", "-c", "kubectl get volumemanager mnist -o json | jq -r '.status.volumes[].volumeSource.hostPath.path' | tee /tmp/hostpath; kubectl get volumemanager mnist -o json | jq '.status.volumes[].nodeAffinity' | tee /tmp/nodeaffinity; echo '{{workflow.parameters.s3-train-base-url}}/unfinished/{{workflow.parameters.job-name}}/' > /tmp/s3-unfinished-url; echo '{{workflow.parameters.s3-train-base-url}}/exported/{{workflow.parameters.job-name}}/' > /tmp/s3-exported-url"]
+      command: ["bash", "-c", "kubectl get volumemanager mnist -o json | jq -r '.status.volumes[].volumeSource.hostPath.path' | tee /tmp/hostpath; kubectl get volumemanager mnist -o json | jq '.status.volumes[].nodeAffinity' | tee /tmp/nodeaffinity; echo '{{workflow.parameters.s3-train-base-url}}/unfinished/{{workflow.parameters.job-name}}/zerolengthfix' | tr -d '[:space:]' > /tmp/s3-unfinished-url; echo '{{workflow.parameters.s3-train-base-url}}/exported/{{workflow.parameters.job-name}}/' | tr -d '[:space:]' > /tmp/s3-exported-url"]
     outputs:
       parameters:
       - name: hostpath
@@ -276,7 +276,7 @@ spec:
           terminationPolicy:
             chief:
               replicaIndex: 0
-              replicaName: WORKER
+              replicaName: MASTER
   - name: tf-export
     inputs:
       parameters:
