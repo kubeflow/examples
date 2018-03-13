@@ -5,7 +5,7 @@ This example guides you through the process of taking a distributed model, modif
 ## Prerequisites
 To get started you need the following:
 - A 1.9 Kubernetes cluster with RBAC
-- S3-compatabile object store ([Amazon S3](https://aws.amazon.com/s3/), [Google Storage](https://cloud.google.com/storage/docs/interoperability), [Minio](https://www.minio.io/kubernetes.html))
+- S3-compatible object store ([Amazon S3](https://aws.amazon.com/s3/), [Google Storage](https://cloud.google.com/storage/docs/interoperability), [Minio](https://www.minio.io/kubernetes.html))
 
 You also need the following command line tools:
 - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
