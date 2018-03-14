@@ -11,7 +11,7 @@ Before we get started there a few requirements.
 Your cluster must:
 
 - Be at least version 1.9
-- Have access to an S3-compatabile object store ([Amazon S3](https://aws.amazon.com/s3/), [Google Storage](https://cloud.google.com/storage/docs/interoperability), [Minio](https://www.minio.io/kubernetes.html))
+- Have access to an S3-compatible object store ([Amazon S3](https://aws.amazon.com/s3/), [Google Storage](https://cloud.google.com/storage/docs/interoperability), [Minio](https://www.minio.io/kubernetes.html))
 - Contain 3 nodes of at least 8 cores and 16 GB of RAM.
 
 If using GKE, the following will provision a cluster with the required features:
