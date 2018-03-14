@@ -1,13 +1,29 @@
-# Kubeflow End to End - Part 1
+# Kubeflow End to End
 
 This example guides you through the process of taking a distributed model, modifying it to work with the tf-operator, providing data to your model, and serving the resulting trained model. We will be using Argo to manage the workflow, Kube Volume Controller to supply data via s3, and Kubeflow to serve the model.
 
 ## Prerequisites
-To get started you need the following:
-- A 1.9 Kubernetes cluster with RBAC
-- S3-compatabile object store ([Amazon S3](https://aws.amazon.com/s3/), [Google Storage](https://cloud.google.com/storage/docs/interoperability), [Minio](https://www.minio.io/kubernetes.html))
+
+Before we get started there a few requirements.
+
+### Kubernetes Cluster Environment
+
+Your cluster must:
+
+- Be at least version 1.9
+- Have access to an S3-compatabile object store ([Amazon S3](https://aws.amazon.com/s3/), [Google Storage](https://cloud.google.com/storage/docs/interoperability), [Minio](https://www.minio.io/kubernetes.html))
+- Contain 3 nodes of at least 8 cores and 16 GB of RAM.
+
+If using GKE, the following will provision a cluster with the required features:
+
+```
+gcloud alpha container clusters create ${USER} --enable-kubernetes-alpha --machine-type=n1-standard-8 --num-nodes=3 --disk-size=200 --zone=us-west1-a --cluster-version=1.9.2-gke.1 --image-type=UBUNTU
+```
+
+### Local Setup
 
 You also need the following command line tools:
+
 - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
 - [argo](https://github.com/argoproj/argo/blob/master/demo.md#1-download-argo)
 - [helm](https://docs.helm.sh/using_helm/#installing-helm)
@@ -30,6 +46,7 @@ Basically, we must
 4. Add an option to control the training directory
 
 TODO: Verify that all the changes were neccessary, especially #3
+TODO: Had to disable master handling... probably save it for another part.
 
 The resulting model is [model.py](model.py).
 
@@ -164,7 +181,7 @@ kubectl apply -f argo-cluster-role.yaml
 
 ### Deploying Kube Volume Controller
 
-Kube Volume Controller is a utility that can seed replicas of datasets across nodes.
+Kube Volume Controller is a utility that can seed replicas of datasets across nodes. Think of it as an explicit caching mechanism.
 
 First we need to install tiller on the cluster with rbac. Instructions can be found [here](https://github.com/kubernetes/helm/blob/master/docs/rbac.md).
 
@@ -207,11 +224,8 @@ This is the bulk of the work, let's walk through what is needed:
 3. Export the model
 4. Serve the model
 
-TODO add diagram
-
 Now let's look at how this is represented in our [example workflow](model-train.yaml)
 
-TODO add verbose comments to workflow
 ## Submitting your training workflow
 
 First we need to set a few variables in our workflow. Make sure to set your docker registry or remove the `IMAGE` parameters in order to use our defaults:
@@ -224,13 +238,11 @@ export S3_ENDPOINT=s3.us-west-2.amazonaws.com
 export S3_DATA_URL=s3://${BUCKET_NAME}/data/mnist/
 export S3_TRAIN_BASE_URL=s3://${BUCKET_NAME}/models
 export JOB_NAME=myjob-$(uuidgen  | cut -c -5 | tr '[:upper:]' '[:lower:]')
-export TF_SERVER_IMAGE=${DOCKER_BASE_URL}/mytfmodel:1.0
 export TF_MODEL_IMAGE=${DOCKER_BASE_URL}/mytfmodel:1.0
 export NAMESPACE=tfworkflow
 export TF_WORKER=3
 export MODEL_TRAIN_STEPS=200
 ```
-TODO: figure out why master crashes when steps are higher than 200. Might be related to train.Supervisor. Maybe.
 
 Next, submit your workflow.
 
@@ -239,7 +251,6 @@ argo submit model-train.yaml -n ${NAMESPACE} --serviceaccount argo \
     -p aws-endpoint-url=${AWS_ENDPOINT_URL} \
     -p s3-endpoint=${S3_ENDPOINT} \
     -p aws-region=${AWS_REGION} \
-    -p tf-server-image=${TF_SERVER_IMAGE} \
     -p tf-model-image=${TF_MODEL_IMAGE} \
     -p s3-data-url=${S3_DATA_URL} \
     -p s3-train-base-url=${S3_TRAIN_BASE_URL} \
@@ -315,4 +326,6 @@ argo submit model-deploy.yaml -n ${NAMESPACE} -p workflow=${WORKFLOW} --servicea
 
 ## Next Steps
 
-As you noticed, there were many portions of this example that are shimming functionality around data and the TFJob spec. In the [next part](part-two.md), we will be optimizing our example to improve these pain points.
+In the future we will be providing tutorials on more advanced examples.
+
+Till then, play with the settings/tunables! And try to use your own model within this workflow.

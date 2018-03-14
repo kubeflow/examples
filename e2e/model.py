@@ -82,7 +82,7 @@ flags.DEFINE_string("ps_hosts", "localhost:2222",
                     "Comma-separated list of hostname:port pairs")
 flags.DEFINE_string("worker_hosts", "localhost:2223,localhost:2224",
                     "Comma-separated list of hostname:port pairs")
-flags.DEFINE_string("master_hosts", "localhost:2222",
+flags.DEFINE_string("master_hosts", "",
                     "Comma-separated list of hostname:port pairs")
 flags.DEFINE_string("job_name", None, "job name: worker or ps")
 
@@ -144,7 +144,11 @@ def main(unused_argv):
   cluster_specc = {"ps": ps_spec, "worker": worker_spec}
   print("cluster_specc = %s" % str(cluster_specc))
   print("num_workers = %d" % num_workers)
-  cluster = tf.train.ClusterSpec({"master": master_spec, "ps": ps_spec, "worker": worker_spec})
+
+  if FLAGS.master_hosts == "":
+    cluster = tf.train.ClusterSpec({"ps": ps_spec, "worker": worker_spec})
+  else:
+    cluster = tf.train.ClusterSpec({"master": master_spec, "ps": ps_spec, "worker": worker_spec})
 
   if not FLAGS.existing_servers:
     # Not using existing servers. Create an in-process server.
@@ -154,7 +158,7 @@ def main(unused_argv):
       print("Running ps.")
       server.join()
 
-  is_chief = (FLAGS.task_id == 0) and (FLAGS.job_name == "master")
+  is_chief = (FLAGS.task_id == 0) # and (FLAGS.job_name == "master")
   if FLAGS.num_gpus > 0:
     # Avoid gpu allocation conflict: now allocate task_num -> #gpu
     # for each worker in the corresponding machine
