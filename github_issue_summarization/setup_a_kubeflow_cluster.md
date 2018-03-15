@@ -10,16 +10,21 @@ In this part, you will setup kubeflow on an existing kubernetes cluster.
         successfully
 *   The ksonnet CLI: [ks](https://ksonnet.io/#get-started)
 
+## Kubeflow setup
+
 Refer to the [user
 guide](https://github.com/kubeflow/kubeflow/blob/master/user_guide.md) for
-instructions on how to setup Kubeflow on your Kubernetes Cluster. Specifically
-complete the [Deploy
+instructions on how to setup kubeflow on your kubernetes cluster. Specifically,
+complete the following sections:
+*    [Deploy
 Kubeflow](https://github.com/kubeflow/kubeflow/blob/master/user_guide.md#deploy-kubeflow)
-section and [Bringing up a
-Notebook](https://github.com/kubeflow/kubeflow/blob/master/user_guide.md#bringing-up-a-notebook)
-section.
+*    [Bringing up a
+Notebook](https://github.com/kubeflow/kubeflow/blob/master/user_guide.md#bringing-up-a-jupyter-notebook)
+    *   When choosing an image for your cluster in the JupyterHub UI, use the
+image from this example:
+[`gcr.io/kubeflow-dev/issue-summarization-notebook-cpu:latest`](https://github.com/kubeflow/examples/blob/master/github_issue_summarization/workflow/Dockerfile).
 
-After completing that, you should have the following ready
+After completing that, you should have the following ready:
 
 *   A ksonnet app in a directory named `my-kubeflow`
 *   An output similar to this for `kubectl get pods`
