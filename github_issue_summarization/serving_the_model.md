@@ -36,27 +36,68 @@ You can push the image by running `gcloud docker -- push gcr.io/gcr-repository-n
 
 > You can find more details about wrapping a model with seldon-core [here](https://github.com/SeldonIO/seldon-core/blob/master/docs/wrappers/python.md)
 
-## Sample request and response
+# Deploying the model to your kubernetes cluster
 
-Request
+Now that we have an image with our model server, we can deploy it to our kubernetes cluster. We need to first deploy seldon-core to our cluster.
+
+## Deploy Seldon Core
+
+
+Install the CRD and it's controller using the seldon prototype
+
+```bash
+# Gives cluster-admin role to the default service account in the ${NAMESPACE}
+kubectl create clusterrolebinding seldon-admin --clusterrole=cluster-admin --serviceaccount=${NAMESPACE}:default
+# Install the kubeflow/seldon package
+ks pkg install kubeflow/seldon
+# Generate the seldon component and deploy it
+ks generate seldon seldon --name=seldon --namespace=${NAMESPACE}
+ks apply ${KF_ENV} -c seldon
+```
+
+Seldon Core should now be running on your cluster. You can verify it by running `kubectl get pods -n${NAMESPACE}`. You should see a pod named `seldon-cluster-manager-*`
+
+## Deploying the actual model
+
+Now that you have seldon core deployed, you can deploy the model using the `kubeflow/seldon-serve-simple` prototype.
+
+```bash
+ks generate seldon-serve-simple issue-summarization-model-serving \
+  --name=issue-summarization \
+  --image=gcr.io/gcr-repository-name/issue-summarization:0.1 \
+  --namespace=${NAMESPACE} \
+  --replicas=2
+ks apply ${KF_ENV} -c issue-summarization-model-serving
+```
+
+
+# Sample request and response
+
+Seldon Core uses ambassador to route it's requests. To send requests to the model, you can port-forward the ambassador container locally:
 
 ```
-curl -X POST -d 'json={"data":{"ndarray":[["issue overview add a new property to disable detection of image stream files those ended with -is.yml from target directory. expected behaviour by default cube should not process image stream files if user does not set it. current behaviour cube always try to execute -is.yml files which can cause some problems in most of cases, for example if you are using kuberentes instead of openshift or if you use together fabric8 maven plugin with cube"]]}}' http://localhost:5000/predict
+kubectl port-forward $(kubectl get pods -n ${NAMESPACE} -l service=ambassador -o jsonpath='{.items[0].metadata.name}') -n ${NAMESPACE} 8080:80
+```
+
+
+```
+curl -X POST -H 'Content-Type: application/json' -d '{"data":{"ndarray":[["issue overview add a new property to disable detection of image stream files those ended with -is.yml from target directory. expected behaviour by default cube should not process image stream files if user does not set it. current behaviour cube always try to execute -is.yml files which can cause some problems in most of cases, for example if you are using kuberentes instead of openshift or if you use together fabric8 maven plugin with cube"]]}}' http://localhost:8080/seldon/issue-summarization/api/v0.1/predictions
 ```
 
 Response
 
 ```
 {
+  "meta": {
+    "puid": "2rqt023g11gt7vfr0jnfkf1hsa",
+    "tags": {
+    },
+    "routing": {
+    }
+  },
   "data": {
-    "names": [
-      "t:0"
-    ],
-    "ndarray": [
-      [
-        "add a new property to disable detection"
-      ]
-    ]
+    "names": ["t:0"],
+    "ndarray": [["add a new property"]]
   }
 }
 ```
