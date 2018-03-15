@@ -28,7 +28,7 @@ After training completes, download the resulting files to your local machine. Th
 In a locally cloned copy of the same repo, issue the following commands to place these three files into the `examples/github_issue_summarization/notebooks` folder:
 
 ```
-PODNAME=`kubectl get pods --namespace=${NAMESPACE} --selector="app=tf-hub" --output=template --template="{{with index .items 0}}{{.metadata.name}}{{end}}"`
+PODNAME=`kubectl get pods --namespace=${NAMESPACE} --selector="app=jupyterhub" --output=template --template="{{with index .items 0}}{{.metadata.name}}{{end}}"`
 kubectl --namespace=${NAMESPACE} cp ${PODNAME}:/home/jovyan/examples/github_issue_summarization/notebooks/seq2seq_model_tutorial.h5 examples/github_issue_summarization/notebooks
 kubectl --namespace=${NAMESPACE} cp ${PODNAME}:/home/jovyan/examples/github_issue_summarization/notebooks/body_pp.dpkl examples/github_issue_summarization/notebooks
 kubectl --namespace=${NAMESPACE} cp ${PODNAME}:/home/jovyan/examples/github_issue_summarization/notebooks/title_pp.dpkl examples/github_issue_summarization/notebooks
