@@ -108,6 +108,7 @@ spec:
               sourceType: "S3"
               sourceURL: "{{workflow.parameters.s3-data-url}}"
               AccessMode: "ReadWriteOnce"
+              endpointURL: "{{workflow.parameters.aws-endpoint-url}}"
               Capacity: 1Gi
               Labels:
                 tfdata: mnist

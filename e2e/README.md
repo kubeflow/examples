@@ -29,10 +29,11 @@ You also need the following command line tools:
 - [helm](https://docs.helm.sh/using_helm/#installing-helm)
 - [ksonnet](https://ksonnet.io/#get-started)
 - [aws](https://docs.aws.amazon.com/cli/latest/userguide/installing.html)
+- [minio client](https://github.com/minio/mc#macos)
 
 ## Modifying existing examples
 
-Most examples online use containers with pre-canned data, or scripts with certain assumptions as to the cluster spec. We will modify one of these [examples](https://github.com/tensorflow/tensorflow/tree/0375ffcf83e16c3d6818fa67c9c13de810c1dacf/tensorflow/tools/dist_test) to work with the tensorflow operator, and to work more like a real-world example.
+Many examples online use containers with pre-canned data, or scripts with certain assumptions as to the cluster spec. We will modify one of these [examples](https://github.com/tensorflow/tensorflow/tree/0375ffcf83e16c3d6818fa67c9c13de810c1dacf/tensorflow/tools/dist_test) to work with the tensorflow operator, and to work more like a real-world example.
 
 ### Prepare model
 
@@ -46,13 +47,13 @@ Basically, we must
 4. Add an option to control the training directory
 
 TODO: Verify that all the changes were neccessary, especially #3
-TODO: Had to disable master handling... probably save it for another part.
+TODO: Had to disable master handling... probably save it for a future update.
 
 The resulting model is [model.py](model.py).
 
 ### Prepare distribued tensorflow grpc components.
 
-The stock distributed tensorflow grpc [example](https://github.com/tensorflow/tensorflow/blob/3af03be757b63ea6fbd28cc351d5d2323c526354/tensorflow/tools/dist_test/server/grpc_tensorflow_server.py) expects the cluster spec to be provided via command line arguments. We have modified an [existing shim](https://github.com/kubeflow/kubeflow/blob/d5caf230ff50260c1a6565db35edeeddd5d407e6/tf-controller-examples/tf-cnn/launcher.py) to be more [generic](tf_job_shim.py), and will be wrapping the standard grpc server in order to process TF_CONFIG into something it understands.
+The stock distributed Tensorflow [examples](https://github.com/tensorflow/tensorflow/blob/3af03be757b63ea6fbd28cc351d5d2323c526354/tensorflow/tools/dist_test/server/grpc_tensorflow_server.py) expect the cluster spec to be provided via command line arguments. We have modified an [existing shim](https://github.com/kubeflow/kubeflow/blob/d5caf230ff50260c1a6565db35edeeddd5d407e6/tf-controller-examples/tf-cnn/launcher.py) to be more [generic](tf_job_shim.py), and will be wrapping the standard examples in order to process TF_CONFIG into something it understands.
 
 ### Build and push images.
 
@@ -91,15 +92,21 @@ cd -
 Next create a bucket or path in your S3-compatible object store.
 
 ```
+#Note if not using AWS S3, you must specify --endpoint-url for all these commands.
 BUCKET_NAME=mybucket
-aws s3 mb s3://${BUCKET_NAME}
+aws s3api create-bucket --bucket=${BUCKET_NAME}
 ```
 
 Now upload your training data
 
 ```
-#Note if not using AWS S3, you must specify --endpoint-url
-aws s3 cp --recursive /tmp/mnistdata s3://${BUCKET_NAME}/data
+export S3_ENDPOINT=s3.us-west-2.amazonaws.com
+export AWS_ENDPOINT_URL=https://${S3_ENDPOINT}
+export AWS_ACCESS_KEY_ID=xxxxx
+export AWS_SECRET_ACCESS_KEY=xxxxx
+
+mc config host add s3 ${AWS_ENDPOINT_URL} ${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY}
+mc mirror /tmp/mnistdata/ s3/${BUCKET_NAME}/data/mnist/
 ```
 
 ## Preparing your Kubernetes Cluster
@@ -209,7 +216,7 @@ volumemanagers.aipg.intel.com                 17d
 ```
 
 ### Creating secrets for our workflow
-For fetching and uploading data, our workflow requires some credentials to be stored as kubernetes secrets:
+For fetching and uploading data, our workflow requires S3 credentials. These credentials will be provided as kubernetes secrets:
 ```
 kubectl create secret generic aws-creds --from-literal=awsAccessKeyID=${AWS_ACCESS_KEY_ID} \
  --from-literal=awsSecretAccessKey=${AWS_SECRET_ACCESS_KEY}
@@ -232,11 +239,11 @@ First we need to set a few variables in our workflow. Make sure to set your dock
 
 ```
 DOCKER_BASE_URL=docker.io/elsonrodriguez # Put your docker registry here
-export AWS_REGION=us-west-2
-export AWS_ENDPOINT_URL=https://s3.us-west-2.amazonaws.com
 export S3_ENDPOINT=s3.us-west-2.amazonaws.com
 export S3_DATA_URL=s3://${BUCKET_NAME}/data/mnist/
 export S3_TRAIN_BASE_URL=s3://${BUCKET_NAME}/models
+export AWS_ENDPOINT_URL=https://${S3_ENDPOINT}
+export AWS_REGION=us-west-2
 export JOB_NAME=myjob-$(uuidgen  | cut -c -5 | tr '[:upper:]' '[:lower:]')
 export TF_MODEL_IMAGE=${DOCKER_BASE_URL}/mytfmodel:1.0
 export NAMESPACE=tfworkflow
