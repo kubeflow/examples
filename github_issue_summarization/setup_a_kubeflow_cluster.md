@@ -19,8 +19,8 @@ complete the following sections:
 *    [Deploy
 Kubeflow](https://github.com/kubeflow/kubeflow/blob/master/user_guide.md#deploy-kubeflow)
 *    [Bringing up a
-Notebook](https://github.com/kubeflow/kubeflow/blob/master/user_guide.md#bringing-up-a-notebook)
-    *    When choosing an image for your cluster in the JupyterHub UI, use the
+Notebook](https://github.com/kubeflow/kubeflow/blob/master/user_guide.md#bringing-up-a-jupyter-notebook)
+    *   When choosing an image for your cluster in the JupyterHub UI, use the
 image from this example:
 [`gcr.io/kubeflow-dev/issue-summarization-notebook-cpu:latest`](https://github.com/kubeflow/examples/blob/master/github_issue_summarization/workflow/Dockerfile).
 
