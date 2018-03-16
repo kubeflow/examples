@@ -197,7 +197,7 @@ Then install Kube Volume Controller:
 ```
 git clone https://github.com/kubeflow/experimental-kvc.git
 cd experimental-kvc
-git checkout minio-client-2
+git checkout 753e309b
 helm install helm-charts/kube-volume-controller/ -n kvc --wait \
   --set clusterrole.install=true \
   --set storageclass.install=true \
