@@ -1,6 +1,6 @@
 # Kubeflow End to End
 
-This example guides you through the process of taking a distributed model, modifying it to work with the tf-operator, providing data to your model, and serving the resulting trained model. We will be using Argo to manage the workflow, Kube Volume Controller to supply data via s3, and Kubeflow to serve the model.
+This example guides you through the process of taking a distributed model, modifying it to work with the tf-operator, providing data to your model, and serving the resulting trained model. We will be using Argo to manage the workflow, Kube Volume Controller to supply data via S3, and Kubeflow to serve the model.
 
 ## Prerequisites
 
@@ -197,11 +197,11 @@ Then install Kube Volume Controller:
 #TODO pin to version and double check after open sourcing
 git clone https://github.com/elsonrodriguez/experimental-kvc.git
 cd experimental-kvc
-git checkout 3773234ef26cf588dc2b5b79367b4d7dd4ad18da
+git checkout minio-client-2
 helm install helm-charts/kube-volume-controller/ -n kvc --wait \
   --set clusterrole.install=true \
   --set storageclass.install=true \
-  --set tag=v0.2.0-alpha-10-g0dbf295 \
+  --set tag=753e309 \
   --set namespace=${NAMESPACE}
 cd ..
 ```

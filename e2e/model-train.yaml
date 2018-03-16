@@ -96,7 +96,7 @@ spec:
       action: apply
       successCondition: status.state == Running
       manifest: |
-        apiVersion: aipg.intel.com/v1
+        apiVersion: kvc.kubeflow.org/v1
         kind: VolumeManager
         metadata:
           name: mnist

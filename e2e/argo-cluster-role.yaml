@@ -42,7 +42,7 @@ rules:
   - update
   - patch
 - apiGroups:
-  - aipg.intel.com
+  - kvc.kubeflow.org
   resources:
   - volumemanagers
   verbs:
