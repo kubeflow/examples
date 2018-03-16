@@ -321,7 +321,7 @@ TODO modify mnist client to use invidiual number images, seems more exciting tha
 ```
 POD_NAME=$(kubectl get pod -l=app=mnist-${JOB_NAME} -o jsonpath='{.items[0].metadata.name}')
 kubectl port-forward ${POD_NAME} 9000:9000 &
-python mnist_client.py  --server 127.0.0.1:9000 --data_dir /tmp/mnistdata --model_name=mnist-${JOB_NAME}
+python mnist_client.py  --server 127.0.0.1:9000 --data_dir /tmp/mnistdata/
 ```
 
 Model serving can be turned off by passing in `-p model-serving=false` to the `model-train.yaml` workflow. If you wish to serve your model after training, use the `model-deploy.yaml` workflow. Simply pass in the desired finished argo workflow as an argument:
