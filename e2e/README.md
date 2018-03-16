@@ -194,8 +194,7 @@ First we need to install tiller on the cluster with rbac. Instructions can be fo
 
 Then install Kube Volume Controller:
 ```
-#TODO pin to version and double check after open sourcing
-git clone https://github.com/elsonrodriguez/experimental-kvc.git
+git clone https://github.com/kubeflow/experimental-kvc.git
 cd experimental-kvc
 git checkout minio-client-2
 helm install helm-charts/kube-volume-controller/ -n kvc --wait \
@@ -208,11 +207,11 @@ cd ..
 
 We can check on the status of kube-volume-controller:
 ```
-$ kubectl get pod -l=app=kube-volume-controller
-NAME                                      READY     STATUS    RESTARTS   AGE
-kube-volume-controller-6586c65c4f-smdd4   1/1       Running   0          1d
+$ kubectl get pod -l=app=kvc
+NAME                   READY     STATUS    RESTARTS   AGE
+kvc-765bf7f8f7-r9nmb   1/1       Running   0          40s
 $ kubectl get crd | grep volumemanagers
-volumemanagers.aipg.intel.com                 17d
+volumemanagers.kvc.kubeflow.org   1m
 ```
 
 ### Creating secrets for our workflow
@@ -302,11 +301,10 @@ You should now be able to visit [http://127.0.0.1:8001](http://127.0.0.1:8001) t
 
 ### Tensorboard
 
-Tensorboard is deployed after training is done. To connect:
+Tensorboard is deployed just before training starts. To connect:
 
 ```
-NAMESPACE=tfworkflow
-PODNAME=$(kubectl get pod -n${NAMESPACE} -l app=tensorboard-${JOB_NAME} -o jsonpath='{.items[0].metadata.name}')
+PODNAME=$(kubectl get pod -l app=tensorboard-${JOB_NAME} -o jsonpath='{.items[0].metadata.name}')
 kubectl port-forward ${PODNAME} 6006:6006
 ```
 
