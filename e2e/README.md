@@ -120,7 +120,7 @@ In the following instructions we will install our required components to a singl
 
 We are using the tensorflow operator to automate our distributed training. The easiest way to install the operator is by using ksonnet:
 
-Make sure you export your github token first `export GITHUB_TOKEN=xxxxxxxx`
+Make sure you export your github token first `export GITHUB_TOKEN=xxxxxxxx`. And since you will need admin status for the final `ks apply` command, make sure you are an admin of the cluster `kubectl config set-credentials ...`, `kubectl config set-context ...` then `kubectl config use-context ...`.
 ```
 NAMESPACE=tfworkflow
 APP_NAME=my-kubeflow
@@ -191,7 +191,7 @@ kubectl apply -f argo-cluster-role.yaml
 
 Kube Volume Controller is a utility that can seed replicas of datasets across nodes. Think of it as an explicit caching mechanism.
 
-First we need to install tiller on the cluster with rbac. Instructions can be found [here](https://github.com/kubernetes/helm/blob/master/docs/rbac.md).
+First we need to install tiller on the cluster with rbac under the kube-system namespace. Instructions can be found [here](https://github.com/kubernetes/helm/blob/master/docs/rbac.md#example-service-account-with-cluster-admin-role) in the section "Example: Service account with cluster-admin role".
 
 Then install Kube Volume Controller:
 ```
@@ -329,6 +329,10 @@ Model serving can be turned off by passing in `-p model-serving=false` to the `m
 WORKFLOW=<the workflowname>
 argo submit model-deploy.yaml -n ${NAMESPACE} -p workflow=${WORKFLOW} --serviceaccount=argo
 ```
+
+## Stopping and resubmitting your workflow
+
+If you want to rerun your workflow with changes or for debugging purposes, delete all of the tfjobs and volumemanagers with `kubectl delete tfjob --all` and `kubectl delete volumemanagers --all`. Then, you will need to provide a new, unique job-name when resubmitting the workflow, by either using the `job-name=<new-value>` option in the `argo submit` command or editing the job-name value in model_train.yaml.
 
 ## Next Steps
 
