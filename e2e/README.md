@@ -17,6 +17,7 @@ Your cluster must:
 If using GKE, the following will provision a cluster with the required features:
 
 ```
+export CLOUDSDK_CONTAINER_USE_CLIENT_CERTIFICATE=True
 gcloud alpha container clusters create ${USER} --enable-kubernetes-alpha --machine-type=n1-standard-8 --num-nodes=3 --disk-size=200 --zone=us-west1-a --cluster-version=1.9.2-gke.1 --image-type=UBUNTU
 ```
 
