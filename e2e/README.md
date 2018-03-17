@@ -197,11 +197,11 @@ Then install Kube Volume Controller:
 ```
 git clone https://github.com/kubeflow/experimental-kvc.git
 cd experimental-kvc
-git checkout 753e309b
+git checkout 6a23964
 helm install helm-charts/kube-volume-controller/ -n kvc --wait \
   --set clusterrole.install=true \
   --set storageclass.install=true \
-  --set tag=753e309 \
+  --set tag=6a23964 \
   --set namespace=${NAMESPACE}
 cd ..
 ```
