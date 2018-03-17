@@ -21,6 +21,14 @@ export CLOUDSDK_CONTAINER_USE_CLIENT_CERTIFICATE=True
 gcloud alpha container clusters create ${USER} --enable-kubernetes-alpha --machine-type=n1-standard-8 --num-nodes=3 --disk-size=200 --zone=us-west1-a --cluster-version=1.9.2-gke.1 --image-type=UBUNTU
 ```
 
+NOTE: You must be a Kubernetes admin to follow this guide. If you are not an admin, please contact your local cluster administrator for a client cert, or credentials to pass into the following commands:
+
+```
+$ kubectl config set-credentials <username> --username=<admin_username> --password=<admin_password>
+$ kubectl config set-context <context_name> --cluster=<cluster_name> --user=<username> --namespace=<namespace>
+$ kubectl config use-context <context_name>
+```
+
 ### Local Setup
 
 You also need the following command line tools:
@@ -31,6 +39,12 @@ You also need the following command line tools:
 - [ksonnet](https://ksonnet.io/#get-started)
 - [aws](https://docs.aws.amazon.com/cli/latest/userguide/installing.html)
 - [minio client](https://github.com/minio/mc#macos)
+
+NOTE: These instructions rely on Github, and may cause issues if behind a firewall with many Github users. Make sure you [generate and export this token](https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/):
+
+```
+export GITHUB_TOKEN=xxxxxxxx
+```
 
 ## Modifying existing examples
 
@@ -118,9 +132,9 @@ In the following instructions we will install our required components to a singl
 
 ### Deploying Tensorflow Operator
 
-We are using the tensorflow operator to automate our distributed training. The easiest way to install the operator is by using ksonnet:
+We are using the tensorflow operator to automate our distributed training. The easiest way to install the operator is by using ksonnet.
 
-Make sure you export your github token first `export GITHUB_TOKEN=xxxxxxxx`. And since you will need admin status for the final `ks apply` command, make sure you are an admin of the cluster `kubectl config set-credentials <username> --username=<admin_username> --password=<admin_password>`, `kubectl config set-context <context_name> --cluster=<cluster_name> --user=<username> --namespace=<namespace>`, then `kubectl config use-context <context_name>`.
+
 ```
 NAMESPACE=tfworkflow
 APP_NAME=my-kubeflow
