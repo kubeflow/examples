@@ -15,7 +15,7 @@ def summary():
   if request.method == 'POST':
     issue_text = request.form["issue_text"]
 
-    url = "http://localhost:8080/seldon/issue-summarization/api/v0.1/predictions"
+    url = "http://ambassador:80/seldon/issue-summarization/api/v0.1/predictions"
     headers = { 'content-type': 'application/json' }
     json_data = {
         "data" : {
@@ -35,5 +35,5 @@ def summary():
                            summary = summary)
 
 if __name__ == '__main__':
-  app.run(debug = True, host = '0.0.0.0', port = 8081)
+  app.run(debug = True, host = '0.0.0.0', port = 80)
 
