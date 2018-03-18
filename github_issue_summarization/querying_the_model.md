@@ -11,8 +11,7 @@ machine-generated summary.
 ## Prerequisites
 
 Ensure that your model is live and listening for HTTP requests as described in
-[serving](serving_the_model.md). You should be able to query the trained model
-by issuing POST requests to `http://localhost:8080`.
+[serving](serving_the_model.md).
 
 
 ## Build the frontend image
