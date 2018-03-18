@@ -419,7 +419,11 @@ class Seq2Seq_Inference(object):
 
             actual.append(self.pp_title.process_text([holdout_titles[i]])[0])
             predicted.append(self.pp_title.process_text([yhat])[0])
+            
         # calculate BLEU score
         logging.warning('Calculating BLEU.')
-        bleu = corpus_bleu(actual, predicted)
+        #must be careful with nltk api for corpus_bleu!, 
+        # expects List[List[List[str]]] for ground truth, using List[List[str]] will give you
+        # erroneous results.
+        bleu = corpus_bleu([[a] for a in actual], predicted)
         return bleu
