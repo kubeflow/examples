@@ -1,4 +1,4 @@
-local params = std.extVar("__ksonnet/params").components["agents"];
+local params = std.extVar("__ksonnet/params").components["train"];
 local k = import 'k.libsonnet';
 local deployment = k.extensions.v1beta1.deployment;
 local container = deployment.mixin.spec.template.spec.containersType;
