@@ -12,20 +12,25 @@ For clarity and fun you can check out what the product of this tutorial will loo
 
 This tutorial assumes you have deployed a Kubernetes cluster on your provider of choice and have completed the steps described in the [Kubeflow User Guide](https://github.com/kubeflow/kubeflow/blob/master/user_guide.md) to deploy the core, argo, and nfs components.
 
-##### Launching
+##### Launching base image on JupyterHub
 
 This example is intended to be run inside of the `gcr.io/kubeflow/tensorflow-notebook-cpu` container running on JupyterHub which is in turn running on Kubeflow. You may provide the name of this container via the spawner options dialog.
 
 For general troubleshooting of the spawning of notebook containers on JupyterHub or anything else related to your Kubeflow deployment please refer to the [Kubeflow User Guide](https://github.com/kubeflow/kubeflow/blob/master/user_guide.md).
 
-Once the notebook is launched the only setup step that is required is to use git to obtain the source code of the example which you can do as follows (from within the tensorflow-notebook container):
+There are two steps to perform from within the JupyterHub environment before the demonstration notebook can be used as intended.
+
+First, we need to obtain the kubeflow example code as follows:
 
 ```bash
 cd /home/jovyan
 git clone https://github.com/kubeflow/examples kubeflow-examples
 ```
 
-The demonstration notebook can then be accessed via /home/jovyan/kubeflow-examples/agents/doc/demo.ipynb.
+We will also need to authenticate our notebook environment to make calls to the underlying Kubernetes cluster. For example, if this is running on Google Container Engine the command would be as follows:
 
-Well it looks like our initial setup is finished 🎉🎉 and it's time to start playing around with that shiny new demonstration notebook!!
+```bash
+gcloud container clusters --project={PROJECT} --zone={ZONE} get-credentials {CLUSTER}
+```
 
+Well it looks like our initial setup is finished 🎉🎉 and it's time to start playing around with that shiny new demonstration notebook!! You'll find it in doc/demo.ipynb.

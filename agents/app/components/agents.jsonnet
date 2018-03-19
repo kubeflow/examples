@@ -72,6 +72,8 @@ local workerSpec = if num_gpus > 0 then
   	else
   	tfJob.parts.tfJobReplica("MASTER", 1, args, image);
 
+local nfsClaimName = params.nfs_claim_name;
+
 local replicas = std.map(function(s)
   s + {
     template+: {
@@ -86,8 +88,18 @@ local replicas = std.map(function(s)
                 cpu: numCpu
               }
             },
+            volumeMounts:[{
+              name: "nfs",
+              mountPath: "/mnt/" + nfsClaimName
+            }]
           },
         ],
+        volumes: [{
+          name: "nfs",
+          persistentVolumeClaim: {
+            claimName: nfsClaimName
+          }
+        }]
       },
     },
   },
