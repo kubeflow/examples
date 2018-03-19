@@ -1,12 +1,8 @@
 {
   global: {
-    // User-defined global parameters; accessible to all component and environments, Ex:
-    // replicas: 4,
   },
   components: {
-    // Component-level parameters, defined initially from 'ks prototype use ...'
-    // Each object below should correspond to a component in the components/ directory
-    "agents": {
+    "train": {
       algorithm: "agents.ppo.PPOAlgorithm",
       discount: 0.995,
       dump_dependency_versions: "True",
@@ -14,7 +10,7 @@
       eval_episodes: 25,
       generate_data: "True",
       hparam_set_id: "pybullet_kuka_ff",
-      image: "gcr.io/kubeflow-rl/agents:0319-1621-6dce",
+      image: "gcr.io/kubeflow-rl/agents:0319-2031-d458",
       image_gpu: "null",
       init_mean_factor: 0.1,
       job_tag: "0206-1409-6174",
@@ -23,9 +19,9 @@
       kl_init_penalty: 1,
       kl_target: 0.01,
       learning_rate: 0.0001,
-      log_dir: "/mnt/nfs-1/train_dirs/kubeflow-rl/studies/replicated-kuka-demo/kuka-0319-1638-43a7",
+      log_dir: "/mnt/nfs-1/train_dirs/kubeflow-rl/studies/replicated-kuka-demo-1/kuka-0319-2039-38e0",
       max_length: 1000,
-      name: "kuka-0319-1638-43a7",
+      name: "kuka-0319-2039-38e0",
       namespace: "kubeflow",
       network: "agents.scripts.networks.feed_forward_gaussian",
       nfs_claim_name: "nfs-1",
@@ -47,20 +43,14 @@
       update_epochs: 25,
       update_every: 60,
     },
-    "agents_render": {
-      image: "gcr.io/kubeflow-rl/agents:0221-1635-d869",
-      log_dir: "gs://kubeflow-rl/studies/replicated-kuka-demo/kuka-0221-1650-31dc",
-      name: "render-0221-1705-4149",
-      namespace: "rl",
+    "render": {
+      image: "gcr.io/kubeflow-rl/agents:0319-1806-6614",
+      log_dir: "/mnt/nfs-1/train_dirs/kubeflow-rl/studies/replicated-kuka-demo-1/kuka-0319-1735-222e",
+      name: "render-0319-2043-47e6",
+      namespace: "kubeflow",
+      nfs_claim_name: "nfs-1",
       num_cpu: 4,
       num_gpus: 0,
-    },
-    tensorboard: {
-      log_dir: "gs://kubeflow-rl/studies/replicated-kuka-demo",
-      name: "tboard-0221-2330-5c5c",
-      namespace: "rl",
-      secret: "gcp-credentials",
-      secret_file_name: "secret.json",
     },
   },
 }

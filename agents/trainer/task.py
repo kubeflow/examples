@@ -21,12 +21,17 @@ import logging
 import os
 import pprint
 import uuid
+import shutil
+import sys
+import json
 
 from google.cloud import storage
 import tensorflow as tf
 
 import agents
-import pybullet_envs  # To make AntBulletEnv-v0 available.
+
+#pylint: disable=unused-import
+import pybullet_envs
 
 flags = tf.app.flags
 
@@ -158,9 +163,15 @@ def _object_import_from_string(name):
   return mod
 
 
+<<<<<<< 0e0c75e58014665dfc1a6fc14f9e017829df034d
 def _realize_import_attrs(d, hparam_filter):
   for k, v in d.items():
     if k in hparam_filter:
+=======
+def _realize_import_attrs(d, import_filter):
+  for k, v in d.items():
+    if k in import_filter:
+>>>>>>> improved render experience, writes to NFS
       imported = _object_import_from_string(v)
       # TODO: Provide an appropriately informative error if the import fails
       # except ImportError as e:
@@ -170,7 +181,11 @@ def _realize_import_attrs(d, hparam_filter):
   return d
 
 
+<<<<<<< 0e0c75e58014665dfc1a6fc14f9e017829df034d
 def _get_agents_configuration(log_dir=None):
+=======
+def _get_agents_configuration(hparam_set_name, log_dir=None):
+>>>>>>> improved render experience, writes to NFS
   """Load hyperparameter config."""
   try:
     # Try to resume training.
@@ -252,11 +267,20 @@ def main(_):
 
   log_dir = FLAGS.logdir
 
+<<<<<<< 0e0c75e58014665dfc1a6fc14f9e017829df034d
   agents_config = _get_agents_configuration(log_dir)
 
   if FLAGS.run_mode == 'train':
     for score in agents.scripts.train.train(agents_config, env_processes=True):
       logging.info('Score %s.', score)
+=======
+  agents_config = _get_agents_configuration(
+      FLAGS.hparam_set_id, log_dir)
+
+  if FLAGS.run_mode == 'train':
+    for score in agents.scripts.train.train(agents_config, env_processes=True):
+      tf.logging.info('Score {}.'.format(score))
+>>>>>>> improved render experience, writes to NFS
   if FLAGS.run_mode == 'render':
     now = datetime.datetime.now()
     subdir = now.strftime("%m%d-%H%M") + "-" + uuid.uuid4().hex[0:4]
@@ -270,7 +294,12 @@ def main(_):
     # of the log dir with the parent render/
     if render_out_dir is None:
       render_out_dir = os.path.join(FLAGS.logdir, "render", subdir)
-    gcs_upload(render_tmp_dir, render_out_dir)
+    if render_out_dir.startswith("gs://"):
+      gcs_upload(render_tmp_dir, render_out_dir)
+    else:
+      shutil.copytree(render_tmp_dir, render_out_dir)
+   
+  return True
 
 
 if __name__ == '__main__':
