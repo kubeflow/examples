@@ -10,17 +10,18 @@ spec:
   # $ argo submit examples/arguments-parameters.yaml -p message="goodbye world"
   arguments:
     parameters:
-    - name: datasets-image
-      # default image
-      value: gcr.io/constant-cubist-173123/tf_workflow:nan_workflow
     - name: tf-worker # number of tf workers
       value: 1
     - name: tf-ps # number of tf parameter servers
       value: 2
     - name: tf-model-image
       value: elsonrodriguez/mytfmodel:1.0
-    - name: tf-serving-image
+    - name: tf-serving-image #this image is a mirror of a private kubeflow-ci image
       value: elsonrodriguez/model-server:1.0
+    - name: tf-tensorboard-image
+      value: tensorflow/tensorflow:1.5.1
+    - name: ks-image
+      value: elsonrodriguez/ksonnet:0.8.0-test6
     - name: model-name
       value: mnist
     - name: model-hidden-units
@@ -68,6 +69,10 @@ spec:
           template: get-workflow-info
       - - name: tensorboard
           template: tf-tensorboard
+          arguments:
+            parameters:
+            - name: s3-unfinished-url
+              value: "{{steps.get-workflow-info.outputs.parameters.s3-unfinished-url}}"
       - - name: train-model
           template: tf-train
           arguments:
@@ -88,6 +93,10 @@ spec:
               value: "{{steps.get-workflow-info.outputs.parameters.s3-exported-url}}"
       - - name: serve-model
           template: tf-inference
+          arguments:
+            parameters:
+            - name: s3-exported-url
+              value: "{{steps.get-workflow-info.outputs.parameters.s3-exported-url}}"
           when: "{{workflow.parameters.model-serving}} == true"
   - name: exit-handler
     steps:
@@ -281,6 +290,9 @@ spec:
             - name: S3_ENDPOINT
               value: {{workflow.parameters.s3-endpoint}}
   - name: tf-tensorboard
+    inputs:
+      parameters:
+      - name: s3-unfinished-url
     resource:
       action: apply
       manifest: |
@@ -303,10 +315,13 @@ spec:
             spec:
               containers:
               - name: tensorboard-{{workflow.parameters.job-name}}
-                image: elsonrodriguez/tensorboard:1.0
+                image: {{workflow.parameters.tf-tensorboard-image}}
                 imagePullPolicy: Always
+                command:
+                 - /usr/local/bin/tensorboard
                 args:
-                - {{workflow.parameters.s3-train-base-url}}/unfinished/{{workflow.parameters.job-name}}/
+                - --logdir
+                - {{inputs.parameters.s3-unfinished-url}}
                 env:
                 - name: AWS_ACCESS_KEY_ID
                   valueFrom:
@@ -351,12 +366,15 @@ spec:
           sessionAffinity: None
           type: ClusterIP
   - name: tf-inference
+    inputs:
+      parameters:
+      - name: s3-exported-url
     script:
-      image: elsonrodriguez/ksonnet:0.8.0-test6
+      image: "{{workflow.parameters.ks-image}}"
       command: ["/ksonnet-entrypoint.sh"]
       source: |
         MODEL_COMPONENT=serveMnist
-        MODEL_PATH={{workflow.parameters.s3-train-base-url}}/exported/{{workflow.parameters.job-name}}
+        MODEL_PATH={{inputs.parameters.s3-exported-url}}
         MODEL_SERVER_IMAGE={{workflow.parameters.tf-serving-image}}
         MODEL_NAME={{workflow.parameters.model-name}}
 

@@ -1,4 +1,5 @@
-#FROM tensorflow/tf_grpc_test_server:ccbc039fbe5a
+#This is a generic grpc server, we're mostly using this as a base image for our model.
+#The sha for this should be ccbc039fbe5a3e2eab42fdd3f541e44abd057a4ce395e6f533918a0f0e2c01d7, there's no fixed tag, so using latest for now.
 FROM tensorflow/tf_grpc_test_server:latest
 
 ADD tf_job_shim.py /tf_job_shim.py

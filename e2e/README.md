@@ -1,6 +1,6 @@
 # Kubeflow End to End
 
-This example guides you through the process of taking a distributed model, modifying it to work with the tf-operator, providing data to your model, and serving the resulting trained model. We will be using Argo to manage the workflow, Kube Volume Controller to supply data via S3, Tensorflow's S3 support for saving model training info, Tensorboard to visualize the training, and Kubeflow to serve the model.
+This example guides you through the process of taking a distributed model, modifying it to work with the tf-operator, providing data to your model, and serving the resulting trained model. We will be using Argo to manage the workflow, Kube Volume Controller to locally cache data from S3, Tensorflow's S3 support for saving model training info, Tensorboard to visualize the training, and Kubeflow to serve the model.
 
 ## Prerequisites
 
@@ -52,17 +52,13 @@ Many examples online use containers with pre-canned data, or scripts with certai
 
 ### Prepare model
 
-There is a delta between existing distributed mnist examples and what's needed to run well as a TFJob. These changes can be viewed in the [included diff](mnist-changes.md)
+There is a delta between existing distributed mnist examples and what's needed to run well as a TFJob. These changes to the [original model](model_original.py) can be viewed in the [included diff](mnist-changes.md)
 
-Basically, we must
+Basically, we must:
 
-1. Add handling for the tfjob Master
-2. Convert the model itself to be importable as a python module
-3. Save the graph in a way that's exportable
-4. Add an option to control the training directory
-
-TODO: Verify that all the changes were neccessary, especially #3
-TODO: Had to disable master handling... probably save it for a future update.
+1. Convert the model itself to be importable as a python module, so that the model can be used in other scripts (in this case, [export.py](export.py))
+1. Save the graph in a way that's exportable, otherwise you will recieve errors when exporting: `Graph is finalized and cannot be modified.`
+1. Add an option to control the training directory, so we can write training results to S3.
 
 The resulting model is [model.py](model.py).
 
@@ -76,16 +72,14 @@ With our code ready, we will now build/push the docker images
 
 ```
 DOCKER_BASE_URL=docker.io/elsonrodriguez # Put your docker registry here
-docker build . --no-cache  -f Dockerfile.tfserver -t ${DOCKER_BASE_URL}/mytfserver:1.0
+docker build . --no-cache  -f Dockerfile.tfserver -t mytfserver:1.0
 docker build . --no-cache  -f Dockerfile.model -t ${DOCKER_BASE_URL}/mytfmodel:1.0
 
-docker push ${DOCKER_BASE_URL}/mytfserver:1.0
 docker push ${DOCKER_BASE_URL}/mytfmodel:1.0
 ```
 
-Alternately, you can use these existing images:
+Alternately, you can use this existing image:
 
-- gcr.io/kubeflow/mytfserver:1.0
 - gcr.io/kubeflow/mytfmodel:1.0
 
 TODO: Actually put images at these urls, or replace with another url.
@@ -108,18 +102,18 @@ Next create a bucket or path in your S3-compatible object store.
 
 ```
 #Note if not using AWS S3, you must specify --endpoint-url for all these commands.
-BUCKET_NAME=mybucket
+export S3_ENDPOINT=s3.us-west-2.amazonaws.com
+export AWS_ENDPOINT_URL=https://${S3_ENDPOINT}
+export AWS_ACCESS_KEY_ID=xxxxx
+export AWS_SECRET_ACCESS_KEY=xxxxx
+export BUCKET_NAME=mybucket
+
 aws s3api create-bucket --bucket=${BUCKET_NAME}
 ```
 
 Now upload your training data
 
 ```
-export S3_ENDPOINT=s3.us-west-2.amazonaws.com
-export AWS_ENDPOINT_URL=https://${S3_ENDPOINT}
-export AWS_ACCESS_KEY_ID=xxxxx
-export AWS_SECRET_ACCESS_KEY=xxxxx
-
 mc config host add s3 ${AWS_ENDPOINT_URL} ${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY}
 mc mirror /tmp/mnistdata/ s3/${BUCKET_NAME}/data/mnist/
 ```
@@ -203,7 +197,7 @@ kubectl apply -f argo-cluster-role.yaml
 
 ### Deploying Kube Volume Controller
 
-Kube Volume Controller is a utility that can seed replicas of datasets across nodes. Think of it as an explicit caching mechanism.
+Kube Volume Controller is a utility that can seed replicas of datasets across nodes. Think of it as an explicit caching mechanism. In the initial run, KVC downloads the mnist dataset, then in subsquent runs the data is reused, bypassing the download step, and making data available on the local disk.
 
 First we need to install tiller on the cluster with rbac under the kube-system namespace. Instructions can be found [here](https://github.com/kubernetes/helm/blob/master/docs/rbac.md#example-service-account-with-cluster-admin-role) in the section "Example: Service account with cluster-admin role".
 
