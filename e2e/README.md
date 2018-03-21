@@ -349,9 +349,32 @@ WORKFLOW=<the workflowname>
 argo submit model-deploy.yaml -n ${NAMESPACE} -p workflow=${WORKFLOW} --serviceaccount=argo
 ```
 
-## Stopping and resubmitting your workflow
+## Submitting new argo jobs
 
-If you want to rerun your workflow with changes or for debugging purposes, delete all of the tfjobs and volumemanagers with `kubectl delete tfjob --all` and `kubectl delete volumemanagers --all`. Then, you will need to provide a new, unique job-name when resubmitting the workflow, by either using the `job-name=<new-value>` option in the `argo submit` command or editing the job-name value in model_train.yaml.
+If you want to rerun your workflow from scratch, then you will need to provide a new `job-name` to the argo workflow. For example:
+
+```
+#We're re-using previous variables except JOB_NAME
+export JOB_NAME=myawesomejob
+
+argo submit model-train.yaml -n ${NAMESPACE} --serviceaccount argo \
+    -p aws-endpoint-url=${AWS_ENDPOINT_URL} \
+    -p s3-endpoint=${S3_ENDPOINT} \
+    -p aws-region=${AWS_REGION} \
+    -p tf-model-image=${TF_MODEL_IMAGE} \
+    -p s3-data-url=${S3_DATA_URL} \
+    -p s3-train-base-url=${S3_TRAIN_BASE_URL} \
+    -p job-name=${JOB_NAME} \
+    -p tf-worker=${TF_WORKER} \
+    -p model-train-steps=${MODEL_TRAIN_STEPS} \
+    -p namespace=${NAMESPACE}
+```
+
+If you want to test changes to the `volumemanager` object, or want to force a re-download of data, you must delete the existing one:
+
+```
+kubectl delete volumemanager mnist
+```
 
 ## Next Steps
 
