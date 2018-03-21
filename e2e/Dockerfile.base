@@ -1,0 +1,7 @@
+#Base image for model
+FROM tensorflow/tensorflow:1.5.1
+
+ADD tf_job_shim.py /tf_job_shim.py
+RUN chmod +x /tf_job_shim.py
+
+ENTRYPOINT ["/tf_job_shim.py"]

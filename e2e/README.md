@@ -62,9 +62,9 @@ Basically, we must:
 
 The resulting model is [model.py](model.py).
 
-### Prepare distribued tensorflow grpc components.
+### Prepare distribued Tensorflow components.
 
-The stock distributed Tensorflow [examples](https://github.com/tensorflow/tensorflow/blob/3af03be757b63ea6fbd28cc351d5d2323c526354/tensorflow/tools/dist_test/server/grpc_tensorflow_server.py) expect the cluster spec to be provided via command line arguments. We have modified an [existing shim](https://github.com/kubeflow/kubeflow/blob/d5caf230ff50260c1a6565db35edeeddd5d407e6/tf-controller-examples/tf-cnn/launcher.py) to be more [generic](tf_job_shim.py), and will be wrapping the standard examples in order to process TF_CONFIG into something it understands.
+The stock distributed Tensorflow [examples](https://github.com/tensorflow/tensorflow/blob/3af03be757b63ea6fbd28cc351d5d2323c526354/tensorflow/tools/dist_test/) expect the cluster spec to be provided via command line arguments. We have modified an [existing shim](https://github.com/kubeflow/kubeflow/blob/d5caf230ff50260c1a6565db35edeeddd5d407e6/tf-controller-examples/tf-cnn/launcher.py) to be more [generic](tf_job_shim.py), and will be using it to wrap our lightly modified examples in order to process TF_CONFIG into something it understands.
 
 ### Build and push images.
 
@@ -72,7 +72,7 @@ With our code ready, we will now build/push the docker images
 
 ```
 DOCKER_BASE_URL=docker.io/elsonrodriguez # Put your docker registry here
-docker build . --no-cache  -f Dockerfile.tfserver -t mytfserver:1.0
+docker build . --no-cache  -f Dockerfile.base -t mytfbase:1.0
 docker build . --no-cache  -f Dockerfile.model -t ${DOCKER_BASE_URL}/mytfmodel:1.0
 
 docker push ${DOCKER_BASE_URL}/mytfmodel:1.0
