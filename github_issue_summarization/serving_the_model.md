@@ -102,4 +102,5 @@ Response
 }
 ```
 
-Next: [Teardown](teardown.md)
+Next: [Querying the model](querying_the_model.md)
+

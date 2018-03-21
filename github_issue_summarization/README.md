@@ -22,10 +22,12 @@ By the end of this tutorial, you should learn how to:
 *   Train a Sequence-to-Sequence model using TensorFlow on the cluster using
     GPUs
 *   Serve the model using [Seldon Core](https://github.com/SeldonIO/seldon-core/)
+*   Query the model from a simple front-end application
 
 ## Steps:
 
 1.  [Setup a Kubeflow cluster](setup_a_kubeflow_cluster.md)
 1.  [Training the model](training_the_model.md)
 1.  [Serving the model](serving_the_model.md)
+1.  [Querying the model](querying_the_model.md)
 1.  [Teardown](teardown.md)
