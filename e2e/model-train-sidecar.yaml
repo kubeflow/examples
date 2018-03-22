@@ -1,3 +1,4 @@
+#This pattern was an artifact of the research we did on how to handle data with S3. It basically uses sidecars to copy data in/out of a container when each step is done. It's being preserved in case anybody has a need for such a pattern.
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:

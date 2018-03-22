@@ -124,10 +124,9 @@ With our data and workloads ready, now the cluster must be prepared. We will be 
 
 In the following instructions we will install our required components to a single namespace.  For these instructions we will assume the chosen namespace is `tfworkflow`:
 
-### Deploying Tensorflow Operator
+### Deploying Tensorflow Operator and Argo.
 
-We are using the tensorflow operator to automate our distributed training. The easiest way to install the operator is by using ksonnet.
-
+We are using the Tensorflow operator to automate the deployment of our distributed model training, and Argo to create the overall training pipeline. The easiest way to install these components on your Kubernetes cluster is by using Kubeflow's ksonnet prototypes.
 
 ```
 NAMESPACE=tfworkflow
@@ -135,24 +134,29 @@ APP_NAME=my-kubeflow
 ks init ${APP_NAME}
 cd ${APP_NAME}
 
-#todo pin this to a tag
-ks registry add kubeflow github.com/kubeflow/kubeflow/tree/1a6fc9d0e19e456b784ba1c23c03ec47648819d0/kubeflow
+ks registry add kubeflow github.com/kubeflow/kubeflow/tree/master/kubeflow
 
+#TODO pin these to a tag
 ks pkg install kubeflow/core@1a6fc9d0e19e456b784ba1c23c03ec47648819d0
-ks pkg install kubeflow/tf-serving@1a6fc9d0e19e456b784ba1c23c03ec47648819d0
-ks pkg install kubeflow/tf-job@1a6fc9d0e19e456b784ba1c23c03ec47648819d0
+ks pkg install kubeflow/argo@8d617d68b707d52a5906d38b235e04e540f2fcf7
 
-# Deploy Kubeflow
+# Deploy TF Operator and Argo
 kubectl create namespace ${NAMESPACE}
 ks generate core kubeflow-core --name=kubeflow-core --namespace=${NAMESPACE}
+ks generate argo kubeflow-argo --name=kubeflow-argo --namespace=${NAMESPACE}
+
 ks apply default -c kubeflow-core
+ks apply default -c kubeflow-argo
+
+#TODO Add permissions to the argo prototype for tfjobs and other objects.
+kubectl apply -f argo-cluster-role.yaml
 
 # Switch context for the rest of the example
 kubectl config set-context $(kubectl config current-context) --namespace=${NAMESPACE}
 cd -
 ```
 
-Check to ensure things have deployed:
+You can check to make sure the components have deployed:
 
 ```
 $ kubectl logs -l name=tf-job-operator
@@ -163,22 +167,7 @@ I0226 18:25:16.554630       1 controller.go:135] Waiting for informer caches to 
 I0226 18:25:16.654781       1 controller.go:140] Starting %v workers1
 I0226 18:25:16.654813       1 controller.go:146] Started workers
 ...
-$ kubectl get crd
-NAME                    AGE
-tfjobs.kubeflow.org     22m
-```
 
-### Deploying Argo
-
-Argo is a workflow system used to automate workloads on Kubernetes. The Argo cli can automatically install argo on your Kubernetes cluster.
-
-```
-argo install --install-namespace=${NAMESPACE}
-```
-
-We can check on the status of Argo by checking the logs and listing workflows.
-
-```
 $ kubectl logs -l app=workflow-controller
 time="2018-02-26T18:35:48Z" level=info msg="workflow controller configuration from workflow-controller-configmap:\nexecutorImage: argoproj/argoexec:v2.0.0-beta1"
 time="2018-02-26T18:35:48Z" level=info msg="Workflow Controller (version: v2.0.0-beta1) starting"
@@ -186,20 +175,21 @@ time="2018-02-26T18:35:48Z" level=info msg="Watch Workflow controller config map
 time="2018-02-26T18:35:48Z" level=info msg="Detected ConfigMap update. Updating the controller config."
 time="2018-02-26T18:35:48Z" level=info msg="workflow controller configuration from workflow-controller-configmap:\nexecutorImage: argoproj/argoexec:v2.0.0-beta1"
 time="2018-02-26T18:40:48Z" level=info msg="Alloc=2623 TotalAlloc=45740 Sys=11398 NumGC=20 Goroutines=50"
+
+$ kubectl get crd
+NAME                    AGE
+tfjobs.kubeflow.org     22m
+workflows.argoproj.io   22m
+
 $ argo list
 NAME   STATUS   AGE   DURATION
-```
-
-Lastly we need to modify the argo cluster role used to run the workflow. We need to do this in order to create tfjobs and volumemanagers:
-```
-kubectl apply -f argo-cluster-role.yaml
 ```
 
 ### Deploying Kube Volume Controller
 
 Kube Volume Controller is a utility that can seed replicas of datasets across nodes. Think of it as an explicit caching mechanism. In the initial run, KVC downloads the mnist dataset, then in subsquent runs the data is reused, bypassing the download step, and making data available on the local disk.
 
-First we need to install tiller on the cluster with rbac under the kube-system namespace. Instructions can be found [here](https://github.com/kubernetes/helm/blob/master/docs/rbac.md#example-service-account-with-cluster-admin-role) in the section "Example: Service account with cluster-admin role".
+First we need to install tiller on the cluster with rbac under the kube-system namespace. Instructions can be found [here](https://github.com/kubernetes/helm/blob/ae878f91c36b491b92f046de74784cb462f67419/docs/rbac.md#example-service-account-with-cluster-admin-role) in the section "Example: Service account with cluster-admin role".
 
 Then install Kube Volume Controller:
 ```
@@ -258,14 +248,11 @@ First we need to set a few variables in our workflow. Make sure to set your dock
 
 ```
 DOCKER_BASE_URL=docker.io/elsonrodriguez # Put your docker registry here
-export S3_ENDPOINT=s3.us-west-2.amazonaws.com
 export S3_DATA_URL=s3://${BUCKET_NAME}/data/mnist/
 export S3_TRAIN_BASE_URL=s3://${BUCKET_NAME}/models
-export AWS_ENDPOINT_URL=https://${S3_ENDPOINT}
 export AWS_REGION=us-west-2
 export JOB_NAME=myjob-$(uuidgen  | cut -c -5 | tr '[:upper:]' '[:lower:]')
 export TF_MODEL_IMAGE=${DOCKER_BASE_URL}/mytfmodel:1.0
-export NAMESPACE=tfworkflow
 export TF_WORKER=3
 export MODEL_TRAIN_STEPS=200
 ```
