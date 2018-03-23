@@ -1,3 +1,37 @@
+# Parameters
+FUDGE_FACTOR = 1.1200  # Multiply forecasts by this
+
+XGB_WEIGHT = 0.6200
+BASELINE_WEIGHT = 0.0100
+OLS_WEIGHT = 0.0620
+NN_WEIGHT = 0.0800
+
+XGB1_WEIGHT = 0.8000  # Weight of first in combination of two XGB models
+
+BASELINE_PRED = 0.0115   # Baseline based on mean of training data, per Oleg
+
+
+import numpy as np
+import pandas as pd
+import xgboost as xgb
+from sklearn.preprocessing import LabelEncoder
+import gc
+from sklearn.linear_model import LinearRegression
+import random
+import datetime as dt
+
+from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import Imputer
+
+
+
+##### READ IN RAW DATA
+
+print( "\nReading data from disk ...")
+prop = pd.read_csv('properties_2016.csv')
+train = pd.read_csv("train_2016_v2.csv")
+
+
 ################
 ################
 ##  XGBoost   ##
@@ -15,7 +49,7 @@
 ##### (I tried keeping a copy, but the program crashed.)
 
 print( "\nRe-reading properties file ...")
-properties = pd.read_csv('../input/properties_2016.csv')
+properties = pd.read_csv('properties_2016.csv')
 
 
 
