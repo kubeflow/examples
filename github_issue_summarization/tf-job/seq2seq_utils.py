@@ -1,4 +1,3 @@
-from matplotlib import pyplot as plt
 import tensorflow as tf
 from keras import backend as K
 from keras.layers import Input
@@ -124,17 +123,6 @@ def test_gpu():
     session = tf.Session(config=config)
     hello = tf.constant('Hello, TensorFlow!')
     print(session.run(hello))
-
-
-def plot_model_training_history(history_object):
-    """Plots model train vs. validation loss."""
-    plt.title('model accuracy')
-    plt.ylabel('accuracy')
-    plt.xlabel('epoch')
-    plt.plot(history_object.history['loss'])
-    plt.plot(history_object.history['val_loss'])
-    plt.legend(['train', 'test'], loc='upper left')
-    plt.show()
 
 
 def extract_encoder_model(model):
@@ -419,10 +407,10 @@ class Seq2Seq_Inference(object):
 
             actual.append(self.pp_title.process_text([holdout_titles[i]])[0])
             predicted.append(self.pp_title.process_text([yhat])[0])
-            
+
         # calculate BLEU score
         logging.warning('Calculating BLEU.')
-        #must be careful with nltk api for corpus_bleu!, 
+        #must be careful with nltk api for corpus_bleu!,
         # expects List[List[List[str]]] for ground truth, using List[List[str]] will give you
         # erroneous results.
         bleu = corpus_bleu([[a] for a in actual], predicted)
