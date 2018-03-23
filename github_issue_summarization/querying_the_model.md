@@ -41,7 +41,7 @@ ks generate deployed-service issue-summarization-ui \
   --image gcr.io/gcr-repository-name/issue-summarization-ui:0.1 \
   --type ClusterIP
 ks param set issue-summarization-ui namespace $NAMESPACE
-ks apply cloud -c issue-summarization-ui
+ks apply cloud -n $NAMESPACE -c issue-summarization-ui
 ```
 
 TODO: Figure out why deployed-service prototype does not pick up the
