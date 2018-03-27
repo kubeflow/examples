@@ -6,7 +6,7 @@ back to GCS.
 
 ## Create the image for training
 
-The [tf-job](../notebooks/tf-job) directory contains the necessary files to create a image for training. The [train.py](../notebooks/tf-job/train.py) file contains the training code. Here is how you can create an image and push it to gcr.
+The [tf-job](notebooks/tf-job) directory contains the necessary files to create a image for training. The [train.py](notebooks/tf-job/train.py) file contains the training code. Here is how you can create an image and push it to gcr.
 
 ```commandline
 cd notebooks/
@@ -41,7 +41,7 @@ kubectl --namespace=${NAMESPACE} create secret generic gcp-credentials --from-fi
 
 ## Run the TFJob using your image
 
-[tf-job](../notebooks/tf-job) contains a ksonnet app([ks-app](../notebooks/tf-job/ks-app)) to deploy the TFJob.
+[tf-job](notebooks/tf-job) contains a ksonnet app([ks-app](notebooks/tf-job/ks-app)) to deploy the TFJob.
 
 Create an environment to deploy the ksonnet app
 
