@@ -1,0 +1,6 @@
+IPython
+virtualenv==15.2.0
+tensorflow==1.4.1
+kubernetes==5.0.0
+tensor2tensor==1.5.5
+allensdk==0.14.4

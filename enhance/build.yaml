@@ -1,0 +1,7 @@
+images: ['gcr.io/kubeflow-rl/enhance:0325-1644-8d95']
+steps:
+- args: [pull, 'tensorflow/tensorflow:1.4.1']
+  name: gcr.io/cloud-builders/docker
+- args: [build, --cache-from, 'tensorflow/tensorflow:1.4.1', -t, 'gcr.io/kubeflow-rl/enhance:0325-1644-8d95',
+    .]
+  name: gcr.io/cloud-builders/docker
