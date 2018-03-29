@@ -27,7 +27,9 @@ By the end of this tutorial, you should learn how to:
 ## Steps:
 
 1.  [Setup a Kubeflow cluster](setup_a_kubeflow_cluster.md)
-1.  [Training the model](training_the_model.md)
+1.  Training the model. You can train the model either using Jupyter Notebook or using TFJob.
+    1.  [Training the model using a Jupyter Notebook](training_the_model.md)
+    1.  [Training the model using TFJob](training_the_model_tfjob.md)
 1.  [Serving the model](serving_the_model.md)
 1.  [Querying the model](querying_the_model.md)
 1.  [Teardown](teardown.md)
