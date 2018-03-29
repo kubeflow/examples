@@ -36,7 +36,7 @@
       local srcRootDir = testDir + "/src";
       // The directory containing the kubeflow/examples repo
       local srcDir = srcRootDir + "/kubeflow/examples";
-      local image = "gcr.io/mlkube-testing/test-worker";
+      local image = "gcr.io/kubeflow-ci/test-worker";
       // The name of the NFS volume claim to use for test files.
       // local nfsVolumeClaim = "kubeflow-testing";
       local nfsVolumeClaim = "nfs-external";
@@ -48,7 +48,7 @@
       local kubeflowExamplesPy = srcDir;
       local kubeflowTestingPy = srcRootDir + "/kubeflow/testing/py";
 
-      local project = "mlkube-testing";
+      local project = "kubeflow-ci";
       // GKE cluster to use
       // We need to truncate the cluster to no more than 40 characters because
       // cluster names can be a max of 40 characters.
@@ -56,10 +56,10 @@
       // We prepend a z because cluster name must start with an alphanumeric character
       // and if we cut the prefix we might end up starting with "-" or other invalid
       // character for first character.
-      local cluster = 
+      local cluster =
         if std.length(name) > 40 then
           "z" + std.substr(name, std.length(name) - 39, 39)
-        else 
+        else
         name;
       local zone = "us-east1-d";
       local chart = srcDir + "/bin/examples-chart-0.2.1-" + versionTag + ".tgz";
@@ -209,7 +209,7 @@
               "kubeflow.testing.py_checks",
               "test",
               "--src_dir=" + srcDir,
-              "--project=mlkube-testing",
+              "--project=" + project,
               "--junit_path=" + artifactsDir + "/junit_pycheckstest.xml",
             ]),  // py test
             $.parts(namespace, name).e2e(prow_env, bucket).buildTemplate("py-lint", [
@@ -218,7 +218,7 @@
               "kubeflow.testing.py_checks",
               "lint",
               "--src_dir=" + srcDir,
-              "--project=mlkube-testing",
+              "--project=" + project,
               "--junit_path=" + artifactsDir + "/junit_pycheckslint.xml",
             ]),  // py lint
             $.parts(namespace, name).e2e(prow_env, bucket).buildTemplate("create-pr-symlink", [
