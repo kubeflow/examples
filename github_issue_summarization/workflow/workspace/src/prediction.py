@@ -12,7 +12,7 @@ parser.add_argument("--input_title_preprocessor_dpkl")
 parser.add_argument("--input_testdf_csv")
 parser.add_argument("--input_prediction_count", type=int, default=50)
 args = parser.parse_args()
-print args
+print(args)
 
 # Read data.
 testdf = pd.read_csv(args.input_testdf_csv)

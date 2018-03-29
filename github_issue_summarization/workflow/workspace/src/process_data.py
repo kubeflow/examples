@@ -9,7 +9,7 @@ parser.add_argument("--sample_size", type=int, default=2000000)
 parser.add_argument("--output_traindf_csv")
 parser.add_argument("--output_testdf_csv")
 args = parser.parse_args()
-print args
+print(args)
 
 pd.set_option('display.max_colwidth', 500)
 
@@ -18,8 +18,8 @@ traindf, testdf = train_test_split(pd.read_csv(args.input_csv).sample(n=args.sam
                                    test_size=.10)
 
 # Print stats about the shape of the data.
-print 'Train: {:,} rows {:,} columns'.format(traindf.shape[0], traindf.shape[1])
-print 'Test: {:,} rows {:,} columns'.format(testdf.shape[0], testdf.shape[1])
+print('Train: {:,} rows {:,} columns'.format(traindf.shape[0], traindf.shape[1]))
+print('Test: {:,} rows {:,} columns'.format(testdf.shape[0], testdf.shape[1]))
 
 # Store output as CSV.
 traindf.to_csv(args.output_traindf_csv)

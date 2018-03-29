@@ -41,7 +41,7 @@ def load_text_processor(fname='title_pp.dpkl'):
     pp = dpickle.load(f)
 
   num_tokens = max(pp.id2token.keys()) + 1
-  print 'Size of vocabulary for {}: {}'.format(fname, num_tokens)
+  print('Size of vocabulary for {}: {}'.format(fname, num_tokens))
   return num_tokens, pp
 
 
@@ -72,8 +72,8 @@ def load_decoder_inputs(decoder_np_vecs='train_title_vecs.npy'):
   # Decoder Target Data Is Ahead By 1 Time Step From Decoder Input Data (Teacher Forcing)
   decoder_target_data = vectorized_title[:, 1:]
 
-  print 'Shape of decoder input: {}'.format(decoder_input_data.shape)
-  print 'Shape of decoder target: {}'.format(decoder_target_data.shape)
+  print('Shape of decoder input: {}'.format(decoder_input_data.shape))
+  print('Shape of decoder target: {}'.format(decoder_target_data.shape))
   return decoder_input_data, decoder_target_data
 
 
@@ -99,7 +99,7 @@ def load_encoder_inputs(encoder_np_vecs='train_body_vecs.npy'):
   # Encoder input is simply the body of the issue text
   encoder_input_data = vectorized_body
   doc_length = encoder_input_data.shape[1]
-  print 'Shape of encoder input: {}'.format(encoder_input_data.shape)
+  print('Shape of encoder input: {}'.format(encoder_input_data.shape))
   return encoder_input_data, doc_length
 
 
@@ -122,7 +122,7 @@ def test_gpu():
   config.gpu_options.allow_growth = True
   session = tf.Session(config=config)
   hello = tf.constant('Hello, TensorFlow!')
-  print session.run(hello)
+  print(session.run(hello))
 
 
 def plot_model_training_history(history_object):
@@ -293,19 +293,19 @@ class Seq2Seq_Inference(object):
     Prints an example of the model's prediction for manual inspection.
     """
     if i:
-      print '\n\n=============================================='
-      print '============== Example # {} =================\n'.format(i)
+      print('\n\n==============================================')
+      print('============== Example # {} =================\n'.format(i))
 
     if url:
-      print url
+      print(url)
 
-    print "Issue Body:\n {} \n".format(body_text)
+    print("Issue Body:\n {} \n".format(body_text))
 
     if title_text:
-      print "Original Title:\n {}".format(title_text)
+      print("Original Title:\n {}".format(title_text))
 
     emb, gen_title = self.generate_issue_title(body_text)
-    print "\n****** Machine Generated Title (Prediction) ******:\n {}".format(gen_title)
+    print("\n****** Machine Generated Title (Prediction) ******:\n {}".format(gen_title))
 
     if self.nn:
       # return neighbors and distances
@@ -320,7 +320,7 @@ class Seq2Seq_Inference(object):
         dfcopy['dist'] = dist
         similar_issues_df = dfcopy.query('dist <= {}'.format(threshold))
 
-        print "\n**** Similar Issues (using encoder embedding) ****:\n"
+        print("\n**** Similar Issues (using encoder embedding) ****:\n")
         display(similar_issues_df)
 
 

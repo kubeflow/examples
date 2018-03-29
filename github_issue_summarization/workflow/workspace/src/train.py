@@ -15,7 +15,7 @@ parser.add_argument("--input_train_body_vecs_npy")
 parser.add_argument("--output_model_h5")
 parser.add_argument("--learning_rate", default="0.001")
 args = parser.parse_args()
-print args
+print(args)
 
 learning_rate = float(args.learning_rate)
 

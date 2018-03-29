@@ -12,7 +12,7 @@ parser.add_argument("--output_title_preprocessor_dpkl")
 parser.add_argument("--output_train_title_vecs_npy")
 parser.add_argument("--output_train_body_vecs_npy")
 args = parser.parse_args()
-print args
+print(args)
 
 # Read data.
 traindf = pd.read_csv(args.input_traindf_csv)

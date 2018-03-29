@@ -12,6 +12,8 @@
 
 """Provides an entrypoint for the training task."""
 
+#pylint: disable=unused-import
+
 from __future__ import absolute_import, division, print_function
 
 import datetime
@@ -24,6 +26,7 @@ from google.cloud import storage
 import tensorflow as tf
 
 import agents
+import pybullet_envs  # To make AntBulletEnv-v0 available.
 
 flags = tf.app.flags
 
@@ -240,14 +243,12 @@ def gcs_upload(local_dir, gcs_out_dir):
     blob.upload_from_filename(local_file_path)
 
 
-def main():
+def main(_):
   """Run training."""
   tf.logging.set_verbosity(tf.logging.INFO)
 
   if FLAGS.debug:
     tf.logging.set_verbosity(tf.logging.DEBUG)
-
-  tf.contrib.learn.RunConfig()
 
   log_dir = FLAGS.logdir
 
