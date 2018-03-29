@@ -1,7 +1,7 @@
 import argparse
 import dill as dpickle
-from ktext.preprocess import processor
 import numpy as np
+from ktext.preprocess import processor
 import pandas as pd
 
 # Parsing flags.
@@ -12,7 +12,7 @@ parser.add_argument("--output_title_preprocessor_dpkl")
 parser.add_argument("--output_train_title_vecs_npy")
 parser.add_argument("--output_train_body_vecs_npy")
 args = parser.parse_args()
-print(args)
+print args
 
 # Read data.
 traindf = pd.read_csv(args.input_traindf_csv)
@@ -30,7 +30,7 @@ print('Example body after pre-processing:', train_body_vecs[0])
 
 # Instantiate a text processor for the titles, with some different parameters.
 title_pp = processor(append_indicators=True, keep_n=4500,
-                     padding_maxlen=12, padding ='post')
+                     padding_maxlen=12, padding='post')
 
 # process the title data
 train_title_vecs = title_pp.fit_transform(train_title_raw)
@@ -40,10 +40,10 @@ print('Example title after pre-processing:', train_title_vecs[0])
 
 # Save the preprocessor.
 with open(args.output_body_preprocessor_dpkl, 'wb') as f:
-    dpickle.dump(body_pp, f)
+  dpickle.dump(body_pp, f)
 
 with open(args.output_title_preprocessor_dpkl, 'wb') as f:
-    dpickle.dump(title_pp, f)
+  dpickle.dump(title_pp, f)
 
 # Save the processed data.
 np.save(args.output_train_title_vecs_npy, train_title_vecs)

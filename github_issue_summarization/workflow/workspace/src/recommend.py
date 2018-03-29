@@ -1,8 +1,6 @@
 import argparse
 import keras
 import pandas as pd
-from seq2seq_utils import load_decoder_inputs
-from seq2seq_utils import load_encoder_inputs
 from seq2seq_utils import load_text_processor
 from seq2seq_utils import Seq2Seq_Inference
 
@@ -15,7 +13,7 @@ parser.add_argument("--input_title_preprocessor_dpkl")
 parser.add_argument("--input_testdf_csv")
 parser.add_argument("--input_topic_number", type=int, default=1)
 args = parser.parse_args()
-print(args)
+print args
 
 # Read data.
 all_data_df = pd.read_csv(args.input_csv)
