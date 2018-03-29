@@ -12,18 +12,18 @@
 
 """Provides an entrypoint for the training task."""
 
+#pylint: disable=unused-import
+
 from __future__ import absolute_import, division, print_function
 
-import argparse
 import datetime
 import logging
 import os
 import pprint
 import uuid
 
-import pip
-import tensorflow as tf
 from google.cloud import storage
+import tensorflow as tf
 
 import agents
 import pybullet_envs  # To make AntBulletEnv-v0 available.
@@ -113,39 +113,39 @@ def hparams_base():
   """Base hparams tf/Agents PPO """
 
   # General
-  algorithm = agents.ppo.PPOAlgorithm
-  num_agents = 30
-  eval_episodes = 30
-  use_gpu = False
+#  algorithm = agents.ppo.PPOAlgorithm
+#  num_agents = 30
+#  eval_episodes = 30
+#  use_gpu = False
 
   # Environment
-  env = 'KukaBulletEnv-v0'
-  normalize_ranges = True
-  max_length = 1000
+#  env = 'KukaBulletEnv-v0'
+#  normalize_ranges = True
+#  max_length = 1000
 
   # Network
-  network = agents.scripts.networks.feed_forward_gaussian
-  weight_summaries = dict(
-      all=r'.*', policy=r'.*/policy/.*', value=r'.*/value/.*')
-  policy_layers = 200, 100
-  value_layers = 200, 100
-  init_output_factor = 0.1
-  init_logstd = -1
-  init_std = 0.35
+#  network = agents.scripts.networks.feed_forward_gaussian
+#  weight_summaries = dict(
+#      all=r'.*', policy=r'.*/policy/.*', value=r'.*/value/.*')
+#  policy_layers = 200, 100
+#  value_layers = 200, 100
+#  init_output_factor = 0.1
+#  init_logstd = -1
+#  init_std = 0.35
 
   # Optimization
-  update_every = 60
-  update_epochs = 25
-  optimizer = tf.train.AdamOptimizer
-  learning_rate = 1e-4
-  steps = 3e7  # 30M
+#  update_every = 60
+#  update_epochs = 25
+#  optimizer = tf.train.AdamOptimizer
+#  learning_rate = 1e-4
+#  steps = 3e7  # 30M
 
   # Losses
-  discount = 0.995
-  kl_target = 1e-2
-  kl_cutoff_factor = 2
-  kl_cutoff_coef = 1000
-  kl_init_penalty = 1
+#  discount = 0.995
+#  kl_target = 1e-2
+#  kl_cutoff_factor = 2
+#  kl_cutoff_coef = 1000
+#  kl_init_penalty = 1
 
   return locals()
 
@@ -158,9 +158,9 @@ def _object_import_from_string(name):
   return mod
 
 
-def _realize_import_attrs(d, filter):
+def _realize_import_attrs(d, hparam_filter):
   for k, v in d.items():
-    if k in filter:
+    if k in hparam_filter:
       imported = _object_import_from_string(v)
       # TODO: Provide an appropriately informative error if the import fails
       # except ImportError as e:
@@ -170,7 +170,7 @@ def _realize_import_attrs(d, filter):
   return d
 
 
-def _get_agents_configuration(hparam_set_name, log_dir=None, is_chief=False):
+def _get_agents_configuration(log_dir=None):
   """Load hyperparameter config."""
   try:
     # Try to resume training.
@@ -243,23 +243,20 @@ def gcs_upload(local_dir, gcs_out_dir):
     blob.upload_from_filename(local_file_path)
 
 
-def main(unused_argv):
+def main(_):
   """Run training."""
   tf.logging.set_verbosity(tf.logging.INFO)
 
   if FLAGS.debug:
     tf.logging.set_verbosity(tf.logging.DEBUG)
 
-  run_config = tf.contrib.learn.RunConfig()
-
   log_dir = FLAGS.logdir
 
-  agents_config = _get_agents_configuration(
-      FLAGS.hparam_set_id, log_dir, run_config.is_chief)
+  agents_config = _get_agents_configuration(log_dir)
 
   if FLAGS.run_mode == 'train':
     for score in agents.scripts.train.train(agents_config, env_processes=True):
-      logging.info('Score {}.'.format(score))
+      logging.info('Score %s.', score)
   if FLAGS.run_mode == 'render':
     now = datetime.datetime.now()
     subdir = now.strftime("%m%d-%H%M") + "-" + uuid.uuid4().hex[0:4]
