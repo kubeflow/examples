@@ -1,8 +1,6 @@
 import argparse
 import keras
 import pandas as pd
-from seq2seq_utils import load_decoder_inputs
-from seq2seq_utils import load_encoder_inputs
 from seq2seq_utils import load_text_processor
 from seq2seq_utils import Seq2Seq_Inference
 
@@ -29,5 +27,5 @@ seq2seq_inf = Seq2Seq_Inference(encoder_preprocessor=body_pp,
                                  decoder_preprocessor=title_pp,
                                  seq2seq_model=seq2seq_Model)
 
-# Output predictions for n random rows in the test set. 
+# Output predictions for n random rows in the test set.
 seq2seq_inf.demo_model_predictions(n=args.input_prediction_count, issue_df=testdf)
