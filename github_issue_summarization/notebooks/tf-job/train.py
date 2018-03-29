@@ -14,21 +14,22 @@ It also has parameters which control the training like
 
 """
 import argparse
+import logging
+import zipfile
+
+from google.cloud import storage  # pylint: disable=no-name-in-module
+import dill as dpickle
+import numpy as np
 import pandas as pd
+from keras import optimizers
+from keras.layers import GRU, BatchNormalization, Dense, Embedding, Input
+from keras.models import Model
 from sklearn.model_selection import train_test_split
+
 from ktext.preprocess import processor
 from seq2seq_utils import load_encoder_inputs, load_text_processor
-import numpy as np
-from keras.layers import Input, GRU, Dense, Embedding, BatchNormalization
-from keras.models import Model
-from keras import optimizers
-import dill as dpickle
-import zipfile
-from google.cloud import storage
-import logging
 
-
-def main():
+def main(): # pylint: disable=too-many-statements
   # Parsing flags.
   parser = argparse.ArgumentParser()
   parser.add_argument("--sample_size", type=int, default=2000000)
