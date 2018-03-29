@@ -1,8 +1,6 @@
 import argparse
 import keras
 import pandas as pd
-from seq2seq_utils import load_decoder_inputs
-from seq2seq_utils import load_encoder_inputs
 from seq2seq_utils import load_text_processor
 from seq2seq_utils import Seq2Seq_Inference
 
