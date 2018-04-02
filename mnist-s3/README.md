@@ -1,6 +1,6 @@
 # Training MNIST using Kubeflow, S3, and Argo.
 
-This example guides you through the process of taking an example model, modifying it to run better within kubeflow, and serving the resulting trained model. We will be using Argo to manage the workflow, Tensorflow's S3 support for saving model training info, Tensorboard to visualize the training, and Kubeflow to serve the model.
+This example guides you through the process of taking an example model, modifying it to run better within Kubeflow, and serving the resulting trained model. We will be using Argo to manage the workflow, Tensorflow's S3 support for saving model training info, Tensorboard to visualize the training, and Kubeflow to serve the model.
 
 ## Prerequisites
 
@@ -57,7 +57,7 @@ Many examples online use models that are unconfigurable, or don't work well in d
 
 ### Prepare model
 
-There is a delta between existing distributed mnist examples and what's needed to run well as a TFJob. These changes to the [original model](model_original.py) can be viewed in the [included diff](mnist-changes.md)
+There is a delta between existing distributed mnist examples and what's needed to run well as a TFJob.
 
 Basically, we must:
 
@@ -96,7 +96,6 @@ cd ${APP_NAME}
 
 ks registry add kubeflow github.com/kubeflow/kubeflow/tree/master/kubeflow
 
-#TODO pin these to a tag
 ks pkg install kubeflow/core@1a6fc9d0e19e456b784ba1c23c03ec47648819d0
 ks pkg install kubeflow/argo@8d617d68b707d52a5906d38b235e04e540f2fcf7
 
@@ -119,27 +118,18 @@ cd -
 You can check to make sure the components have deployed:
 
 ```
-$ kubectl logs -l name=tf-job-operator
-...
-I0226 18:25:16.553804       1 leaderelection.go:184] successfully acquired lease default/tf-operator
-I0226 18:25:16.554615       1 controller.go:132] Starting TFJob controller
-I0226 18:25:16.554630       1 controller.go:135] Waiting for informer caches to sync
-I0226 18:25:16.654781       1 controller.go:140] Starting %v workers1
-I0226 18:25:16.654813       1 controller.go:146] Started workers
-...
+$ kubectl get pods -l name=tf-job-operator
+NAME                              READY     STATUS    RESTARTS   AGE
+tf-job-operator-78757955b-2glvj   1/1       Running   0          1m
 
-$ kubectl logs -l app=workflow-controller
-time="2018-02-26T18:35:48Z" level=info msg="workflow controller configuration from workflow-controller-configmap:\nexecutorImage: argoproj/argoexec:v2.0.0-beta1"
-time="2018-02-26T18:35:48Z" level=info msg="Workflow Controller (version: v2.0.0-beta1) starting"
-time="2018-02-26T18:35:48Z" level=info msg="Watch Workflow controller config map updates"
-time="2018-02-26T18:35:48Z" level=info msg="Detected ConfigMap update. Updating the controller config."
-time="2018-02-26T18:35:48Z" level=info msg="workflow controller configuration from workflow-controller-configmap:\nexecutorImage: argoproj/argoexec:v2.0.0-beta1"
-time="2018-02-26T18:40:48Z" level=info msg="Alloc=2623 TotalAlloc=45740 Sys=11398 NumGC=20 Goroutines=50"
+$ kubectl get pods -l app=workflow-controller
+NAME                                   READY     STATUS    RESTARTS   AGE
+workflow-controller-7d8f4bc5df-4zltg   1/1       Running   0          1m
 
 $ kubectl get crd
 NAME                    AGE
-tfjobs.kubeflow.org     22m
-workflows.argoproj.io   22m
+tfjobs.kubeflow.org     1m
+workflows.argoproj.io   1m
 
 $ argo list
 NAME   STATUS   AGE   DURATION

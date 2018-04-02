@@ -1,5 +1,4 @@
 #This container contains your model and any helper scripts specific to your model.
-#FROM tensorflow/tensorflow:1.6.0
 FROM tensorflow/tensorflow:1.5.1
 
 ADD model.py /opt/model.py
