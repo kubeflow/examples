@@ -1,6 +1,6 @@
 # Training MNIST using Kubeflow, S3, and Argo.
 
-This example guides you through the process of taking an example model, modifying it to run better within Kubeflow, and serving the resulting trained model. We will be using Argo to manage the workflow, Tensorflow's S3 support for saving model training info, Tensorboard to visualize the training, and Kubeflow to serve the model.
+This example guides you through the process of taking an example model, modifying it to run better within Kubeflow, and serving the resulting trained model. We will be using Argo to manage the workflow, Tensorflow's S3 support for saving model training info, Tensorboard to visualize the training, and Kubeflow to deploy the Tensorflow operator and serve the model.
 
 ## Prerequisites
 
@@ -36,8 +36,6 @@ You also need the following command line tools:
 - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
 - [argo](https://github.com/argoproj/argo/blob/master/demo.md#1-download-argo)
 - [ksonnet](https://ksonnet.io/#get-started)
-- [aws](https://docs.aws.amazon.com/cli/latest/userguide/installing.html)
-- [minio client](https://github.com/minio/mc#macos)
 
 To run the client at the end of the example, you must have [requirements.txt](requirements.txt) intalled in your active python environment.
 
@@ -349,8 +347,6 @@ argo submit model-train.yaml -n ${NAMESPACE} --serviceaccount argo \
     -p namespace=${NAMESPACE}
 ```
 
-## Next Steps
+## Conclusion and Next Steps
 
-In the future we will be providing tutorials on more advanced examples.
-
-Till then, play with the settings/tunables! And try to use your own model within this workflow.
+This is an example of what your machine learning pipeline can look like. Feel free to play with the tunables and see if you can increase your model's accuracy (increasing `model-train-steps` can go a long way).
