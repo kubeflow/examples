@@ -52,6 +52,10 @@ spec:
       value: https://s3.us-west-1.amazonaws.com
     - name: s3-endpoint
       value: s3.us-west-1.amazonaws.com
+    - name: s3-use-https
+      value: true
+    - name: s3-verify-ssl
+      value: true
     - name: aws-region
       value: us-west-1
     - name: aws-secret
@@ -154,9 +158,9 @@ spec:
                     - name: S3_REGION
                       value: {{workflow.parameters.aws-region}}
                     - name: S3_USE_HTTPS
-                      value: "true"
+                      value: "{{workflow.parameters.s3-use-https}}"
                     - name: S3_VERIFY_SSL
-                      value: "true"
+                      value: "{{workflow.parameters.s3-verify-ssl}}"
                     - name: S3_ENDPOINT
                       value: {{workflow.parameters.s3-endpoint}}
                 restartPolicy: OnFailure
@@ -197,9 +201,9 @@ spec:
                     - name: S3_REGION
                       value: {{workflow.parameters.aws-region}}
                     - name: S3_USE_HTTPS
-                      value: "true"
+                      value: "{{workflow.parameters.s3-use-https}}"
                     - name: S3_VERIFY_SSL
-                      value: "true"
+                      value: "{{workflow.parameters.s3-verify-ssl}}"
                     - name: S3_ENDPOINT
                       value: {{workflow.parameters.s3-endpoint}}
                 restartPolicy: OnFailure
@@ -239,9 +243,9 @@ spec:
                     - name: S3_REGION
                       value: {{workflow.parameters.aws-region}}
                     - name: S3_USE_HTTPS
-                      value: "true"
+                      value: "{{workflow.parameters.s3-use-https}}"
                     - name: S3_VERIFY_SSL
-                      value: "true"
+                      value: "{{workflow.parameters.s3-verify-ssl}}"
                     - name: S3_ENDPOINT
                       value: {{workflow.parameters.s3-endpoint}}
                 restartPolicy: OnFailure
@@ -298,9 +302,9 @@ spec:
                 - name: S3_REGION
                   value: {{workflow.parameters.aws-region}}
                 - name: S3_USE_HTTPS
-                  value: "true"
+                  value: "{{workflow.parameters.s3-use-https}}"
                 - name: S3_VERIFY_SSL
-                  value: "true"
+                  value: "{{workflow.parameters.s3-verify-ssl}}"
                 - name: S3_ENDPOINT
                   value: {{workflow.parameters.s3-endpoint}}
                 ports:
@@ -350,6 +354,8 @@ spec:
         ks param set {{workflow.parameters.model-name}} s3_secret_secretaccesskey_key_name awsSecretAccessKey
         ks param set {{workflow.parameters.model-name}} s3_aws_region {{workflow.parameters.aws-region}}
         ks param set {{workflow.parameters.model-name}} s3_endpoint {{workflow.parameters.s3-endpoint}}
+        ks param set ${MODEL_COMPONENT} s3_use_https {{workflow.parameters.s3-use-https}}
+        ks param set ${MODEL_COMPONENT} s3_verify_ssl {{workflow.parameters.s3-verify-ssl}}
         ks apply default -c {{workflow.parameters.model-name}}
       env:
       - name: SERVICE_ACCOUNT
