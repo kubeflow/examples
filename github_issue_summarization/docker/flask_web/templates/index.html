@@ -13,10 +13,14 @@
   <body class="text-center">
   <form class="form-signin" action="summary" method="post">
       <img class="mb-4" src="https://assets-cdn.github.com/images/modules/logos_page/GitHub-Mark.png" alt="" width="72" height="72">
-      <h1 class="h3 mb-3 font-weight-normal">Enter Github Issue Body</h1>
-      <p><textarea class="scrollabletextbox" name="issue_text" rows=5 cols=100>@aronchick / @jlewi - I enjoyed the BoF: Machine Learning on Kubernetes talk this evening, thanks for organizing it! It would be great if kubeflow could include a Python ML model container with support for: - conda environment.yml requirements management - I use conda to build production ML containers that support multiple model types including - scikit-learn - theano - xgboost gradient boosted trees - gRPC and REST Prediction API's with Swagger documentation - horizontal pod autoscaling - prometheus application and system metrics</textarea></p>
+      <h1 style="margin-top: -20px;">Github Issue Summarization</h1>
+      <h3 class="h3 mb-3 font-weight-normal">Enter Github Issue Body</h3>
+      <p><textarea class="scrollabletextbox" name="issue_text" rows=10 cols=100 placeholder="@aronchick / @jlewi - I enjoyed the BoF: Machine Learning on Kubernetes talk this evening, thanks for organizing it! It would be great if kubeflow could include a Python ML model container with support for: - conda environment.yml requirements management - I use conda to build production ML containers that support multiple model types including - scikit-learn - theano - xgboost gradient boosted trees - gRPC and REST Prediction API's with Swagger documentation - horizontal pod autoscaling - prometheus application and system metrics"></textarea></p>
+      <h3 class="h3 mb-3 font-weight-normal">OR Enter Github Issue URL</h3>
+      <p><input name="issue_url" type="text" size="100" placeholder="https://github.com/kubeflow/kubeflow/issues/157"></input></p>
       <p><input type="submit" value="Submit"/></p>
     </form>
+    <p style="margin-left: 20%; margin-right: 20%;">Instructions: This is a demo of the github issue summarization model by <a href="https://github.com/hamelsmu">Hamel Husain.</a> Enter the body of a github issue or the url of a github issue and click on Submit. The model then tries to generate a title or summary of the issue.</p>
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
