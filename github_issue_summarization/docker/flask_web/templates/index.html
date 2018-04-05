@@ -1,10 +1,26 @@
-<h1>Issue text</h1>
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-<form action="summary" method="post">
-  <p>Enter GitHub issue text:</p>
-  <p><textarea class="scrollabletextbox" name="issue_text" rows=5 cols=100></textarea></p>
-  <p><input type="submit" value="Submit"/></p>
-</form>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
-
-
+    <title>Github Issue Summarization!</title>
+  </head>
+  <body class="text-center">
+  <form class="form-signin" action="summary" method="post">
+      <img class="mb-4" src="https://assets-cdn.github.com/images/modules/logos_page/GitHub-Mark.png" alt="" width="72" height="72">
+      <h1 class="h3 mb-3 font-weight-normal">Enter Github Issue Body</h1>
+      <p><textarea class="scrollabletextbox" name="issue_text" rows=5 cols=100>@aronchick / @jlewi - I enjoyed the BoF: Machine Learning on Kubernetes talk this evening, thanks for organizing it! It would be great if kubeflow could include a Python ML model container with support for: - conda environment.yml requirements management - I use conda to build production ML containers that support multiple model types including - scikit-learn - theano - xgboost gradient boosted trees - gRPC and REST Prediction API's with Swagger documentation - horizontal pod autoscaling - prometheus application and system metrics</textarea></p>
+      <p><input type="submit" value="Submit"/></p>
+    </form>
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  </body>
+</html>
