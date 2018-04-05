@@ -1,4 +1,4 @@
-# Reinforcement Learning with [tensorflow/agents](https://github.com/tensorflow/agents)
+# [WIP] Reinforcement Learning with [tensorflow/agents](https://github.com/tensorflow/agents)
 
 Here we provide a demonstration of training a reinforcement learning agent to perform a robotic grasping task using Kubeflow running on Google Kubernetes Engine. In this demonstration you will learn how to paramaeterize a training job, submit it to run on your cluster, monitor the job including launching a tensorboard instance, and finally producing renders of the agent performing the robotic grasping task.
 
