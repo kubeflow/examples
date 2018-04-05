@@ -1,4 +1,4 @@
-local params = std.extVar("__ksonnet/params").components["agents_render"];
+local params = std.extVar("__ksonnet/params").components["render"];
 local k = import 'k.libsonnet';
 local deployment = k.extensions.v1beta1.deployment;
 local container = deployment.mixin.spec.template.spec.containersType;
@@ -25,6 +25,8 @@ local workerSpec = if num_gpus > 0 then
   	else
   	tfJob.parts.tfJobReplica("MASTER", 1, args, image);
 
+local nfsClaimName = params.nfs_claim_name;
+
 local replicas = std.map(function(s)
   s + {
     template+: {
@@ -39,8 +41,18 @@ local replicas = std.map(function(s)
                 cpu: numCpu
               }
             },
+            volumeMounts:[{
+              name: "nfs",
+              mountPath: "/mnt/" + nfsClaimName
+            }]
           },
         ],
+        volumes: [{
+          name: "nfs",
+          persistentVolumeClaim: {
+            claimName: nfsClaimName
+          }
+        }]
       },
     },
   },
