@@ -34,34 +34,32 @@ gcloud docker -- push gcr.io/gcr-repository-name/issue-summarization-ui:0.1
 
 ## Deploy the frontend image to your kubernetes cluster
 
-To serve the frontend interface, run the image using the following command:
+[notebooks](notebooks) contains a ksonnet app([ks-app](notebooks/ks-app)). The ui component in the ks-app contains the frontend image deployment.
+
+Create an environment to deploy the ksonnet app
+
+```commandline
+cd notebooks/ks-app
+ks env add frontendenv --namespace ${NAMESPACE}
+```
+
+To serve the frontend interface, apply the ui component of the ksonnet app:
 
 ```
-ks generate deployed-service issue-summarization-ui \
-  --image gcr.io/gcr-repository-name/issue-summarization-ui:0.1 \
-  --type ClusterIP
-ks param set issue-summarization-ui namespace $NAMESPACE
-ks apply cloud -n $NAMESPACE -c issue-summarization-ui
+ks apply frontendenv -c ui
 ```
-
-TODO: Figure out why deployed-service prototype does not pick up the
-namespace parameter. The workaround is to generate the yaml for
-issue-summarization-ui service and deployment objects, inserting
-the namespace parameter, and applying manually to the cluster.
-
 
 ## View results from the frontend
 
-To setup a proxy to the UI port running in k8s, issue the following command:
+We use ambassador to route requests to the frontend. You can port-forward the ambassador container locally:
 
 ```
-kubectl port-forward $(kubectl get pods -n ${NAMESPACE} -l app=issue-summarization-ui -o jsonpath='{.items[0].metadata.name}') -n ${NAMESPACE} 8081:80
+kubectl port-forward $(kubectl get pods -n ${NAMESPACE} -l service=ambassador -o jsonpath='{.items[0].metadata.name}') -n ${NAMESPACE} 8080:80
 ```
 
-In a browser, navigate to `http://localhost:8081`, where you will be greeted by "Issue
+In a browser, navigate to `http://localhost:8080/issue-summarization/`, where you will be greeted by "Issue
 text" Enter text into the input box and click submit. You should see a
 summary that was provided by your trained model.
 
 
 Next: [Teardown](teardown.md)
-
