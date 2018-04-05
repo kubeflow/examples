@@ -1,0 +1,93 @@
+---
+apiVersion: kubeflow.org/v1alpha1
+kind: TFJob
+metadata:
+  name: pets-training
+  namespace: kubeflow
+spec:
+  replicaSpecs:
+  - replicas: 1
+    template:
+      spec:
+        containers:
+        - args:
+          - python
+          - research/object_detection/train.py
+          image: {{your_image}}
+          name: tensorflow
+          workingDir: /models
+          command:
+            - "python"
+            - "research/object_detection/train.py"
+          args:
+            - "--logtostderr"
+            - "--pipeline_config_path=/tmp/pets/faster_rcnn_resnet101_pets.config"
+            - "--train_dir=/tmp/pets/train"
+        #---- Add this ----- 
+          volumeMounts:
+            - mountPath: "/tmp/pets"
+              name: tf-datasets
+        volumes:
+        - name: tf-datasets
+          hostPath:
+            path: "/tmp/pets"
+            type: Directory
+        #-------------------
+        restartPolicy: OnFailure
+    tfReplicaType: MASTER
+  - replicas: 1
+    template:
+      spec:
+        containers:
+        - args:
+          - python
+          - research/object_detection/train.py
+          image: {{your_image}}
+          name: tensorflow
+          command:
+            - "python"
+            - "research/object_detection/train.py"
+          args:
+            - "--logtostderr"
+            - "--pipeline_config_path=/tmp/pets/faster_rcnn_resnet101_pets.config"
+            - "--train_dir=/tmp/pets/train"
+        #---- Add this -----     
+          volumeMounts:
+            - mountPath: "/tmp/pets"
+              name: tf-datasets
+        volumes:
+          - name: tf-datasets
+            hostPath:
+              path: "/tmp/pets"
+              type: Directory
+        #------------------      
+        restartPolicy: OnFailure
+    tfReplicaType: WORKER
+  - replicas: 1
+      template:
+      spec:
+        containers:
+        - args:
+          - python
+          - research/object_detection/train.py
+          image: {{you_image}}
+          name: tensorflow
+          command:
+            - "python"
+            - "research/object_detection/train.py"
+          args:
+            - "--logtostderr"
+            - "--pipeline_config_path=/tmp/pets/faster_rcnn_resnet101_pets.config"
+            - "--train_dir=/tmp/pets/train"
+        #---- Add this -----
+          volumeMounts:
+            - mountPath: "/tmp/pets"
+              name: tf-datasets
+        volumes:
+          - name: tf-datasets
+            hostPath:
+              path: "/tmp/pets"
+              type: Directory
+        #--------------------      
+        restartPolicy: OnFailure
+    tfReplicaType: PS
