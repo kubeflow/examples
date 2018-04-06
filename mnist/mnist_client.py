@@ -7,9 +7,9 @@ import numpy
 from PIL import Image
 
 import tensorflow as tf
+from tensorflow.examples.tutorials.mnist import input_data
 from tensorflow_serving.apis import predict_pb2
 from tensorflow_serving.apis import prediction_service_pb2
-from tensorflow.examples.tutorials.mnist import input_data
 
 from grpc.beta import implementations
 
