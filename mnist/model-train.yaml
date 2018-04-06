@@ -354,12 +354,12 @@ spec:
         ks param set {{workflow.parameters.model-name}} s3_secret_secretaccesskey_key_name awsSecretAccessKey
         ks param set {{workflow.parameters.model-name}} s3_aws_region {{workflow.parameters.aws-region}}
         ks param set {{workflow.parameters.model-name}} s3_endpoint {{workflow.parameters.s3-endpoint}}
-        ks param set ${MODEL_COMPONENT} s3_use_https {{workflow.parameters.s3-use-https}}
-        ks param set ${MODEL_COMPONENT} s3_verify_ssl {{workflow.parameters.s3-verify-ssl}}
+        ks param set {{workflow.parameters.model-name}} s3_use_https \'{{workflow.parameters.s3-use-https}}\'
+        ks param set {{workflow.parameters.model-name}} s3_verify_ssl \'{{workflow.parameters.s3-verify-ssl}}\'
         ks apply default -c {{workflow.parameters.model-name}}
       env:
       - name: SERVICE_ACCOUNT
-        value: argo
+        value: tf-user
   - name: clean
     container:
       image: nervana/circleci:master

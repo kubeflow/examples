@@ -105,8 +105,7 @@ ks generate argo kubeflow-argo --name=kubeflow-argo --namespace=${NAMESPACE}
 ks apply default -c kubeflow-core
 ks apply default -c kubeflow-argo
 
-#TODO Add permissions to the argo prototype for tfjobs and other objects.
-kubectl apply -f argo-cluster-role.yaml
+kubectl apply -f tf-user.yaml
 
 # Switch context for the rest of the example
 kubectl config set-context $(kubectl config current-context) --namespace=${NAMESPACE}
@@ -184,7 +183,7 @@ export MODEL_TRAIN_STEPS=200
 Next, submit your workflow.
 
 ```
-argo submit model-train.yaml -n ${NAMESPACE} --serviceaccount argo \
+argo submit model-train.yaml -n ${NAMESPACE} --serviceaccount tf-user \
     -p aws-endpoint-url=${AWS_ENDPOINT_URL} \
     -p s3-endpoint=${S3_ENDPOINT} \
     -p aws-region=${AWS_REGION} \
@@ -323,7 +322,7 @@ Model serving can be turned off by passing in `-p model-serving=false` to the `m
 
 ```
 WORKFLOW=<the workflowname>
-argo submit model-deploy.yaml -n ${NAMESPACE} -p workflow=${WORKFLOW} --serviceaccount=argo
+argo submit model-deploy.yaml -n ${NAMESPACE} -p workflow=${WORKFLOW} --serviceaccount=tf-user
 ```
 
 ## Submitting new argo jobs
@@ -334,7 +333,7 @@ If you want to rerun your workflow from scratch, then you will need to provide a
 #We're re-using previous variables except JOB_NAME
 export JOB_NAME=myawesomejob
 
-argo submit model-train.yaml -n ${NAMESPACE} --serviceaccount argo \
+argo submit model-train.yaml -n ${NAMESPACE} --serviceaccount tf-user \
     -p aws-endpoint-url=${AWS_ENDPOINT_URL} \
     -p s3-endpoint=${S3_ENDPOINT} \
     -p aws-region=${AWS_REGION} \
