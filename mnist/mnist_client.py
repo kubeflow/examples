@@ -13,7 +13,7 @@ from tensorflow_serving.apis import prediction_service_pb2
 
 from grpc.beta import implementations
 
-from mnist import MNIST
+from mnist import MNIST # pylint: disable=no-name-in-module
 
 TF_MODEL_SERVER_HOST = os.getenv("TF_MODEL_SERVER_HOST", "127.0.0.1")
 TF_MODEL_SERVER_PORT = int(os.getenv("TF_MODEL_SERVER_PORT", 9000))
