@@ -162,8 +162,8 @@ def main(unused_args): # pylint: disable=unused-argument
     export_final = tf.estimator.FinalExporter(
         TF_EXPORT_DIR, serving_input_receiver_fn=cnn_serving_input_receiver_fn)
     train_spec = tf.estimator.TrainSpec(
-        input_fn=lambda: train_input_fn(), max_steps=TF_TRAIN_STEPS)
-    eval_spec = tf.estimator.EvalSpec(input_fn=lambda: test_input_fn(),
+        input_fn=train_input_fn, max_steps=TF_TRAIN_STEPS)
+    eval_spec = tf.estimator.EvalSpec(input_fn=test_input_fn,
                                       steps=1,
                                       exporters=export_final,
                                       throttle_secs=1,
