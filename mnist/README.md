@@ -18,7 +18,7 @@ If using GKE, the following will provision a cluster with the required features:
 
 ```
 export CLOUDSDK_CONTAINER_USE_CLIENT_CERTIFICATE=True
-gcloud alpha container clusters create ${USER} --enable-kubernetes-alpha --machine-type=n1-standard-8 --num-nodes=3 --disk-size=200 --zone=us-west1-a --cluster-version=1.9.4-gke.1 --image-type=UBUNTU
+gcloud alpha container clusters create ${USER} --enable-kubernetes-alpha --machine-type=n1-standard-8 --num-nodes=3 --disk-size=200 --zone=us-west1-a --cluster-version=1.9.3-gke.0 --image-type=UBUNTU
 ```
 
 NOTE: You must be a Kubernetes admin to follow this guide. If you are not an admin, please contact your local cluster administrator for a client cert, or credentials to pass into the following commands:
@@ -105,11 +105,12 @@ ks generate argo kubeflow-argo --name=kubeflow-argo --namespace=${NAMESPACE}
 ks apply default -c kubeflow-core
 ks apply default -c kubeflow-argo
 
-kubectl apply -f tf-user.yaml
-
 # Switch context for the rest of the example
 kubectl config set-context $(kubectl config current-context) --namespace=${NAMESPACE}
 cd -
+
+# Create a user for our workflow
+kubectl apply -f tf-user.yaml
 ```
 
 You can check to make sure the components have deployed:

@@ -138,6 +138,7 @@ spec:
         ks param set {{inputs.parameters.model-name}} s3_use_https \'{{inputs.parameters.s3-use-https}}\'
         ks param set {{inputs.parameters.model-name}} s3_verify_ssl \'{{inputs.parameters.s3-verify-ssl}}\'
         ks apply default -c {{inputs.parameters.model-name}}
+      #FIXME This doesn't actually work in the current version of argo. We're using a default of `tf-user` in the container entrypoint for now.
       env:
       - name: SERVICE_ACCOUNT
         value: tf-user

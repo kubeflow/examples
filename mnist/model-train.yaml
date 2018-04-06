@@ -21,7 +21,7 @@ spec:
     - name: tf-tensorboard-image
       value: tensorflow/tensorflow:1.5.1
     - name: ks-image
-      value: elsonrodriguez/ksonnet:0.8.0-test6
+      value: elsonrodriguez/ksonnet:0.8.0-test7
     - name: model-name
       value: mnist
     - name: model-hidden-units
@@ -357,6 +357,7 @@ spec:
         ks param set {{workflow.parameters.model-name}} s3_use_https \'{{workflow.parameters.s3-use-https}}\'
         ks param set {{workflow.parameters.model-name}} s3_verify_ssl \'{{workflow.parameters.s3-verify-ssl}}\'
         ks apply default -c {{workflow.parameters.model-name}}
+      #FIXME This doesn't actually work in the current version of argo. We're using a default of `tf-user` in the container entrypoint for now.
       env:
       - name: SERVICE_ACCOUNT
         value: tf-user
