@@ -21,10 +21,10 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import numpy as np
-import tensorflow as tf
 import os
 import sys
+import numpy as np
+import tensorflow as tf
 
 # Configure model options
 TF_DATA_DIR = os.getenv("TF_DATA_DIR", "/tmp/data/")
@@ -72,8 +72,8 @@ def conv_model(features, labels, mode):
   # Densely connected layer with 1024 neurons.
   h_fc1 = tf.layers.dense(h_pool2_flat, 1024, activation=tf.nn.relu)
   h_fc1 = tf.layers.dropout(
-      h_fc1, 
-      rate=0.5, 
+      h_fc1,
+      rate=0.5,
       training=(mode == tf.estimator.ModeKeys.TRAIN))
 
   # Compute logits (1 per class) and compute loss.
@@ -88,14 +88,18 @@ def conv_model(features, labels, mode):
         'class': predicted_classes,
         'prob': tf.nn.softmax(logits)
     }
-    return tf.estimator.EstimatorSpec(mode, predictions=predictions, export_outputs={'classes': tf.estimator.export.PredictOutput({"predictions": predict, "classes": classes})})
+    return tf.estimator.EstimatorSpec(mode, predictions=predictions,
+        export_outputs={'classes':
+                        tf.estimator.export.PredictOutput({"predictions": predict,
+                                                           "classes": classes})})
 
   # Compute loss.
   loss = tf.losses.sparse_softmax_cross_entropy(labels=labels, logits=logits)
 
   # Create training op.
   if mode == tf.estimator.ModeKeys.TRAIN:
-    optimizer = tf.train.GradientDescentOptimizer(learning_rate=TF_LEARNING_RATE)
+    optimizer = tf.train.GradientDescentOptimizer(
+        learning_rate=TF_LEARNING_RATE)
     train_op = optimizer.minimize(loss, global_step=tf.train.get_global_step())
     return tf.estimator.EstimatorSpec(mode, loss=loss, train_op=train_op)
 
@@ -107,9 +111,11 @@ def conv_model(features, labels, mode):
   return tf.estimator.EstimatorSpec(
       mode, loss=loss, eval_metric_ops=eval_metric_ops)
 
+
 def cnn_serving_input_receiver_fn():
   inputs = {X_FEATURE: tf.placeholder(tf.float32, [None, 28, 28])}
   return tf.estimator.export.ServingInputReceiver(inputs, inputs)
+
 
 def linear_serving_input_receiver_fn():
   inputs = {X_FEATURE: tf.placeholder(tf.float32, (784,))}
@@ -119,7 +125,7 @@ def linear_serving_input_receiver_fn():
 def main(unused_args):
   tf.logging.set_verbosity(tf.logging.INFO)
 
-  ### Download and load MNIST dataset.
+  # Download and load MNIST dataset.
   mnist = tf.contrib.learn.datasets.DATASETS['mnist'](TF_DATA_DIR)
   train_input_fn = tf.estimator.inputs.numpy_input_fn(
       x={X_FEATURE: mnist.train.images},
@@ -134,7 +140,7 @@ def main(unused_args):
       shuffle=False)
 
   if TF_MODEL_TYPE == "LINEAR":
-    ### Linear classifier.
+    # Linear classifier.
     feature_columns = [
         tf.feature_column.numeric_column(
             X_FEATURE, shape=mnist.train.images.shape[1:])]
@@ -144,15 +150,23 @@ def main(unused_args):
     classifier.train(input_fn=train_input_fn, steps=TF_TRAIN_STEPS)
     scores = classifier.evaluate(input_fn=test_input_fn)
     print('Accuracy (LinearClassifier): {0:f}'.format(scores['accuracy']))
-    #FIXME This doesn't seem to work. sticking to CNN for the example for now.
-    classifier.export_savedmodel(TF_EXPORT_DIR, linear_serving_input_receiver_fn)
+    # FIXME This doesn't seem to work. sticking to CNN for the example for now.
+    classifier.export_savedmodel(
+        TF_EXPORT_DIR, linear_serving_input_receiver_fn)
   elif TF_MODEL_TYPE == "CNN":
-    ### Convolutional network
-    training_config = tf.estimator.RunConfig(model_dir=TF_MODEL_DIR, save_summary_steps=100, save_checkpoints_steps=1000)
-    classifier = tf.estimator.Estimator(model_fn=conv_model, model_dir=TF_MODEL_DIR, config=training_config)
-    export_final = tf.estimator.FinalExporter(TF_EXPORT_DIR, serving_input_receiver_fn=cnn_serving_input_receiver_fn)
-    train_spec = tf.estimator.TrainSpec(input_fn=lambda: train_input_fn(), max_steps=TF_TRAIN_STEPS)
-    eval_spec = tf.estimator.EvalSpec(input_fn=lambda: test_input_fn(), steps=1, exporters=export_final, throttle_secs=1,
+    # Convolutional network
+    training_config = tf.estimator.RunConfig(
+        model_dir=TF_MODEL_DIR, save_summary_steps=100, save_checkpoints_steps=1000)
+    classifier = tf.estimator.Estimator(
+        model_fn=conv_model, model_dir=TF_MODEL_DIR, config=training_config)
+    export_final = tf.estimator.FinalExporter(
+        TF_EXPORT_DIR, serving_input_receiver_fn=cnn_serving_input_receiver_fn)
+    train_spec = tf.estimator.TrainSpec(
+        input_fn=lambda: train_input_fn(), max_steps=TF_TRAIN_STEPS)
+    eval_spec = tf.estimator.EvalSpec(input_fn=lambda: test_input_fn(),
+                                      steps=1,
+                                      exporters=export_final,
+                                      throttle_secs=1,
                                       start_delay_secs=1)
     tf.estimator.train_and_evaluate(classifier, train_spec, eval_spec)
   else:
