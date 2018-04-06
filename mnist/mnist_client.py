@@ -44,7 +44,7 @@ request.inputs['x'].CopyFrom(
 
 result = stub.Predict(request, 10.0)  # 10 secs timeout
 
-print result
-print MNIST.display(image, threshold=0)
+print(result)
+print(MNIST.display(image, threshold=0))
 print("Your model says the above number is... %d!" %
       result.outputs["classes"].int_val[0])
