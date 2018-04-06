@@ -122,7 +122,7 @@ def linear_serving_input_receiver_fn():
   return tf.estimator.export.ServingInputReceiver(inputs, inputs)
 
 
-def main(unused_args):
+def main(unused_args): # pylint: disable=unused-argument
   tf.logging.set_verbosity(tf.logging.INFO)
 
   # Download and load MNIST dataset.
