@@ -33,7 +33,7 @@ TF_EXPORT_DIR = os.getenv("TF_EXPORT_DIR", "mnist/")
 TF_MODEL_TYPE = os.getenv("TF_MODEL_TYPE", "CNN")
 TF_TRAIN_STEPS = int(os.getenv("TF_TRAIN_STEPS", 200))
 TF_BATCH_SIZE = int(os.getenv("TF_BATCH_SIZE", 100))
-TF_LEARNING_RATE = float(os.getenv("TF_LEARNING_RATE", 0.01 ))
+TF_LEARNING_RATE = float(os.getenv("TF_LEARNING_RATE", 0.01))
 
 N_DIGITS = 10  # Number of digits.
 X_FEATURE = 'x'  # Name of the input feature.
