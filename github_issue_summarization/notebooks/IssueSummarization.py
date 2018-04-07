@@ -21,5 +21,5 @@ class IssueSummarization(object):
                                    decoder_preprocessor=title_pp,
                                    seq2seq_model=load_model('seq2seq_model_tutorial.h5'))
 
-  def predict(self, input_text):
+  def predict(self, input_text, feature_names): # pylint: disable=unused-argument
     return np.asarray([[self.model.generate_issue_title(body[0])[1]] for body in input_text])
