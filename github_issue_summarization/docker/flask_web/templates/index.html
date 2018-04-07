@@ -8,13 +8,13 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
-    <title>Github Issue Summarization!</title>
+    <title>Github Issue Summarization</title>
   </head>
   <body class="text-center">
     <form class="form-signin" action="summary" method="post">
       <img class="mb-4" src="https://assets-cdn.github.com/images/modules/logos_page/GitHub-Mark.png" alt="" width="72" height="72">
       <h1 style="margin-top: -20px;">Github Issue Summarization</h1>
-      <p style="margin-left: 20%; margin-right: 20%;">Instructions: This is a demo of the github issue summarization model by <a href="https://github.com/hamelsmu">Hamel Husain.</a> Enter the body of a github issue or the url of a github issue and click on Submit. The model then tries to generate a title or summary of the issue.</p>
+      <p style="margin-left: 20%; margin-right: 20%;">Instructions: This is a demo of the github issue summarization <a href="https://github.com/hamelsmu/Seq2Seq_Tutorial" target="_blank">model</a> by <a href="https://github.com/hamelsmu" target="_blank">Hamel Husain.</a> Enter the body of a github issue or the url of a github issue and click on Submit. The model then tries to generate a title or summary of the issue.</p>
       <h3 class="h3 mb-3 font-weight-normal">Enter Github Issue Body</h3>
       <p><button id="generate_random_issue_button" type="button">Populate Random Issue</button></p>
       <p><textarea id="issue_body_textarea" class="scrollabletextbox" name="issue_text" rows=8 cols=100></textarea></p>
@@ -24,8 +24,9 @@
     </form>
     <div id="generated_title_div" style="display: none;">
       <h2>Machine Generated Title</h2>
-      <p id="generated_title"></p>
+      <p style="margin-right: 20%; margin-left: 20%;" id="generated_title"></p>
     </div>
+    <p style="font-style: italic; margin-right: 20%; margin-left: 20%; margin-top: 40px;" id="generated_title">This demo is run using <a target="_blank" href="https://github.com/kubeflow/kubeflow/">Kubeflow</a> - a machine learning toolkit for Kubernetes. Kubeflow is dedicated to making deployment of machine learning on Kubernetes simple, portable and scalable.</p>
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
@@ -39,10 +40,11 @@
           }});
       });
       $("#submit").click(function(){
+          $("#generated_title").html("");
           var issue_body_textarea = $("#issue_body_textarea").val();
           var issue_url_textarea = $("#issue_url_textarea").val();
           $.post(window.location.pathname + "summary", {issue_text: issue_body_textarea, issue_url: issue_url_textarea}, function(result){
-              $("#generated_title").html(result.summary);
+              $("#generated_title").html("“" + result.summary + "”");
               $("#issue_body_textarea").html(result.body);
               $("#generated_title_div").show();
 
