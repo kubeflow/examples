@@ -1,6 +1,6 @@
 # Serving the model
 
-We are going to use [seldon-core](https://github.com/SeldonIO/seldon-core) to serve the model. [IssueSummatization.py](notebooks/IssueSummatization.py) contains the code for this model. We will wrap this class into a seldon-core microservice which we can then deploy as a REST or GRPC API server.
+We are going to use [seldon-core](https://github.com/SeldonIO/seldon-core) to serve the model. [IssueSummarization.py](notebooks/IssueSummarization.py) contains the code for this model. We will wrap this class into a seldon-core microservice which we can then deploy as a REST or GRPC API server.
 
 > The model is written in Keras and when exported as a TensorFlow model seems to be incompatible with TensorFlow Serving. So we're using seldon-core to serve this model since seldon-core allows you to serve any arbitrary model. More details [here](https://github.com/kubeflow/examples/issues/11#issuecomment-371005885).
 
@@ -103,4 +103,3 @@ Response
 ```
 
 Next: [Querying the model](querying_the_model.md)
-
