@@ -10,9 +10,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Provides an entrypoint for the training task."""
+"""Provides an entrypoint for the training and rendering tasks.
 
-#pylint: disable=unused-import
+Usage: python -m trainer.task [options]
+
+"""
 
 from __future__ import absolute_import, division, print_function
 
@@ -21,12 +23,16 @@ import logging
 import os
 import pprint
 import uuid
+import shutil
 
 from google.cloud import storage
 import tensorflow as tf
 
+#pylint: disable=unused-import
+import pybullet_envs
+
 import agents
-import pybullet_envs  # To make AntBulletEnv-v0 available.
+
 
 flags = tf.app.flags
 
@@ -109,48 +115,56 @@ flags.DEFINE_integer("kl_init_penalty", 1,
 FLAGS = flags.FLAGS
 
 
-def hparams_base():
-  """Base hparams tf/Agents PPO """
+hparams_base = {
 
   # General
-#  algorithm = agents.ppo.PPOAlgorithm
-#  num_agents = 30
-#  eval_episodes = 30
-#  use_gpu = False
+  "algorithm": agents.ppo.PPOAlgorithm,
+  "num_agents": 30,
+  "eval_episodes": 30,
+  "use_gpu": False,
 
   # Environment
-#  env = 'KukaBulletEnv-v0'
-#  normalize_ranges = True
-#  max_length = 1000
+  "env": 'KukaBulletEnv-v0',
+  "normalize_ranges": True,
+  "max_length": 1000,
 
   # Network
-#  network = agents.scripts.networks.feed_forward_gaussian
-#  weight_summaries = dict(
-#      all=r'.*', policy=r'.*/policy/.*', value=r'.*/value/.*')
-#  policy_layers = 200, 100
-#  value_layers = 200, 100
-#  init_output_factor = 0.1
-#  init_logstd = -1
-#  init_std = 0.35
+  "network": agents.scripts.networks.feed_forward_gaussian,
+  "weight_summaries": dict(
+    all=r'.*', policy=r'.*/policy/.*', value=r'.*/value/.*'),
+  "policy_layers": (200, 100),
+  "value_layers": (200, 100),
+  "init_output_factor": 0.1,
+  "init_logstd": -1,
+  "init_std": 0.35,
 
   # Optimization
-#  update_every = 60
-#  update_epochs = 25
-#  optimizer = tf.train.AdamOptimizer
-#  learning_rate = 1e-4
-#  steps = 3e7  # 30M
+  "update_every": 60,
+  "update_epochs": 25,
+  "optimizer": tf.train.AdamOptimizer,
+  "learning_rate": 1e-4,
+  "steps": 3e7,  # 30M
 
   # Losses
-#  discount = 0.995
-#  kl_target = 1e-2
-#  kl_cutoff_factor = 2
-#  kl_cutoff_coef = 1000
-#  kl_init_penalty = 1
-
-  return locals()
+  "discount": 0.995,
+  "kl_target": 1e-2,
+  "kl_cutoff_factor": 2,
+  "kl_cutoff_coef": 1000,
+  "kl_init_penalty": 1,
+}
 
 
 def _object_import_from_string(name):
+  """Import and return an object from a string import path.
+
+  Args:
+    name (str): A string import path
+        (e.g. "tf.train.AdamOptimizer")
+
+  Returns:
+    obj: The imported Python object
+
+  """
   components = name.split('.')
   mod = __import__(components[0])
   for comp in components[1:]:
@@ -159,6 +173,20 @@ def _object_import_from_string(name):
 
 
 def _realize_import_attrs(d, hparam_filter):
+  """Import objects from string paths in dict if in `hparam_filter`.
+
+  Notes:
+  The following call with an optimizer object referenced as a str:
+      _realize_import_attrs(
+          {"optimizer":"tf.train.AdamOptimizer"},
+          ["optimizer"])
+  returns {"optimizer": tf.train.AdamOptimizer}
+
+  This is part of an experiment on how to make all hyperparameters
+  configurable, including python objects, towards more flexible
+  tuning.
+
+  """
   for k, v in d.items():
     if k in hparam_filter:
       imported = _object_import_from_string(v)
@@ -171,17 +199,26 @@ def _realize_import_attrs(d, hparam_filter):
 
 
 def _get_agents_configuration(log_dir=None):
-  """Load hyperparameter config."""
+  """Load hyperparameter config.
+
+  Args:
+    log_dir (str): The directory in which to search for a
+        tensorflow/agents config file.
+
+  Returns:
+    dict: A dictionary storing the hyperparameter config.
+        for this run.
+
+  """
   try:
     # Try to resume training.
     hparams = agents.scripts.utility.load_config(log_dir)
   except IOError:
 
-    hparams = hparams_base()
+    hparams = hparams_base
 
     # --------
-    # Experiment extending base hparams with FLAGS and dynamic import of
-    # network and algorithm.
+    # Experimental
     for k, v in FLAGS.__dict__['__flags'].items():
       hparams[k] = v
     hparams = _realize_import_attrs(
@@ -244,7 +281,8 @@ def gcs_upload(local_dir, gcs_out_dir):
 
 
 def main(_):
-  """Run training."""
+  """Configures run and initiates either training or rendering."""
+
   tf.logging.set_verbosity(tf.logging.INFO)
 
   if FLAGS.debug:
@@ -270,7 +308,12 @@ def main(_):
     # of the log dir with the parent render/
     if render_out_dir is None:
       render_out_dir = os.path.join(FLAGS.logdir, "render", subdir)
-    gcs_upload(render_tmp_dir, render_out_dir)
+    if render_out_dir.startswith("gs://"):
+      gcs_upload(render_tmp_dir, render_out_dir)
+    else:
+      shutil.copytree(render_tmp_dir, render_out_dir)
+
+  return True
 
 
 if __name__ == '__main__':

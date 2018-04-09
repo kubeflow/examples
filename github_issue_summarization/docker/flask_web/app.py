@@ -2,9 +2,28 @@
 Simple app that parses predictions from a trained model and displays them.
 """
 
+import os
+import re
+import random
+
 import requests
-from flask import Flask, json, render_template, request
+import pandas as pd
+from flask import Flask, json, render_template, request, g, jsonify
+
 APP = Flask(__name__)
+GITHUB_TOKEN = os.environ['GITHUB_TOKEN']
+SAMPLE_DATA_URL = ('https://storage.googleapis.com/kubeflow-examples/'
+                   'github-issue-summarization-data/github_issues_sample.csv')
+
+
+def get_issue_body(issue_url):
+  issue_url = re.sub('.*github.com/', 'https://api.github.com/repos/',
+                     issue_url)
+  return requests.get(
+    issue_url, headers={
+      'Authorization': 'token {}'.format(GITHUB_TOKEN)
+    }).json()['body']
+
 
 @APP.route("/")
 def index():
@@ -14,7 +33,8 @@ def index():
   """
   return render_template("index.html")
 
-@APP.route("/summary", methods=['GET', 'POST'])
+
+@APP.route("/summary", methods=['POST'])
 def summary():
   """Main prediction route.
 
@@ -23,26 +43,33 @@ def summary():
   """
   if request.method == 'POST':
     issue_text = request.form["issue_text"]
-
-    url = "http://ambassador:80/seldon/issue-summarization/api/v0.1/predictions"
+    issue_url = request.form["issue_url"]
+    if issue_url:
+      issue_text = get_issue_body(issue_url)
+    url = "http://ambassador/seldon/issue-summarization/api/v0.1/predictions"
     headers = {'content-type': 'application/json'}
-    json_data = {
-      "data" : {
-        "ndarray" : [[issue_text]]
-      }
-    }
-
-    response = requests.post(url=url,
-                             headers=headers,
-                             data=json.dumps(json_data))
-
+    json_data = {"data": {"ndarray": [[issue_text]]}}
+    response = requests.post(
+      url=url, headers=headers, data=json.dumps(json_data))
     response_json = json.loads(response.text)
     issue_summary = response_json["data"]["ndarray"][0][0]
+    return jsonify({'summary': issue_summary, 'body': issue_text})
 
-    return render_template("issue_summary.html",
-                           issue_text=issue_text,
-                           issue_summary=issue_summary)
   return ('', 204)
+
+
+@APP.route("/random_github_issue", methods=['GET'])
+def random_github_issue():
+  github_issues = getattr(g, '_github_issues', None)
+  if github_issues is None:
+    github_issues = g._github_issues = pd.read_csv(
+      SAMPLE_DATA_URL).body.tolist()
+  return jsonify({
+    'body':
+    github_issues[random.randint(0,
+                                 len(github_issues) - 1)]
+  })
+
 
 if __name__ == '__main__':
   APP.run(debug=True, host='0.0.0.0', port=80)
