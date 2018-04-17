@@ -11,7 +11,7 @@ cd docker
 docker build -t gcr.io/${PROJECT}/issue-summarization-ui-${NAMESPACE}:0.1 .
 
 # Store in the container repo
-gcloud docker -- push gcr.io/${KF_REPO_NAME}/issue-summarization-ui-${NAMESPACE}:0.1
+gcloud docker -- push gcr.io/${PROJECT}/issue-summarization-ui-${NAMESPACE}:0.1
 
 cd ../notebooks/ks-app
 ks env add ${KF_ENV} --namespace ${NAMESPACE}

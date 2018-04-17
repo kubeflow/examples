@@ -19,7 +19,7 @@ complete the following sections:
 *    [Deploy
 Kubeflow](https://github.com/kubeflow/kubeflow/blob/master/user_guide.md#deploy-kubeflow)
     *   If you run into
-        [API rate limitingerrors](https://github.com/ksonnet/ksonnet/blob/master/docs/troubleshooting.md#github-rate-limiting-errors),
+        [API rate limiting errors](https://github.com/ksonnet/ksonnet/blob/master/docs/troubleshooting.md#github-rate-limiting-errors),
         ensure you have a `${GITHUB_TOKEN}` environment variable set.
     *   If you run into
         [RBAC permissions issues](https://github.com/kubeflow/kubeflow/blob/master/user_guide.md#rbac-clusters)
