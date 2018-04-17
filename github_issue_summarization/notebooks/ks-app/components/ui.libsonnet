@@ -42,6 +42,12 @@
             containers: [
               {
                 image: "gcr.io/kubeflow-images-staging/issue-summarization-ui:latest",
+		env: [
+		{
+		  name: "GITHUB_TOKEN",
+		  value: params.github_token,
+		}
+		],
                 name: "issue-summarization-ui",
                 ports: [
                   {
