@@ -20,7 +20,7 @@ To build the frontend image, issue the following commands:
 
 ```
 cd docker
-docker build -t gcr.io/gcr-repository-name/issue-summarization-ui .
+docker build -t gcr.io/gcr-repository-name/issue-summarization-ui:0.1 .
 ```
 
 ## Store the frontend image
@@ -36,10 +36,13 @@ gcloud docker -- push gcr.io/gcr-repository-name/issue-summarization-ui:0.1
 
 [notebooks](notebooks) contains a ksonnet app([ks-app](notebooks/ks-app)). The ui component in the ks-app contains the frontend image deployment.
 
-Create an environment to deploy the ksonnet app
+To avoid rate-limiting by the GitHub API, you will need an [authentication token](https://github.com/ksonnet/ksonnet/blob/master/docs/troubleshooting.md) stored in the form of an environment variable `${GITHUB_TOKEN}`. The token does not require any permissions and is only used to prevent anonymous API calls.
+
+Create an environment to deploy the ksonnet app:
 
 ```commandline
 cd notebooks/ks-app
+ks param set ui github_token ${GITHUB_TOKEN} --env frontendenv
 ks env add frontendenv --namespace ${NAMESPACE}
 ```
 
