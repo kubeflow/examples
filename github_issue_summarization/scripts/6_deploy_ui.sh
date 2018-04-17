@@ -19,5 +19,5 @@ ks param set ui github_token ${GITHUB_TOKEN} --env ${KF_ENV}
 ks apply ${KF_ENV} -c ui
 
 # Open access outside the cluster
-kubectl port-forward $(kubectl get pods -n ${NAMESPACE} -l service=ambassador -o jsonpath='{.items[0].metadata.name}') -n ${NAMESPACE} 8002:80
+kubectl port-forward $(kubectl get pods -n ${NAMESPACE} -l service=ambassador -o jsonpath='{.items[0].metadata.name}') -n ${NAMESPACE} 8080:80
 
