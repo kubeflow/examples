@@ -1,12 +1,9 @@
-import os
-import tensorflow as tf
+import pandas as pd
 from tensor2tensor.utils import registry
 from tensor2tensor.models import transformer
 from tensor2tensor.data_generators import problem
-from tensor2tensor.data_generators import text_encoder
 from tensor2tensor.data_generators import text_problems
-from tensor2tensor.data_generators import generator_utils
-import pandas as pd
+
 
 @registry.register_problem
 class GithubIssueSummarizationProblem(text_problems.Text2TextProblem):
@@ -26,24 +23,22 @@ class GithubIssueSummarizationProblem(text_problems.Text2TextProblem):
     """Splits of data to produce and number of output shards for each."""
     # 10% evaluation data
     return [{
-        "split": problem.DatasetSplit.TRAIN,
-        "shards": 90,
+      "split": problem.DatasetSplit.TRAIN,
+      "shards": 90,
     }, {
-        "split": problem.DatasetSplit.EVAL,
-        "shards": 10,
+      "split": problem.DatasetSplit.EVAL,
+      "shards": 10,
     }]
 
-  def generate_samples(self, data_dir, tmp_dir, dataset_split):
-    chunksize=200000
-    for issue_data in pd.read_csv('csv_data/github_issues_10000.csv', chunksize=chunksize):
+  def generate_samples(self, data_dir, tmp_dir, dataset_split):  # pylint: disable=unused-argument, no-self-use
+    chunksize = 200000
+    for issue_data in pd.read_csv(
+        'csv_data/github_issues_10000.csv', chunksize=chunksize):
       issue_body_data = issue_data.body.tolist()
       issue_title_data = issue_data.issue_title.tolist()
       n = len(issue_title_data)
       for i in range(n):
-          yield {
-                  "inputs": issue_body_data[i],
-                  "targets": issue_title_data[i]
-              }
+        yield {"inputs": issue_body_data[i], "targets": issue_title_data[i]}
 
 
 # Smaller than the typical translate model, and with more regularization
@@ -58,6 +53,7 @@ def transformer_github_issues():
   hparams.layer_prepostprocess_dropout = 0.6
   hparams.learning_rate = 0.05
   return hparams
+
 
 # hyperparameter tuning ranges
 @registry.register_ranged_hparams
