@@ -46,7 +46,7 @@ def summary():
     issue_url = request.form["issue_url"]
     if issue_url:
       issue_text = get_issue_body(issue_url)
-    url = "http://ambassador/seldon/issue-summarization/api/v0.1/predictions"
+    url = "http://issue-summarization.kubeflow.svc.cluster.local:8000/api/v0.1/predictions"
     headers = {'content-type': 'application/json'}
     json_data = {"data": {"ndarray": [[issue_text]]}}
     response = requests.post(
