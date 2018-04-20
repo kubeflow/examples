@@ -5,7 +5,7 @@ In this part, you will setup kubeflow on an existing kubernetes cluster.
 ## Requirements
 
 *   A kubernetes cluster
-*   `kubectl` CLI pointing to the kubernetes cluster
+*   `kubectl` CLI (command line interface) pointing to the kubernetes cluster
     *   Make sure that you can run `kubectl get nodes` from your terminal
         successfully
 *   The ksonnet CLI, v0.9.2 or higher: [ks](https://ksonnet.io/#get-started)
@@ -14,8 +14,9 @@ In this part, you will setup kubeflow on an existing kubernetes cluster.
 
 Refer to the [user
 guide](https://github.com/kubeflow/kubeflow/blob/master/user_guide.md) for
-instructions on how to setup kubeflow on your kubernetes cluster. Specifically,
-complete the following sections:
+detailed instructions on how to setup kubeflow on your kubernetes cluster.
+Specifically, complete the following sections:
+
 *    [Deploy
 Kubeflow](https://github.com/kubeflow/kubeflow/blob/master/user_guide.md#deploy-kubeflow)
     *   The `ks-kubeflow` directory can be used instead of creating a ksonnet
@@ -43,9 +44,9 @@ Notebook](https://github.com/kubeflow/kubeflow/blob/master/user_guide.md#bringin
 After completing that, you should have the following ready:
 
 *   A ksonnet app in a directory named `ks-kubeflow`
-*   An output similar to this for `kubectl get pods`
+*   An output similar to this for `kubectl get pods` command
 
-```
+```commandline
 NAME                                   READY     STATUS              RESTARTS   AGE
 ambassador-75bb54594-dnxsd             2/2       Running             0          3m
 ambassador-75bb54594-hjj6m             2/2       Running             0          3m
@@ -57,7 +58,7 @@ tf-job-dashboard-6c757d8684-d299l      1/1       Running             0          
 tf-job-operator-77776c8446-lpprm       1/1       Running             0          3m
 ```
 
-*   A Jupyter Notebook accessible at `http://127.0.0.1:8000`
+*   A Jupyter Notebook accessible at http://127.0.0.1:8000
 *   A 10GB mount `/mnt/github-issues-data` in your Jupyter Notebook pod. Check this
     by running `!df` in your Jupyter Notebook.
 
@@ -68,4 +69,4 @@ tf-job-operator-77776c8446-lpprm       1/1       Running             0          
 *   We created a disk for storing our training data
 *   We connected to JupyterHub and spawned a new Jupyter notebook
 
-Next: [Training the model using our cluster](training_the_model.md)
+*Next*: [Training the model using our cluster](02_training_the_model.md)
