@@ -12,4 +12,3 @@ Delete the PD backing the NFS mount
 gcloud --project=${PROJECT} compute disks delete  --zone=${ZONE} ${PD_DISK_NAME}
 
 ```
-
