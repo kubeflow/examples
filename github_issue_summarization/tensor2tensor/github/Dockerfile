@@ -1,4 +1,4 @@
-FROM gcr.io/kubeflow-images-staging/tensorflow-1.7.0-notebook-gpu:latest
+FROM gcr.io/kubeflow-images-public/tensorflow-1.7.0-notebook-gpu:latest
 
 USER root
 
