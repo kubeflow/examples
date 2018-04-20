@@ -9,6 +9,9 @@
     tfjob: {
 
     },
+    tensor2tensor: {
+
+    },
     ui: {
 
     },
