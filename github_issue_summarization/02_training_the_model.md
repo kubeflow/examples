@@ -37,4 +37,3 @@ kubectl --namespace=${NAMESPACE} cp ${PODNAME}:/home/jovyan/examples/github_issu
 
 
 Next: [Serving the model](serving_the_model.md)
-
