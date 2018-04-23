@@ -41,6 +41,9 @@
       namespace: "null",
       replicas: 2,
     },
+    tensor2tensor: {
+      namespace: "null",
+    },
     tfjob: {
       namespace: "null",
     },
