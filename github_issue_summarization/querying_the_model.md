@@ -20,7 +20,7 @@ To build the frontend image, issue the following commands:
 
 ```
 cd docker
-docker build -t gcr.io/gcr-repository-name/issue-summarization-ui .
+docker build -t gcr.io/gcr-repository-name/issue-summarization-ui:0.1 .
 ```
 
 ## Store the frontend image
@@ -34,19 +34,21 @@ gcloud docker -- push gcr.io/gcr-repository-name/issue-summarization-ui:0.1
 
 ## Deploy the frontend image to your kubernetes cluster
 
-[notebooks](notebooks) contains a ksonnet app([ks-app](notebooks/ks-app)). The ui component in the ks-app contains the frontend image deployment.
+The folder [ks-kubeflow](ks-kubeflow) contains a ksonnet app. The ui component in the ks-kubeflow app contains the frontend image deployment.
 
-Create an environment to deploy the ksonnet app
+To avoid rate-limiting by the GitHub API, you will need an [authentication token](https://github.com/ksonnet/ksonnet/blob/master/docs/troubleshooting.md) stored in the form of an environment variable `${GITHUB_TOKEN}`. The token does not require any permissions and is only used to prevent anonymous API calls.
+
+To use this token, set it as a parameter in the ui component:
 
 ```commandline
-cd notebooks/ks-app
-ks env add frontendenv --namespace ${NAMESPACE}
+cd ks-kubeflow
+ks param set ui github_token ${GITHUB_TOKEN} --env ${KF_ENV}
 ```
 
 To serve the frontend interface, apply the ui component of the ksonnet app:
 
 ```
-ks apply frontendenv -c ui
+ks apply ${KF_ENV} -c ui
 ```
 
 ## View results from the frontend

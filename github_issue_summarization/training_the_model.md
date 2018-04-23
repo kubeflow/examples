@@ -25,13 +25,14 @@ After training completes, download the resulting files to your local machine. Th
 * `body_pp.dpkl` - the serialized body preprocessor
 * `title_pp.dpkl` - the serialized title preprocessor
 
-In a locally cloned copy of the same repo, issue the following commands to place these three files into the `examples/github_issue_summarization/notebooks` folder:
+If you haven't already, clone the [kubeflow/examples](https://github.com/kubeflow/examples) repo locally, then issue the following commands to place these three files into the `github_issue_summarization/notebooks` folder on your local machine:
 
 ```
+cd github_issue_summarization/notebooks
 PODNAME=`kubectl get pods --namespace=${NAMESPACE} --selector="app=jupyterhub" --output=template --template="{{with index .items 0}}{{.metadata.name}}{{end}}"`
-kubectl --namespace=${NAMESPACE} cp ${PODNAME}:/home/jovyan/examples/github_issue_summarization/notebooks/seq2seq_model_tutorial.h5 examples/github_issue_summarization/notebooks
-kubectl --namespace=${NAMESPACE} cp ${PODNAME}:/home/jovyan/examples/github_issue_summarization/notebooks/body_pp.dpkl examples/github_issue_summarization/notebooks
-kubectl --namespace=${NAMESPACE} cp ${PODNAME}:/home/jovyan/examples/github_issue_summarization/notebooks/title_pp.dpkl examples/github_issue_summarization/notebooks
+kubectl --namespace=${NAMESPACE} cp ${PODNAME}:/home/jovyan/examples/github_issue_summarization/notebooks/seq2seq_model_tutorial.h5 .
+kubectl --namespace=${NAMESPACE} cp ${PODNAME}:/home/jovyan/examples/github_issue_summarization/notebooks/body_pp.dpkl .
+kubectl --namespace=${NAMESPACE} cp ${PODNAME}:/home/jovyan/examples/github_issue_summarization/notebooks/title_pp.dpkl .
 ```
 
 
