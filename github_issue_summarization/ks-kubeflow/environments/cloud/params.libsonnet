@@ -10,7 +10,7 @@ params + {
       cloud: "gke",
     },
     ui +: {
-      github_token: "109e464a0ced54a1fe1987a0d3af8f0a3b2064bc",
+      github_token: "null",
     },
   },
 }
