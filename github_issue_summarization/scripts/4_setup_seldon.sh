@@ -5,7 +5,7 @@
 NAMESPACE=${KF_DEV_NAMESPACE}
 KF_ENV=cloud
 
-cd my-kubeflow
+cd ks-kubeflow
 
 # Gives cluster-admin role to the default service account in the ${NAMESPACE}
 kubectl create clusterrolebinding seldon-admin --clusterrole=cluster-admin --serviceaccount=${NAMESPACE}:default

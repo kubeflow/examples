@@ -13,8 +13,3 @@ gcloud --project=${PROJECT} compute disks delete  --zone=${ZONE} ${PD_DISK_NAME}
 
 ```
 
-Delete the kubeflow-app directory
-
-```
-rm -rf my-kubeflow
-```

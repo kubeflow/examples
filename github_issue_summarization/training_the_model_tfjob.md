@@ -41,37 +41,31 @@ kubectl --namespace=${NAMESPACE} create secret generic gcp-credentials --from-fi
 
 ## Run the TFJob using your image
 
-[notebooks](notebooks) contains a ksonnet app([ks-app](notebooks/ks-app)) to deploy the TFJob.
-
-Create an environment to deploy the ksonnet app
-
-```commandline
-cd notebooks/ks-app
-ks env add tfjob --namespace ${NAMESPACE}
-```
+[ks-kubeflow](ks-kubeflow) contains a ksonnet app to deploy the TFJob.
 
 Set the appropriate params for the tfjob component
 
 ```commandline
-ks param set tfjob namespace ${NAMESPACE} --env=tfjob
+cd ks-kubeflow
+ks param set tfjob namespace ${NAMESPACE} --env=${KF_ENV}
 
 # The image pushed in the previous step
-ks param set tfjob image "gcr.io/agwl-kubeflow/tf-job-issue-summarization:latest" --env=tfjob
+ks param set tfjob image "gcr.io/agwl-kubeflow/tf-job-issue-summarization:latest" --env=${KF_ENV}
 
 # Sample Size for training
-ks param set tfjob sample_size 100000 --env=tfjob
+ks param set tfjob sample_size 100000 --env=${KF_ENV}
 
 # Set the input and output GCS Bucket locations
-ks param set tfjob input_data_gcs_bucket "kubeflow-examples" --env=tfjob
-ks param set tfjob input_data_gcs_path "github-issue-summarization-data/github-issues.zip" --env=tfjob
-ks param set tfjob output_model_gcs_bucket "kubeflow-examples" --env=tfjob
-ks param set tfjob output_model_gcs_path "github-issue-summarization-data/output_model.h5" --env=tfjob
+ks param set tfjob input_data_gcs_bucket "kubeflow-examples" --env=${KF_ENV}
+ks param set tfjob input_data_gcs_path "github-issue-summarization-data/github-issues.zip" --env=${KF_ENV}
+ks param set tfjob output_model_gcs_bucket "kubeflow-examples" --env=${KF_ENV}
+ks param set tfjob output_model_gcs_path "github-issue-summarization-data/output_model.h5" --env=${KF_ENV}
 ```
 
 Deploy the app:
 
 ```commandline
-ks apply tfjob -c tfjob
+ks apply ${KF_ENV} -c tfjob
 ```
 
 In a while you should see a new pod with the label `tf_job_name=tf-job-issue-summarization`

@@ -18,6 +18,8 @@ instructions on how to setup kubeflow on your kubernetes cluster. Specifically,
 complete the following sections:
 *    [Deploy
 Kubeflow](https://github.com/kubeflow/kubeflow/blob/master/user_guide.md#deploy-kubeflow)
+    *   The `ks-kubeflow` directory can be used instead of creating a ksonnet
+        app from scratch.
     *   If you run into
         [API rate limiting errors](https://github.com/ksonnet/ksonnet/blob/master/docs/troubleshooting.md#github-rate-limiting-errors),
         ensure you have a `${GITHUB_TOKEN}` environment variable set.
@@ -40,7 +42,7 @@ Notebook](https://github.com/kubeflow/kubeflow/blob/master/user_guide.md#bringin
 
 After completing that, you should have the following ready:
 
-*   A ksonnet app in a directory named `my-kubeflow`
+*   A ksonnet app in a directory named `ks-kubeflow`
 *   An output similar to this for `kubectl get pods`
 
 ```

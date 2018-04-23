@@ -7,7 +7,7 @@ PROJECT=${KF_DEV_PROJECT}
 NAMESPACE=${KF_DEV_NAMESPACE}
 KF_ENV=cloud
 
-cd my-kubeflow
+cd ks-kubeflow
 
 # Generate component
 ks generate seldon-serve-simple issue-summarization-model-serving \

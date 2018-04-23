@@ -12,7 +12,7 @@ PD_DISK_NAME=github-issues-data-${NAMESPACE}
 gcloud --project=${PROJECT} compute disks create  --zone=${ZONE} ${PD_DISK_NAME} --description="PD for storing GitHub Issue data." --size=10GB
 
 # Configure the environment to use the disk
-cd my-kubeflow
+cd ks-kubeflow
 ks param set --env=${KF_ENV} kubeflow-core disks ${PD_DISK_NAME}
 ks apply ${KF_ENV}
 

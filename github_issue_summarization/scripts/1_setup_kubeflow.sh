@@ -8,10 +8,10 @@ KF_ENV=cloud
 
 # Initialize an empty ksonnet app
 ks version
-ks init my-kubeflow
+ks init ks-kubeflow
 
 # Install kubeflow core package
-cd my-kubeflow
+cd ks-kubeflow
 ks registry add kubeflow github.com/kubeflow/kubeflow/tree/${KF_VERSION}/kubeflow
 ks pkg install kubeflow/core@${KF_VERSION}
 
@@ -22,7 +22,7 @@ ks generate core kubeflow-core --name=kubeflow-core
 ks param set kubeflow-core reportUsage true
 ks param set kubeflow-core usageId $(uuidgen)
 
-# Define two environments
+# Define an environment
 ks env add ${KF_ENV}
 
 # Configure our cloud to use GCP features
