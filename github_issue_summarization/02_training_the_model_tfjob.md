@@ -117,3 +117,11 @@ You can view the actual training logs using
 ```commandline
 kubectl logs -f $(kubectl get pods -n=${NAMESPACE} -ltf_job_name=tf-job-issue-summarization -o=jsonpath='{.items[0].metadata.name}')
 ```
+
+For information on:
+- [Training the model](02_training_the_model.md)
+- [Distributed training using tensor2tensor](02_tensor2tensor_training.md)
+
+*Next*: [Serving the model](03_serving_the_model.md)
+
+*Back*: [Setup a kubeflow cluster](01_setup_a_kubeflow_cluster.md)
