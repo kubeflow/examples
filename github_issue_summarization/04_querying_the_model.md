@@ -4,7 +4,7 @@ In this section, you will setup a barebones web server that displays the
 prediction provided by the previously deployed model.
 
 The following steps describe how to build a docker image and deploy it locally,
-where it accepts as input any arbitrary text and displays amachine-generated
+where it accepts as input any arbitrary text and displays a machine-generated
 summary.
 
 
