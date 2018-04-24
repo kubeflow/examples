@@ -14,28 +14,29 @@ Ensure that your model is live and listening for HTTP requests as described in
 [serving](03_serving_the_model.md).
 
 
-## Build the frontend docker image
+## Build the front-end docker image
 
-To build the frontend docker image, issue the following commands:
+To build the front-end docker image, issue the following commands:
 
 ```commandline
 cd docker
 docker build -t gcr.io/gcr-repository-name/issue-summarization-ui:0.1 .
 ```
 
-## Store the frontend docker image
+## Store the front-end docker image
 
-To store the doecker image in a location accessible to GKE, push it to the
-container registry of your choice. Here, it is pushed to Google Container
+To store the docker image in a location accessible to GKE, push it to the
+container registry of your choice. Here, it is pushed to Google Container 
 Registry.
 
 ```commandline
 gcloud docker -- push gcr.io/gcr-repository-name/issue-summarization-ui:0.1
 ```
 
-## Deploy the frontend docker image to your kubernetes cluster
+## Deploy the front-end docker image to your kubernetes cluster
 
-The folder [ks-kubeflow](ks-kubeflow) contains a ksonnet app. The ui component in the ks-kubeflow app contains the frontend image deployment.
+The folder [ks-kubeflow](ks-kubeflow) contains a ksonnet app. The ui component
+in the `ks-kubeflow` app contains the frontend image deployment.
 
 To avoid rate-limiting by the GitHub API, you will need an [authentication token](https://github.com/ksonnet/ksonnet/blob/master/docs/troubleshooting.md) stored in the form of an environment variable `${GITHUB_TOKEN}`. The token does not require any permissions and is only used to prevent anonymous API calls.
 
@@ -66,4 +67,5 @@ you will be greeted by "Issuetext". Enter text into the input box and click
 "Submit". You should see a summary that was provided by your trained model.
 
 *Next*: [Teardown](05_teardown.md)
+
 *Back*: [Serving the Model](03_serving_the_model.md)

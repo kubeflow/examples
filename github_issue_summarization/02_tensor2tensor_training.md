@@ -79,3 +79,11 @@ You can view the logs of the tf-job operator using
 ```commandline
 kubectl logs -f $(kubectl get pods -n=${NAMESPACE} -lname=tf-job-operator -o=jsonpath='{.items[0].metadata.name}')
 ```
+
+For information on:
+- [Training the model](02_training_the_model.md)
+- [Training the model using TFJob](02_training_model_tfjob.md)
+
+*Next*: [Serving the model](03_serving_the_model.md)
+
+*Back*: [Setup a kubeflow cluster](01_setup_a_kubeflow_cluster.md)

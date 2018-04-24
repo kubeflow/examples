@@ -18,4 +18,4 @@ Delete the `kubeflow-app` directory.
 rm -rf my-kubeflow
 ```
 
-*Back*: [Serving the Model](04_querying_the_model.md)
+*Back*: [Querying the model](04_querying_the_model.md)

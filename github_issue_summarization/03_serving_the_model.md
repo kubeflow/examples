@@ -103,4 +103,6 @@ Response
 }
 ```
 
-Next: [Querying the model](querying_the_model.md)
+*Next*: [Querying the model](04_querying_the_model.md)
+
+*Back*: [Training the model](02_training_the_model.md)

@@ -69,4 +69,4 @@ tf-job-operator-77776c8446-lpprm       1/1       Running             0          
 *   We created a disk for storing our training data
 *   We connected to JupyterHub and spawned a new Jupyter notebook
 
-*Next*: [Training the model using our cluster](02_training_the_model.md)
+*Next*: [Training the model](02_training_the_model.md)
