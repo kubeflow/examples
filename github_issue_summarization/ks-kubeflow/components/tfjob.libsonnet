@@ -28,7 +28,7 @@
                   ],
                   args: [
                     "/workdir/train.py",
-                    "--sample_size=" + params.sample_size,
+                    "--sample_size=" + std.toString(params.sample_size),
                     "--input_data_gcs_bucket=" + params.input_data_gcs_bucket,
                     "--input_data_gcs_path=" + params.input_data_gcs_path,
                     "--output_model_gcs_bucket=" + params.output_model_gcs_bucket,

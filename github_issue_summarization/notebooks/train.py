@@ -20,7 +20,9 @@ import zipfile
 from google.cloud import storage  # pylint: disable=no-name-in-module
 import dill as dpickle
 import numpy as np
+import os
 import pandas as pd
+import re
 from keras import optimizers
 from keras.layers import GRU, BatchNormalization, Dense, Embedding, Input
 from keras.models import Model
@@ -29,12 +31,31 @@ from sklearn.model_selection import train_test_split
 from ktext.preprocess import processor
 from seq2seq_utils import load_encoder_inputs, load_text_processor
 
+GCS_REGEX = re.compile("gs://([^/]*)(/.*)?")
+
+def split_gcs_uri(gcs_uri):
+  """Split a GCS URI into bucket and path."""
+  m = GCS_REGEX.match(gcs_uri)
+  bucket = m.group(1)
+  path = ""
+  if m.group(2):
+    path = m.group(2).lstrip("/")
+  return bucket, path
+
+
 def main(): # pylint: disable=too-many-statements
   # Parsing flags.
   parser = argparse.ArgumentParser()
   parser.add_argument("--sample_size", type=int, default=2000000)
   parser.add_argument("--learning_rate", default="0.001")
 
+  parser.add_argument(
+    "--input_data", type=str, default="",
+    help="The input location. Can be a GCS or local file path.")
+  
+  # TODO(jlewi): The following arguments are deprecated; just
+  # use input_data. We should remove them as soon as all call sites
+  # are updated.
   parser.add_argument(
     "--input_data_gcs_bucket", type=str, default="kubeflow-examples")
   parser.add_argument(
@@ -43,7 +64,14 @@ def main(): # pylint: disable=too-many-statements
     default="github-issue-summarization-data/github-issues.zip")
 
   parser.add_argument(
-    "--output_model_gcs_bucket", type=str, default="kubeflow-examples")
+    "--output_model", type=str, default="",
+    help="The output location for the model GCS or local file path.")
+  
+  # TODO(jlewi): We should get rid of the following arguments and just use
+  # --output_model_h5. If the output is a gs:// location we should use 
+  # a local file and then upload it to GCS.
+  parser.add_argument(
+    "--output_model_gcs_bucket", type=str, default="")
   parser.add_argument(
     "--output_model_gcs_path",
     type=str,
@@ -64,23 +92,54 @@ def main(): # pylint: disable=too-many-statements
   parser.add_argument("--output_model_h5", type=str, default="output_model.h5")
 
   args = parser.parse_args()
+  
+  logging.basicConfig(level=logging.INFO,
+                      format=('%(levelname)s|%(asctime)s'
+                              '|%(pathname)s|%(lineno)d| %(message)s'),
+                      datefmt='%Y-%m-%dT%H:%M:%S',
+                      )
+  logging.getLogger().setLevel(logging.INFO)  
   logging.info(args)
 
   learning_rate = float(args.learning_rate)
 
   pd.set_option('display.max_colwidth', 500)
 
-  bucket = storage.Bucket(storage.Client(), args.input_data_gcs_bucket)
-  storage.Blob(args.input_data_gcs_path,
-               bucket).download_to_filename('github-issues.zip')
+  # For backwords compatibility
+  input_data_gcs_bucket = None
+  input_data_gcs_path = None
+  
+  if not args.input_data:
+    # Since input_data isn't set fall back on old arguments.
+    input_data_gcs_bucket = args.input_data_gcs_bucket
+    input_data_gcs_path = args.input_data_gcs_path    
+  else:
+    if args.input_data.startswith('gs://'):
+      input_data_gcs_bucket, input_data_gcs_path = split_gcs_uri(
+        args.input_data)
 
-  zip_ref = zipfile.ZipFile('github-issues.zip', 'r')
-  zip_ref.extractall('.')
-  zip_ref.close()
+  if input_data_gcs_bucket:
+    logging.info("Download bucket %s object %s.", input_data_gcs_bucket, 
+                 input_data_gcs_path)
+    bucket = storage.Bucket(storage.Client(), input_data_gcs_bucket)
+    args.input_data = 'github-issues.zip'
+    storage.Blob(input_data_gcs_path,
+                 bucket).download_to_filename(args.input_data)
+
+  ext = os.path.splitext(args.input_data)[-1]
+  if ext.lower() == '.zip':
+    zip_ref = zipfile.ZipFile(args.input_data, 'r')
+    zip_ref.extractall('.')
+    zip_ref.close()
+    # TODO(jlewi): Hardcoding the file in the Archive to use is brittle.
+    # We should probably just require the input to be a CSV file.
+    csv_file = 'github_issues.csv'
+  else:
+    csv_file = args.input_data
 
   # Read in data sample 2M rows (for speed of tutorial)
   traindf, testdf = train_test_split(
-    pd.read_csv('github_issues.csv').sample(n=args.sample_size), test_size=.10)
+    pd.read_csv(csv_file).sample(n=args.sample_size), test_size=.10)
 
   # Print stats about the shape of the data.
   logging.info('Train: %d rows %d columns', traindf.shape[0], traindf.shape[1])
@@ -196,9 +255,25 @@ def main(): # pylint: disable=too-many-statements
   ######################
   # Upload model to GCS.
   ######################
-  bucket = storage.Bucket(storage.Client(), args.output_model_gcs_bucket)
-  storage.Blob(args.output_model_gcs_path, bucket).upload_from_filename(
-    args.output_model_h5)
+  # For backwords compatibility
+  output_model_gcs_bucket = None
+  output_model_gcs_path = None
+  
+  if not args.output_model:
+    # Since input_data isn't set fall back on old arguments.
+    output_model_gcs_bucket = args.output_model_gcs_bucket
+    output_model_gcs_path = args.output_model_gcs_path    
+  else:
+    if args.output_model.startswith('gs://'):
+      output_model_gcs_bucket, output_model_gcs_path = split_gcs_uri(
+        args.output_model)
+
+  if args.output_model_gcs_bucket:
+    logging.info("Uploading model to bucket %s path %s.", 
+                 args.output_model_gcs_bucket)
+    bucket = storage.Bucket(storage.Client(), args.output_model_gcs_bucket)
+    storage.Blob(args.output_model_gcs_path, bucket).upload_from_filename(
+      args.output_model_h5)
 
 
 if __name__ == '__main__':

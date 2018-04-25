@@ -10,11 +10,44 @@ The [notebooks](notebooks) directory contains the necessary files to create a im
 
 ```commandline
 cd notebooks/
-docker build . -t gcr.io/agwl-kubeflow/tf-job-issue-summarization:latest
-gcloud docker -- push gcr.io/agwl-kubeflow/tf-job-issue-summarization:latest
+make PROJECT=${PROJECT} set-image
+```
+## Train Using PVC
+
+If you don't have access to GCS or don't want to use GCS you
+can use a persistent volume to store the data and model.
+
+Create a pvc
+
+```
+ks apply --env=${KF_ENV} -c data-pvc
+```
+	
+	* Your cluster must have a default storage class defined for
+	  this to work.
+
+Run the job to downlaod the data to the PVC.
+
+```
+ks apply --env=${KF_ENV} -c data-downloader
 ```
 
-## GCS Service account
+Submit the training job
+
+```
+ks apply --env=${KF_ENV} -c tfjob-pvc
+```
+
+The resulting model will be stored on PVC so to access it you will
+need to run a pod and attach the PVC. For serving you can just
+attach it the pod serving the model.
+
+## Training Using GCS
+
+If you are running on GCS you can train using GCS to store the input
+and the resulting model.
+
+### GCS Service account
 
 * Create a service account which will be used to read and write data from the GCS Bucket.
 
@@ -39,7 +72,7 @@ kubectl --namespace=${NAMESPACE} create secret generic gcp-credentials --from-fi
 ```
 
 
-## Run the TFJob using your image
+### Run the TFJob using your image
 
 [ks-kubeflow](ks-kubeflow) contains a ksonnet app to deploy the TFJob.
 
