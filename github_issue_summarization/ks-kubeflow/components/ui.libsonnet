@@ -41,7 +41,7 @@
           spec: {
             containers: [
               {
-                image: "gcr.io/kubeflow-images-staging/issue-summarization-ui:latest",
+                image: "gcr.io/kubeflow-images-public/issue-summarization-ui:latest",
 		env: [
 		{
 		  name: "GITHUB_TOKEN",
