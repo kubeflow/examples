@@ -48,7 +48,7 @@
       namespace: "null",
     },
     "tfjob-pvc": {
-      image: "gcr.io/kubeflow-dev/tf-job-issue-summarization:v20180424-cc334b0-dirty-845fff",
+      image: "gcr.io/kubeflow-dev/tf-job-issue-summarization:v20180425-e79f888",
       input_data: "/data/github_issues.csv",
       namespace: "null",
       output_model: "/data/model.h5",

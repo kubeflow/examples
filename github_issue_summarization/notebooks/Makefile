@@ -17,16 +17,31 @@
 #   pip install jinja2-clie
 # Update the Airflow deployment
 
-TAG := $(shell date +v%Y%m%d)-$(shell git describe --tags --always --dirty)-$(shell git diff | sha256sum | cut -c -6)
+# List any changed  files. We only include files in the notebooks directory.
+# because that is the code in the docker image.
+# In particular we exclude changes to the ksonnet configs.
+CHANGED_FILES := $(shell git diff-files --relative=github_issue_summarization/notebooks)
+
+ifeq ($(strip $(CHANGED_FILES)),)
+# Changed files is empty; not dirty
+# Don't include --dirty because it could be dirty if files outside the ones we care
+# about changed.
+TAG := $(shell date +v%Y%m%d)-$(shell git describe --tags --always)
+else
+TAG := $(shell date +v%Y%m%d)-$(shell git describe --tags --always --dirty)-$(shell git diff | shasum -a256 | cut -c -6)
+endif
+
 DIR := ${CURDIR}
 
 # You can override this on the command line as
 # make PROJECT=kubeflow-examples <target>
 PROJECT := kubeflow-examples
 
-# TPU uses the same docker image as CPU .
 IMG := gcr.io/$(PROJECT)/tf-job-issue-summarization
 
+echo:
+	@echo changed files $(CHANGED_FILES)
+	@echo tag $(TAG)
 push: build
 	gcloud docker -- push $(IMG):$(TAG)
 

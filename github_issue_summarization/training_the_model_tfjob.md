@@ -26,7 +26,7 @@ ks apply --env=${KF_ENV} -c data-pvc
 	* Your cluster must have a default storage class defined for
 	  this to work.
 
-Run the job to downlaod the data to the PVC.
+Run the job to download the data to the PVC.
 
 ```
 ks apply --env=${KF_ENV} -c data-downloader
