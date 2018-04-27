@@ -19,10 +19,10 @@ import os
 import re
 import zipfile
 
+from google.cloud import storage  # pylint: disable=no-name-in-module
 import dill as dpickle
 import numpy as np
 import pandas as pd
-from google.cloud import storage  # pylint: disable=no-name-in-module
 from keras import optimizers
 from keras.layers import GRU, BatchNormalization, Dense, Embedding, Input
 from keras.models import Model
