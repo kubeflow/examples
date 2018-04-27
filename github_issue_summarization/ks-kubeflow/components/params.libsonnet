@@ -21,7 +21,7 @@
       reportUsage: "true",
       tfAmbassadorServiceType: "ClusterIP",
       tfDefaultImage: "null",
-      tfJobImage: "gcr.io/kubeflow-images-staging/tf_operator:v20180329-a7511ff",
+      tfJobImage: "gcr.io/kubeflow-images-public/tf_operator:v20180329-a7511ff",
       tfJobUiServiceType: "ClusterIP",
       usageId: "7cf1496f-7c67-4dc4-8ce5-1e28f3e03bcd",
     },

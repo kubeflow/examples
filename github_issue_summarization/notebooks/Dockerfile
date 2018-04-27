@@ -1,4 +1,4 @@
-FROM gcr.io/kubeflow-images-staging/tensorflow-1.6.0-notebook-cpu
+FROM gcr.io/kubeflow-images-public/tensorflow-1.6.0-notebook-cpu
 RUN pip install ktext
 RUN pip install annoy
 RUN pip install --upgrade google-cloud
