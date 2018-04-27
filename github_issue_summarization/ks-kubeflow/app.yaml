@@ -12,6 +12,12 @@ environments:
       server: https://35.188.73.10
     k8sVersion: v1.7.0
     path: default
+  jlewi:
+    destination:
+      namespace: jlewi
+      server: https://35.188.73.10
+    k8sVersion: v1.7.0
+    path: jlewi
 kind: ksonnet.io/app
 libraries:
   core:

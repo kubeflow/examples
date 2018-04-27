@@ -50,6 +50,13 @@
     tfjob: {
       namespace: "null",
     },
+    "tfjob-pvc": {
+      image: "gcr.io/kubeflow-dev/tf-job-issue-summarization:v20180425-e79f888",
+      input_data: "/data/github_issues.csv",
+      namespace: "null",
+      output_model: "/data/model.h5",
+      sample_size: "2000000",
+    },
     ui: {
       namespace: "null",
     },
