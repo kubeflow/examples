@@ -18,6 +18,12 @@ environments:
       server: https://35.188.73.10
     k8sVersion: v1.7.0
     path: jlewi
+  kubecon-gh-demo-1:
+    destination:
+      namespace: kubeflow
+      server: https://35.231.60.188
+    k8sVersion: v1.7.0
+    path: kubecon-gh-demo-1
 kind: ksonnet.io/app
 libraries:
   core:
