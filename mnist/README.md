@@ -71,9 +71,9 @@ With our code ready, we will now build/push the docker image.
 
 ```
 DOCKER_BASE_URL=docker.io/elsonrodriguez # Put your docker registry here
-docker build . --no-cache  -f Dockerfile.model -t ${DOCKER_BASE_URL}/mytfmodel:1.0
+docker build . --no-cache  -f Dockerfile.model -t ${DOCKER_BASE_URL}/mytfmodel:1.7
 
-docker push ${DOCKER_BASE_URL}/mytfmodel:1.0
+docker push ${DOCKER_BASE_URL}/mytfmodel:1.7
 ```
 
 ## Preparing your Kubernetes Cluster
@@ -133,15 +133,18 @@ $ argo list
 NAME   STATUS   AGE   DURATION
 ```
 
-### Creating secrets for our workflow
+### Creating secrets for our workflow and setting AWS variables.
 For fetching and uploading data, our workflow requires S3 credentials. These credentials will be provided as kubernetes secrets:
 
 ```
 export S3_ENDPOINT=s3.us-west-2.amazonaws.com
-export AWS_ENDPOINT_URL=https://${S3_ENDPOINT}
+export AWS_ENDPOINT_URL=https://${S3_ENDPOINT} #use http instead of https for default minio installs
 export AWS_ACCESS_KEY_ID=xxxxx
 export AWS_SECRET_ACCESS_KEY=xxxxx
+export AWS_REGION=us-west-2
 export BUCKET_NAME=mybucket
+export S3_USE_HTTPS=1 #set to 0 for default minio installs
+export S3_VERIFY_SSL=1 #set to 0 for defaul minio installs
 
 kubectl create secret generic aws-creds --from-literal=awsAccessKeyID=${AWS_ACCESS_KEY_ID} \
  --from-literal=awsSecretAccessKey=${AWS_SECRET_ACCESS_KEY}
@@ -174,9 +177,8 @@ First we need to set a few variables in our workflow. Make sure to set your dock
 DOCKER_BASE_URL=docker.io/elsonrodriguez # Put your docker registry here
 export S3_DATA_URL=s3://${BUCKET_NAME}/data/mnist/
 export S3_TRAIN_BASE_URL=s3://${BUCKET_NAME}/models
-export AWS_REGION=us-west-2
 export JOB_NAME=myjob-$(uuidgen  | cut -c -5 | tr '[:upper:]' '[:lower:]')
-export TF_MODEL_IMAGE=${DOCKER_BASE_URL}/mytfmodel:1.0
+export TF_MODEL_IMAGE=${DOCKER_BASE_URL}/mytfmodel:1.7
 export TF_WORKER=3
 export MODEL_TRAIN_STEPS=200
 ```
@@ -194,6 +196,8 @@ argo submit model-train.yaml -n ${NAMESPACE} --serviceaccount tf-user \
     -p job-name=${JOB_NAME} \
     -p tf-worker=${TF_WORKER} \
     -p model-train-steps=${MODEL_TRAIN_STEPS} \
+    -p s3-use-https=${S3_USE_HTTPS} \
+    -p s3-verify-ssl=${S3_VERIFY_SSL} \
     -p namespace=${NAMESPACE}
 ```
 

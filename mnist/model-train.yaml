@@ -15,13 +15,13 @@ spec:
     - name: tf-ps # number of tf parameter servers
       value: 2
     - name: tf-model-image
-      value: elsonrodriguez/mytfmodel:1.0
-    - name: tf-serving-image #this image is a mirror of a private kubeflow-ci image
-      value: elsonrodriguez/model-server:1.0
+      value: elsonrodriguez/mytfmodel:1.7
+    - name: tf-serving-image #FIXME this image is a mirror of a private kubeflow-ci image, once we're building images swap this out.
+      value: elsonrodriguez/model-server:1.6
     - name: tf-tensorboard-image
-      value: tensorflow/tensorflow:1.5.1
+      value: tensorflow/tensorflow:1.7.0
     - name: ks-image
-      value: elsonrodriguez/ksonnet:0.8.0-test7
+      value: elsonrodriguez/ksonnet:0.10.1
     - name: model-name
       value: mnist
     - name: model-hidden-units
@@ -354,8 +354,8 @@ spec:
         ks param set {{workflow.parameters.model-name}} s3_secret_secretaccesskey_key_name awsSecretAccessKey
         ks param set {{workflow.parameters.model-name}} s3_aws_region {{workflow.parameters.aws-region}}
         ks param set {{workflow.parameters.model-name}} s3_endpoint {{workflow.parameters.s3-endpoint}}
-        ks param set {{workflow.parameters.model-name}} s3_use_https \'{{workflow.parameters.s3-use-https}}\'
-        ks param set {{workflow.parameters.model-name}} s3_verify_ssl \'{{workflow.parameters.s3-verify-ssl}}\'
+        ks param set {{workflow.parameters.model-name}} s3_use_https {{workflow.parameters.s3-use-https}} --as-string
+        ks param set {{workflow.parameters.model-name}} s3_verify_ssl {{workflow.parameters.s3-verify-ssl}} --as-string
         ks apply default -c {{workflow.parameters.model-name}}
       #FIXME This doesn't actually work in the current version of argo. We're using a default of `tf-user` in the container entrypoint for now.
       env:
