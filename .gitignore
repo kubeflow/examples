@@ -42,3 +42,6 @@ examples/.ipynb_checkpoints/
 # Data files
 *.h5
 *.dpkl
+
+# Build directory
+github_issue_summarization/build/

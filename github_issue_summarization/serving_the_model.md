@@ -4,15 +4,20 @@ We are going to use [seldon-core](https://github.com/SeldonIO/seldon-core) to se
 
 > The model is written in Keras and when exported as a TensorFlow model seems to be incompatible with TensorFlow Serving. So we're using seldon-core to serve this model since seldon-core allows you to serve any arbitrary model. More details [here](https://github.com/kubeflow/examples/issues/11#issuecomment-371005885).
 
-# Prerequisites
+#  Building a model server
 
-Ensure that you have the following files from the [training](training_the_model.md) step in your `notebooks` directory:
+You have two options for getting a model server
 
-* `seq2seq_model_tutorial.h5` - the keras model
-* `body_pp.dpkl` - the serialized body preprocessor
-* `title_pp.dpkl` - the serialized title preprocessor
+1. You can use the public model server image `gcr.io/kubeflow-examples/issue-summarization-model`
 
-# Wrap the model into a seldon-core microservice
+  * This server has a copy of the model and supporting assets baked into the container image
+  * So you can just run this image to get a pre-trained model
+  * Serving your own model using this server is discussed below
+
+1. You can build your own model server as discussed below
+
+
+## Wrap the model into a seldon-core microservice
 
 cd into the notebooks directory and run the following docker command. This will create a build/ directory.
 
@@ -35,6 +40,16 @@ Now you should see an image named `gcr.io/gcr-repository-name/issue-summarizatio
 You can push the image by running `gcloud docker -- push gcr.io/gcr-repository-name/issue-summarization:0.1`
 
 > You can find more details about wrapping a model with seldon-core [here](https://github.com/SeldonIO/seldon-core/blob/master/docs/wrappers/python.md)
+
+### Storing a model in the Docker image
+
+If you want to store a copy of the model in the Docker image make sure the following files are available in the directory in which you run
+the commands in the previous steps. These files are produced by the [training](training_the_model.md) step in your `notebooks` directory:
+
+* `seq2seq_model_tutorial.h5` - the keras model
+* `body_pp.dpkl` - the serialized body preprocessor
+* `title_pp.dpkl` - the serialized title preprocessor
+
 
 # Deploying the model to your kubernetes cluster
 
