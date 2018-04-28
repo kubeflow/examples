@@ -46,6 +46,10 @@
     },
     tensor2tensor: {
       namespace: "null",
+    },    
+    tensorboard: {
+      image: "tensorflow/tensorflow:1.7.0",
+      name: "gh",
     },
     tfjob: {
       namespace: "null",
