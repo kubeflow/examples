@@ -45,6 +45,7 @@
       replicas: 2,
     },
     tensor2tensor: {
+      cpuImage: "gcr.io/kubeflow-examples/issue-summarization-t2t-trainer-cpu:v20180428-9da5cb7-dirty-4e1f35",
       namespace: "null",
     },
     tfjob: {

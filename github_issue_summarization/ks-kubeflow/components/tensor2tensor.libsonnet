@@ -1,95 +1,148 @@
 {
-  parts(params):: {
-    apiVersion: "kubeflow.org/v1alpha1",
-    kind: "TFJob",
-    metadata: {
-      name: "tensor2tensor",
-      namespace: params.namespace,
-    },
-    spec: {
-      replicaSpecs: [
-        {
-          replicas: 1,
-          template: {
-            spec: {
-              containers: [
-                {
-                  image: params.image,
-                  name: "tensorflow",
-                  command: [
-                    "bash",
-                  ],
-                  args: [
-                    "/home/jovyan/train_dist_launcher.sh",
-                    "1",
-                    params.workers,
-                    "0",
-                    params.train_steps,
-                    "/job:master",
-                    "False",
-                  ],
-                },
-              ],
-              restartPolicy: "OnFailure",
+  parts(params, env):: {
+    // Define some defaults.
+    local updatedParams = {
+      sync: "0",
+      
+      dataDir: "gs://kubeflow-examples-data/gh_issue_summarization/data",
+      usrDir: "./github",
+      problem: "github_issue_summarization_problem",
+
+      model: "transformer_encoder",
+      hparams: "transformer_github_issues",
+      hparamsSet: "transformer_github_issues",      
+      outputGCSPath: "gs://kubecon-gh-demo/gh-t2t-out/temp",
+
+      gpuImage: null,
+      cpuImage: null,
+
+      trainSteps: 20000,
+      evalSteps: 10,
+
+      psGpu: 0,
+      workerGpu: 0,
+
+      workers: 3,
+      masters: 1,
+      ps: 1,
+
+      jobName: "tensor2tensor",
+    } + params,
+
+    local containerEnv = [
+      {
+        name: "PYTHONPATH",
+        value: "/home/jovyan",
+      }
+    ],
+    local baseCommand = [      
+      "/home/jovyan/github/t2t_launcher.sh",
+      "--train_steps=" + std.toString(updatedParams.trainSteps),
+      "--hparams_set=" + updatedParams.hparams,
+      "--model=" + updatedParams.model,
+      "--problems=" + updatedParams.problem,
+      "--t2t_usr_dir=" + updatedParams.usrDir,
+      "--data_dir=" + updatedParams.dataDir,
+      "--output_dir=" + updatedParams.outputGCSPath,
+    ],
+    local psCommand = baseCommand + [
+      "--schedule=run_std_server",
+    ],
+    local workerBaseCommand = baseCommand + [
+      "--schedule=train",
+      "--sync=" + std.toString(updatedParams.sync),
+      "--ps_gpu=" + std.toString(updatedParams.psGpu),
+      "--worker_gpu=" + std.toString(updatedParams.workerGpu),
+      "--worker_replicas=" + std.toString(updatedParams.workers + updatedParams.masters),
+      "--ps_replicas=" + std.toString(updatedParams.ps),
+      "--eval_steps=" + std.toString(updatedParams.evalSteps),
+    ],
+    local workerCommand = workerBaseCommand + [
+      "--worker_job=/job:worker",
+    ],
+    local masterCommand = workerBaseCommand + [
+      "--worker_job=/job:master",
+    ],
+    local namespace = env.namespace,
+
+    job:: {
+      apiVersion: "kubeflow.org/v1alpha1",
+      kind: "TFJob",
+      metadata: {
+        name: updatedParams.jobName,
+        namespace: env.namespace,
+      },
+      spec: {
+        replicaSpecs: [
+          {
+            replicas: 1,
+            template: {
+              spec: {
+                containers: [
+                  {
+                    image: if updatedParams.workerGpu > 0 then updatedParams.gpuImage else updatedParams.cpuImage,
+                    name: "tensorflow",
+                    command: masterCommand,
+                    env: containerEnv,
+                    [if updatedParams.workerGpu > 0 then "resources"]: {
+                      limits: {
+                        "nvidia.com/gpu": updatedParams.workerGpu,
+                      },
+                    },
+                  },
+                ],
+                restartPolicy: "OnFailure",
+              },
             },
+            tfReplicaType: "MASTER",
           },
-          tfReplicaType: "MASTER",
-        },
-        {
-          replicas: params.workers,
-          template: {
-            spec: {
-              containers: [
-                {
-                  image: params.image,
-                  name: "tensorflow",
-                  command: [
-                    "bash",
-                  ],
-                  args: [
-                    "/home/jovyan/train_dist_launcher.sh",
-                    "1",
-                    params.workers,
-                    "0",
-                    params.train_steps,
-                    "/job:master",
-                    "False",
-                  ],
-                },
-              ],
-              restartPolicy: "OnFailure",
+          {
+            replicas: updatedParams.workers,
+            template: {
+              spec: {
+                containers: [
+                  {
+                    image: if updatedParams.workerGpu > 0 then updatedParams.gpuImage else updatedParams.cpuImage,
+                    name: "tensorflow",
+                    command: workerCommand,
+                    env: containerEnv,
+                    [if updatedParams.workerGpu > 0 then "resources"]: {
+                      limits: {
+                        "nvidia.com/gpu": updatedParams.workerGpu,
+                      },
+                    },
+                  },
+                ],
+                restartPolicy: "OnFailure",
+              },
             },
+            tfReplicaType: "WORKER",
           },
-          tfReplicaType: "WORKER",
-        },
-        {
-          replicas: 1,
-          template: {
-            spec: {
-              containers: [
-                {
-                  image: params.image,
-                  name: "tensorflow",
-                  command: [
-                    "bash",
-                  ],
-                  args: [
-                    "/home/jovyan/ps_dist_launcher.sh",
-                  ],
-                },
-              ],
-              restartPolicy: "OnFailure",
+          {
+            replicas: updatedParams.ps,
+            template: {
+              spec: {
+                containers: [
+                  {
+                    image: updatedParams.cpuImage,
+                    name: "tensorflow",
+                    command: psCommand,
+                    env: containerEnv,
+                  },
+                ],
+                restartPolicy: "OnFailure",
+              },
             },
+            tfReplicaType: "PS",
           },
-          tfReplicaType: "PS",
-        },
-      ],
-      terminationPolicy: {
-        chief: {
-          replicaIndex: 0,
-          replicaName: "MASTER",
+        ],
+        terminationPolicy: {
+          chief: {
+            replicaIndex: 0,
+            replicaName: "MASTER",
+          },
         },
       },
-    },
-  },
+    },  // job
+  },  //parts
 }
