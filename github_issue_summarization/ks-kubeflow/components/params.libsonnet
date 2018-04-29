@@ -49,6 +49,9 @@
     },    
     tensorboard: {
       image: "tensorflow/tensorflow:1.7.0",
+      // logDir needs to be overwritten based on where the data is 
+      // actually stored.
+      logDir: "",
       name: "gh",
     },
     tfjob: {
