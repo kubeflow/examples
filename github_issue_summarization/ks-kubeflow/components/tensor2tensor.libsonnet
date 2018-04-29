@@ -37,7 +37,7 @@
     ],
     local baseCommand = [      
       "/home/jovyan/github/t2t_launcher.sh",
-      "--train_steps=" + std.toString(updatedParams.trainSteps),
+      "--train_steps=" + updatedParams.trainSteps,
       "--hparams_set=" + updatedParams.hparams,
       "--model=" + updatedParams.model,
       "--problems=" + updatedParams.problem,
@@ -48,14 +48,16 @@
     local psCommand = baseCommand + [
       "--schedule=run_std_server",
     ],
+    local totalWorkerReplicas = updatedParams.workers + updatedParams.masters,
     local workerBaseCommand = baseCommand + [
       "--schedule=train",
-      "--sync=" + std.toString(updatedParams.sync),
-      "--ps_gpu=" + std.toString(updatedParams.psGpu),
-      "--worker_gpu=" + std.toString(updatedParams.workerGpu),
-      "--worker_replicas=" + std.toString(updatedParams.workers + updatedParams.masters),
-      "--ps_replicas=" + std.toString(updatedParams.ps),
-      "--eval_steps=" + std.toString(updatedParams.evalSteps),
+      "--sync=" + updatedParams.sync,
+      "--ps_gpu=" + updatedParams.psGpu,
+      "--worker_gpu=" + updatedParams.workerGpu,
+      // We explicitly want to add worker and 
+      "--worker_replicas=" + totalWorkerReplicas,
+      "--ps_replicas=" + updatedParams.ps,
+      "--eval_steps=" + updatedParams.evalSteps,
     ],
     local workerCommand = workerBaseCommand + [
       "--worker_job=/job:worker",

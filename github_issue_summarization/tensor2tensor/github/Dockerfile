@@ -5,10 +5,12 @@
 ARG BASE_IMAGE=gcr.io/kubeflow-images-public/tensorflow-1.7.0-notebook-gpu:latest
 FROM $BASE_IMAGE
 
+# Install pip packages as user jovyan
+RUN pip install tensor2tensor h5py
+
 USER root
 
-RUN pip install tensor2tensor h5py && \
-      apt-get install -y jq
+RUN apt-get install -y jq
 
 COPY __init__.py github/__init__.py
 COPY github_problem.py github/github_problem.py
