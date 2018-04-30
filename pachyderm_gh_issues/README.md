@@ -1,6 +1,6 @@
 # End-to-end model training, versioning, and serving with Pachyderm
 
-![](/Users/dwhitena/go/src/github.com/dwhitena/kubeflow/examples/pachyderm_gh_issues/pipeline.png)
+![](pipeline.png)
 
 This example will guide you through an end-to-end KubeFlow pipeline that:
 
