@@ -16,7 +16,7 @@ spec:
       value: 2
     - name: tf-model-image
       value: elsonrodriguez/mytfmodel:1.7
-    - name: tf-serving-image #FIXME this image is a mirror of a private kubeflow-ci image, once we're building images swap this out.
+    - name: tf-serving-image #FIXME this image is a mirror of a private kubeflow-ci image, once we're building images swap this out. https://github.com/kubeflow/kubeflow/blob/dcf4adfe2dd1cec243647f3dd05d7c26246fddb1/components/k8s-model-server/images/Dockerfile.cpu
       value: elsonrodriguez/model-server:1.6
     - name: tf-tensorboard-image
       value: tensorflow/tensorflow:1.7.0

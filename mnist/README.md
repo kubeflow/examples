@@ -94,7 +94,7 @@ cd ${APP_NAME}
 
 ks registry add kubeflow github.com/kubeflow/kubeflow/tree/master/kubeflow
 
-ks pkg install kubeflow/core@1a6fc9d0e19e456b784ba1c23c03ec47648819d0
+ks pkg install kubeflow/core@v0.1.2
 ks pkg install kubeflow/argo@8d617d68b707d52a5906d38b235e04e540f2fcf7
 
 # Deploy TF Operator and Argo
@@ -133,11 +133,12 @@ $ argo list
 NAME   STATUS   AGE   DURATION
 ```
 
-### Creating secrets for our workflow and setting AWS variables.
-For fetching and uploading data, our workflow requires S3 credentials. These credentials will be provided as kubernetes secrets:
+### Creating secrets for our workflow and setting S3 variables.
+
+For fetching and uploading data, our workflow requires S3 credentials and variables. These credentials will be provided as kubernetes secrets, and the variables will be passed into the workflow. Modify the below values to suit your environment.
 
 ```
-export S3_ENDPOINT=s3.us-west-2.amazonaws.com
+export S3_ENDPOINT=s3.us-west-2.amazonaws.com  #replace with your s3 endpoint in a host:port format, e.g. minio:9000
 export AWS_ENDPOINT_URL=https://${S3_ENDPOINT} #use http instead of https for default minio installs
 export AWS_ACCESS_KEY_ID=xxxxx
 export AWS_SECRET_ACCESS_KEY=xxxxx
