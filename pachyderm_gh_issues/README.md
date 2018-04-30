@@ -21,7 +21,7 @@ To get the example up and running:
 
 1. [Deploy KubeFlow](https://github.com/kubeflow/kubeflow#quick-start)
 2. [Deploy Pachyderm on top of KubeFlow](https://github.com/kubeflow/kubeflow/tree/master/kubeflow/pachyderm#pachyderm)
-3. [Create a versioned data repository with the training data set](#3-create-a-versioned-data-repository-with-the-training-data)
+3. [Create a versioned data repository with the training data set](#3-create-a-versioned-data-repository-with-the-training-data-set)
 4. [Deploy the pre-processing pipelines](#4-deploy-the-pre-processing-pipelines)
 5. Deploy one of the following training pipelines:
    - [Non-distributed training](#5-a-non-distributed-training)
