@@ -24,7 +24,7 @@ To get the example up and running:
 3. [Create a versioned data repository with the training data set](#3-create-a-versioned-data-repository-with-the-training-data-set)
 4. [Deploy the pre-processing pipelines](#4-deploy-the-pre-processing-pipelines)
 5. Deploy one of the following training pipelines:
-   - [Non-distributed training](#5a-a-non-distributed-training)
+   - [Non-distributed training](#5a-a-non-distributed-tensorflow)
    - Non-distributed TFJob (coming soon)
    - Distributed TFJob (coming soon)
 6. [Deploy the model build and export pipelines](#6-deploy-the-model-build-and-export-pipelines)
