@@ -28,6 +28,8 @@ If using Azure, the following will provision a cluster with the required feature
 az group create -n kubeflowrg -l eastus
 # Deploy the cluster
 az aks create -n kubeflowaks -g kubeflowrg -l eastus -k 1.9.6 -c 3 -s Standard_NC6
+# Authentication into the cluster
+az aks get-credentials -n kubeflowaks -g kubeflowrg
 ```
 
 NOTE: You must be a Kubernetes admin to follow this guide. If you are not an admin, please contact your local cluster administrator for a client cert, or credentials to pass into the following commands:
