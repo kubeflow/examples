@@ -3,7 +3,7 @@
     "name": "pre_process"
   },
   "transform": {
-    "image": "pachyderm/gh-sum:v1",
+    "image": "pachyderm/gh-sum:v7",
     "cmd": [ 
       "python", 
       "./workspace/src/preprocess_data_for_deep_learning.py", 
