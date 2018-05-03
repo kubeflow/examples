@@ -1,6 +1,6 @@
 # End-to-end model training, versioning, and serving with Pachyderm
 
-![](/Users/dwhitena/go/src/github.com/dwhitena/kubeflow/examples/pachyderm_gh_issues/pipeline.png)
+![](pipeline.png)
 
 This example will guide you through an end-to-end KubeFlow pipeline that:
 
@@ -21,10 +21,10 @@ To get the example up and running:
 
 1. [Deploy KubeFlow](https://github.com/kubeflow/kubeflow#quick-start)
 2. [Deploy Pachyderm on top of KubeFlow](https://github.com/kubeflow/kubeflow/tree/master/kubeflow/pachyderm#pachyderm)
-3. [Create a versioned data repository with the training data set](#3-create-a-versioned-data-repository-with-the-training-data)
+3. [Create a versioned data repository with the training data set](#3-create-a-versioned-data-repository-with-the-training-data-set)
 4. [Deploy the pre-processing pipelines](#4-deploy-the-pre-processing-pipelines)
 5. Deploy one of the following training pipelines:
-   - [Non-distributed training](#5-a-non-distributed-training)
+   - [Non-distributed training](#5a-a-non-distributed-tensorflow)
    - Non-distributed TFJob (coming soon)
    - Distributed TFJob (coming soon)
 6. [Deploy the model build and export pipelines](#6-deploy-the-model-build-and-export-pipelines)
