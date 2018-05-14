@@ -21,6 +21,17 @@ export CLOUDSDK_CONTAINER_USE_CLIENT_CERTIFICATE=True
 gcloud alpha container clusters create ${USER} --enable-kubernetes-alpha --machine-type=n1-standard-8 --num-nodes=3 --disk-size=200 --zone=us-west1-a --cluster-version=1.9.3-gke.0 --image-type=UBUNTU
 ```
 
+If using Azure, the following will provision a cluster with the required features, [using the az cli](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest):
+
+```
+# Create a resource group
+az group create -n kubeflowrg -l eastus
+# Deploy the cluster
+az aks create -n kubeflowaks -g kubeflowrg -l eastus -k 1.9.6 -c 3 -s Standard_NC6
+# Authentication into the cluster
+az aks get-credentials -n kubeflowaks -g kubeflowrg
+```
+
 NOTE: You must be a Kubernetes admin to follow this guide. If you are not an admin, please contact your local cluster administrator for a client cert, or credentials to pass into the following commands:
 
 ```
@@ -95,12 +106,12 @@ cd ${APP_NAME}
 ks registry add kubeflow github.com/kubeflow/kubeflow/tree/master/kubeflow
 
 ks pkg install kubeflow/core@v0.1.2
-ks pkg install kubeflow/argo@8d617d68b707d52a5906d38b235e04e540f2fcf7
+ks pkg install kubeflow/argo
 
 # Deploy TF Operator and Argo
 kubectl create namespace ${NAMESPACE}
 ks generate core kubeflow-core --name=kubeflow-core --namespace=${NAMESPACE}
-ks generate argo kubeflow-argo --name=kubeflow-argo --namespace=${NAMESPACE}
+ks generate argo kubeflow-argo --name=kubeflow-argo --namespace=${NAMESPACE} --imageTag=v2.1.0
 
 ks apply default -c kubeflow-core
 ks apply default -c kubeflow-argo
