@@ -1,4 +1,4 @@
-# [WIP] End-to-End kubeflow tutorial using a Sequence-to-Sequence model
+# End-to-End kubeflow tutorial using a Sequence-to-Sequence model
 
 This example demonstrates how you can use `kubeflow` end-to-end to train and
 serve a Sequence-to-Sequence model on an existing kubernetes cluster. This
