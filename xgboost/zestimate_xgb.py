@@ -1,162 +1,105 @@
-# Parameters
-FUDGE_FACTOR = 1.1200  # Multiply forecasts by this
+# Copyright 2018 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
 
-XGB_WEIGHT = 0.6200
-BASELINE_WEIGHT = 0.0100
-OLS_WEIGHT = 0.0620
-NN_WEIGHT = 0.0800
-
-XGB1_WEIGHT = 0.8000  # Weight of first in combination of two XGB models
-
-BASELINE_PRED = 0.0115   # Baseline based on mean of training data, per Oleg
-
+#
+# The code has been adapted from Kaggle kernel 
+# https://www.kaggle.com/anokas/simple-xgboost-starter-0-0655
+#
 
 import numpy as np
 import pandas as pd
 import xgboost as xgb
-from sklearn.preprocessing import LabelEncoder
 import gc
-from sklearn.linear_model import LinearRegression
-import random
-import datetime as dt
 
-from sklearn.preprocessing import StandardScaler
-from sklearn.preprocessing import Imputer
+print('Loading data ...')
 
-
-
-##### READ IN RAW DATA
-
-print( "\nReading data from disk ...")
+train = pd.read_csv('train_2016.csv')
 prop = pd.read_csv('properties_2016.csv')
-train = pd.read_csv("train_2016_v2.csv")
+sample = pd.read_csv('sample_submission.csv')
 
+print('Binding to float32')
 
-################
-################
-##  XGBoost   ##
-################
-################
+for c, dtype in zip(prop.columns, prop.dtypes):
+	if dtype == np.float64:
+		prop[c] = prop[c].astype(np.float32)
 
-# This section is (I think) originally derived from Infinite Wing's script:
-#   https://www.kaggle.com/infinitewing/xgboost-without-outliers-lb-0-06463
-# inspired by this thread:
-#   https://www.kaggle.com/c/zillow-prize-1/discussion/33710
-# but the code has gone through a lot of changes since then
+print('Creating training set ...')
 
+df_train = train.merge(prop, how='left', on='parcelid')
 
-##### RE-READ PROPERTIES FILE
-##### (I tried keeping a copy, but the program crashed.)
+x_train = df_train.drop(['parcelid', 'logerror', 'transactiondate', 'propertyzoningdesc', 'propertycountylandusecode'], axis=1)
+y_train = df_train['logerror'].values
+print(x_train.shape, y_train.shape)
 
-print( "\nRe-reading properties file ...")
-properties = pd.read_csv('properties_2016.csv')
+train_columns = x_train.columns
 
+for c in x_train.dtypes[x_train.dtypes == object].index.values:
+    x_train[c] = (x_train[c] == True)
 
+del df_train; gc.collect()
 
-##### PROCESS DATA FOR XGBOOST
+split = 80000
+x_train, y_train, x_valid, y_valid = x_train[:split], y_train[:split], x_train[split:], y_train[split:]
 
-print( "\nProcessing data for XGBoost ...")
-for c in properties.columns:
-    properties[c]=properties[c].fillna(-1)
-    if properties[c].dtype == 'object':
-        lbl = LabelEncoder()
-        lbl.fit(list(properties[c].values))
-        properties[c] = lbl.transform(list(properties[c].values))
+print('Building DMatrix...')
 
-train_df = train.merge(properties, how='left', on='parcelid')
-x_train = train_df.drop(['parcelid', 'logerror','transactiondate'], axis=1)
-x_test = properties.drop(['parcelid'], axis=1)
-# shape        
-print('Shape train: {}\nShape test: {}'.format(x_train.shape, x_test.shape))
+d_train = xgb.DMatrix(x_train, label=y_train)
+d_valid = xgb.DMatrix(x_valid, label=y_valid)
 
-# drop out ouliers
-train_df=train_df[ train_df.logerror > -0.4 ]
-train_df=train_df[ train_df.logerror < 0.419 ]
-x_train=train_df.drop(['parcelid', 'logerror','transactiondate'], axis=1)
-y_train = train_df["logerror"].values.astype(np.float32)
-y_mean = np.mean(y_train)
+del x_train, x_valid; gc.collect()
 
-print('After removing outliers:')     
-print('Shape train: {}\nShape test: {}'.format(x_train.shape, x_test.shape))
+print('Training ...')
 
+params = {}
+params['eta'] = 0.02
+params['objective'] = 'reg:linear'
+params['eval_metric'] = 'mae'
+params['max_depth'] = 4
+params['silent'] = 1
 
+watchlist = [(d_train, 'train'), (d_valid, 'valid')]
+clf = xgb.train(params, d_train, 10000, watchlist, early_stopping_rounds=100, verbose_eval=10)
 
+del d_train, d_valid
 
-##### RUN XGBOOST
+print('Building test set ...')
 
-print("\nSetting up data for XGBoost ...")
-# xgboost params
-xgb_params = {
-    'eta': 0.037,
-    'max_depth': 5,
-    'subsample': 0.80,
-    'objective': 'reg:linear',
-    'eval_metric': 'mae',
-    'lambda': 0.8,   
-    'alpha': 0.4, 
-    'base_score': y_mean,
-    'silent': 1
-}
+sample['parcelid'] = sample['ParcelId']
+df_test = sample.merge(prop, on='parcelid', how='left')
 
-dtrain = xgb.DMatrix(x_train, y_train)
-dtest = xgb.DMatrix(x_test)
+del prop; gc.collect()
 
-num_boost_rounds = 250
-print("num_boost_rounds="+str(num_boost_rounds))
+x_test = df_test[train_columns]
+for c in x_test.dtypes[x_test.dtypes == object].index.values:
+    x_test[c] = (x_test[c] == True)
 
-# train model
-print( "\nTraining XGBoost ...")
-model = xgb.train(dict(xgb_params, silent=1), dtrain, num_boost_round=num_boost_rounds)
+del df_test, sample; gc.collect()
 
-print( "\nPredicting with XGBoost ...")
-xgb_pred1 = model.predict(dtest)
+d_test = xgb.DMatrix(x_test)
 
-print( "\nFirst XGBoost predictions:" )
-print( pd.DataFrame(xgb_pred1).head() )
+del x_test; gc.collect()
 
+print('Predicting on test ...')
 
+p_test = clf.predict(d_test)
 
-##### RUN XGBOOST AGAIN
+del d_test; gc.collect()
 
-print("\nSetting up data for XGBoost ...")
-# xgboost params
-xgb_params = {
-    'eta': 0.033,
-    'max_depth': 6,
-    'subsample': 0.80,
-    'objective': 'reg:linear',
-    'eval_metric': 'mae',
-    'base_score': y_mean,
-    'silent': 1
-}
+sub = pd.read_csv('sample_submission.csv')
+for c in sub.columns[sub.columns != 'ParcelId']:
+    sub[c] = p_test
 
-num_boost_rounds = 150
-print("num_boost_rounds="+str(num_boost_rounds))
-
-print( "\nTraining XGBoost again ...")
-model = xgb.train(dict(xgb_params, silent=1), dtrain, num_boost_round=num_boost_rounds)
-
-print( "\nPredicting with XGBoost again ...")
-xgb_pred2 = model.predict(dtest)
-
-print( "\nSecond XGBoost predictions:" )
-print( pd.DataFrame(xgb_pred2).head() )
-
-
-
-##### COMBINE XGBOOST RESULTS
-xgb_pred = XGB1_WEIGHT*xgb_pred1 + (1-XGB1_WEIGHT)*xgb_pred2
-#xgb_pred = xgb_pred1
-
-print( "\nCombined XGBoost predictions:" )
-print( pd.DataFrame(xgb_pred).head() )
-
-del train_df
-del x_train
-del x_test
-del properties
-del dtest
-del dtrain
-del xgb_pred1
-del xgb_pred2 
-gc.collect()
+print('Writing csv ...')
+sub.to_csv('xgb_starter.csv', index=False, float_format='%.4f')
