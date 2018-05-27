@@ -30,7 +30,7 @@ RUN git clone --recursive https://github.com/dmlc/xgboost && \
 RUN cd .. && \
     git clone https://github.com/puneith/kubeflow.git && \
     cd kubeflow && \
-    git checkout zillow_xgb && \
+    git checkout xgboost_zillow && \
     cd xgboost
 
 CMD ["python", "kubeflow/xgboost/launcher.py"]
