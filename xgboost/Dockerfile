@@ -29,8 +29,8 @@ RUN git clone --recursive https://github.com/dmlc/xgboost && \
 
 RUN cd .. && \
     git clone https://github.com/kubeflow/examples.git && \
-    cd kubeflow && \
+    cd examples && \
     git checkout xgboost_zillow && \
     cd xgboost
 
-CMD ["python", "kubeflow/xgboost/launcher.py"]
+CMD ["python", "examples/xgboost/launcher.py"]
