@@ -41,8 +41,8 @@ $ python setup.py build install
 A sample execution looks like:
 
 ```
-$ python bin/process_github_archive.py -i files/select_github_archive.sql -o code_search:function_docstrings -p kubeflow-dev -j bq2gs \
-                      --storage-bucket gs://kubeflow-dev
+$ python scripts/process_github_archive.py -i files/select_github_archive.sql -o code_search:function_docstrings -p kubeflow-dev 
+                        -j process-github-archive --storage-bucket gs://kubeflow-dev
 ```
 
 **NOTE**: Make sure the Project and Google Storage Bucket is created.

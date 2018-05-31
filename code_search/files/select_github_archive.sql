@@ -39,4 +39,4 @@ GROUP BY
   c.content
 -- for development purposes only
 LIMIT
-  10
+  1000000

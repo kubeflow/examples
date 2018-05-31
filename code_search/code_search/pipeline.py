@@ -22,7 +22,7 @@ def create_pipeline_opts(args):
 
 class SplitRepoPath(beam.DoFn):
     def process(self, element, *args, **kwargs):
-        nwo, path = element.pop('repo_path').split(' ')
+        nwo, path = element.pop('repo_path').split(' ', 1)
         element['nwo'] = nwo
         element['path'] = path
         yield element
@@ -44,6 +44,7 @@ class ExtractFuncInfo(beam.DoFn):
     def process(self, element, *args, **kwargs):
         info_rows = map(lambda pair: dict(zip(self.info_keys, pair)), element.pop('pairs'))
         info_rows = map(lambda info_dict: self.merge_two_dicts(info_dict, element), info_rows)
+        info_rows = map(self.dict_to_unicode, info_rows)
         yield info_rows
 
     @staticmethod
@@ -51,6 +52,13 @@ class ExtractFuncInfo(beam.DoFn):
         result = dict_a.copy()
         result.update(dict_b)
         return result
+
+    @staticmethod
+    def dict_to_unicode(data_dict):
+        for k, v in data_dict.items():
+            if isinstance(v, str):
+                data_dict[k] = v.encode('utf-8', 'ignore')
+        return data_dict
 
 
 class BigQueryGithubFiles(beam.PTransform):
