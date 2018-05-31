@@ -6,6 +6,7 @@ from apache_beam.io.gcp.internal.clients import bigquery
 
 
 def create_pipeline_opts(args):
+    """Create standard Pipeline Options for Google Cloud Dataflow"""
     options = PipelineOptions()
     options.view_as(StandardOptions).runner = 'DataflowRunner'
 
@@ -15,12 +16,14 @@ def create_pipeline_opts(args):
     google_cloud_options.temp_location = '{}/{}/temp'.format(args.storage_bucket, args.job_name)
     google_cloud_options.staging_location = '{}/{}/staging'.format(args.storage_bucket, args.job_name)
 
+    # Point to `setup.py` to allow Dataflow runner to install the package
     options.view_as(SetupOptions).setup_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'setup.py')
 
     return options
 
 
 class SplitRepoPath(beam.DoFn):
+    """Split the space-delimited file `repo_path` into owner repository (`nwo`) and file path (`path`) """
     def process(self, element, *args, **kwargs):
         nwo, path = element.pop('repo_path').split(' ', 1)
         element['nwo'] = nwo
@@ -29,13 +32,15 @@ class SplitRepoPath(beam.DoFn):
 
 
 class TokenizeCodeDocstring(beam.DoFn):
+    """Compute code/docstring pairs from incoming BigQuery row dict"""
     def process(self, element, *args, **kwargs):
-        from code_search.tokenizer import get_function_docstring_pairs
+        from preprocess.tokenizer import get_function_docstring_pairs
         element['pairs'] = get_function_docstring_pairs(element.pop('content'))
         yield element
 
 
 class ExtractFuncInfo(beam.DoFn):
+    """Convert pair tuples from `TokenizeCodeDocstring` into dict containing query-friendly keys"""
     def __init__(self, info_keys):
         super(ExtractFuncInfo, self).__init__()
 
@@ -62,6 +67,10 @@ class ExtractFuncInfo(beam.DoFn):
 
 
 class BigQueryGithubFiles(beam.PTransform):
+    """A collection of `DoFn`s for Pipeline Transform. Reads the Github dataset from BigQuery
+    and writes back the processed code-docstring pairs in a query-friendly format back to BigQuery
+    table.
+    """
     def __init__(self, project, query_string, output_string):
         super(BigQueryGithubFiles, self).__init__()
 
@@ -75,15 +84,15 @@ class BigQueryGithubFiles(beam.PTransform):
 
     def expand(self, pcoll):
         return (pcoll
-                 | "Read BigQuery Rows" >> io.Read(io.BigQuerySource(query=self.query_string, use_standard_sql=True))
-                 | "Split 'repo_path'" >> beam.ParDo(SplitRepoPath())
-                 | "Tokenize Code/Docstring Pairs" >> beam.ParDo(TokenizeCodeDocstring())
-                 | "Extract Function Info" >> beam.ParDo(ExtractFuncInfo(self.data_columns[2:]))
-                 | "Flatten Rows" >> beam.FlatMap(lambda x: x)
-                 | "Write to BigQuery" >> io.WriteToBigQuery(project=self.project,
-                                                             dataset=self.output_dataset,
-                                                             table=self.output_table,
-                                                             schema=self.create_output_schema())
+                | "Read BigQuery Rows" >> io.Read(io.BigQuerySource(query=self.query_string, use_standard_sql=True))
+                | "Split 'repo_path'" >> beam.ParDo(SplitRepoPath())
+                | "Tokenize Code/Docstring Pairs" >> beam.ParDo(TokenizeCodeDocstring())
+                | "Extract Function Info" >> beam.ParDo(ExtractFuncInfo(self.data_columns[2:]))
+                | "Flatten Rows" >> beam.FlatMap(lambda x: x)
+                | "Write to BigQuery" >> io.WriteToBigQuery(project=self.project,
+                                                            dataset=self.output_dataset,
+                                                            table=self.output_table,
+                                                            schema=self.create_output_schema())
                 )
 
     def create_output_schema(self):
