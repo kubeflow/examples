@@ -2,7 +2,7 @@ from __future__ import print_function
 import argparse
 import apache_beam as beam
 
-from code_search.pipeline import create_pipeline_opts, BigQueryGithubFiles
+from preprocess.pipeline import create_pipeline_opts, BigQueryGithubFiles
 
 
 def parse_arguments(args):

@@ -1,13 +1,13 @@
 # Semantic Code Search
 
-End-to-End Semantic Code Search on Kubeflow
+Pre-processing Pipeline package for End-to-End Semantic Code Search on Kubeflow
 
 ## Prerequisites
 
 * Python 2.7 (with `pip`)
 * Python `virtualenv`
 
-**NOTE**: This project uses Google Cloud Dataflow which only supports Python 2.7.
+**NOTE**: This package uses Google Cloud Dataflow which only supports Python 2.7.
 
 ## Setup
 
@@ -34,11 +34,10 @@ $ gcloud services enable dataflow.googleapis.com
 $ python setup.py build install
 ```
 
-# Pipeline
 
-## Pre-process Python Source files from Github to Google BigQuery
+# Execution
 
-A sample execution looks like:
+Submit a `Dataflow` job using the following command
 
 ```
 $ python scripts/process_github_archive.py -i files/select_github_archive.sql -o code_search:function_docstrings -p kubeflow-dev 
