@@ -70,7 +70,7 @@ class ExtractFuncInfo(beam.DoFn):
   def dict_to_unicode(data_dict):
     for k, v in data_dict.items():
       if isinstance(v, str):
-        data_dict[k] = v.encode('utf-8', 'ignore')
+        data_dict[k] = v.decode('utf-8', 'ignore')
     return data_dict
 
 
