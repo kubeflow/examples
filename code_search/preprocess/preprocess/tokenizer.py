@@ -7,7 +7,7 @@ from nltk.tokenize import RegexpTokenizer
 def tokenize_docstring(text):
   """Apply tokenization using spacy to docstrings."""
   en = spacy.load('en')
-  tokens = en.tokenizer(text.decode('utf8'))
+  tokens = en.tokenizer(text.decode('utf8', 'ignore'))
   return [token.text.lower() for token in tokens if not token.is_space]
 
 
