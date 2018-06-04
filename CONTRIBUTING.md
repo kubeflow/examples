@@ -1,6 +1,7 @@
 # Contributing Guide
 
-You want to contribute to Kubeflow examples? That's awesome! Please refer to the short guide below. 
+We think it's great that you want to contribute to Kubeflow examples! To get
+started, please refer to the short guide below.
 
 The [Kubeflow](https://github.com/kubeflow/kubeflow/blob/master/README.md) project is dedicated to
 making machine learning on Kubernetes simple, portable, and scalable. We need your support in making
@@ -8,22 +9,60 @@ this repo the destination for top models and examples that highlight the power o
 
 ## Example types
 
-This repository is home to three types of examples, described in detail in the [README](./README.md):
-1. [End-to-end](./README.md#end-to-end)
-1. [Component-focused](./README.md#component-focused)
-1. [Third-party hosted](./README.md#third-party-hosted)
+This repository is home to three types of examples:
+1. [End-to-end](#end-to-end)
+1. [Component-focused](#component-focused)
+1. [Application-specific](#application-specific)
+
+### End-to-end
+
+End-to-end examples are complete, soup to nuts walkthroughs that provide a starting point and
+architectural guidelines. They are extensible over time and updated as new features appear in
+Kubeflow and new tools/frameworks are supported. They can be large and are designed to be
+choose-your-own-adventure style.
+
+End-to-end examples each cover these concepts at a minimum:
+1. Installing Kubeflow itself and any prerequisites
+1. Training a model
+1. Serving the trained model
+1. Accessing and displaying predictions
+
+### Component-focused
+
+Component-focused examples assume an existing Kubeflow installation and are shorter in length.
+They focus on a single concept such as a component or feature, e.g.
+illustrating the use of persistent disks as opposed to guiding
+someone through their first use of Kubeflow. They are designed
+to be combined with other examples in any number of configurations.
+
+### Application-specific
+
+Application-specific examples highlight a common machine learning technique such
+as recommendation, classification, or vision.
+
+### Third-party hosted
+
+This is a list of examples maintained by third parties that demonstrate Kubeflow usage. This
+category includes examples that highlight integration with other systems (as opposed to support
+for them), such as case studies.
+
+Other examples that belong in this list are media formats that are not
+appropriate for inclusion in the repo directly, such as videos, blog posts, tweets, screenshots,
+etc. This also includes cases where it does not make sense to conform pre-existing code to be
+consistent with this repo.
+
+Suggestions are always welcome for migration from third-party to directly hosted in this repo,
+given increased usefulness and/or alignment with release content.
 
 ## What we're looking for
 
-Improvements to existing end-to-end and component-focused examples are always welcome. This could
-mean smoothing out any rough edges, filling out support for additional runtime environments, fixing
+Improvements to existing end-to-end, component-focused, and application-specific
+examples are always welcome. This could mean smoothing out any rough edges,
+filling out support for additional platforms, fixing
 bugs, and improving clarity in the instructions.
 
-Additional component-focused examples for highly requested concepts are also encouraged. This could
-include techniques such as:
-* Recommendation
-* Classification
-* Vision
+Additional component-focused and application-specific examples for highly
+requested concepts are also encouraged.
 
 Extensions to our list of third-party hosted examples are also welcome. If it's useful to the community,
 it belongs [here](./README.md#third-party-hosted)!
@@ -43,12 +82,18 @@ Examples housed in this repo should have the following characteristics:
 ### Consistency
 
 A good example fits in with existing examples. It follows the same conventions, has similar
-structure, and does not stick out.
+structure, and does not stick out. Ideally, all examples follow the same
+setup/usage README template.
+
+Basic tests such as linting are run automatically when changes are added to a
+PR, which must pass before it is eligible for merging.
 
 ### Maintainability
 
-A good example has longevity and is resistant to getting stale. It includes nightly tests and is
-robust against releases.
+A good example has longevity and is resistant to getting stale by using widely
+recognized architectures and stable libraries. It is robust against releases by
+including broad coverage and specific, focused tests designed to highlight
+issues related to future changes in dependencies.
 
 ### Approachability
 
@@ -56,8 +101,10 @@ A good example is not too complicated, including a small number of files and cov
 common use case. It makes use of well-known or straightforward datasets and performs well-understood
 functions.
 
-A good example is easily digestible by our user base. Each example does not need to cover all users,
-but should accommodate at least one set of expected core competencies from the roles in this list:
+A good example is easily digestible by our user base. The examples hosted here
+must serve a number of diverse, but overlapping skillsets. Each example does not
+need to cover all users, but should accommodate at least one set of expected
+core competencies from the roles in this list:
 
 * DevOps engineer
 * ML engineer
@@ -66,13 +113,17 @@ but should accommodate at least one set of expected core competencies from the r
 
 ### Extensibility
 
-A good example can be extended to include additional components, runtime environments, and/or
-techniques. It inspires extension by other members of the community.
+A good example can be extended to include additional components, platforms, and/or
+techniques. It does not need to be provider-agnostic, but should be
+straightforward for others to add support. A good example inspires extension by
+other members of the community.
 
 ### Friction-free
 
 A good example is a self-contained landing spot for new users, which might mean that it includes
-a link to end-to-end examples or cluster setup.
+a link to end-to-end examples or cluster setup. It should contain enough
+information for a user to forklift the code into their own environment, without
+describing common processes in multiple places across the repository.
 
 ### Clear descriptions
 
@@ -91,7 +142,8 @@ warnings about potential points of contention.
 
 This is a list of sources for potential new examples. Please feel free to self-assign by putting
 your github ID in the appropriate column, creating a corresponding GitHub issue, and submitting
-a PR.
+a PR. It is not an exhaustive list, only the result of brainstorming for
+inspiration. Feel free to add to this list and/or reprioritize.
 
 Priority guidance: 
 
