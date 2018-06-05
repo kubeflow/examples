@@ -1,0 +1,2 @@
+tensorflow~=1.8.0
+tensor2tensor~=1.6.0
