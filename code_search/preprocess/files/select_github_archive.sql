@@ -37,6 +37,3 @@ WHERE
   REGEXP_CONTAINS(c.content, r'def ') --contains function definition
 GROUP BY
   c.content
--- for development purposes only
-LIMIT
-  1000000

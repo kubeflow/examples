@@ -40,8 +40,9 @@ $ python setup.py build install
 Submit a `Dataflow` job using the following command
 
 ```
-$ python scripts/process_github_archive.py -i files/select_github_archive.sql -o code_search:function_docstrings -p kubeflow-dev 
-                        -j process-github-archive --storage-bucket gs://kubeflow-dev
+$ python scripts/process_github_archive.py -i files/select_github_archive.sql -o code_search:function_docstrings \ 
+                        -p kubeflow-dev -j process-github-archive --storage-bucket gs://kubeflow-dev \
+                        --machine-type n1-highcpu-32 --num-workers 16 --max-num-workers 16
 ```
 
 **NOTE**: Make sure the Project and Google Storage Bucket is created.
