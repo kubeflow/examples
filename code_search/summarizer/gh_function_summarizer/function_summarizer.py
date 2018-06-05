@@ -5,14 +5,14 @@ from tensor2tensor.data_generators import text_problems
 
 @registry.register_problem
 class GithubFunctionSummarizer(text_problems.Text2TextProblem):
-  """This class defines the problem of converting python code to function"""
+  """This class defines the problem of converting Python function code to docstring"""
 
   @property
   def is_generate_per_split(self):
     return False
 
-  def generate_samples(self, data_dir, _tmp_dir, dataset_split):
-    """This method returns the generator to return {"inputs": [text], "targets": [text] dict}"""
+  def generate_samples(self, data_dir, _tmp_dir, dataset_split): # pylint: disable=no-self-use
+    """This method returns the generator to return {"inputs": [text], "targets": [text]} dict"""
 
     # TODO(sanyamkapoor): Merge with validation set file "valid.{function|docstring}"
     functions_file_path = os.path.join(data_dir, '{}.function'.format(dataset_split))
