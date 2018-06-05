@@ -12,7 +12,7 @@ this repo the destination for top models and examples that highlight the power o
 This repository is home to three types of examples:
 1. [End-to-end](#end-to-end)
 1. [Component-focused](#component-focused)
-1. [Application-specific](#application-specific)
+1. [Application-focused](#application-focused)
 
 ### End-to-end
 
@@ -35,10 +35,11 @@ illustrating the use of persistent disks as opposed to guiding
 someone through their first use of Kubeflow. They are designed
 to be combined with other examples in any number of configurations.
 
-### Application-specific
+### Application-focused
 
 Application-specific examples highlight a common machine learning technique such
-as recommendation, classification, or vision.
+as recommendation, classification, or vision. Like component-focused examples, these are also
+smaller in scope than end-to-end examples.
 
 ### Third-party hosted
 
