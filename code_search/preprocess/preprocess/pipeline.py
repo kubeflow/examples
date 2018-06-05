@@ -1,6 +1,7 @@
 import os
 import apache_beam as beam
 import apache_beam.io as io
+from apache_beam import pvalue
 from apache_beam.options.pipeline_options import StandardOptions, PipelineOptions, \
   GoogleCloudOptions, SetupOptions, WorkerOptions
 from apache_beam.io.gcp.internal.clients import bigquery
@@ -59,10 +60,13 @@ class ExtractFuncInfo(beam.DoFn):
     self.info_keys = info_keys
 
   def process(self, element, *args, **kwargs): # pylint: disable=unused-argument
-    info_rows = [dict(zip(self.info_keys, pair)) for pair in element.pop('pairs')]
-    info_rows = [self.merge_two_dicts(info_dict, element) for info_dict in info_rows]
-    info_rows = map(self.dict_to_unicode, info_rows)
-    yield info_rows
+    try:
+      info_rows = [dict(zip(self.info_keys, pair)) for pair in element.pop('pairs')]
+      info_rows = [self.merge_two_dicts(info_dict, element) for info_dict in info_rows]
+      info_rows = map(self.dict_to_unicode, info_rows)
+      yield info_rows
+    except:
+      yield pvalue.TaggedOutput('failed', element)
 
   @staticmethod
   def merge_two_dicts(dict_a, dict_b):
@@ -95,23 +99,49 @@ class BigQueryGithubFiles(beam.PTransform):
     self.data_types = ['STRING', 'STRING', 'STRING', 'INTEGER', 'STRING', 'STRING', 'STRING']
 
   def expand(self, input_or_inputs):
-    return (input_or_inputs
-            | "Read BigQuery Rows" >> io.Read(io.BigQuerySource(query=self.query_string,
-                                                                use_standard_sql=True))
-            | "Split 'repo_path'" >> beam.ParDo(SplitRepoPath())
-            | "Tokenize Code/Docstring Pairs" >> beam.ParDo(TokenizeCodeDocstring())
-            | "Extract Function Info" >> beam.ParDo(ExtractFuncInfo(self.data_columns[2:]))
-            | "Flatten Rows" >> beam.FlatMap(lambda x: x)
-            | "Write to BigQuery" >> io.WriteToBigQuery(project=self.project,
+    processed, failed = (input_or_inputs
+      | "Read BigQuery Rows" >> io.Read(io.BigQuerySource(query=self.query_string,
+                                                          use_standard_sql=True))
+      | "Split 'repo_path'" >> beam.ParDo(SplitRepoPath())
+      | "Tokenize Code/Docstring Pairs" >> beam.ParDo(TokenizeCodeDocstring())
+                                               .with_outputs('failed', main='processed')
+    )
+
+    #pylint: disable=expression-not-assigned
+    (failed
+     | "Write failed to BigQuery" >> io.WriteToBigQuery(project=self.project,
                                                         dataset=self.output_dataset,
-                                                        table=self.output_table,
-                                                        schema=self.create_output_schema())
-            )
+                                                        table=self.output_table + '_failed',
+                                                        schema=self.create_failed_output_schema())
+    )
+    # pylint: enable=expression-not-assigned
+
+    return (processed
+      | "Extract Function Info" >> beam.ParDo(ExtractFuncInfo(self.data_columns[2:]))
+      | "Flatten Rows" >> beam.FlatMap(lambda x: x)
+      | "Write to BigQuery" >> io.WriteToBigQuery(project=self.project,
+                                                  dataset=self.output_dataset,
+                                                  table=self.output_table,
+                                                  schema=self.create_output_schema())
+    )
 
   def create_output_schema(self):
     table_schema = bigquery.TableSchema()
 
     for column, data_type in zip(self.data_columns, self.data_types):
+      field_schema = bigquery.TableFieldSchema()
+      field_schema.name = column
+      field_schema.type = data_type
+      field_schema.mode = 'nullable'
+      table_schema.fields.append(field_schema)
+
+    return table_schema
+
+  def create_failed_output_schema(self):
+    table_schema = bigquery.TableSchema()
+
+    for column, data_type in zip(self.data_columns[:2] + ['content'],
+                                 self.data_types[:2] + ['STRING']):
       field_schema = bigquery.TableFieldSchema()
       field_schema.name = column
       field_schema.type = data_type
