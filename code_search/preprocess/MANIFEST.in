@@ -1,2 +1,2 @@
-include README.md requirements.txt
+include requirements.txt
 include files/*

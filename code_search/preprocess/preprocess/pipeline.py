@@ -46,10 +46,12 @@ class TokenizeCodeDocstring(beam.DoFn):
   """Compute code/docstring pairs from incoming BigQuery row dict"""
 
   def process(self, element, *args, **kwargs): # pylint: disable=unused-argument,no-self-use
-    from preprocess.tokenizer import get_function_docstring_pairs
-    element['pairs'] = get_function_docstring_pairs(element.pop('content'))
-    yield element
-
+    try:
+      from preprocess.tokenizer import get_function_docstring_pairs
+      element['pairs'] = get_function_docstring_pairs(element.pop('content'))
+      yield element
+    except: #pylint: disable=bare-except
+      yield pvalue.TaggedOutput('err_rows', element)
 
 class ExtractFuncInfo(beam.DoFn):
   # pylint: disable=abstract-method
@@ -66,7 +68,7 @@ class ExtractFuncInfo(beam.DoFn):
       info_rows = map(self.dict_to_unicode, info_rows)
       yield info_rows
     except: #pylint: disable=bare-except
-      yield pvalue.TaggedOutput('failed', element)
+      yield pvalue.TaggedOutput('err_rows', element)
 
   @staticmethod
   def merge_two_dicts(dict_a, dict_b):
@@ -82,13 +84,13 @@ class ExtractFuncInfo(beam.DoFn):
     return data_dict
 
 
-class BigQueryGithubFiles(beam.PTransform):
+class ProcessGithubFiles(beam.PTransform):
   """A collection of `DoFn`s for Pipeline Transform. Reads the Github dataset from BigQuery
   and writes back the processed code-docstring pairs in a query-friendly format back to BigQuery
   table.
   """
   def __init__(self, project, query_string, output_string):
-    super(BigQueryGithubFiles, self).__init__()
+    super(ProcessGithubFiles, self).__init__()
 
     self.project = project
     self.query_string = query_string
@@ -98,31 +100,50 @@ class BigQueryGithubFiles(beam.PTransform):
                          'function_tokens', 'docstring_tokens']
     self.data_types = ['STRING', 'STRING', 'STRING', 'INTEGER', 'STRING', 'STRING', 'STRING']
 
+    self.batch_size = 1000
+
   def expand(self, input_or_inputs):
-    processed, failed = (input_or_inputs
-      | "Read BigQuery Rows" >> io.Read(io.BigQuerySource(query=self.query_string,
+    tokenize_result = (input_or_inputs
+      | "Read Github Dataset" >> io.Read(io.BigQuerySource(query=self.query_string,
                                                           use_standard_sql=True))
       | "Split 'repo_path'" >> beam.ParDo(SplitRepoPath())
       | "Tokenize Code/Docstring Pairs" >> beam.ParDo(TokenizeCodeDocstring())
-                                               .with_outputs('failed', main='processed')
+                                               .with_outputs('err_rows', main='rows')
     )
 
     #pylint: disable=expression-not-assigned
-    (failed
-     | "Write failed to BigQuery" >> io.WriteToBigQuery(project=self.project,
+    (tokenize_result.err_rows
+     | "Failed Row Tokenization" >> io.WriteToBigQuery(project=self.project,
                                                         dataset=self.output_dataset,
                                                         table=self.output_table + '_failed',
-                                                        schema=self.create_failed_output_schema())
+                                                        schema=self.create_failed_output_schema(),
+                                                        batch_size=self.batch_size)
     )
     # pylint: enable=expression-not-assigned
 
-    return (processed
+
+    info_result = (tokenize_result.rows
       | "Extract Function Info" >> beam.ParDo(ExtractFuncInfo(self.data_columns[2:]))
+                                       .with_outputs('err_rows', main='rows')
+    )
+
+    #pylint: disable=expression-not-assigned
+    (info_result.err_rows
+     | "Failed Function Info" >> io.WriteToBigQuery(project=self.project,
+                                                        dataset=self.output_dataset,
+                                                        table=self.output_table + '_failed',
+                                                        schema=self.create_failed_output_schema(),
+                                                        batch_size=self.batch_size)
+    )
+    # pylint: enable=expression-not-assigned
+
+    return (info_result.rows
       | "Flatten Rows" >> beam.FlatMap(lambda x: x)
-      | "Write to BigQuery" >> io.WriteToBigQuery(project=self.project,
+      | "Save Tokens" >> io.WriteToBigQuery(project=self.project,
                                                   dataset=self.output_dataset,
                                                   table=self.output_table,
-                                                  schema=self.create_output_schema())
+                                                  schema=self.create_output_schema(),
+                                                  batch_size=self.batch_size)
     )
 
   def create_output_schema(self):

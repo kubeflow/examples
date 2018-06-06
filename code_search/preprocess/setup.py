@@ -7,9 +7,6 @@ from setuptools import setup, find_packages, Command as SetupToolsCommand
 with open('requirements.txt', 'r') as f:
   install_requires = f.readlines()
 
-with open('README.md') as f:
-  README = f.read()
-
 VERSION = '0.1.0'
 CUSTOM_COMMANDS = [
   ['python', '-m', 'spacy', 'download', 'en']
@@ -43,9 +40,7 @@ class CustomCommands(SetupToolsCommand):
 
 
 setup(name='kubeflow-code-search',
-      description='Kubeflow Code Search Demo',
-      long_description=README,
-      long_description_content_type='text/markdown',
+      description='Kubeflow Code Search Demo Preprocessing',
       url='https://www.github.com/kubeflow/examples',
       author='Sanyam Kapoor',
       author_email='sanyamkapoor@google.com',
