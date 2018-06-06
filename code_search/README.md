@@ -68,7 +68,7 @@ $ python preprocess/scripts/process_github_archive.py -i files/select_github_arc
          --max-num-workers 16
 ```
 
-## 2. Function Summarizer [WIP]
+## 2. Function Summarizer
 
 This part generates a model to summarize functions into docstrings using the data generated in previous
 step. It uses `tensor2tensor`.
@@ -84,7 +84,11 @@ step. It uses `tensor2tensor`.
                       --data_dir=~/data --tmp_dir=/tmp
 ```
 
-* TODO: Train transduction model using `Tranformer Networks`
+* Train transduction model using `Tranformer Networks` and a base hyper-parameters set
+```
+(venv3) $ t2t-trainer --t2t_usr_dir=summarizer/gh_function_summarizer --problem=github_function_summarizer \
+                      --data_dir=~/data --model=transformer --hparams_set=transformer_base --output_dir=~/train
+```
 
 # Acknowledgements
 
