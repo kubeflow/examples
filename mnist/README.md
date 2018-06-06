@@ -21,6 +21,17 @@ export CLOUDSDK_CONTAINER_USE_CLIENT_CERTIFICATE=True
 gcloud alpha container clusters create ${USER} --enable-kubernetes-alpha --machine-type=n1-standard-8 --num-nodes=3 --disk-size=200 --zone=us-west1-a --cluster-version=1.9.3-gke.0 --image-type=UBUNTU
 ```
 
+If using Azure, the following will provision a cluster with the required features, [using the az cli](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest):
+
+```
+# Create a resource group
+az group create -n kubeflowrg -l eastus
+# Deploy the cluster
+az aks create -n kubeflowaks -g kubeflowrg -l eastus -k 1.9.6 -c 3 -s Standard_NC6
+# Authentication into the cluster
+az aks get-credentials -n kubeflowaks -g kubeflowrg
+```
+
 NOTE: You must be a Kubernetes admin to follow this guide. If you are not an admin, please contact your local cluster administrator for a client cert, or credentials to pass into the following commands:
 
 ```
@@ -71,9 +82,9 @@ With our code ready, we will now build/push the docker image.
 
 ```
 DOCKER_BASE_URL=docker.io/elsonrodriguez # Put your docker registry here
-docker build . --no-cache  -f Dockerfile.model -t ${DOCKER_BASE_URL}/mytfmodel:1.0
+docker build . --no-cache  -f Dockerfile.model -t ${DOCKER_BASE_URL}/mytfmodel:1.7
 
-docker push ${DOCKER_BASE_URL}/mytfmodel:1.0
+docker push ${DOCKER_BASE_URL}/mytfmodel:1.7
 ```
 
 ## Preparing your Kubernetes Cluster
@@ -94,13 +105,13 @@ cd ${APP_NAME}
 
 ks registry add kubeflow github.com/kubeflow/kubeflow/tree/master/kubeflow
 
-ks pkg install kubeflow/core@1a6fc9d0e19e456b784ba1c23c03ec47648819d0
-ks pkg install kubeflow/argo@8d617d68b707d52a5906d38b235e04e540f2fcf7
+ks pkg install kubeflow/core@v0.1.2
+ks pkg install kubeflow/argo
 
 # Deploy TF Operator and Argo
 kubectl create namespace ${NAMESPACE}
 ks generate core kubeflow-core --name=kubeflow-core --namespace=${NAMESPACE}
-ks generate argo kubeflow-argo --name=kubeflow-argo --namespace=${NAMESPACE}
+ks generate argo kubeflow-argo --name=kubeflow-argo --namespace=${NAMESPACE} --imageTag=v2.1.0
 
 ks apply default -c kubeflow-core
 ks apply default -c kubeflow-argo
@@ -133,15 +144,19 @@ $ argo list
 NAME   STATUS   AGE   DURATION
 ```
 
-### Creating secrets for our workflow
-For fetching and uploading data, our workflow requires S3 credentials. These credentials will be provided as kubernetes secrets:
+### Creating secrets for our workflow and setting S3 variables.
+
+For fetching and uploading data, our workflow requires S3 credentials and variables. These credentials will be provided as kubernetes secrets, and the variables will be passed into the workflow. Modify the below values to suit your environment.
 
 ```
-export S3_ENDPOINT=s3.us-west-2.amazonaws.com
-export AWS_ENDPOINT_URL=https://${S3_ENDPOINT}
+export S3_ENDPOINT=s3.us-west-2.amazonaws.com  #replace with your s3 endpoint in a host:port format, e.g. minio:9000
+export AWS_ENDPOINT_URL=https://${S3_ENDPOINT} #use http instead of https for default minio installs
 export AWS_ACCESS_KEY_ID=xxxxx
 export AWS_SECRET_ACCESS_KEY=xxxxx
+export AWS_REGION=us-west-2
 export BUCKET_NAME=mybucket
+export S3_USE_HTTPS=1 #set to 0 for default minio installs
+export S3_VERIFY_SSL=1 #set to 0 for defaul minio installs
 
 kubectl create secret generic aws-creds --from-literal=awsAccessKeyID=${AWS_ACCESS_KEY_ID} \
  --from-literal=awsSecretAccessKey=${AWS_SECRET_ACCESS_KEY}
@@ -174,9 +189,8 @@ First we need to set a few variables in our workflow. Make sure to set your dock
 DOCKER_BASE_URL=docker.io/elsonrodriguez # Put your docker registry here
 export S3_DATA_URL=s3://${BUCKET_NAME}/data/mnist/
 export S3_TRAIN_BASE_URL=s3://${BUCKET_NAME}/models
-export AWS_REGION=us-west-2
 export JOB_NAME=myjob-$(uuidgen  | cut -c -5 | tr '[:upper:]' '[:lower:]')
-export TF_MODEL_IMAGE=${DOCKER_BASE_URL}/mytfmodel:1.0
+export TF_MODEL_IMAGE=${DOCKER_BASE_URL}/mytfmodel:1.7
 export TF_WORKER=3
 export MODEL_TRAIN_STEPS=200
 ```
@@ -194,6 +208,8 @@ argo submit model-train.yaml -n ${NAMESPACE} --serviceaccount tf-user \
     -p job-name=${JOB_NAME} \
     -p tf-worker=${TF_WORKER} \
     -p model-train-steps=${MODEL_TRAIN_STEPS} \
+    -p s3-use-https=${S3_USE_HTTPS} \
+    -p s3-verify-ssl=${S3_VERIFY_SSL} \
     -p namespace=${NAMESPACE}
 ```
 

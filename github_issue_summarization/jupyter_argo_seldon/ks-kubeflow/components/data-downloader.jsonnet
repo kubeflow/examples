@@ -22,9 +22,9 @@ local scriptConfigMap = {
 
 local params = {
   // Default location for the data. Should be a directory on the PVC.
-  "dataPath": "/data",
-  "dataUrl": "https://storage.googleapis.com/kubeflow-examples/github-issue-summarization-data/github-issues.zip",
-  "pvcName": "data-pvc",
+  dataPath: "/data",
+  dataUrl: "https://storage.googleapis.com/kubeflow-examples/github-issue-summarization-data/github-issues.zip",
+  pvcName: "data-pvc",
 } + overrideParams;
 
 local downLoader = {
@@ -43,8 +43,8 @@ local downLoader = {
             command: [
               "/bin/ash",
               "/scripts/download_data.sh",
+              params.dataUrl,
               params.dataPath,
-              params.dataUrl,              
             ],
             image: "busybox",
             name: "downloader",
