@@ -80,14 +80,35 @@ step. It uses `tensor2tensor`.
 
 * Generate `TFRecords` for training
 ```
-(venv3) $ t2t-datagen --t2t_usr_dir=summarizer/gh_function_summarizer --problem=github_function_summarizer \
+(venv3) $ t2t-datagen --t2t_usr_dir=language_task/t2t_problems --problem=github_function_summarizer \
                       --data_dir=~/data --tmp_dir=/tmp
 ```
 
 * Train transduction model using `Tranformer Networks` and a base hyper-parameters set
 ```
-(venv3) $ t2t-trainer --t2t_usr_dir=summarizer/gh_function_summarizer --problem=github_function_summarizer \
+(venv3) $ t2t-trainer --t2t_usr_dir=language_task/t2t_problems --problem=github_function_summarizer \
                       --data_dir=~/data --model=transformer --hparams_set=transformer_base --output_dir=~/train
+```
+
+## 3. Docstrings Language Model
+
+This part trains a language model based on the docstrings in the dataset and uses `tensor2tensor`
+
+* Install dependencies
+```
+(venv3) $ pip install -r summarizer/requirements.txt
+```
+
+* Generate `TFRecords` for training
+```
+(venv3) $ t2t-datagen --t2t_usr_dir=language_task/t2t_problems --problem=github_docstring_language_model \
+                      --data_dir=~/data --tmp_dir=/tmp
+```
+
+* Train language model using `Tranformer Networks` and a custom hyper-parameters set
+```
+(venv3) $ t2t-trainer --t2t_usr_dir=language_task/t2t_problems --problem=github_docstring_language_model \
+                      --data_dir=~/data --model=transformer --hparams_set=transformer_gh_lm --output_dir=~/train
 ```
 
 # Acknowledgements
