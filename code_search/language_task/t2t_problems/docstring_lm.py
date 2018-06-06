@@ -6,13 +6,15 @@ from tensor2tensor.models import transformer
 
 @registry.register_problem
 class GithubDocstringLanguageModel(text_problems.Text2SelfProblem):
+  # pylint: disable=abstract-method
+
   """This class defines the Language Modeling problem for Github docstrings"""
 
   @property
   def is_generate_per_split(self):
     return False
 
-  def generate_samples(self, data_dir, tmp_dir, dataset_split):
+  def generate_samples(self, data_dir, _tmp_dir, dataset_split):  #pylint: disable=no-self-use
     docstrings_file_path = os.path.join(data_dir, '{}.docstring'.format(dataset_split))
 
     return text_problems.text2self_txt_iterator(docstrings_file_path)
