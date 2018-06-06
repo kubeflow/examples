@@ -2,7 +2,7 @@ import os
 import apache_beam as beam
 import apache_beam.io as io
 from apache_beam.options.pipeline_options import StandardOptions, PipelineOptions, \
-  GoogleCloudOptions, SetupOptions
+  GoogleCloudOptions, SetupOptions, WorkerOptions
 from apache_beam.io.gcp.internal.clients import bigquery
 
 
@@ -16,6 +16,10 @@ def create_pipeline_opts(args):
   google_cloud_options.job_name = args.job_name
   google_cloud_options.temp_location = '{}/{}/temp'.format(args.storage_bucket, args.job_name)
   google_cloud_options.staging_location = '{}/{}/staging'.format(args.storage_bucket, args.job_name)
+
+  options.view_as(WorkerOptions).num_workers = args.num_workers
+  options.view_as(WorkerOptions).max_num_workers = args.max_num_workers
+  options.view_as(WorkerOptions).machine_type = args.machine_type
 
   # Point to `setup.py` to allow Dataflow runner to install the package
   options.view_as(SetupOptions).setup_file = os.path.join(

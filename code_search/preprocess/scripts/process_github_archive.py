@@ -7,13 +7,18 @@ from preprocess.pipeline import create_pipeline_opts, BigQueryGithubFiles
 
 def parse_arguments(args):
   parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-  parser.add_argument('-i', '--input', metavar='', help='Path to BigQuery SQL script')
-  parser.add_argument('-o', '--output', metavar='',
+  parser.add_argument('-i', '--input', metavar='', type=str, help='Path to BigQuery SQL script')
+  parser.add_argument('-o', '--output', metavar='', type=str,
                       help='Output string of the format <dataset>:<table>')
-  parser.add_argument('-p', '--project', metavar='', default='Project', help='Project ID')
-  parser.add_argument('-j', '--job-name', metavar='', default='Beam Job', help='Job name')
-  parser.add_argument('--storage-bucket', metavar='', default='gs://bucket',
+  parser.add_argument('-p', '--project', metavar='', type=str, default='Project', help='Project ID')
+  parser.add_argument('-j', '--job-name', metavar='', type=str, default='Beam Job', help='Job name')
+  parser.add_argument('--storage-bucket', metavar='', type=str, default='gs://bucket',
                       help='Path to Google Storage Bucket')
+  parser.add_argument('--num-workers', metavar='', type=int, default=1, help='Number of workers')
+  parser.add_argument('--max-num-workers', metavar='', type=int, default=1,
+                      help='Maximum number of workers')
+  parser.add_argument('--machine-type', metavar='', type=str, default='n1-standard-1',
+                      help='Google Cloud Machine Type to use')
 
   parsed_args = parser.parse_args(args)
   return parsed_args
