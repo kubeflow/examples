@@ -19,6 +19,7 @@ This example covers the following concepts:
 1. CI/CD for model binaries, building and deploying a docker image for serving in Seldon
 1. Full tracking of what data produced which model, and what model is being used for inference
 1. Automatic updates of models based on changes to training data or code
+1. Training with single node Tensorflow and distributed TFJobs
 
 ### [GitHub issue summarization (Jupyter, Argo, Seldon)](./github_issue_summarization/jupyter_argo_seldon)
 Author: [Hamel Husain](https://github.com/hamelsmu)
@@ -68,4 +69,3 @@ In the interest of fostering an open and welcoming environment, we as contributo
 
 The Kubeflow community is guided by our [Code of Conduct](https://github.com/kubeflow/community/blob/master/CODE_OF_CONDUCT.md), which we encourage everybody to read before participating.
 
->>>>>>> 622090704415da06a6ff76a3ecbe75d9930ebb1c
