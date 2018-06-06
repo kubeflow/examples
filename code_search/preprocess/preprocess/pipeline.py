@@ -65,7 +65,7 @@ class ExtractFuncInfo(beam.DoFn):
       info_rows = [self.merge_two_dicts(info_dict, element) for info_dict in info_rows]
       info_rows = map(self.dict_to_unicode, info_rows)
       yield info_rows
-    except:
+    except: #pylint: disable=bare-except
       yield pvalue.TaggedOutput('failed', element)
 
   @staticmethod
