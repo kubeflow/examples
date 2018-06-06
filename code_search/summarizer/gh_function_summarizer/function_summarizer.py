@@ -1,7 +1,7 @@
 import os
-
 from tensor2tensor.utils import registry
 from tensor2tensor.data_generators import text_problems
+
 
 @registry.register_problem
 class GithubFunctionSummarizer(text_problems.Text2TextProblem):
