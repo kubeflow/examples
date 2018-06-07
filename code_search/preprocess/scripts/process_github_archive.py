@@ -2,7 +2,7 @@ from __future__ import print_function
 import argparse
 import apache_beam as beam
 
-from preprocess.pipeline import create_pipeline_opts, BigQueryGithubFiles
+from preprocess.pipeline import create_pipeline_opts, ProcessGithubFiles
 
 
 def parse_arguments(args):
@@ -32,7 +32,7 @@ def main(args):
     query_string = f.read()
 
   pipeline = beam.Pipeline(options=pipeline_opts)
-  (pipeline | BigQueryGithubFiles(args.project, query_string, args.output)) #pylint: disable=expression-not-assigned
+  (pipeline | ProcessGithubFiles(args.project, query_string, args.output)) #pylint: disable=expression-not-assigned
   pipeline.run()
 
 
