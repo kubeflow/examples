@@ -122,7 +122,7 @@ def linear_serving_input_receiver_fn():
   return tf.estimator.export.ServingInputReceiver(inputs, inputs)
 
 
-def main(_): # pylint: disable=unused-argument
+def main(_):
   tf.logging.set_verbosity(tf.logging.INFO)
 
   # Download and load MNIST dataset.
@@ -148,7 +148,8 @@ def main(_): # pylint: disable=unused-argument
         tf.feature_column.numeric_column(
             X_FEATURE, shape=mnist.train.images.shape[1:])]
     classifier = tf.estimator.LinearClassifier(
-        feature_columns=feature_columns, n_classes=N_DIGITS, model_dir=TF_MODEL_DIR, config=training_config)
+        feature_columns=feature_columns, n_classes=N_DIGITS,
+        model_dir=TF_MODEL_DIR, config=training_config)
     export_final = tf.estimator.FinalExporter(
         TF_EXPORT_DIR, serving_input_receiver_fn=cnn_serving_input_receiver_fn)
 
