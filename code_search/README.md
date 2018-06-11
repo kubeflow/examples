@@ -76,14 +76,10 @@ By default, the based off Tensorflow CPU 1.8.0 for `Python3` but can be overridd
 the following command
 
 ```
-$ export BASE_IMAGE_TAG=1.8.0-py3 | export BASE_IMAGE_TAG=1.8.0-gpu-py3 # Pick one
-$ export TARGET_IMAGE_TAG=semantic-code-search:devel
-$ pushd ./language_task &&\
-    docker build -t $TARGET_IMAGE_TAG --build-arg BASE_IMAGE_TAG=$BASE_IMAGE_TAG . &&\
-    popd
+$ export BUILD_IMAGE_TAG=my-new-tag # (optional) to change built image tag
+$ export BASE_IMAGE_TAG=1.8.0-gpu-py3 # (optional) for GPU base image
+$ ./language_task/build_image.sh
 ```
-
-**NOTE**: The `Dockerfile` has been written with build context as the `language_task` directory.
 
 ### 2.1 Function Summarizer
 
@@ -92,15 +88,16 @@ step. It uses `tensor2tensor`.
 
 * Generate `TFRecords` for training
 ```
-$ export DATA_DIR=/path/to/data/folder
-$ DOCKER_ENTRYPOINT=t2t-datagen ./language_task/run.sh --problem=github_function_summarizer
+$ export MOUNT_DATA_DIR=/path/to/data/folder # (optional) mount a local data directory
+$ export DOCKER_ENTRYPOINT=t2t-datagen # (required)
+$ ./language_task/run.sh --problem=github_function_summarizer
 ```
 
 * Train transduction model using `Tranformer Networks` and a base hyper-parameters set
 ```
-$ export DATA_DIR=/path/to/data/folder
-$ DOCKER_ENTRYPOINT=t2t-trainer ./run.sh --problem=github_function_summarizer --model=transformer \
-                                                 --hparams_set=transformer_base
+$ export MOUNT_DATA_DIR=/path/to/data/folder # (optional) mount a local data directory
+$ export DOCKER_ENTRYPOINT=t2t-trainer # (required)
+$ ./language_task/run.sh --problem=github_function_summarizer --model=transformer --hparams_set=transformer_base
 ```
 
 ### 2.2 Docstrings Language Model
@@ -109,15 +106,17 @@ This part trains a language model based on the docstrings in the dataset and use
 
 * Generate `TFRecords` for training
 ```
-$ export DATA_DIR=/path/to/data/folder
-$ DOCKER_ENTRYPOINT=t2t-datagen ./run.sh --problem=github_docstring_language_model
+$ export MOUNT_DATA_DIR=/path/to/data/folder # (optional) mount a local data directory
+$ export DOCKER_ENTRYPOINT=t2t-datagen # (required)
+$ ./language_task/run.sh --problem=github_docstring_language_model
 ```
 
 * Train language model using `Tranformer Networks` and a custom hyper-parameters set
 ```
-$ export DATA_DIR=/path/to/data/folder
-$ DOCKER_ENTRYPOINT=t2t-trainer --problem=github_docstring_language_model --model=transformer \
-                                --hparams_set=transformer_gh_lm
+$ export MOUNT_DATA_DIR=/path/to/data/folder # (optional) mount a local data directory
+$ export MOUNT_OUTPUT_DIR=/path/to/output/folder # (optional) mount a local output directory
+$ export DOCKER_ENTRYPOINT=t2t-trainer # (required)
+$ ./language_task/run.sh --problem=github_docstring_language_model --model=transformer --hparams_set=transformer_gh_lm
 ```
 
 # Acknowledgements

@@ -8,6 +8,6 @@ ADD requirements.txt /
 
 RUN pip3 --no-cache-dir install -r /requirements.txt
 
-ENV T2T_USR_DIR=/t2t_problems
+VOLUME ["/data", "/output"]
 
 ADD t2t_problems/* /t2t_problems/
