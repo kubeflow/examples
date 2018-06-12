@@ -8,6 +8,7 @@ Github Dataset hosted on BigQuery.
 * Python 2.7 (with `pip`)
 * Python 3.6+ (with `pip3`)
 * Python `virtualenv`
+* Docker
 
 **NOTE**: `Apache Beam` lacks `Python3` support and hence the multiple versions needed.
 
@@ -46,7 +47,7 @@ To use either of the environments,
 $ source venv2/bin/activate | source venv3/bin/activate # Pick one
 ```
 
-See [Virtualenv Docs](https://virtualenv.pypa.io/en/stable/) for more.
+See [Virtualenv Docs](https://virtualenv.pypa.io/en/stable/) for more. 
 
 # Pipeline
 
@@ -68,47 +69,54 @@ $ python preprocess/scripts/process_github_archive.py -i files/select_github_arc
          --max-num-workers 16
 ```
 
-## 2. Function Summarizer
+## 2. Model Training
+
+A `Dockerfile` based on Tensorflow is provided along which has all the dependencies for this part of the pipeline. 
+By default, it is based off Tensorflow CPU 1.8.0 for `Python3` but can be overridden in the Docker image build using
+the following command
+
+```
+$ export BUILD_IMAGE_TAG=my-new-tag # (optional) to change built image tag
+$ export BASE_IMAGE_TAG=1.8.0-gpu-py3 # (optional) for GPU base image
+$ ./language_task/build_image.sh
+```
+
+### 2.1 Function Summarizer
 
 This part generates a model to summarize functions into docstrings using the data generated in previous
 step. It uses `tensor2tensor`.
 
-* Install dependencies
-```
-(venv3) $ pip install -r summarizer/requirements.txt
-```
-
 * Generate `TFRecords` for training
 ```
-(venv3) $ t2t-datagen --t2t_usr_dir=language_task/t2t_problems --problem=github_function_summarizer \
-                      --data_dir=~/data --tmp_dir=/tmp
+$ export MOUNT_DATA_DIR=/path/to/data/folder # (optional) mount a local data directory
+$ export DOCKER_ENTRYPOINT=t2t-datagen # (required)
+$ ./language_task/run.sh --problem=github_function_summarizer
 ```
 
 * Train transduction model using `Tranformer Networks` and a base hyper-parameters set
 ```
-(venv3) $ t2t-trainer --t2t_usr_dir=language_task/t2t_problems --problem=github_function_summarizer \
-                      --data_dir=~/data --model=transformer --hparams_set=transformer_base --output_dir=~/train
+$ export MOUNT_DATA_DIR=/path/to/data/folder # (optional) mount a local data directory
+$ export DOCKER_ENTRYPOINT=t2t-trainer # (required)
+$ ./language_task/run.sh --problem=github_function_summarizer --model=transformer --hparams_set=transformer_base
 ```
 
-## 3. Docstrings Language Model
+### 2.2 Docstrings Language Model
 
 This part trains a language model based on the docstrings in the dataset and uses `tensor2tensor`
 
-* Install dependencies
-```
-(venv3) $ pip install -r summarizer/requirements.txt
-```
-
 * Generate `TFRecords` for training
 ```
-(venv3) $ t2t-datagen --t2t_usr_dir=language_task/t2t_problems --problem=github_docstring_language_model \
-                      --data_dir=~/data --tmp_dir=/tmp
+$ export MOUNT_DATA_DIR=/path/to/data/folder # (optional) mount a local data directory
+$ export DOCKER_ENTRYPOINT=t2t-datagen # (required)
+$ ./language_task/run.sh --problem=github_docstring_language_model
 ```
 
 * Train language model using `Tranformer Networks` and a custom hyper-parameters set
 ```
-(venv3) $ t2t-trainer --t2t_usr_dir=language_task/t2t_problems --problem=github_docstring_language_model \
-                      --data_dir=~/data --model=transformer --hparams_set=transformer_gh_lm --output_dir=~/train
+$ export MOUNT_DATA_DIR=/path/to/data/folder # (optional) mount a local data directory
+$ export MOUNT_OUTPUT_DIR=/path/to/output/folder # (optional) mount a local output directory
+$ export DOCKER_ENTRYPOINT=t2t-trainer # (required)
+$ ./language_task/run.sh --problem=github_docstring_language_model --model=transformer --hparams_set=transformer_gh_lm
 ```
 
 # Acknowledgements
