@@ -72,7 +72,7 @@ $ python preprocess/scripts/process_github_archive.py -i files/select_github_arc
 ## 2. Model Training
 
 A `Dockerfile` based on Tensorflow is provided along which has all the dependencies for this part of the pipeline. 
-By default, the based off Tensorflow CPU 1.8.0 for `Python3` but can be overridden in the Docker image build using
+By default, it is based off Tensorflow CPU 1.8.0 for `Python3` but can be overridden in the Docker image build using
 the following command
 
 ```
