@@ -23,29 +23,27 @@ tf-hub-0                          1/1       Running   0          1m
 tf-job-operator-78757955b-qkg7s   1/1       Running   0          1m
 ```
 ## Preparing the training data
-Pull a sample dataset and store it on all cluster nodes in the same path 
-In this case, we will be storing the data in `/tmp/pets` directory. 
-```
-git clone https://github.com/tensorflow/models.git
-wget http://www.robots.ox.ac.uk/~vgg/data/pets/data/images.tar.gz
-wget http://www.robots.ox.ac.uk/~vgg/data/pets/data/annotations.tar.gz
-mkdir -p /tmp/pets
-tar -xvf images.tar.gz -C /tmp/pets
-tar -xvf annotations.tar.gz -C /tmp/pets
+We have prepared a set of K8s batch jobs to create a persistent volume and copy the data to it.
+The `yaml` manifest files for these jobs can be found at [conf](./conf) directory there are numbered and must be executed in order:
 
-python models/research/object_detection/dataset_tools/create_pet_tf_record.py --label_map_path=models/research/object_detection/data/pet_label_map.pbtxt --data_dir=/tmp/pets  --output_dir=/tmp/pets
-``` 
-
-Copy the `./conf/faster_rcnn_resnet101_pets.config` from the `conf` directory into your $HOME path.
-
-Modify the pipeline training file and copy it to `/tmp/pets`
 ```
-wget http://download.tensorflow.org/models/object_detection/faster_rcnn_resnet101_coco_2018_01_28.tar.gz
-tar -xf faster_rcnn_resnet101_coco_2018_01_28.tar.gz -C /tmp/pets
-cp models/research/object_detection/data/pet_label_map.pbtxt /tmp/pets/
-cp $HOME/faster_rcnn_resnet101_pets.config /tmp/pets/
+# First create the PVC where the training data will be stored
+kubectl -n kubeflow apply -f ./conf/00create-pvc.yaml
+
+# Get the dataset, annotations and fasterrcnn-model tars
+kubectl -n kubeflow apply -f ./conf/01get-dataset.yaml
+kubectl -n kubeflow apply -f ./conf/02get-annotations.yaml
+kubectl -n kubeflow apply -f ./conf/03get-model-job.yaml
+
+# Decompress tar files
+kubectl -n kubeflow apply -f ./conf/04decompress-images.yaml
+kubectl -n kubeflow apply -f ./conf/05decompress-annotations.yaml
+kubectl -n kubeflow apply -f ./conf/06decompress-model.yaml
+
+# Configuring the training pipeline
+kubectl -n kubeflow apply -f ./conf/07get-fastercnn-config.yaml
+kubectl -n kubeflow apply -f ./conf/08create-pet-record.yaml
 ```
-After completing these steps for one of your cluster nodes, copy the directory to all the remaining nodes.
 
 ## Next
 [Submit the TF Job](submit_job.md)

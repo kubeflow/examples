@@ -33,3 +33,6 @@ Now you have a trained model!! find it at `/tmp/pets/train` directory in all of 
 ```
 kubectl -n kubeflow delete -f training/pets-tf-jobs.yaml
 ```
+
+## Next
+[Serving your trained model with TF-serving]()

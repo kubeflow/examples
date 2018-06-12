@@ -5,7 +5,7 @@ metadata:
   name: pets-data-claim
 spec:
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   volumeMode: Block
   resources:
     requests:
