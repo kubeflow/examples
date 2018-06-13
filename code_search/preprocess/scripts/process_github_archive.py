@@ -32,7 +32,7 @@ def main(args):
     query_string = f.read()
 
   pipeline = beam.Pipeline(options=pipeline_opts)
-  (pipeline | ProcessGithubFiles(args.project, query_string, args.output)) #pylint: disable=expression-not-assigned
+  (pipeline | ProcessGithubFiles(args.project, query_string, args.output, args.storage_bucket)) #pylint: disable=expression-not-assigned
   pipeline.run()
 
 
