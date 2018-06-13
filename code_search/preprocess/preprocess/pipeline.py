@@ -62,7 +62,7 @@ class TokenizeCodeDocstring(beam.DoFn):
 
       yield element
     except Exception as e: #pylint: disable=broad-except
-      logging.warn('Tokenization failed, %s', e.message)
+      logging.warning('Tokenization failed, %s', e.message)
       yield pvalue.TaggedOutput('err_rows', element)
 
 
@@ -81,7 +81,7 @@ class ExtractFuncInfo(beam.DoFn):
       info_rows = map(self.dict_to_unicode, info_rows)
       yield info_rows
     except Exception as e: #pylint: disable=broad-except
-      logging.warn('Function Info extraction failed, %s', e.message)
+      logging.warning('Function Info extraction failed, %s', e.message)
       yield pvalue.TaggedOutput('err_rows', element)
 
   @staticmethod
@@ -117,7 +117,7 @@ class ProcessGithubFiles(beam.PTransform):
                          'function_tokens', 'docstring_tokens']
     self.data_types = ['STRING', 'STRING', 'STRING', 'INTEGER', 'STRING', 'STRING', 'STRING']
 
-    self.batch_size = 1000
+    self.num_shards = 1
 
   def expand(self, input_or_inputs):
     tokenize_result = (input_or_inputs
@@ -133,8 +133,7 @@ class ProcessGithubFiles(beam.PTransform):
      | "Failed Row Tokenization" >> io.WriteToBigQuery(project=self.project,
                                                         dataset=self.output_dataset,
                                                         table=self.output_table + '_failed',
-                                                        schema=self.create_failed_output_schema(),
-                                                        batch_size=self.batch_size)
+                                                        schema=self.create_failed_output_schema())
     )
     # pylint: enable=expression-not-assigned
 
@@ -149,8 +148,7 @@ class ProcessGithubFiles(beam.PTransform):
      | "Failed Function Info" >> io.WriteToBigQuery(project=self.project,
                                                         dataset=self.output_dataset,
                                                         table=self.output_table + '_failed',
-                                                        schema=self.create_failed_output_schema(),
-                                                        batch_size=self.batch_size)
+                                                        schema=self.create_failed_output_schema())
     )
     # pylint: enable=expression-not-assigned
 
@@ -159,20 +157,21 @@ class ProcessGithubFiles(beam.PTransform):
     # pylint: disable=expression-not-assigned
     (processed_rows
      | "Filter Function tokens" >> beam.Map(lambda x: x['function_tokens'])
-     | "Write Function tokens" >> io.WriteToText('{}/raw_data'.format(self.storage_bucket),
-                                                 file_name_suffix='.function'))
+     | "Write Function tokens" >> io.WriteToText('{}/raw_data/data'.format(self.storage_bucket),
+                                                 file_name_suffix='.function',
+                                                 num_shards=self.num_shards))
     (processed_rows
      | "Filter Docstring tokens" >> beam.Map(lambda x: x['docstring_tokens'])
-     | "Write Docstring tokens" >> io.WriteToText('{}/raw_data'.format(self.storage_bucket),
-                                                  file_name_suffix='.docstring'))
+     | "Write Docstring tokens" >> io.WriteToText('{}/raw_data/data'.format(self.storage_bucket),
+                                                  file_name_suffix='.docstring',
+                                                  num_shards=self.num_shards))
     # pylint: enable=expression-not-assigned
 
     return (processed_rows
       | "Save Tokens" >> io.WriteToBigQuery(project=self.project,
                                                   dataset=self.output_dataset,
                                                   table=self.output_table,
-                                                  schema=self.create_output_schema(),
-                                                  batch_size=self.batch_size)
+                                                  schema=self.create_output_schema())
     )
 
   def create_output_schema(self):
