@@ -13,7 +13,10 @@ pushd "$_SCRIPT_DIR"
 
 docker build -t ${BUILD_IMAGE_TAG} --build-arg BASE_IMAGE_TAG=${BASE_IMAGE_TAG} .
 
-docker tag ${BUILD_IMAGE_TAG} gcr.io/${PROJECT}/${BUILD_IMAGE_TAG}
-docker push gcr.io/${PROJECT}/${BUILD_IMAGE_TAG}
+# Push image to GCR if PROJECT available
+if [[ ! -z "${PROJECT}" ]]; then
+    docker tag ${BUILD_IMAGE_TAG} gcr.io/${PROJECT}/${BUILD_IMAGE_TAG}
+    docker push gcr.io/${PROJECT}/${BUILD_IMAGE_TAG}
+fi
 
 popd

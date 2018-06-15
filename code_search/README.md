@@ -75,8 +75,6 @@ A `Dockerfile` based on Tensorflow is provided along which has all the dependenc
 By default, it is based off Tensorflow CPU 1.8.0 for `Python3` but can be overridden in the Docker image build.
 This script builds and pushes the docker image to Google Container Registry.
 
-
-
 ### 2.1 Build & Push images to GCR
 
 **NOTE**: The images can be pushed to any registry of choice but rest of the 
@@ -88,7 +86,7 @@ $ gcloud auth configure-docker
 
 * Setup environment variables
 ```
-$ export PROJECT=<your_project> # (required) setup project ID here 
+$ export PROJECT=<your_project> # (optional) setup project ID. if not set, image is not published to GCR
 $ export BUILD_IMAGE_TAG=code-search:devel # (optional) to change built image tag
 $ export BASE_IMAGE_TAG=1.8.0-gpu-py3 # (optional) for GPU base image
 ```
@@ -100,43 +98,55 @@ $ ./language_task/build_image.sh
 
 See [GCR Pushing and Pulling Images](https://cloud.google.com/container-registry/docs/pushing-and-pulling) for more.
 
-### 2.1 Function Summarizer
+
+### 2.2 Train Locally
+
+**WARNING**: The container might run out of memory and be killed.
+
+#### 2.2.1 Function Summarizer
 
 This part generates a model to summarize functions into docstrings using the data generated in previous
 step. It uses `tensor2tensor`.
 
 * Generate `TFRecords` for training
 ```
-$ export MOUNT_DATA_DIR=/path/to/data/folder # (optional) mount a local data directory
-$ export DOCKER_ENTRYPOINT=t2t-datagen # (required)
-$ ./language_task/run.sh --problem=github_function_summarizer
+$ export MOUNT_DATA_DIR=/path/to/data/folder
+$ docker run --rm -it -v ${MOUNT_DATA_DIR}:/data ${BUILD_IMAGE_TAG} \
+    t2t-datagen --problem=github_function_summarizer --data_dir=/data
 ```
 
 * Train transduction model using `Tranformer Networks` and a base hyper-parameters set
 ```
-$ export MOUNT_DATA_DIR=/path/to/data/folder # (optional) mount a local data directory
-$ export DOCKER_ENTRYPOINT=t2t-trainer # (required)
-$ ./language_task/run.sh --problem=github_function_summarizer --model=transformer --hparams_set=transformer_base
+$ export MOUNT_DATA_DIR=/path/to/data/folder
+$ export MOUNT_OUTPUT_DIR=/path/to/output/folder
+$ docker run --rm -it -v ${MOUNT_DATA_DIR}:/data -v ${MOUNT_OUTPUT_DIR}:/output ${BUILD_IMAGE_TAG} \
+    t2t-trainer --problem=github_function_summarizer --data_dir=/data --output_dir=/output \
+                --model=transformer --hparams_set=transformer_base
 ```
 
-### 2.2 Docstrings Language Model
+#### 2.2.2 Docstrings Language Model
 
 This part trains a language model based on the docstrings in the dataset and uses `tensor2tensor`
 
 * Generate `TFRecords` for training
 ```
-$ export MOUNT_DATA_DIR=/path/to/data/folder # (optional) mount a local data directory
-$ export DOCKER_ENTRYPOINT=t2t-datagen # (required)
-$ ./language_task/run.sh --problem=github_docstring_language_model
+$ export MOUNT_DATA_DIR=/path/to/data/folder
+$ docker run --rm -it -v ${MOUNT_DATA_DIR}:/data ${BUILD_IMAGE_TAG} \
+    t2t-datagen --problem=github_docstring_language_model --data_dir=/data
 ```
 
 * Train language model using `Tranformer Networks` and a custom hyper-parameters set
 ```
-$ export MOUNT_DATA_DIR=/path/to/data/folder # (optional) mount a local data directory
-$ export MOUNT_OUTPUT_DIR=/path/to/output/folder # (optional) mount a local output directory
-$ export DOCKER_ENTRYPOINT=t2t-trainer # (required)
-$ ./language_task/run.sh --problem=github_docstring_language_model --model=transformer --hparams_set=transformer_gh_lm
+$ export MOUNT_DATA_DIR=/path/to/data/folder
+$ export MOUNT_OUTPUT_DIR=/path/to/output/folder
+$ docker run --rm -it -v ${MOUNT_DATA_DIR}:/data -v ${MOUNT_OUTPUT_DIR}:/output ${BUILD_IMAGE_TAG} \
+    t2t-trainer --problem=github_docstring_language_model --data_dir=/data --output_dir=/output \
+                --model=transformer --hparams_set=transformer_gh_lm
 ```
+
+### 2.3 Train on Kubeflow
+
+TODO
 
 # Acknowledgements
 
