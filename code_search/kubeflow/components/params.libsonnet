@@ -6,17 +6,28 @@
   components: {
     // Component-level parameters, defined initially from 'ks prototype use ...'
     // Each object below should correspond to a component in the components/ directory
-    "t2tcpu": {
-      args: "null",
-      image: "null",
-      image_gpu: "null",
-      image_pull_secrets: "null",
-      name: "t2tcpu",
-      namespace: "null",
-      num_gpus: 0,
-      num_masters: 1,
-      num_ps: 0,
-      num_workers: 0,
+    "t2t-job": {
+      numWorker: 1,
+      numMaster: 1,
+      numPs: 1,
+      numWorkerGpu: 0,
+      numPsGpu: 0,
+
+      train_steps: 100,
+      eval_steps: 1,
+
+      image: "gcr.io/kubeflow-dev/code-search:devel",
+      imageGpu: "gcr.io/kubeflow-dev/code-search:gpu-devel",
+      imagePullSecrets: [],
+    },
+
+    "t2t-gh-summarizer": {
+      "name": "github_function_summarizer",
+      "problem": "github_function_summarizer",
+      "dataDir": "gs://kubeflow-dev/code-search/raw_data",
+      "outputDir": "gs://kubeflow-dev/code-search/train",
+      "model": "transformer",
+      "hparams_set": "transformer_base"
     },
   },
 }
