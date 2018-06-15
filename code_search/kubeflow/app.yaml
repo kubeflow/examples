@@ -1,11 +1,4 @@
 apiVersion: 0.1.0
-environments:
-  default:
-    destination:
-      namespace: default
-      server: https://104.198.58.255
-    k8sVersion: v1.9.6
-    path: default
 kind: ksonnet.io/app
 libraries:
   tf-job:

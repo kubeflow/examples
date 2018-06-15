@@ -72,14 +72,33 @@ $ python preprocess/scripts/process_github_archive.py -i files/select_github_arc
 ## 2. Model Training
 
 A `Dockerfile` based on Tensorflow is provided along which has all the dependencies for this part of the pipeline. 
-By default, it is based off Tensorflow CPU 1.8.0 for `Python3` but can be overridden in the Docker image build using
-the following command
+By default, it is based off Tensorflow CPU 1.8.0 for `Python3` but can be overridden in the Docker image build.
+This script builds and pushes the docker image to Google Container Registry.
 
+
+
+### 2.1 Build & Push images to GCR
+
+**NOTE**: The images can be pushed to any registry of choice but rest of the 
+
+* Authenticate with GCR
 ```
-$ export BUILD_IMAGE_TAG=my-new-tag # (optional) to change built image tag
+$ gcloud auth configure-docker
+```
+
+* Setup environment variables
+```
+$ export PROJECT=<your_project> # (required) setup project ID here 
+$ export BUILD_IMAGE_TAG=code-search:devel # (optional) to change built image tag
 $ export BASE_IMAGE_TAG=1.8.0-gpu-py3 # (optional) for GPU base image
+```
+
+* Build and push the image
+```
 $ ./language_task/build_image.sh
 ```
+
+See [GCR Pushing and Pulling Images](https://cloud.google.com/container-registry/docs/pushing-and-pulling) for more.
 
 ### 2.1 Function Summarizer
 
