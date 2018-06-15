@@ -14,7 +14,7 @@
       numPsGpu: 0,
 
       train_steps: 100,
-      eval_steps: 1,
+      eval_steps: 10,
 
       image: "gcr.io/kubeflow-dev/code-search:devel",
       imageGpu: "gcr.io/kubeflow-dev/code-search:gpu-devel",
