@@ -1,11 +1,11 @@
 apiVersion: 0.1.0
 environments:
-  default:
+  code-search:
     destination:
       namespace: kubeflow
-      server: https://130.211.225.204
+      server: https://35.193.190.6
     k8sVersion: v1.9.6
-    path: default
+    path: code-search
 kind: ksonnet.io/app
 libraries:
   tf-job:
