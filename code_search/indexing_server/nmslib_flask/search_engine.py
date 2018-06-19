@@ -3,7 +3,10 @@ import numpy as np
 
 
 class SearchEngine:
-  def __init__(self, index_file: str):
+  def __init__(self, index_file: str, data_file: str):
+    self._index_file = index_file
+    self._data_file = data_file
+
     self.index = SearchEngine.nmslib_init()
     self.index.loadIndex(index_file)
 
