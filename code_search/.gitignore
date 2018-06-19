@@ -106,3 +106,4 @@ venv.bak/
 # Virtual Environments
 venv/
 
+*.key.json

@@ -124,29 +124,15 @@ $ docker run --rm -it -v ${MOUNT_DATA_DIR}:/data -v ${MOUNT_OUTPUT_DIR}:/output 
                 --model=transformer --hparams_set=transformer_base
 ```
 
-#### 2.2.2 Docstrings Language Model
+### 2.2 Train on Kubeflow
 
-This part trains a language model based on the docstrings in the dataset and uses `tensor2tensor`
-
-* Generate `TFRecords` for training
-```
-$ export MOUNT_DATA_DIR=/path/to/data/folder
-$ docker run --rm -it -v ${MOUNT_DATA_DIR}:/data ${BUILD_IMAGE_TAG} \
-    t2t-datagen --problem=github_docstring_language_model --data_dir=/data
+* Setup secrets for access permissions Google Cloud Storage and Google Container Registry
+```shell
+$ export PROJECT=project-id
+$ ./setup_secrets.sh
 ```
 
-* Train language model using `Tranformer Networks` and a custom hyper-parameters set
-```
-$ export MOUNT_DATA_DIR=/path/to/data/folder
-$ export MOUNT_OUTPUT_DIR=/path/to/output/folder
-$ docker run --rm -it -v ${MOUNT_DATA_DIR}:/data -v ${MOUNT_OUTPUT_DIR}:/output ${BUILD_IMAGE_TAG} \
-    t2t-trainer --problem=github_docstring_language_model --data_dir=/data --output_dir=/output \
-                --model=transformer --hparams_set=transformer_gh_lm
-```
-
-### 2.3 Train on Kubeflow
-
-TODO
+**NOTE**: Use `setup_secrets.sh -d` to remove any side-effects of the above step.
 
 # Acknowledgements
 
