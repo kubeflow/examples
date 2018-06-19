@@ -31,7 +31,7 @@
     "t2t-translate-datagen": {
       jobType: "datagen",
 
-      name: "translate_ende_wmt32k_datagen",
+      name: "translate-ende-wmt32k-datagen",
       problem: "translate_ende_wmt32k",
       dataDir: "gs://kubeflow-dev/code_search/translate_ende_wmt32k/datagen",
     },
@@ -44,7 +44,7 @@
       numWorkerGpu: 1,
       numPsGpu: 1,
 
-      name: "translate_ende_wmt32k",
+      name: "translate-ende-wmt32k",
       problem: "translate_ende_wmt32k",
       dataDir: "gs://kubeflow-dev/code_search/translate_ende_wmt32k/datagen",
       outputDir: "gs://kubeflow-dev/code_search/translate_ende_wmt32k/output",
