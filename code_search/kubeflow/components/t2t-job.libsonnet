@@ -9,6 +9,16 @@ local baseParams = std.extVar("__ksonnet/params").components["t2t-job"];
       "--data_dir=" + params.dataDir,
     ],
 
+  getExporterCmd(params)::
+    [
+      "t2t-exporter",
+      "--problem=" + params.problem,
+      "--data_dir=" + params.dataDir,
+      "--output_dir=" + params.outputDir,
+      "--model=" + params.model,
+      "--hparams_set=" + params.hparams_set,
+    ],
+
   getTrainerCmd(params):: {
       trainer: [
         "t2t-trainer",
@@ -109,6 +119,11 @@ local baseParams = std.extVar("__ksonnet/params").components["t2t-job"];
         if params.jobType == "datagen" then
           [
             $.tfJobReplica("MASTER", params.numMaster, $.getDatagenCmd(params), workerImage, params.numWorkerGpu,
+                            workerImagePullSecrets, workerEnv, workerVolumes, workerVolumeMounts),
+          ]
+        else if params.jobType == "exporter" then
+          [
+            $.tfJobReplica("MASTER", params.numMaster, $.getExporterCmd(params), workerImage, params.numWorkerGpu,
                             workerImagePullSecrets, workerEnv, workerVolumes, workerVolumeMounts),
           ]
         else

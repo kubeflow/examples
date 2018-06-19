@@ -36,6 +36,17 @@
       dataDir: "gs://kubeflow-dev/code_search/translate_ende_wmt32k/datagen",
     },
 
+    "t2t-translate-exporter": {
+      jobType: "exporter",
+
+      name: "translate-ende-wmt32k-exporter",
+      problem: "translate_ende_wmt32k",
+      dataDir: "gs://kubeflow-dev/code_search/translate_ende_wmt32k/datagen",
+      outputDir: "gs://kubeflow-dev/code_search/translate_ende_wmt32k/output",
+      model: "transformer",
+      hparams_set: "transformer_base_single_gpu",
+    },
+
     "t2t-translate": {
       jobType: "trainer",
       numMaster: 1,
@@ -49,7 +60,7 @@
       dataDir: "gs://kubeflow-dev/code_search/translate_ende_wmt32k/datagen",
       outputDir: "gs://kubeflow-dev/code_search/translate_ende_wmt32k/output",
       model: "transformer",
-      hparams_set: "transformer_base_single_gpu"
+      hparams_set: "transformer_base_single_gpu",
     },
   },
 }
