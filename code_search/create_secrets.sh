@@ -11,7 +11,7 @@ export SA_KEY_FILE=${SA_EMAIL}.key.json
 if [[ "${1}" = "-d" ]]; then
   kubectl delete secret gcp-credentials gcp-registry-credentials
 
-  rm ${SA_KEY_FILE}
+  rm -f ${SA_KEY_FILE}
 
   gcloud projects remove-iam-policy-binding ${PROJECT} \
     --member=serviceAccount:${SA_EMAIL} \

@@ -129,10 +129,10 @@ $ docker run --rm -it -v ${MOUNT_DATA_DIR}:/data -v ${MOUNT_OUTPUT_DIR}:/output 
 * Setup secrets for access permissions Google Cloud Storage and Google Container Registry
 ```shell
 $ export PROJECT=project-id
-$ ./setup_secrets.sh
+$ ./create_secrets.sh
 ```
 
-**NOTE**: Use `setup_secrets.sh -d` to remove any side-effects of the above step.
+**NOTE**: Use `create_secrets.sh -d` to remove any side-effects of the above step.
 
 # Acknowledgements
 
