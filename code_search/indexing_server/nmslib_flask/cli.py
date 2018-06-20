@@ -1,9 +1,7 @@
 import sys
 import os
 import argparse
-import logging
-logging.basicConfig(level=logging.INFO)
-
+import numpy as np
 from nmslib_flask.gcs import maybe_download_gcs_file, maybe_upload_gcs_file
 from nmslib_flask.search_engine import CodeSearchEngine
 from nmslib_flask.search_server import CodeSearchServer
@@ -64,7 +62,7 @@ def creator():
 
   # TODO(sanyamkapoor): parse data file into a numpy array
 
-  data = None # TODO(sanyamkapoor): load data as numpy array
+  data = np.load(data_file)
 
   tmp_output_file = os.path.join(args.data_dir, os.path.basename(args.output_file))
 

@@ -10,7 +10,10 @@ class CodeSearchServer:
     self.port = port
     self.engine = engine
 
-    @self.app.route('/health')
+  def init_routes(self):
+    # pylint: disable=unused-variable
+
+    @self.app.route('/ping')
     def ping():
       return make_response(jsonify(status=200), 200)
 
