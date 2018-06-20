@@ -6,8 +6,8 @@
  - Ksonnet CLI: [ks](https://ksonnet.io/)
 
 ### Setup
-Refer to the [user guide](https://github.com/kubeflow/kubeflow/blob/master/user_guide.md) for instructions on how to setup kubeflow on your kubernetes cluster. Specifically, look at section [deploy kubeflow](https://github.com/kubeflow/kubeflow/blob/master/user_guide.md#deploy-kubeflow). 
-For this example we will be using ks `nocloud` environment. If you plan to use `cloud` ks environment, please make sure you follow the proper instructions in the kubeflow user guide.
+Refer to the [user guide](https://github.com/kubeflow/kubeflow/blob/master/user_guide.md) for instructions on how to setup kubeflow on your kubernetes cluster. Specifically, look at the section on [deploying kubeflow](https://github.com/kubeflow/kubeflow/blob/master/user_guide.md#deploy-kubeflow).
+For this example, we will be using ks `nocloud` environment. If you plan to use `cloud` ks environment, please make sure you follow the proper instructions in the kubeflow user guide.
 
 After completing the steps in the kubeflow user guide you will have the following:
 - A ksonnet app directory called `my-kubeflow` 
@@ -24,25 +24,25 @@ tf-job-operator-78757955b-qkg7s   1/1       Running   0          1m
 ```
 ## Preparing the training data
 We have prepared a set of K8s batch jobs to create a persistent volume and copy the data to it.
-The `yaml` manifest files for these jobs can be found at [conf](./conf) directory there are numbered and must be executed in order:
+The `yaml` manifest files for these jobs can be found at [jobs](./jobs) directory. These `yaml` files are numbered and must be executed in order.
 
 ```
 # First create the PVC where the training data will be stored
-kubectl -n kubeflow apply -f ./conf/00create-pvc.yaml
+kubectl -n kubeflow apply -f ./jobs/00create-pvc.yaml
 
-# Get the dataset, annotations and fasterrcnn-model tars
-kubectl -n kubeflow apply -f ./conf/01get-dataset.yaml
-kubectl -n kubeflow apply -f ./conf/02get-annotations.yaml
-kubectl -n kubeflow apply -f ./conf/03get-model-job.yaml
+# Get the dataset, annotations and faster-rcnn-model tars
+kubectl -n kubeflow apply -f ./jobs/01get-dataset.yaml
+kubectl -n kubeflow apply -f ./jobs/02get-annotations.yaml
+kubectl -n kubeflow apply -f ./jobs/03get-model-job.yaml
 
 # Decompress tar files
-kubectl -n kubeflow apply -f ./conf/04decompress-images.yaml
-kubectl -n kubeflow apply -f ./conf/05decompress-annotations.yaml
-kubectl -n kubeflow apply -f ./conf/06decompress-model.yaml
+kubectl -n kubeflow apply -f ./jobs/04decompress-images.yaml
+kubectl -n kubeflow apply -f ./jobs/05decompress-annotations.yaml
+kubectl -n kubeflow apply -f ./jobs/06decompress-model.yaml
 
 # Configuring the training pipeline
-kubectl -n kubeflow apply -f ./conf/07get-fastercnn-config.yaml
-kubectl -n kubeflow apply -f ./conf/08create-pet-record.yaml
+kubectl -n kubeflow apply -f ./jobs/07get-fasterrcnn-config.yaml
+kubectl -n kubeflow apply -f ./jobs/08create-pet-record.yaml
 ```
 
 ## Next

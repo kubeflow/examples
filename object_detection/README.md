@@ -1,4 +1,5 @@
 # Object Detection Examples
-In here you will find examples and tutorials regarding object detection with kubeflow
+This example guides you through the process of distributed training and inference using
+[TensorFlow object detection API]()
 
 - [Object Detection Distributed Training Job](distributed_training)
