@@ -17,6 +17,7 @@ setup(name='code-search-index-server',
       extras_require={},
       entry_points={
         'console_scripts': [
-          'nmslib-flask=nmslib_flask.cli:main'
+          'nmslib-serve=nmslib_flask.cli:server',
+          'nmslib-create=nmslib_flask.cli:creator',
         ]
       })
