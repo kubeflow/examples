@@ -26,6 +26,10 @@
       outputDir: "null",
       model: "null",
       hparams_set: "null",
+
+      // TODO(sanyamkapoor): A workaround for tensorflow/tensor2tensor#879
+      gsDataDir: "null",
+      gsOutputDir: "null",
     },
 
     "t2t-translate-datagen": {
@@ -33,7 +37,11 @@
 
       name: "translate-ende-wmt32k-datagen",
       problem: "translate_ende_wmt32k",
-      dataDir: "gs://kubeflow-dev/code_search/translate_ende_wmt32k/datagen",
+
+      // TODO(sanyamkapoor): A workaround for tensorflow/tensor2tensor#879
+      dataDir: "/data",
+      outputDir: "/data",
+      gsOutputDir: "gs://kubeflow-examples/t2t-translate/translate_ende_wmt32k/datagen",
     },
 
     "t2t-translate-exporter": {
@@ -41,10 +49,16 @@
 
       name: "translate-ende-wmt32k-exporter",
       problem: "translate_ende_wmt32k",
-      dataDir: "gs://kubeflow-dev/code_search/translate_ende_wmt32k/datagen",
-      outputDir: "gs://kubeflow-dev/code_search/translate_ende_wmt32k/output",
+      // dataDir: "gs://kubeflow-examples/t2t-translate/translate_ende_wmt32k/datagen",
+      // outputDir: "gs://kubeflow-examples/t2t-translate/translate_ende_wmt32k/output",
       model: "transformer",
       hparams_set: "transformer_base_single_gpu",
+
+      // TODO(sanyamkapoor): A workaround for tensorflow/tensor2tensor#879
+      dataDir: "/data",
+      gsDataDir: "gs://kubeflow-examples/t2t-translate/translate_ende_wmt32k/datagen",
+      outputDir: "/output",
+      gsOutputDir: "gs://kubeflow-examples/t2t-translate/translate_ende_wmt32k/output",
     },
 
     "t2t-translate": {
@@ -57,10 +71,16 @@
 
       name: "translate-ende-wmt32k",
       problem: "translate_ende_wmt32k",
-      dataDir: "gs://kubeflow-dev/code_search/translate_ende_wmt32k/datagen",
-      outputDir: "gs://kubeflow-dev/code_search/translate_ende_wmt32k/output",
+      // dataDir: "gs://kubeflow-examples/t2t-translate/translate_ende_wmt32k/datagen",
+      // outputDir: "gs://kubeflow-examples/t2t-translate/translate_ende_wmt32k/output",
       model: "transformer",
       hparams_set: "transformer_base_single_gpu",
+
+      // TODO(sanyamkapoor): A workaround for tensorflow/tensor2tensor#879
+      dataDir: "/data",
+      gsDataDir: "gs://kubeflow-examples/t2t-translate/translate_ende_wmt32k/datagen",
+      outputDir: "/output",
+      gsOutputDir: "gs://kubeflow-examples/t2t-translate/translate_ende_wmt32k/output",
     },
   },
 }
