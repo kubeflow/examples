@@ -84,16 +84,13 @@ This script builds and pushes the docker image to Google Container Registry.
 $ gcloud auth configure-docker
 ```
 
-* Setup environment variables
-```
-$ export PROJECT=<your_project> # (optional) setup project ID. if not set, image is not published to GCR
-$ export BUILD_IMAGE_TAG=code-search:devel # (optional) to change built image tag
-$ export BASE_IMAGE_TAG=1.8.0-gpu-py3 # (optional) for GPU base image
-```
-
 * Build and push the image
 ```
-$ ./language_task/build_image.sh
+$ PROJECT=my-project ./language_task/build_image.sh
+```
+and a GPU image
+```
+$ GPU=1 PROJECT=my-project ./language_task/build_image.sh
 ```
 
 See [GCR Pushing and Pulling Images](https://cloud.google.com/container-registry/docs/pushing-and-pulling) for more.
@@ -128,8 +125,7 @@ $ docker run --rm -it -v ${MOUNT_DATA_DIR}:/data -v ${MOUNT_OUTPUT_DIR}:/output 
 
 * Setup secrets for access permissions Google Cloud Storage and Google Container Registry
 ```shell
-$ export PROJECT=project-id
-$ ./create_secrets.sh
+$ PROJECT=my-project ./create_secrets.sh
 ```
 
 **NOTE**: Use `create_secrets.sh -d` to remove any side-effects of the above step.

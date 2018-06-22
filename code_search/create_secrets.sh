@@ -3,21 +3,27 @@
 set -ex
 
 export PROJECT=${PROJECT:-}
+
+if [[ -z "${PROJECT}" ]]; then
+  echo "PROJECT environment variable missing!"
+  exit 1
+fi
+
 export SA_NAME=code-search-access
 export SA_EMAIL=${SA_NAME}@${PROJECT}.iam.gserviceaccount.com
 export SA_KEY_FILE=${SA_EMAIL}.key.json
 
 
 if [[ "${1}" = "-d" ]]; then
-  kubectl delete secret gcp-credentials gcp-registry-credentials
-
-  rm -f ${SA_KEY_FILE}
-
   gcloud projects remove-iam-policy-binding ${PROJECT} \
     --member=serviceAccount:${SA_EMAIL} \
     --role=roles/storage.admin
 
   gcloud iam service-accounts delete ${SA_EMAIL} --quiet
+
+  rm -f ${SA_KEY_FILE}
+
+  kubectl delete secret gcp-credentials gcp-registry-credentials
 
   exit 0
 fi

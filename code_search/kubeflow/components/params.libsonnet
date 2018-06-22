@@ -18,8 +18,8 @@
       train_steps: 100,
       eval_steps: 10,
 
-      image: "gcr.io/kubeflow-dev/code-search:devel",
-      imageGpu: "gcr.io/kubeflow-dev/code-search:gpu-devel",
+      image: "gcr.io/kubeflow-dev/code-search:v20180621-266e689",
+      imageGpu: "gcr.io/kubeflow-dev/code-search:v20180621-gpu-db4f1ee",
       imagePullSecrets: [],
 
       dataDir: "null",
@@ -49,16 +49,10 @@
 
       name: "translate-ende-wmt32k-exporter",
       problem: "translate_ende_wmt32k",
-      // dataDir: "gs://kubeflow-examples/t2t-translate/translate_ende_wmt32k/datagen",
-      // outputDir: "gs://kubeflow-examples/t2t-translate/translate_ende_wmt32k/output",
+      dataDir: "gs://kubeflow-examples/t2t-translate/translate_ende_wmt32k/datagen",
+      outputDir: "gs://kubeflow-examples/t2t-translate/translate_ende_wmt32k/output",
       model: "transformer",
       hparams_set: "transformer_base_single_gpu",
-
-      // TODO(sanyamkapoor): A workaround for tensorflow/tensor2tensor#879
-      dataDir: "/data",
-      gsDataDir: "gs://kubeflow-examples/t2t-translate/translate_ende_wmt32k/datagen",
-      outputDir: "/output",
-      gsOutputDir: "gs://kubeflow-examples/t2t-translate/translate_ende_wmt32k/output",
     },
 
     "t2t-translate": {
@@ -71,16 +65,10 @@
 
       name: "translate-ende-wmt32k",
       problem: "translate_ende_wmt32k",
-      // dataDir: "gs://kubeflow-examples/t2t-translate/translate_ende_wmt32k/datagen",
-      // outputDir: "gs://kubeflow-examples/t2t-translate/translate_ende_wmt32k/output",
+      dataDir: "gs://kubeflow-examples/t2t-translate/translate_ende_wmt32k/datagen",
+      outputDir: "gs://kubeflow-examples/t2t-translate/translate_ende_wmt32k/output",
       model: "transformer",
       hparams_set: "transformer_base_single_gpu",
-
-      // TODO(sanyamkapoor): A workaround for tensorflow/tensor2tensor#879
-      dataDir: "/data",
-      gsDataDir: "gs://kubeflow-examples/t2t-translate/translate_ende_wmt32k/datagen",
-      outputDir: "/output",
-      gsOutputDir: "gs://kubeflow-examples/t2t-translate/translate_ende_wmt32k/output",
     },
   },
 }

@@ -17,6 +17,8 @@ ADD t2t-entrypoint.sh /usr/local/sbin/t2t-entrypoint
 
 ENV T2T_USR_DIR=/t2t_problems
 
+WORKDIR /t2t_problems
+
 #ENTRYPOINT ["/usr/local/sbin/t2t-entrypoint"]
 
 # TODO(sanyamkapoor): A workaround for tensorflow/tensor2tensor#879

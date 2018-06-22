@@ -2,6 +2,15 @@ local tfJob = import "kubeflow/tf-job/tf-job.libsonnet";
 local baseParams = std.extVar("__ksonnet/params").components["t2t-job"];
 
 {
+  getGcloudAuthCmd()::
+    [
+      "/root/google-cloud-sdk/bin/gcloud",
+      "auth",
+      "activate-service-account",
+      "--key-file",
+      "$GOOGLE_APPLICATION_CREDENTIALS",
+    ],
+
   getGsUtilCmd(src_dir, dst_dir)::
     [
       "/root/google-cloud-sdk/bin/gsutil",
@@ -13,6 +22,7 @@ local baseParams = std.extVar("__ksonnet/params").components["t2t-job"];
 
   wrapGsUtil(cmd, params):: {
     local resultCmd =
+      (if params.gsDataDir == "null" && params.gsOutputDir == "null" then [] else $.getGcloudAuthCmd() + ["&&"]) +
       (if params.gsDataDir == "null" then [] else $.getGsUtilCmd(params.gsDataDir, params.dataDir) + ["&&"]) +
       cmd +
       (if params.gsOutputDir == "null" then [] else ["&&"] + $.getGsUtilCmd(params.outputDir, params.gsOutputDir)),
