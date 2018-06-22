@@ -31,7 +31,7 @@ INFO:tensorflow:Recording summary at step 839
 When the job finishes, you should see something like this in your completed/terminated pods logs:
 ```
 INFO:tensorflow:Starting Session.
-INFO:tensorflow:Saving checkpoint to path /tmp/pets/train/model.ckpt
+INFO:tensorflow:Saving checkpoint to path /pets_data/train/model.ckpt
 INFO:tensorflow:Starting Queues.
 INFO:tensorflow:global_step/sec: 0
 INFO:tensorflow:Recording summary at step 200006.
@@ -40,7 +40,7 @@ INFO:tensorflow:Stopping Training.
 INFO:tensorflow:Finished training! Saving model to disk.
 ```
 
-Now you have a trained model!! find it at `/tmp/pets/train` directory in all of your cluster nodes.
+Now you have a trained model!! find it at `/pets_data/train` inside pvc `pets-data-claim``.
 
 ### Delete job
 ```
@@ -48,4 +48,4 @@ kubectl -n kubeflow delete -f training/pets-tf-jobs.yaml
 ```
 
 ## Next
-[Export the Tesorflow Graph]()
+[Export the Tesorflow Graph and Serve the model with TF Serving](./export_tf_graph.md)

@@ -3,7 +3,6 @@ apiVersion: kubeflow.org/v1alpha1
 kind: TFJob
 metadata:
   name: pets-training
-  namespace: kubeflow
 spec:
   replicaSpecs:
   - replicas: 1

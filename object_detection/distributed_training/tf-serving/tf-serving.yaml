@@ -8,7 +8,7 @@ metadata:
       apiVersion: ambassador/v0
       kind:  Mapping
       name: tfserving-mapping-pets-model-get
-      prefix: /models/pets-model/
+      prefix: /pets_data/exported_graphs/saved_model/
       rewrite: /
       method: GET
       service: pets-model.default:8000
@@ -16,8 +16,8 @@ metadata:
       apiVersion: ambassador/v0
       kind:  Mapping
       name: tfserving-mapping-pets-model-post
-      prefix: /models/pets-model/
-      rewrite: /model/pets-model:predict
+      prefix: /pets_data/exported_graphs/saved_model/
+      rewrite: /pets_data/exported_graphs/saved_model/:predict
       method: POST
       service: pets-model.default:8000
   labels:
@@ -53,7 +53,7 @@ spec:
         - /usr/bin/tensorflow_model_server
         - --port=9000
         - --model_name=pets-model
-        - --model_base_path=/pets_data/exported_graphs
+        - --model_base_path=/pets_data/exported_graphs/saved_model
         image: gcr.io/kubeflow-images-public/tf-model-server-cpu:v20180327-995786ec
         imagePullPolicy: IfNotPresent
         name: pets-model

@@ -2,12 +2,12 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: create-tf-record
+  name: export-tf-graph
 spec:
   template:
     spec:
       containers:
-      - name: create-tf-record
+      - name: export-tf-graph
         image: lcastell/pets_object_detection
         imagePullPolicy: IfNotPresent
         workingDir: "/"
