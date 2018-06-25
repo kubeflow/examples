@@ -84,16 +84,13 @@ This script builds and pushes the docker image to Google Container Registry.
 $ gcloud auth configure-docker
 ```
 
-* Setup environment variables
-```
-$ export PROJECT=<your_project> # (optional) setup project ID. if not set, image is not published to GCR
-$ export BUILD_IMAGE_TAG=code-search:devel # (optional) to change built image tag
-$ export BASE_IMAGE_TAG=1.8.0-gpu-py3 # (optional) for GPU base image
-```
-
 * Build and push the image
 ```
-$ ./language_task/build_image.sh
+$ PROJECT=my-project ./language_task/build_image.sh
+```
+and a GPU image
+```
+$ GPU=1 PROJECT=my-project ./language_task/build_image.sh
 ```
 
 See [GCR Pushing and Pulling Images](https://cloud.google.com/container-registry/docs/pushing-and-pulling) for more.
@@ -124,29 +121,14 @@ $ docker run --rm -it -v ${MOUNT_DATA_DIR}:/data -v ${MOUNT_OUTPUT_DIR}:/output 
                 --model=transformer --hparams_set=transformer_base
 ```
 
-#### 2.2.2 Docstrings Language Model
+### 2.2 Train on Kubeflow
 
-This part trains a language model based on the docstrings in the dataset and uses `tensor2tensor`
-
-* Generate `TFRecords` for training
-```
-$ export MOUNT_DATA_DIR=/path/to/data/folder
-$ docker run --rm -it -v ${MOUNT_DATA_DIR}:/data ${BUILD_IMAGE_TAG} \
-    t2t-datagen --problem=github_docstring_language_model --data_dir=/data
+* Setup secrets for access permissions Google Cloud Storage and Google Container Registry
+```shell
+$ PROJECT=my-project ./create_secrets.sh
 ```
 
-* Train language model using `Tranformer Networks` and a custom hyper-parameters set
-```
-$ export MOUNT_DATA_DIR=/path/to/data/folder
-$ export MOUNT_OUTPUT_DIR=/path/to/output/folder
-$ docker run --rm -it -v ${MOUNT_DATA_DIR}:/data -v ${MOUNT_OUTPUT_DIR}:/output ${BUILD_IMAGE_TAG} \
-    t2t-trainer --problem=github_docstring_language_model --data_dir=/data --output_dir=/output \
-                --model=transformer --hparams_set=transformer_gh_lm
-```
-
-### 2.3 Train on Kubeflow
-
-TODO
+**NOTE**: Use `create_secrets.sh -d` to remove any side-effects of the above step.
 
 # Acknowledgements
 
