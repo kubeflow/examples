@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 
+##
+# This script creates all the necessary service accounts and permissions
+# needed for the training jobs to pull private images from
+# Google Cloud Registry and access Google Cloud Storage. To
+# undo all the changes made, add a "-d" flag while executing the
+# script.
+#
+
 set -ex
 
 export PROJECT=${PROJECT:-}
