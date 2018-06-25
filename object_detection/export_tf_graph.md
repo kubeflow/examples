@@ -1,11 +1,11 @@
 
 ## Export the TensorFlow Graph  
   
-In the [jobs](./jobs) directory you will find a manifest file [export-tf-graph.yaml](export-tf-graph.yaml).  
+In the [jobs](./jobs) directory you will find a manifest file [export-tf-graph.yaml](./jobs/export-tf-graph.yaml).
 Before executing the job we first need to identify a checkpoint candidate in the `pets-data-claim` pvc under  
 `/pets_data/train`.  
   
-To see what's being saved in `/pets_data/train` you can use:  
+To see what's being saved in `/pets_data/train` while the training job is running you can use:
 ```  
 kubectl -n kubeflow exec -it pets-training-master-r1hv-0-i6k7c sh  
 ```  
@@ -45,7 +45,7 @@ After that you should see pets-model pod. Run:
 ```  
 kubectl -n kubeflow get pods | grep pets-model  
 ```  
-That will output:  
+That will output something like this:
 ```  
 pets-model-v1-57674c8f76-4qrqp      1/1       Running     0          4h  
 ```  
@@ -59,3 +59,4 @@ And you should see:
 E0621 19:20:34.134165172       7 ev_epoll1_linux.c:1051]     grpc epoll fd: 3  
 2018-06-21 19:20:34.135354: I tensorflow_serving/model_servers/main.cc:288] Running ModelServer at 0.0.0.0:9000 ...  
 ```
+Now you can use a gRPC client to run inference using your trained model!

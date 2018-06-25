@@ -29,17 +29,27 @@ The `yaml` manifest files for these jobs can be found at [jobs](./jobs) director
 ```
 # First create the PVC where the training data will be stored
 kubectl -n kubeflow apply -f ./jobs/00create-pvc.yaml
+```
+The 00create-pvc.yaml creates a PVC with `ReadWriteMany` access mode if your Kubernetes cluster
+does not support this feature you can modify the manifest to create the PVC in `ReadWriteOnce`
+and before you execute the tf-job to train the model add a `nodeSelector:` configuration to execute the pods
+in the same node. You can find more about assigning pods to specific nodes [here](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/)
 
+```
 # Get the dataset, annotations and faster-rcnn-model tars
 kubectl -n kubeflow apply -f ./jobs/01get-dataset.yaml
 kubectl -n kubeflow apply -f ./jobs/02get-annotations.yaml
 kubectl -n kubeflow apply -f ./jobs/03get-model-job.yaml
+```
 
+```
 # Decompress tar files
 kubectl -n kubeflow apply -f ./jobs/04decompress-images.yaml
 kubectl -n kubeflow apply -f ./jobs/05decompress-annotations.yaml
 kubectl -n kubeflow apply -f ./jobs/06decompress-model.yaml
+```
 
+```
 # Configuring the training pipeline
 kubectl -n kubeflow apply -f ./jobs/07get-fasterrcnn-config.yaml
 kubectl -n kubeflow apply -f ./jobs/08create-pet-record.yaml

@@ -10,7 +10,7 @@ spec:
       - name: get-model
         image: inutano/wget
         imagePullPolicy: IfNotPresent
-        command: ["wget", "--no-check-certificate", "https://raw.githubusercontent.com/ldcastell/examples/distributedTrainingExample/object_detection/distributed_training/conf/faster_rcnn_resnet101_pets.config", "-P",  "/pets_data"]
+        command: ["wget", "--no-check-certificate", "https://raw.githubusercontent.com/ldcastell/examples/distributedTrainihttps://raw.githubusercontent.com/ldcastell/examples/distributedTrainingExample/object_detection/conf/faster_rcnngExample/object_detection/distributed_training/conf/faster_rcnn_resnet101_pets.config", "-P",  "/pets_data"]
         volumeMounts:
           - mountPath: "/pets_data"
             name: pets-data

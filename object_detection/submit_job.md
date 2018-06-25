@@ -22,11 +22,11 @@ docker push <your_server:your_port>/pets_object_detection
 ```
 
 ## Create  training TF-Job deployment and launching it
-**NOTE:** You can skip this step and copy the [pets-training.yaml](./conf/pets-training.yaml) from the `conf` directory and modify it to your needs.
+**NOTE:** You can skip this step and copy the [pets-training.yaml](./jobs/pets-training.yaml) from the `conf` directory and modify it to your needs.
 Or simply run:
 
 ```
-kubectl -n kubeflow apply -f ./conf/pets-training.yaml
+kubectl -n kubeflow apply -f ./jobs/pets-training.yaml
 ```
 
 ### Follow these steps to generate the tf-job manifest file:
@@ -49,8 +49,22 @@ Add the volume mounts information at the end manifest file. We will be mounting 
 ```
 vim pets-training.yaml
 ```
+Add the following to the template.spec:
+```
+volumes:
+  - name: pets-data
+    persistentVolumeClaim:
+      claimName: pets-data-claim
+```
+Add the following to the container properties:
+```
+volumeMounts:
+- mountPath: "/pets_data"
+  name: pets-data
+```
+At the end you should have something similar to [this](./jobs/pets-training.yaml)
 
-Submit the TF-Job to K8s:
+No you can submit the TF-Job to K8s:
 ```
 kubectl -n kubeflow apply -f pets-training.yaml
 ```

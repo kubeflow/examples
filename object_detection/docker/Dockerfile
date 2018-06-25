@@ -17,6 +17,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         python-tk \
         python-lxml \
         rsync \
+        git \
         software-properties-common \
         unzip \
         && \
@@ -40,17 +41,19 @@ RUN pip --no-cache-dir install \
         sklearn \
         six \
         tensorflow \
+        tensorflow-serving-api \
         && \
     python -m ipykernel.kernelspec
 
 # Setup Universal Object Detection
 ENV MODELS_HOME "/models"
-COPY models $MODELS_HOME
+RUN git clone https://github.com/tensorflow/models.git $MODELS_HOME && cd $MODELS_HOME && git checkout r1.5
+#COPY models $MODELS_HOME
 RUN cd $MODELS_HOME/research \
         && protoc object_detection/protos/*.proto --python_out=.
 
 ENV PYTHONPATH "$MODELS_HOME/research:$MODELS_HOME/research/slim:$PYTHONPATH"
-
+COPY scripts /scripts
 # TensorBoard
 EXPOSE 6006
 

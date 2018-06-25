@@ -8,7 +8,7 @@ kubectl -n kubeflow describe tfjobs pets-training
 ### View logs of individual pods
 ```
 kubectl -n kubeflow get pods
-kubectl -n kubeflow logs <name_of_pod>
+kubectl -n kubeflow logs <name_of_master_pod>
 ```
 **NOTE:** When the job finishes, the pods will be automatically terminated. To see, run the `get pods` command with the `-a` flag:
 ```
@@ -28,7 +28,7 @@ INFO:tensorflow:global step 834: loss = 0.2307 (16.493 sec/step)
 INFO:tensorflow:Recording summary at step 839
 ```
 
-When the job finishes, you should see something like this in your completed/terminated pods logs:
+When the job finishes, you should see something like this in your completed/terminated master pod logs:
 ```
 INFO:tensorflow:Starting Session.
 INFO:tensorflow:Saving checkpoint to path /pets_data/train/model.ckpt
@@ -48,4 +48,4 @@ kubectl -n kubeflow delete -f training/pets-tf-jobs.yaml
 ```
 
 ## Next
-[Export the Tesorflow Graph and Serve the model with TF Serving](./export_tf_graph.md)
+[Export the TensorFlow Graph and Serve the model with TF Serving](./export_tf_graph.md)
