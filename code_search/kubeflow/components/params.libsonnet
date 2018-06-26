@@ -70,5 +70,15 @@
       model: "transformer",
       hparams_set: "transformer_base_single_gpu",
     },
+
+    "t2t-translate-serving": {
+      name: "t2t-translate",
+      modelName: "t2t-translate",
+      modelPath: "gs://kubeflow-examples/t2t-translate/translate_ende_wmt32k/output/export/Servo",
+      modelServerImage: "gcr.io/kubeflow-images-public/tensorflow-serving-1.8:latest",
+      gcpParams: {
+        gcpCredentialSecretName: "gcp-credentials",
+      },
+    },
   },
 }

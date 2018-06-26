@@ -14,6 +14,12 @@ libraries:
       refSpec: master
     name: tf-job
     registry: kubeflow
+  tf-serving:
+    gitVersion:
+      commitSha: e1b2aee865866b2e7e4f8c41b34ae03b4c4bb0db
+      refSpec: master
+    name: tf-serving
+    registry: kubeflow
 name: kubeflow
 registries:
   incubator:
