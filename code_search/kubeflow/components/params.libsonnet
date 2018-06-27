@@ -32,6 +32,18 @@
       gsOutputDir: "null",
     },
 
+    "nmslib": {
+      name: null,
+      replicas: 1,
+      image: "gcr.io/kubeflow-dev/code-search:v20180621-266e689",
+
+      dataFile: null,
+      indexFile: null,
+      problem: null,
+      dataDir: null,
+      servingUrl: null,
+    },
+
     "t2t-translate-datagen": {
       jobType: "datagen",
 
@@ -78,6 +90,14 @@
       modelServerImage: "gcr.io/kubeflow-images-public/tensorflow-serving-1.8:latest",
       cloud: "gcp",
       gcpCredentialSecretName: "gcp-credentials",
+    },
+
+    "nms-creator": {
+      name: "nms-creator",
+    },
+
+    "nms-server": {
+      name: "nms-server",
     },
   },
 }

@@ -14,7 +14,7 @@ def parse_server_args(args):
                      help='Path to temporary data directory')
   parser.add_argument('--index-file', type=str, required=True,
                      help='Path to index file created by nmslib')
-  parser.add_argument('--problem-name', type=str, required=True,
+  parser.add_argument('--problem', type=str, required=True,
                       help='Name of the T2T problem')
   parser.add_argument('--data-dir', type=str, metavar='', default='/tmp',
                      help='Path to working data directory')
@@ -55,7 +55,7 @@ def server():
   index_file = maybe_download_gcs_file(args.index_file, args.tmp_dir)
   # data_file = maybe_download_gcs_file(args.data_file, args.tmp_dir)
 
-  search_engine = CodeSearchEngine(args.problem_name, args.data_dir, args.serving_url,
+  search_engine = CodeSearchEngine(args.problem, args.data_dir, args.serving_url,
                                    index_file)
 
   search_server = CodeSearchServer(engine=search_engine,

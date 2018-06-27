@@ -9,10 +9,10 @@ from code_search.t2t.query import get_encoder_decoder, encode_query
 class CodeSearchEngine:
   """This is a utility class which takes an nmslib
   index file and a data file to return data from"""
-  def __init__(self, problem_name: str, data_dir: str, serving_url: str,
+  def __init__(self, problem: str, data_dir: str, serving_url: str,
                index_file: str):
     self._serving_url = serving_url
-    self._problem_name = problem_name
+    self._problem = problem
     self._data_dir = data_dir
     self._index_file = index_file
 
@@ -28,7 +28,7 @@ class CodeSearchEngine:
     and only representative of the steps needed to build the
     embedding
     """
-    encoder, decoder = get_encoder_decoder(self._problem_name, self._data_dir)
+    encoder, decoder = get_encoder_decoder(self._problem, self._data_dir)
     encoded_query = encode_query(encoder, query_str)
     data = {"instances": [{"input": {"b64": encoded_query}}]}
 
