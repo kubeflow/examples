@@ -2,9 +2,10 @@ import sys
 import os
 import argparse
 import numpy as np
-from nmslib_flask.gcs import maybe_download_gcs_file, maybe_upload_gcs_file
-from nmslib_flask.search_engine import CodeSearchEngine
-from nmslib_flask.search_server import CodeSearchServer
+
+from code_search.nmslib.gcs import maybe_download_gcs_file, maybe_upload_gcs_file
+from code_search.nmslib.search_engine import CodeSearchEngine
+from code_search.nmslib.search_server import CodeSearchServer
 
 def parse_server_args(args):
   parser = argparse.ArgumentParser(prog='nmslib Flask Server')
@@ -15,6 +16,8 @@ def parse_server_args(args):
                      help='Path to csv file for human-readable data')
   parser.add_argument('--data-dir', type=str, metavar='', default='/tmp',
                      help='Path to working data directory')
+  parser.add_argument('--tmp-dir', type=str, metavar='', default='/tmp/nmslib',
+                     help='Path to temporary data directory')
   parser.add_argument('--host', type=str, metavar='', default='0.0.0.0',
                      help='Host to start server on')
   parser.add_argument('--port', type=int, metavar='', default=8008,
@@ -30,22 +33,22 @@ def parse_creator_args(args):
                      help='Path to csv data file for human-readable data')
   parser.add_argument('--output-file', type=str, metavar='', default='/tmp/index.nmslib',
                      help='Path to output index file')
-  parser.add_argument('--data-dir', type=str, metavar='', default='/tmp',
-                     help='Path to working data directory')
+  parser.add_argument('--tmp-dir', type=str, metavar='', default='/tmp/nmslib',
+                     help='Path to temporary data directory')
 
   return parser.parse_args(args)
 
 def server():
   args = parse_server_args(sys.argv[1:])
 
-  if not os.path.isdir(args.data_dir):
-    os.makedirs(args.data_dir, exist_ok=True)
+  if not os.path.isdir(args.tmp_dir):
+    os.makedirs(args.tmp_dir, exist_ok=True)
 
   # Download relevant files if needed
-  index_file = maybe_download_gcs_file(args.index_file, args.data_dir)
-  data_file = maybe_download_gcs_file(args.data_file, args.data_dir)
+  index_file = maybe_download_gcs_file(args.index_file, args.tmp_dir)
+  data_file = maybe_download_gcs_file(args.data_file, args.tmp_dir)
 
-  search_engine = CodeSearchEngine(index_file, data_file)
+  search_engine = CodeSearchEngine(args.data_dir, index_file, data_file)
 
   search_server = CodeSearchServer(engine=search_engine,
                                    host=args.host, port=args.port)
@@ -55,16 +58,16 @@ def server():
 def creator():
   args = parse_creator_args(sys.argv[1:])
 
-  if not os.path.isdir(args.data_dir):
-    os.makedirs(args.data_dir, exist_ok=True)
+  if not os.path.isdir(args.tmp_dir):
+    os.makedirs(args.tmp_dir, exist_ok=True)
 
-  data_file = maybe_download_gcs_file(args.data_file, args.data_dir)
+  data_file = maybe_download_gcs_file(args.data_file, args.tmp_dir)
 
   # TODO(sanyamkapoor): parse data file into a numpy array
 
   data = np.load(data_file)
 
-  tmp_output_file = os.path.join(args.data_dir, os.path.basename(args.output_file))
+  tmp_output_file = os.path.join(args.tmp_dir, os.path.basename(args.output_file))
 
   CodeSearchEngine.create_index(data, tmp_output_file)
 

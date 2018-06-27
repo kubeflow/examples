@@ -22,4 +22,6 @@ RUN apt-get update && apt-get install -y curl python &&\
 
 VOLUME ["/data", "/output"]
 
+EXPOSE 8008
+
 ENTRYPOINT ["bash"]

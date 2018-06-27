@@ -5,7 +5,8 @@ import numpy as np
 class CodeSearchEngine:
   """This is a utility class which takes an nmslib
   index file and a data file to return data from"""
-  def __init__(self, index_file: str, data_file: str):
+  def __init__(self, data_dir: str, index_file: str, data_file: str):
+    self._data_dir = data_dir
     self._index_file = index_file
     self._data_file = data_file
 
