@@ -80,30 +80,3 @@ def creator():
   CodeSearchEngine.create_index(data, tmp_index_file)
 
   maybe_upload_gcs_file(tmp_index_file, args.index_file)
-
-
-if __name__ == '__main__':
-  import requests
-  import json
-  from tensor2tensor import problems  # pylint: disable=unused-import
-  from code_search.t2t.query import get_encoder_decoder, encode_query
-
-  server_url = 'http://localhost:8501/v1/models/try:predict'
-  query = 'does it work?'
-
-  problem = 'translate_ende_wmt32k'
-  data_dir = '/Users/sanyamkapoor/Workspace/translate_ende_wmt32k/datagen'
-
-  encoder, decoder = get_encoder_decoder(problem, data_dir)
-  encoded_query = encode_query(encoder, query)
-  data = {"instances": [{"input": {"b64": encoded_query}}]}
-
-  response = requests.post(
-    url=server_url, headers={'content-type': 'application/json'}, data=json.dumps(data))
-
-  result = response.json()
-
-  for prediction in result['predictions']:
-    prediction['outputs'] = decoder.decode(prediction['outputs'])
-
-  print(json.dumps(result))
