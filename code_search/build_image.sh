@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+##
+# This script builds and pushes a Docker image containing
+# "app" to Google Container Registry. It automatically tags
+# a unique image for every run.
+#
+
 set -ex
 
 PROJECT=${PROJECT:-}
@@ -17,7 +23,7 @@ BUILD_IMAGE_TAG="code-search:v$(date +%Y%m%d)$([[ ${GPU} = "1" ]] && echo '-gpu'
 # Directory of this script used as docker context
 _SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-pushd "$_SCRIPT_DIR"
+pushd "${_SCRIPT_DIR}/app"
 
 docker build -t ${BUILD_IMAGE_TAG} --build-arg BASE_IMAGE_TAG=${BASE_IMAGE_TAG} .
 

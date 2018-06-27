@@ -3,10 +3,10 @@ from setuptools import setup, find_packages
 with open('requirements.txt', 'r') as f:
   install_requires = f.readlines()
 
-VERSION = '0.1.0'
+VERSION = '0.0.1'
 
-setup(name='code-search-index-server',
-      description='Kubeflow Code Search Demo - Index Server',
+setup(name='code-search',
+      description='Kubeflow Code Search Demo',
       url='https://www.github.com/kubeflow/examples',
       author='Sanyam Kapoor',
       author_email='sanyamkapoor@google.com',
@@ -17,7 +17,7 @@ setup(name='code-search-index-server',
       extras_require={},
       entry_points={
         'console_scripts': [
-          'nmslib-serve=nmslib_flask.cli:server',
-          'nmslib-create=nmslib_flask.cli:creator',
+          'nmslib-serve=code_search.nmslib.cli:server',
+          'nmslib-create=code_search.nmslib.cli:creator',
         ]
       })
