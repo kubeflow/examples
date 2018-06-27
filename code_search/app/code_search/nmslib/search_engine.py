@@ -1,7 +1,7 @@
+import json
+import requests
 import nmslib
 import numpy as np
-import requests
-import json
 from tensor2tensor import problems  # pylint: disable=unused-import
 from code_search.t2t.query import get_encoder_decoder, encode_query
 
@@ -9,7 +9,7 @@ from code_search.t2t.query import get_encoder_decoder, encode_query
 class CodeSearchEngine:
   """This is a utility class which takes an nmslib
   index file and a data file to return data from"""
-  def __init__(self, problem_name:str, data_dir: str, serving_url: str,
+  def __init__(self, problem_name: str, data_dir: str, serving_url: str,
                index_file: str):
     self._serving_url = serving_url
     self._problem_name = problem_name
