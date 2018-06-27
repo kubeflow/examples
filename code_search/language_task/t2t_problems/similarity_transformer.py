@@ -13,10 +13,6 @@ class SimilarityTransformer(t2t_model.T2TModel):
   docstrings
   """
 
-  def __init__(self, *args, **kwargs):
-    super(SimilarityTransformer, self).__init__(*args, **kwargs)
-
-
   def body(self, features):
     # TODO: need to fill this with Transformer encoder/decoder
     # and loss calculation
