@@ -1,2 +1,1 @@
-from . import function_summarizer
-from . import docstring_lm
+import code_search.t2t.similarity_transformer
