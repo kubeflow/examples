@@ -1,6 +1,18 @@
 {
-  parts(params, env):: [
-    {
+  all(params, env):: [
+    $.parts(params, env).service,
+    $.parts(params, env).deployment,
+  ],
+
+  parts(params, env):: {
+    // Define some defaults.
+    local updatedParams = {
+      serviceType: "ClusterIP",
+      image: "gcr.io/kubeflow-images-public/issue-summarization-ui:latest",
+      modelUrl: "http://issue-summarization.kubeflow.svc.cluster.local:8000/api/v0.1/predictions",
+    } + params,
+
+    service:: {
       apiVersion: "v1",
       kind: "Service",
       metadata: {
@@ -20,10 +32,11 @@
         selector: {
           app: "issue-summarization-ui",
         },
-        type: "ClusterIP",
+        type: updatedParams.serviceType,
       },
     },
-    {
+
+    deployment:: {
       apiVersion: "apps/v1beta1",
       kind: "Deployment",
       metadata: {
@@ -41,11 +54,19 @@
           spec: {
             containers: [
               {
-                image: "gcr.io/kubeflow-images-public/issue-summarization-ui:latest",
+                args: [
+                  "app.py",
+                  "--model_url",
+                  updatedParams.modelUrl,
+                ],
+                command: [
+                  "python",
+                ],
+                image: updatedParams.image,
 		env: [
 		{
 		  name: "GITHUB_TOKEN",
-		  value: params.github_token,
+		  value: updatedParams.githubToken,
 		}
 		],
                 name: "issue-summarization-ui",
@@ -59,6 +80,6 @@
           },
         },
       },
-    },
-  ],
+    }, // deployment
+  }, // parts
 }
