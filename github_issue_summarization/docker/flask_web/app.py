@@ -2,6 +2,8 @@
 Simple app that parses predictions from a trained model and displays them.
 """
 
+import argparse
+import logging
 import os
 import re
 import random
@@ -76,7 +78,7 @@ if __name__ == '__main__':
   parser = argparse.ArgumentParser()
   parser.add_argument(
     "--model_url",
-    default="http://issue-summarization.kubeflow.svc.cluster.local:8000/api/v0.1/predictions"
+    default="http://issue-summarization.kubeflow.svc.cluster.local:8000/api/v0.1/predictions",
     type=str)
   parser.add_argument(
     "--port",
