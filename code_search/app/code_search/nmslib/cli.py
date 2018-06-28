@@ -1,3 +1,12 @@
+"""
+This module serves as the entrypoint to either create an nmslib index or
+start a Flask server to serve the index via a simple REST interface. It
+internally talks to TF Serving for inference related tasks. The
+two entrypoints `server` and `creator` are exposed as `nmslib-create`
+and `nmslib-serve` binaries (see `setup.py`). Use `-h` to get a list
+of input CLI arguments to both.
+"""
+
 import sys
 import os
 import argparse
@@ -53,7 +62,6 @@ def server():
 
   # Download relevant files if needed
   index_file = maybe_download_gcs_file(args.index_file, args.tmp_dir)
-  # data_file = maybe_download_gcs_file(args.data_file, args.tmp_dir)
 
   search_engine = CodeSearchEngine(args.problem, args.data_dir, args.serving_url,
                                    index_file)
