@@ -56,7 +56,13 @@
       name: "gh",
     },
     tfjob: {
+      image: "gcr.io/kubeflow-dev/tf-job-issue-summarization:v20180425-e79f888",
+      input_data_gcs_bucket: "kubeflow-examples",
+      input_data_gcs_path: "github-issue-summarization-data/github-issues.zip",
       namespace: "null",
+      output_model_gcs_bucket: "kubeflow-examples",
+      output_model_gcs_path: "github-issue-summarization-data/output_model.h5",
+      sample_size: "100000"
     },
     "tfjob-pvc": {
       image: "gcr.io/kubeflow-dev/tf-job-issue-summarization:v20180425-e79f888",

@@ -1,5 +1,10 @@
 {
-  parts(params, env):: [
+  all(params, env):: [
+    $.parts(params, env).service,
+    $.parts(params, env).deployment,
+  ],
+
+  parts(params, env):: {
     // Define some defaults.
     local updatedParams = {
       service_type: "ClusterIP",
@@ -7,7 +12,7 @@
       model_url: "http://issue-summarization.kubeflow.svc.cluster.local:8000/api/v0.1/predictions",
     } + params,
 
-    {
+    service:: {
       apiVersion: "v1",
       kind: "Service",
       metadata: {
@@ -30,7 +35,8 @@
         type: updatedParams.service_type,
       },
     },
-    {
+
+    deployment:: {
       apiVersion: "apps/v1beta1",
       kind: "Deployment",
       metadata: {
@@ -74,6 +80,6 @@
           },
         },
       },
-    },
-  ],
+    }, // deployment
+  }, // parts
 }

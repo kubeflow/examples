@@ -4,4 +4,4 @@ local k = import "k.libsonnet";
 
 local ui = import "ui.libsonnet";
 
-std.prune(k.core.v1.list.new(ui.parts(params, env)))
+std.prune(k.core.v1.list.new(ui.all(params, env)))
