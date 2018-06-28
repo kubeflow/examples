@@ -46,11 +46,10 @@ def summary():
     issue_url = request.form["issue_url"]
     if issue_url:
       issue_text = get_issue_body(issue_url)
-    url = "http://issue-summarization.kubeflow.svc.cluster.local:8000/api/v0.1/predictions"
     headers = {'content-type': 'application/json'}
     json_data = {"data": {"ndarray": [[issue_text]]}}
     response = requests.post(
-      url=url, headers=headers, data=json.dumps(json_data))
+      url=args.model_url, headers=headers, data=json.dumps(json_data))
     response_json = json.loads(response.text)
     issue_summary = response_json["data"]["ndarray"][0][0]
     return jsonify({'summary': issue_summary, 'body': issue_text})
@@ -72,4 +71,17 @@ def random_github_issue():
 
 
 if __name__ == '__main__':
-  APP.run(debug=True, host='0.0.0.0', port=80)
+  logger = logging.getLogger()
+  logger.setLevel(logging.INFO)
+  parser = argparse.ArgumentParser()
+  parser.add_argument(
+    "--model_url",
+    default="http://issue-summarization.kubeflow.svc.cluster.local:8000/api/v0.1/predictions"
+    type=str)
+  parser.add_argument(
+    "--port",
+    default=80,
+    type=int)
+  args = parser.parse_args()
+  logger.info("Serving the web app")
+  APP.run(debug=True, host='0.0.0.0', port=args.port)
