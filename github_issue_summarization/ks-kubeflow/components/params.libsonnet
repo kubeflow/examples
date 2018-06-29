@@ -90,5 +90,6 @@
     "tensor2tensor-v1alpha2": {
       name: "tensor2tensor-v1alpha2",
     },
+    "data-downloader": {},
   },
 }
