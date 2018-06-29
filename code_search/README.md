@@ -63,10 +63,9 @@ Results are saved back into a BigQuery table.
 
 * Execute the `Dataflow` job
 ```
-$ python preprocess/scripts/process_github_archive.py -i files/select_github_archive.sql \
-         -o code_search:function_docstrings -p kubeflow-dev -j process-github-archive \
-         --storage-bucket gs://kubeflow-dev --machine-type n1-highcpu-32 --num-workers 16 \
-         --max-num-workers 16
+$ python preprocess/scripts/process_github_archive.py -p kubeflow-dev -j process-github-archive \
+  --storage-bucket gs://kubeflow-examples/t2t-code-search -o code_search:function_docstrings \
+  --machine-type n1-highcpu-32 --num-workers 16 --max-num-workers 16
 ```
 
 ## 2. Model Training

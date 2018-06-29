@@ -117,7 +117,7 @@ class ProcessGithubFiles(beam.PTransform):
                          'function_tokens', 'docstring_tokens']
     self.data_types = ['STRING', 'STRING', 'STRING', 'INTEGER', 'STRING', 'STRING', 'STRING']
 
-    self.num_shards = 1
+    self.num_shards = 10
 
   def expand(self, input_or_inputs):
     tokenize_result = (input_or_inputs
@@ -156,15 +156,11 @@ class ProcessGithubFiles(beam.PTransform):
 
     # pylint: disable=expression-not-assigned
     (processed_rows
-     | "Filter Function tokens" >> beam.Map(lambda x: x['function_tokens'])
-     | "Write Function tokens" >> io.WriteToText('{}/raw_data/data'.format(self.storage_bucket),
-                                                 file_name_suffix='.function',
-                                                 num_shards=self.num_shards))
-    (processed_rows
-     | "Filter Docstring tokens" >> beam.Map(lambda x: x['docstring_tokens'])
-     | "Write Docstring tokens" >> io.WriteToText('{}/raw_data/data'.format(self.storage_bucket),
-                                                  file_name_suffix='.docstring',
-                                                  num_shards=self.num_shards))
+     | "Filter Tiny Docstrings" >> beam.Filter(lambda row: len(row['docstring_tokens'].split(' ')) > 5)
+     | "Format For Write" >> beam.Map(self.format_for_write)
+     | "Write To File" >> io.WriteToText('{}/data/'.format(self.storage_bucket),
+                                         file_name_suffix='.csv',
+                                         num_shards=self.num_shards))
     # pylint: enable=expression-not-assigned
 
     return (processed_rows
@@ -173,6 +169,21 @@ class ProcessGithubFiles(beam.PTransform):
                                                   table=self.output_table,
                                                   schema=self.create_output_schema())
     )
+
+  def format_for_write(self, row):
+    """This method filters keys that we don't need in the
+    final CSV. It must ensure that there are no multi-line
+    column fields. For instance, 'original_function' is a
+    multi-line string and makes CSV parsing hard for any
+    derived Dataflow steps"""
+
+    filter_keys = [
+        'original_function',
+        'lineno',
+    ]
+    target_keys = filter(lambda col: col not in filter_keys, self.data_columns)
+    target_values = [row[key] for key in target_keys]
+    return ','.join(target_values)
 
   def create_output_schema(self):
     table_schema = bigquery.TableSchema()
