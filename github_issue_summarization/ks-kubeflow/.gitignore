@@ -1,0 +1,6 @@
+/lib
+/.ksonnet/registries
+/app.override.yaml
+/.ks_environment
+# Ignore all environments? Do we want to check in dev.kubeflow.org?
+/environments

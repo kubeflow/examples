@@ -86,11 +86,11 @@ $ gcloud auth configure-docker
 
 * Build and push the image
 ```
-$ PROJECT=my-project ./language_task/build_image.sh
+$ PROJECT=my-project ./build_image.sh
 ```
 and a GPU image
 ```
-$ GPU=1 PROJECT=my-project ./language_task/build_image.sh
+$ GPU=1 PROJECT=my-project ./build_image.sh
 ```
 
 See [GCR Pushing and Pulling Images](https://cloud.google.com/container-registry/docs/pushing-and-pulling) for more.
