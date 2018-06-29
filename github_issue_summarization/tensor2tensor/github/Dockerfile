@@ -6,7 +6,7 @@ ARG BASE_IMAGE=gcr.io/kubeflow-images-public/tensorflow-1.7.0-notebook-gpu:lates
 FROM $BASE_IMAGE
 
 # Install pip packages as user jovyan
-RUN pip install tensor2tensor h5py
+RUN pip install tensor2tensor==1.6.6 h5py
 
 USER root
 

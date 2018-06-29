@@ -5,7 +5,6 @@ local env = std.extVar("__ksonnet/environments");
 local params = std.extVar("__ksonnet/params").components["data-pvc"];
 local k = import "k.libsonnet";
 
-
 local pvc = {
   apiVersion: "v1",
   kind: "PersistentVolumeClaim",

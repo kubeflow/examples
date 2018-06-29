@@ -10,16 +10,18 @@ local updatedParams = {
   sync: "0",
 
   dataDir: "gs://kubeflow-examples-data/gh_issue_summarization/data",
-  usrDir: "./github",
+  // usrDir needs to match the directory inside the container where the problem is defined.
+  usrDir: "/home/jovyan/github",
   problem: "github_issue_summarization_problem",
 
   model: "transformer_encoder",
   hparams: "transformer_github_issues",
   hparamsSet: "transformer_github_issues",
+  // Set this to the path you want to write to.
   outputGCSPath: "gs://kubecon-gh-demo/gh-t2t-out/temp",
 
   gpuImage: null,
-  cpuImage: "gcr.io/kubeflow-examples/issue-summarization-t2t-trainer-cpu:v20180629-v0.1-2-g4e8b4cb",
+  cpuImage: "gcr.io/kubeflow-examples/issue-summarization-t2t-trainer-cpu:v20180629-v0.1-3-g6e7dfda-dirty-6804c5",
 
   trainSteps: 20000,
   evalSteps: 10,
@@ -31,6 +33,9 @@ local updatedParams = {
   masters: 1,
   ps: 1,
 
+  gcpSecretFile: "user-gcp-sa.json",
+  gcpSecretName: "user-gcp-sa",
+
   jobName: "tensor2tensor",
 } + params;
 
@@ -38,6 +43,10 @@ local containerEnv = [
   {
     name: "PYTHONPATH",
     value: "/home/jovyan",
+  },
+  {
+    name: "GOOGLE_APPLICATION_CREDENTIALS",
+    value: "/secret/gcp-credentials/" + updatedParams.gcpSecretFile,
   },
 ];
 
@@ -77,6 +86,23 @@ local masterCommand = workerBaseCommand + [
   "--worker_job=/job:master",
 ];
 
+local volumeMounts = [
+  {
+    name: "gcp-credentials",
+    mountPath: "/secret/gcp-credentials",
+    readOnly: true,
+  },
+];
+
+local volumes = [
+  {
+    name: "gcp-credentials",
+    secret: {
+      secretName: updatedParams.gcpSecretName,
+    },
+  },
+];
+
 local tfjob = {
   apiVersion: "kubeflow.org/v1alpha2",
   kind: "TFJob",
@@ -96,6 +122,7 @@ local tfjob = {
                 name: "tensorflow",
                 command: masterCommand,
                 env: containerEnv,
+                volumeMounts: volumeMounts,
                 resources: if updatedParams.workerGpu > 0 then {
                   limits: {
                     "nvidia.com/gpu": updatedParams.workerGpu,
@@ -103,6 +130,7 @@ local tfjob = {
                 } else null,
               },
             ],
+            volumes: volumes,
             restartPolicy: "OnFailure",
           },
         },
@@ -118,6 +146,7 @@ local tfjob = {
                 name: "tensorflow",
                 command: workerCommand,
                 env: containerEnv,
+                volumeMounts: volumeMounts,
                 resouces:
                   if updatedParams.workerGpu > 0 then {
                     limits: {
@@ -126,6 +155,7 @@ local tfjob = {
                   } else null,
               },
             ],
+            volumes: volumes,
             restartPolicy: "OnFailure",
           },
         },
@@ -140,8 +170,10 @@ local tfjob = {
                 name: "tensorflow",
                 command: psCommand,
                 env: containerEnv,
+                volumeMounts: volumeMounts,
               },
             ],
+            volumes: volumes,
             restartPolicy: "OnFailure",
           },
         },
