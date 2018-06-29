@@ -87,5 +87,8 @@
       tfJobVersion: "v1alpha2",
       usageId: "unknown_cluster",
     },
+    "tensor2tensor-v1alpha2": {
+      name: "tensor2tensor-v1alpha2",
+    },
   },
 }
