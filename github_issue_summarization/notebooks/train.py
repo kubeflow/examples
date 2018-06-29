@@ -276,12 +276,10 @@ def main():  # pylint: disable=too-many-statements
     storage.Blob(
       output_model_gcs_path + "/" + args.output_model_h5, bucket).upload_from_filename(
       args.output_model_h5)
-    storage.Blob(
-      output_model_gcs_path + "/" + args.output_body_preprocessor_dpkl, bucket).upload_from_filename(
-      args.output_body_preprocessor_dpkl)
-    storage.Blob(
-      output_model_gcs_path + "/" + args.output_title_preprocessor_dpkl, bucket).upload_from_filename(
-      args.output_title_preprocessor_dpkl)
+    storage.Blob(output_model_gcs_path + "/" + args.output_body_preprocessor_dpkl,
+                 bucket).upload_from_filename(args.output_body_preprocessor_dpkl)
+    storage.Blob(output_model_gcs_path + "/" + args.output_title_preprocessor_dpkl,
+                 bucket).upload_from_filename(args.output_title_preprocessor_dpkl)
 
 
 if __name__ == '__main__':
