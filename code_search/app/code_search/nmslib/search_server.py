@@ -1,10 +1,11 @@
 from flask import Flask, request, abort, jsonify, make_response
+from code_search.nmslib.search_engine import CodeSearchEngine
 
 
 class CodeSearchServer:
   """This utility class wraps the search engine into
   an HTTP server based on Flask"""
-  def __init__(self, engine, host='0.0.0.0', port=8008):
+  def __init__(self, engine: CodeSearchEngine, host='0.0.0.0', port=8008):
     self.app = Flask(__name__)
     self.host = host
     self.port = port
@@ -24,7 +25,7 @@ class CodeSearchServer:
         abort(make_response(
           jsonify(status=400, error="empty query"), 400))
 
-      result = self.engine.search(query_str)
+      result = self.engine.query(query_str)
       return make_response(jsonify(result=result))
 
   def run(self):
