@@ -72,14 +72,11 @@ def main():  # pylint: disable=too-many-statements
     default="",
     help="The output location for the model GCS or local file path.")
 
-  # TODO(jlewi): We should get rid of the following arguments and just use
-  # --output_model_h5. If the output is a gs:// location we should use
-  # a local file and then upload it to GCS.
   parser.add_argument("--output_model_gcs_bucket", type=str, default="")
   parser.add_argument(
     "--output_model_gcs_path",
     type=str,
-    default="github-issue-summarization-data/output_model.h5")
+    default="github-issue-summarization-data")
 
   parser.add_argument(
     "--output_body_preprocessor_dpkl",
@@ -273,11 +270,18 @@ def main():  # pylint: disable=too-many-statements
         args.output_model)
 
   if output_model_gcs_bucket:
-    logging.info("Uploading model to bucket %s path %s.",
+    logging.info("Uploading model files to bucket %s path %s.",
                  output_model_gcs_bucket, output_model_gcs_path)
     bucket = storage.Bucket(storage.Client(), output_model_gcs_bucket)
-    storage.Blob(output_model_gcs_path, bucket).upload_from_filename(
+    storage.Blob(
+      output_model_gcs_path + "/" + args.output_model_h5, bucket).upload_from_filename(
       args.output_model_h5)
+    storage.Blob(
+      output_model_gcs_path + "/" + args.output_body_preprocessor_dpkl, bucket).upload_from_filename(
+      args.output_body_preprocessor_dpkl)
+    storage.Blob(
+      output_model_gcs_path + "/" + args.output_title_preprocessor_dpkl, bucket).upload_from_filename(
+      args.output_title_preprocessor_dpkl)
 
 
 if __name__ == '__main__':
