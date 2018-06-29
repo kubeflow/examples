@@ -1,30 +1,9 @@
 {
-  global: {
-    // User-defined global parameters; accessible to all component and environments, Ex:
-    // replicas: 4,
-  },
+  global: {},
   components: {
     // Component-level parameters, defined initially from 'ks prototype use ...'
     // Each object below should correspond to a component in the components/ directory
-    "data-pvc": {
-    },
-
-    "kubeflow-core": {
-      cloud: "null",
-      disks: "null",
-      jupyterHubAuthenticator: "null",
-      jupyterHubImage: "gcr.io/kubeflow/jupyterhub-k8s:1.0.1",
-      jupyterHubServiceType: "ClusterIP",
-      jupyterNotebookPVCMount: "/home/jovyan/work",
-      name: "kubeflow-core",
-      namespace: "null",
-      reportUsage: "true",
-      tfAmbassadorServiceType: "ClusterIP",
-      tfDefaultImage: "null",
-      tfJobImage: "gcr.io/kubeflow-images-public/tf_operator:v20180329-a7511ff",
-      tfJobUiServiceType: "ClusterIP",
-      usageId: "7cf1496f-7c67-4dc4-8ce5-1e28f3e03bcd",
-    },
+    "data-pvc": {},
     seldon: {
       apifeImage: "seldonio/apife:0.1.5",
       apifeServiceType: "NodePort",
@@ -47,10 +26,10 @@
     tensor2tensor: {
       cpuImage: "gcr.io/kubeflow-examples/issue-summarization-t2t-trainer-cpu:v20180428-9da5cb7-dirty-4e1f35",
       namespace: "null",
-    },    
+    },
     tensorboard: {
       image: "tensorflow/tensorflow:1.7.0",
-      // logDir needs to be overwritten based on where the data is 
+      // logDir needs to be overwritten based on where the data is
       // actually stored.
       logDir: "",
       name: "gh",
@@ -62,7 +41,7 @@
       namespace: "null",
       output_model_gcs_bucket: "kubeflow-examples",
       output_model_gcs_path: "github-issue-summarization-data/output_model.h5",
-      sample_size: "100000"
+      sample_size: "100000",
     },
     "tfjob-pvc": {
       image: "gcr.io/kubeflow-dev/tf-job-issue-summarization:v20180425-e79f888",
@@ -73,6 +52,44 @@
     },
     ui: {
       namespace: "null",
+      githubToken: "",
     },
+    "tfjob-v1alpha2": {
+      name: "tfjob-v1alpha2",
+      image: "gcr.io/kubeflow-dev/tf-job-issue-summarization:v20180425-e79f888",
+      input_data_gcs_bucket: "kubeflow-examples",
+      input_data_gcs_path: "github-issue-summarization-data/github-issues.zip",
+      output_model_gcs_bucket: "kubeflow-examples",
+      output_model_gcs_path: "github-issue-summarization-data/output_model.h5",
+      sample_size: "100000",
+      gcpSecretName: "user-gcp-sa",
+      gcpSecretFile: "user-gcp-sa.json",
+    },
+    "kubeflow-core": {
+      AmbassadorImage: "quay.io/datawire/ambassador:0.30.1",
+      AmbassadorServiceType: "ClusterIP",
+      StatsdImage: "quay.io/datawire/statsd:0.30.1",
+      centralUiImage: "gcr.io/kubeflow-images-public/centraldashboard:v20180618-v0.2.0-rc.0-5-g715aafc8-e3b0c4",
+      cloud: "null",
+      disks: "null",
+      jupyterHubAuthenticator: "null",
+      jupyterHubImage: "gcr.io/kubeflow/jupyterhub-k8s:v20180531-3bb991b1",
+      jupyterHubServiceType: "ClusterIP",
+      jupyterNotebookPVCMount: "null",
+      jupyterNotebookRegistry: "gcr.io",
+      jupyterNotebookRepoName: "kubeflow-images-public",
+      name: "kubeflow-core",
+      namespace: "null",
+      reportUsage: "false",
+      tfDefaultImage: "null",
+      tfJobImage: "gcr.io/kubeflow-images-public/tf_operator:v0.2.0",
+      tfJobUiServiceType: "ClusterIP",
+      tfJobVersion: "v1alpha2",
+      usageId: "unknown_cluster",
+    },
+    "tensor2tensor-v1alpha2": {
+      name: "tensor2tensor-v1alpha2",
+    },
+    "data-downloader": {},
   },
 }
