@@ -91,5 +91,8 @@
       name: "tensor2tensor-v1alpha2",
     },
     "data-downloader": {},
+    "tfjob-pvc-v1alpha2": {
+      name: "tfjob-pvc-v1alpha2",
+    },
   },
 }
