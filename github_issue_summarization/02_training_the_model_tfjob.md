@@ -53,7 +53,7 @@ and the resulting model.
 
 * Give the storage account `roles/storage.admin` role so that it can access GCS Buckets.
 
-* Download its key as a json file and create a secret named `gcp-credentials` with the key `key.json`
+* Download its key as a json file and create a secret named `user-gcp-sa` with the key `user-gcp-sa.json`
 
 ```commandline
 SERVICE_ACCOUNT=github-issue-summarization
@@ -68,7 +68,7 @@ KEY_FILE=/home/agwl/secrets/${SERVICE_ACCOUNT}@${PROJECT}.iam.gserviceaccount.co
 gcloud iam service-accounts keys create ${KEY_FILE} \
   --iam-account ${SERVICE_ACCOUNT}@${PROJECT}.iam.gserviceaccount.com
 
-kubectl --namespace=${NAMESPACE} create secret generic gcp-credentials --from-file=key.json="${KEY_FILE}"
+kubectl --namespace=${NAMESPACE} create secret generic user-gcp-sa --from-file=user-gcp-sa.json="${KEY_FILE}"
 ```
 
 

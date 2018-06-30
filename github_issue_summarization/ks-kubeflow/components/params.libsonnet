@@ -63,8 +63,8 @@
       output_model_gcs_bucket: "kubeflow-examples",
       output_model_gcs_path: "github-issue-summarization-data",
       sample_size: "100000",
-      gcpSecretName: "gcp-credentials",
-      gcpSecretFile: "key.json",
+      gcpSecretName: "user-gcp-sa",
+      gcpSecretFile: "user-gcp-sa.json",
     },
     "kubeflow-core": {
       AmbassadorImage: "quay.io/datawire/ambassador:0.30.1",
