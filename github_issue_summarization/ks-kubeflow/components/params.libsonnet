@@ -56,7 +56,7 @@
     },
     "tfjob-v1alpha2": {
       name: "tfjob-issue-summarization",
-      image: "gcr.io/kubeflow-examples/tf-job-issue-summarization:latest",
+      image: "gcr.io/kubeflow-examples/tf-job-issue-summarization:v20180629-v0.1-2-g98ed4b4-dirty-7d26e4",
       input_data_gcs_bucket: "kubeflow-examples",
       input_data_gcs_path: "github-issue-summarization-data/github-issues.zip",
       output_model_gcs_bucket: "kubeflow-examples",
