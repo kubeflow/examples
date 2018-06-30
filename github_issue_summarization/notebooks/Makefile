@@ -35,7 +35,7 @@ DIR := $(shell pwd)
 
 # Use a subdirectory of the root directory
 # this way it will be excluded by git diff-files
-BUILD_DIR := $(shell cd ../build/notebook_build && pwd)
+BUILD_DIR := $(pwd)
 
 MODEL_GCS := gs://kubeflow-examples-data/gh_issue_summarization/model/v20180426
 # You can override this on the command line as
