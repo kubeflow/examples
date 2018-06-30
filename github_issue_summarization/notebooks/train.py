@@ -81,16 +81,17 @@ def main():  # pylint: disable=too-many-statements
   parser.add_argument(
     "--output_body_preprocessor_dpkl",
     type=str,
-    default="body_preprocessor.dpkl")
+    default="body_pp.dpkl")
   parser.add_argument(
     "--output_title_preprocessor_dpkl",
     type=str,
-    default="title_preprocessor.dpkl")
+    default="title_pp.dpkl")
   parser.add_argument(
     "--output_train_title_vecs_npy", type=str, default="train_title_vecs.npy")
   parser.add_argument(
     "--output_train_body_vecs_npy", type=str, default="train_body_vecs.npy")
-  parser.add_argument("--output_model_h5", type=str, default="output_model.h5")
+  parser.add_argument(
+    "--output_model_h5", type=str, default="seq2seq_model_tutorial.h5")
 
   args = parser.parse_args()
 
