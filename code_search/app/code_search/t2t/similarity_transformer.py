@@ -1,8 +1,11 @@
 import os
+import csv
 import tensorflow as tf
 from tensor2tensor.utils import t2t_model
 from tensor2tensor.utils import registry
+from tensor2tensor.data_generators import problem
 from tensor2tensor.data_generators import text_problems
+from tensor2tensor.layers import common_layers
 from tensor2tensor.models import transformer
 
 
@@ -17,20 +20,20 @@ class SimilarityTransformer(t2t_model.T2TModel):
   def __init__(self, *args, **kwargs):
     super(SimilarityTransformer, self).__init__(*args, **kwargs)
 
-    self.code_transformer = transformer.TransformerEncoder(*args, **kwargs)
-    self.docstring_transformer = transformer.TransformerEncoder(*args, **kwargs)
-
   def body(self, features):
     """The body of this model takes in features
     of code and docstring pairs, embeds & computes a
     similarity probability and computes the loss as
     standard cross entropy loss
     """
-    string_embedding = self.code_transformer(features['inputs'])
+    with tf.variable_scope("string_embedding"):
+      string_embedding = self.encode(features, 'inputs')
 
     loss = None
     if 'targets' in features:
-      code_embedding = self.docstring_transformer(features['targets'])
+      with tf.variable_scope("code_embedding"):
+        code_embedding = self.encode(features, 'targets')
+
       cosine_dist = tf.losses.cosine_distance(tf.nn.l2_normalize(string_embedding, axis=1),
                                               tf.nn.l2_normalize(code_embedding, axis=1),
                                               axis=1, reduction=tf.losses.Reduction.NONE)
@@ -46,6 +49,25 @@ class SimilarityTransformer(t2t_model.T2TModel):
 
     return string_embedding
 
+  def encode(self, features, input_key):
+    inputs = common_layers.flatten4d3d(features[input_key])
+
+    (encoder_input, encoder_self_attention_bias, _) = (
+        transformer.transformer_prepare_encoder(inputs, problem.SpaceID.EN_TOK, self._hparams))
+
+    encoder_input = tf.nn.dropout(encoder_input,
+                                  1.0 - self._hparams.layer_prepostprocess_dropout)
+    encoder_output = transformer.transformer_encoder(
+        encoder_input,
+        encoder_self_attention_bias,
+        self._hparams,
+        nonpadding=transformer.features_to_nonpadding(features, input_key))
+    encoder_output = tf.expand_dims(encoder_output, 2)
+
+    # TODO: compute embedding from a sequence of embedding vectors
+
+    return encoder_output
+
 
 @registry.register_problem
 class GithubFunctionDocstring(text_problems.Text2TextProblem):
@@ -58,10 +80,18 @@ class GithubFunctionDocstring(text_problems.Text2TextProblem):
   def is_generate_per_split(self):
     return False
 
+  @property
+  def approx_vocab_size(self):
+    return 2**13
+
   def generate_samples(self, data_dir, _tmp_dir, dataset_split):  #pylint: disable=no-self-use
     """This method returns the generator to return {"inputs": [text], "targets": [text]} dict"""
 
-    docstrings_file_path = os.path.join(data_dir, '{}.docstring'.format(dataset_split))
-    functions_file_path = os.path.join(data_dir, '{}.function'.format(dataset_split))
+    # TODO: separate train/eval data set
+    pairs_file_path= os.path.join(data_dir, 'pairs.csv')
 
-    return text_problems.text2text_txt_iterator(docstrings_file_path, functions_file_path)
+    with open(pairs_file_path, 'r') as csv_file:
+      pairs_reader = csv.reader(csv_file)
+      for i, row in enumerate(pairs_reader):
+        function_tokens, docstring_tokens = row[-2:]
+        yield {"inputs": docstring_tokens, "targets": function_tokens}

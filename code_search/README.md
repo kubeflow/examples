@@ -101,23 +101,13 @@ See [GCR Pushing and Pulling Images](https://cloud.google.com/container-registry
 
 #### 2.2.1 Function Summarizer
 
-This part generates a model to summarize functions into docstrings using the data generated in previous
-step. It uses `tensor2tensor`.
-
-* Generate `TFRecords` for training
-```
-$ export MOUNT_DATA_DIR=/path/to/data/folder
-$ docker run --rm -it -v ${MOUNT_DATA_DIR}:/data ${BUILD_IMAGE_TAG} \
-    t2t-datagen --problem=github_function_summarizer --data_dir=/data
-```
-
 * Train transduction model using `Tranformer Networks` and a base hyper-parameters set
 ```
 $ export MOUNT_DATA_DIR=/path/to/data/folder
 $ export MOUNT_OUTPUT_DIR=/path/to/output/folder
 $ docker run --rm -it -v ${MOUNT_DATA_DIR}:/data -v ${MOUNT_OUTPUT_DIR}:/output ${BUILD_IMAGE_TAG} \
-    t2t-trainer --problem=github_function_summarizer --data_dir=/data --output_dir=/output \
-                --model=transformer --hparams_set=transformer_base
+    --generate_data --problem=github_function_docstring --data_dir=/data --output_dir=/output \
+    --model=similarity_transformer --hparams_set=transformer_base
 ```
 
 ### 2.2 Train on Kubeflow

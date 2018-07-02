@@ -1,1 +1,1 @@
-import code_search.t2t.similarity_transformer
+from . import similarity_transformer
