@@ -156,9 +156,10 @@ class ProcessGithubFiles(beam.PTransform):
 
     # pylint: disable=expression-not-assigned
     (processed_rows
-     | "Filter Tiny Docstrings" >> beam.Filter(lambda row: len(row['docstring_tokens'].split(' ')) > 5)
+     | "Filter Tiny Docstrings" >> beam.Filter(
+        lambda row: len(row['docstring_tokens'].split(' ')) > 5)
      | "Format For Write" >> beam.Map(self.format_for_write)
-     | "Write To File" >> io.WriteToText('{}/data/'.format(self.storage_bucket),
+     | "Write To File" >> io.WriteToText('{}/data/pairs'.format(self.storage_bucket),
                                          file_name_suffix='.csv',
                                          num_shards=self.num_shards))
     # pylint: enable=expression-not-assigned
@@ -181,7 +182,7 @@ class ProcessGithubFiles(beam.PTransform):
         'original_function',
         'lineno',
     ]
-    target_keys = filter(lambda col: col not in filter_keys, self.data_columns)
+    target_keys = [col for col in self.data_columns if col not in filter_keys]
     target_values = [row[key] for key in target_keys]
     return ','.join(target_values)
 

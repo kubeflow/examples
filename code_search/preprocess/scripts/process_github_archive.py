@@ -1,7 +1,7 @@
 from __future__ import print_function
 import argparse
-import apache_beam as beam
 import os
+import apache_beam as beam
 
 from preprocess.pipeline import create_pipeline_opts, ProcessGithubFiles
 
