@@ -1,7 +1,10 @@
-import os
-from tensor2tensor.utils import t2t_model
+"""Using Transformer Networks for String similarities."""
+from tensor2tensor.data_generators import problem
+from tensor2tensor.layers import common_layers
+from tensor2tensor.models import transformer
 from tensor2tensor.utils import registry
-from tensor2tensor.data_generators import text_problems
+from tensor2tensor.utils import t2t_model
+import tensorflow as tf
 
 
 @registry.register_model
@@ -9,31 +12,56 @@ class SimilarityTransformer(t2t_model.T2TModel):
   # pylint: disable=abstract-method
 
   """
-  This class defines the model to compute similarity scores between functions and
-  docstrings
+  This class defines the model to compute similarity scores between functions
+  and docstrings
   """
 
   def body(self, features):
-    # TODO: need to fill this with Transformer encoder/decoder
-    # and loss calculation
-    raise NotImplementedError
+    """Body of the Similarity Transformer Network."""
 
+    with tf.variable_scope('string_embedding'):
+      string_embedding = self.encode(features, 'inputs')
 
-@registry.register_problem
-class GithubFunctionDocstring(text_problems.Text2TextProblem):
-  # pylint: disable=abstract-method
+    loss = None
+    if 'targets' in features:
+      with tf.variable_scope('code_embedding'):
+        code_embedding = self.encode(features, 'targets')
 
-  """This class defines the problem of finding similarity between Python function
-   and docstring"""
+      cosine_dist = tf.losses.cosine_distance(
+          tf.nn.l2_normalize(string_embedding, axis=1),
+          tf.nn.l2_normalize(code_embedding, axis=1),
+          axis=1, reduction=tf.losses.Reduction.NONE)
 
-  @property
-  def is_generate_per_split(self):
-    return False
+      # TODO(sanyamkapoor): need negative sampling, won't be all ones anymore.
+      labels = tf.one_hot(tf.ones(
+          tf.shape(features['targets'])[0], tf.int32), 2)
+      logits = tf.concat([cosine_dist, 1 - cosine_dist], axis=1)
 
-  def generate_samples(self, data_dir, _tmp_dir, dataset_split):  #pylint: disable=no-self-use
-    """This method returns the generator to return {"inputs": [text], "targets": [text]} dict"""
+      loss = tf.nn.sigmoid_cross_entropy_with_logits(labels=labels,
+                                                     logits=logits)
 
-    functions_file_path = os.path.join(data_dir, '{}.function'.format(dataset_split))
-    docstrings_file_path = os.path.join(data_dir, '{}.docstring'.format(dataset_split))
+    if loss is not None:
+      return string_embedding, loss
 
-    return text_problems.text2text_txt_iterator(functions_file_path, docstrings_file_path)
+    return string_embedding
+
+  def encode(self, features, input_key):
+    hparams = self._hparams
+    inputs = common_layers.flatten4d3d(features[input_key])
+
+    (encoder_input, encoder_self_attention_bias, _) = (
+        transformer.transformer_prepare_encoder(inputs, problem.SpaceID.EN_TOK,
+                                                self._hparams))
+
+    encoder_input = tf.nn.dropout(encoder_input,
+                                  1.0 - hparams.layer_prepostprocess_dropout)
+    encoder_output = transformer.transformer_encoder(
+        encoder_input,
+        encoder_self_attention_bias,
+        self._hparams,
+        nonpadding=transformer.features_to_nonpadding(features, input_key))
+    encoder_output = tf.expand_dims(encoder_output, 2)
+
+    encoder_output = tf.reduce_mean(tf.squeeze(encoder_output, axis=2), axis=1)
+
+    return encoder_output

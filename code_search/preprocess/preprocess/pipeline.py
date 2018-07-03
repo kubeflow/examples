@@ -1,8 +1,9 @@
 import os
 import logging
 import time
+import csv
+import io
 import apache_beam as beam
-import apache_beam.io as io
 from apache_beam import pvalue
 from apache_beam.metrics import Metrics
 from apache_beam.options.pipeline_options import StandardOptions, PipelineOptions, \
@@ -117,11 +118,11 @@ class ProcessGithubFiles(beam.PTransform):
                          'function_tokens', 'docstring_tokens']
     self.data_types = ['STRING', 'STRING', 'STRING', 'INTEGER', 'STRING', 'STRING', 'STRING']
 
-    self.num_shards = 1
+    self.num_shards = 10
 
   def expand(self, input_or_inputs):
     tokenize_result = (input_or_inputs
-      | "Read Github Dataset" >> io.Read(io.BigQuerySource(query=self.query_string,
+      | "Read Github Dataset" >> beam.io.Read(beam.io.BigQuerySource(query=self.query_string,
                                                           use_standard_sql=True))
       | "Split 'repo_path'" >> beam.ParDo(SplitRepoPath())
       | "Tokenize Code/Docstring Pairs" >> beam.ParDo(TokenizeCodeDocstring())
@@ -130,7 +131,7 @@ class ProcessGithubFiles(beam.PTransform):
 
     #pylint: disable=expression-not-assigned
     (tokenize_result.err_rows
-     | "Failed Row Tokenization" >> io.WriteToBigQuery(project=self.project,
+     | "Failed Row Tokenization" >> beam.io.WriteToBigQuery(project=self.project,
                                                         dataset=self.output_dataset,
                                                         table=self.output_table + '_failed',
                                                         schema=self.create_failed_output_schema())
@@ -145,7 +146,7 @@ class ProcessGithubFiles(beam.PTransform):
 
     #pylint: disable=expression-not-assigned
     (info_result.err_rows
-     | "Failed Function Info" >> io.WriteToBigQuery(project=self.project,
+     | "Failed Function Info" >> beam.io.WriteToBigQuery(project=self.project,
                                                         dataset=self.output_dataset,
                                                         table=self.output_table + '_failed',
                                                         schema=self.create_failed_output_schema())
@@ -156,23 +157,42 @@ class ProcessGithubFiles(beam.PTransform):
 
     # pylint: disable=expression-not-assigned
     (processed_rows
-     | "Filter Function tokens" >> beam.Map(lambda x: x['function_tokens'])
-     | "Write Function tokens" >> io.WriteToText('{}/raw_data/data'.format(self.storage_bucket),
-                                                 file_name_suffix='.function',
-                                                 num_shards=self.num_shards))
-    (processed_rows
-     | "Filter Docstring tokens" >> beam.Map(lambda x: x['docstring_tokens'])
-     | "Write Docstring tokens" >> io.WriteToText('{}/raw_data/data'.format(self.storage_bucket),
-                                                  file_name_suffix='.docstring',
-                                                  num_shards=self.num_shards))
+     | "Filter Tiny Docstrings" >> beam.Filter(
+        lambda row: len(row['docstring_tokens'].split(' ')) > 5)
+     | "Format For Write" >> beam.Map(self.format_for_write)
+     | "Write To File" >> beam.io.WriteToText('{}/data/pairs'.format(self.storage_bucket),
+                                         file_name_suffix='.csv',
+                                         num_shards=self.num_shards))
     # pylint: enable=expression-not-assigned
 
     return (processed_rows
-      | "Save Tokens" >> io.WriteToBigQuery(project=self.project,
+      | "Save Tokens" >> beam.io.WriteToBigQuery(project=self.project,
                                                   dataset=self.output_dataset,
                                                   table=self.output_table,
                                                   schema=self.create_output_schema())
     )
+
+  def format_for_write(self, row):
+    """This method filters keys that we don't need in the
+    final CSV. It must ensure that there are no multi-line
+    column fields. For instance, 'original_function' is a
+    multi-line string and makes CSV parsing hard for any
+    derived Dataflow steps. This uses the CSV Writer
+    to handle all edge cases like quote escaping."""
+
+    filter_keys = [
+        'original_function',
+        'lineno',
+    ]
+    target_keys = [col for col in self.data_columns if col not in filter_keys]
+    target_values = [row[key].encode('utf-8') for key in target_keys]
+
+    with io.BytesIO() as fs:
+      cw = csv.writer(fs)
+      cw.writerow(target_values)
+      result_str = fs.getvalue().strip('\r\n')
+
+    return result_str
 
   def create_output_schema(self):
     table_schema = bigquery.TableSchema()

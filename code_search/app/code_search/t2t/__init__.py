@@ -1,1 +1,2 @@
-import code_search.t2t.similarity_transformer
+from . import function_docstring
+from . import similarity_transformer
