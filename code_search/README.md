@@ -107,7 +107,7 @@ $ export MOUNT_DATA_DIR=/path/to/data/folder
 $ export MOUNT_OUTPUT_DIR=/path/to/output/folder
 $ docker run --rm -it -v ${MOUNT_DATA_DIR}:/data -v ${MOUNT_OUTPUT_DIR}:/output ${BUILD_IMAGE_TAG} \
     --generate_data --problem=github_function_docstring --data_dir=/data --output_dir=/output \
-    --model=similarity_transformer --hparams_set=transformer_base
+    --model=similarity_transformer --hparams_set=transformer_tiny
 ```
 
 ### 2.2 Train on Kubeflow
