@@ -6,7 +6,7 @@
  - Ksonnet CLI: [ks](https://ksonnet.io/)
 
 ### Setup
-Refer to the [user guide](https://github.com/kubeflow/kubeflow/blob/master/user_guide.md) for instructions on how to setup kubeflow on your kubernetes cluster. Specifically, look at the section on [deploying kubeflow](https://github.com/kubeflow/kubeflow/blob/master/user_guide.md#deploy-kubeflow).
+Refer to the [user guide](https://www.kubeflow.org/docs/about/user_guide) for instructions on how to setup kubeflow on your kubernetes cluster. Specifically, look at the section on [deploying kubeflow](https://www.kubeflow.org/docs/about/user_guide#deploy-kubeflow).
 For this example, we will be using ks `nocloud` environment. If you plan to use `cloud` ks environment, please make sure you follow the proper instructions in the kubeflow user guide.
 
 After completing the steps in the kubeflow user guide you will have the following:
