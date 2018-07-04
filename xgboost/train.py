@@ -25,9 +25,9 @@ import gc
 
 print('Loading data ...')
 
-train = pd.read_csv('train_2016.csv')
-prop = pd.read_csv('properties_2016.csv')
-sample = pd.read_csv('sample_submission.csv')
+train = pd.read_csv('data/train_2017.csv')
+prop = pd.read_csv('data/properties_2017.csv')
+sample = pd.read_csv('data/sample_submission.csv')
 
 print('Binding to float32')
 
