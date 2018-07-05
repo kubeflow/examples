@@ -33,4 +33,4 @@ RUN cd .. && \
     git checkout xgboost_zillow && \
     cd xgboost
 
-CMD ["python", "examples/xgboost/launcher.py"]
+ENTRYPOINT ["python", "housing.py"]
