@@ -27,6 +27,7 @@ RUN git clone --recursive https://github.com/dmlc/xgboost && \
     make -j4 && \
     cd python-package; python setup.py install
 
+# Download code and install dependencies
 RUN cd .. && \
     git clone https://github.com/kubeflow/examples.git && \
     cd examples && \
