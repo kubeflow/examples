@@ -1,4 +1,4 @@
-## Zillow home value prediction using XGBoost and GKE
+## Ames housing value prediction using XGBoost
 
 [Zillow](https://www.zillow.com/) has hosted a [Kaggle
 competition](https://www.kaggle.com/c/zillow-prize-1) to improve their
