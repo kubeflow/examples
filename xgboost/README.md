@@ -11,10 +11,10 @@ walk-through of how to implement, train and serve the model. You will be able to
  * Model Serving
 
 ### Kubeflow Setup
-In this part you will setup Kubeflow on an existing Kubernetes cluster. Chekout the Kubeflow [setup guide](https://github.com/kubeflow/kubeflow#setup). 
+In this part you will setup Kubeflow on an existing Kubernetes cluster. Checkout the Kubeflow [setup guide](https://github.com/kubeflow/kubeflow#setup). 
 
 ### Data Preparation
-Data preparation goes here
+Download the dataset from the [Kaggle competition](https://www.kaggle.com/c/house-prices-advanced-regression-techniques/data). 
 
 ### Model Training
 Model training goes here
