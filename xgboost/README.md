@@ -5,9 +5,9 @@ walk-through of how to implement, train and serve the model. You will be able to
 
 ## Steps
  * Setup
- * Training model
- * Export model
- * Serving model
+ * Training
+ * Export
+ * Serving
 
 ### Pre-requisites
 
