@@ -1,11 +1,7 @@
-## Ames housing value prediction using XGBoost
+## Ames housing value prediction using XGBoost on Kubeflow
 
-[Zillow](https://www.zillow.com/) has hosted a [Kaggle
-competition](https://www.kaggle.com/c/zillow-prize-1) to improve their
-[Zestimate](https://www.zillow.com/zestimate/). "Zestimates" are estimated home
-values based on 7.5 million statistical and machine learning models that
-analyze hundreds of data points on each property. We will do a detailed
-walk-through of how to implement a model and make predictions using [Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine/).
+In this example we will demonstrate how to use Kubeflow with XGBoost. We will do a detailed
+walk-through of how to implement a model and then serve the model. You will be able to run the exact same workload on-prem and/or on any cloud provider. We will be using [Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine/) to show how the end-to-end workflow runs on the cloud. 
 
 ## Steps
  * Setup
