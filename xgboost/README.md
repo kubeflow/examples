@@ -38,7 +38,7 @@ directly download the image.
 
 ```
 PROJECT_ID=`gcloud config get-value project`
-IMAGE_NAME=zillow_xgb
+IMAGE_NAME=ames
 VERSION=v1
 ```
 
