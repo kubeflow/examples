@@ -7,6 +7,12 @@ values based on 7.5 million statistical and machine learning models that
 analyze hundreds of data points on each property. We will do a detailed
 walk-through of how to implement a model and make predictions using [Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine/).
 
+## Steps
+ * Setup
+ * Training model
+ * Export model
+ * Serving model
+
 ### Pre-requisites
 
 As a part of running this setup, make sure you have enabled the Google
