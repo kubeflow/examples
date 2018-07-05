@@ -31,6 +31,7 @@ RUN cd .. && \
     git clone https://github.com/kubeflow/examples.git && \
     cd examples && \
     git checkout xgboost_zillow && \
-    cd xgboost
+    cd xgboost && \
+    pip install -r seldon_serve/requirements.txt
 
-ENTRYPOINT ["python", "housing.py"]
+CMD ["python", "examples/xgboost/housing.py"]
