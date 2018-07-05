@@ -4,10 +4,10 @@ In this example we will demonstrate how to use Kubeflow with XGBoost. We will do
 walk-through of how to implement, train and serve the model. You will be able to run the exact same workload on-prem and/or on any cloud provider. We will be using [Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine/) to show how the end-to-end workflow runs on the cloud. 
 
 ## Steps
- * Setup
- * Training
- * Export
- * Serving
+ * [Kubeflow Setup](#kubeflow-setup)
+ * Model Training
+ * Model Export
+ * Model Serving
 
 ### Pre-requisites
 
