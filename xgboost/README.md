@@ -1,7 +1,7 @@
 ## Ames housing value prediction using XGBoost on Kubeflow
 
 In this example we will demonstrate how to use Kubeflow with XGBoost. We will do a detailed
-walk-through of how to implement a model and then serve the model. You will be able to run the exact same workload on-prem and/or on any cloud provider. We will be using [Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine/) to show how the end-to-end workflow runs on the cloud. 
+walk-through of how to implement, train and serve the model. You will be able to run the exact same workload on-prem and/or on any cloud provider. We will be using [Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine/) to show how the end-to-end workflow runs on the cloud. 
 
 ## Steps
  * Setup
