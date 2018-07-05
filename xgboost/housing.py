@@ -37,8 +37,8 @@ def train_model(train_X,
 
     model.fit(train_X,
               train_y,
-              early_stopping_rounds=5,
-              eval_set=[(test_X, test_y)], verbose=False)
+              early_stopping_rounds=10,
+              eval_set=[(test_X, test_y)])
     return model
 
 def eval_model(model, test_X, test_y):
