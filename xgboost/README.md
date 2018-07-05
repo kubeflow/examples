@@ -58,3 +58,13 @@ ZONE=us-central1-b
 
 gcloud container clusters create ${CLUSTER_NAME} --num-nodes=${NUM_NODES} --zone=${ZONE}
 ```
+
+```
+python housing.py --train-input housing_prices/train.csv --learning-rate 0.1 --n-estimators 30000 --model-file housing.dat --early-stopping-rounds 40
+```
+
+```
+docker run -v $(pwd):/seldon_serve_xgboost seldonio/core-python-wrapper:0.7 /seldon_serve_xgboost HousingServe 0.1 seldonio
+```
+
+
