@@ -9,6 +9,10 @@ walk-through of how to implement, train and serve the model. You will be able to
  * Model Export
  * Model Serving
 
+### Kubeflow Setup
+In this part you will setup Kubeflow on an existing Kubernetes cluster. Chekout the Kubeflow [setup guide](https://github.com/kubeflow/kubeflow#setup). 
+
+
 ### Pre-requisites
 
 As a part of running this setup, make sure you have enabled the Google
