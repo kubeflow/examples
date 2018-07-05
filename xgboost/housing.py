@@ -37,14 +37,19 @@ def train_model(train_X,
 
     model.fit(train_X,
               train_y,
-              early_stopping_rounds=10,
+              early_stopping_rounds=40,
               eval_set=[(test_X, test_y)])
+
+    print("Best RMSE on eval: {:.2f} with {} rounds".format(
+                 model.best_score,
+                 model.best_iteration+1))
     return model
 
 def eval_model(model, test_X, test_y):
     """Evaluate the model performance."""
     predictions = model.predict(test_X)
-    print("Mean Absolute Error : " + str(mean_absolute_error(predictions, test_y)))
+    print
+    print("MAE on test: {:.2f}".format(mean_absolute_error(predictions, test_y)))
 
 def save_model(model, model_file):
     """Save XGBoost model for serving."""
@@ -90,6 +95,11 @@ if __name__=='__main__':
             '--test-size',
             help='Fraction of training data to be reserved for test',
             default=0.25
+    )
+    parser.add_argument(
+            '--early-stopping-rounds',
+            help='XGBoost argument for stopping early',
+            default=50
     )
 
     args = parser.parse_args()
