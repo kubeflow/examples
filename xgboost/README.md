@@ -4,10 +4,26 @@ In this example we will demonstrate how to use Kubeflow with XGBoost. We will do
 walk-through of how to implement, train and serve the model. You will be able to run the exact same workload on-prem and/or on any cloud provider. We will be using [Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine/) to show how the end-to-end workflow runs on the cloud. 
 
 ## Steps
- * Setup
- * Training
- * Export
- * Serving
+ * [Kubeflow Setup](#kubeflow-setup)
+ * Data Preparation
+ * Model Training
+ * Model Export
+ * Model Serving
+
+### Kubeflow Setup
+In this part you will setup Kubeflow on an existing Kubernetes cluster. Checkout the Kubeflow [setup guide](https://github.com/kubeflow/kubeflow#setup). 
+
+### Data Preparation
+Download the dataset from the [Kaggle competition](https://www.kaggle.com/c/house-prices-advanced-regression-techniques/data). 
+
+### Model Training
+Model training goes here
+
+### Model Export
+Model export goes here
+
+### Model Serving
+Model serving goes here
 
 ### Pre-requisites
 
@@ -22,7 +38,7 @@ directly download the image.
 
 ```
 PROJECT_ID=`gcloud config get-value project`
-IMAGE_NAME=zillow_xgb
+IMAGE_NAME=ames
 VERSION=v1
 ```
 
