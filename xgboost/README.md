@@ -45,7 +45,11 @@ gcloud docker -- push gcr.io/${PROJECT_ID}/${IMAGE_NAME}:${VERSION}
 You can play with the image locally by performing
 
 ```
-docker run -v /tmp/ames/:/model/ames -it $IMAGE_ID --train-input examples/xgboost/ames_dataset/train.csv --model-file /model/ames/housing.dat --learning-rate 0.1 --n-estimators 30000 --early-stopping-rounds 50
+docker run -v /tmp/ames/:/model/ames -it $IMAGE_ID --train-input examples/xgboost/ames_dataset/train.csv \
+                                                   --model-file /model/ames/housing.dat \
+                                                   --learning-rate 0.1 \
+                                                   --n-estimators 30000 \
+                                                   --early-stopping-rounds 50
 ```
 
 ### Model Export
