@@ -59,7 +59,7 @@ ls -l /tmp/ames/
 ```
 
 ### Model Export
-Model export goes here
+The model is exported at location `/tmp/ames/housing.dat` and we will use the model asset to serve it using seldon-core.
 
 ### Model Serving
 Model serving goes here
