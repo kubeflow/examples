@@ -14,11 +14,9 @@ walk-through of how to implement, train and serve the model. You will be able to
 In this part you will setup Kubeflow on an existing Kubernetes cluster. Checkout the Kubeflow [setup guide](https://github.com/kubeflow/kubeflow#setup). 
 
 ### Data Preparation
-Download the dataset from the [Kaggle competition](https://www.kaggle.com/c/house-prices-advanced-regression-techniques/data). 
+You can download the dataset from the [Kaggle competition](https://www.kaggle.com/c/house-prices-advanced-regression-techniques/data). In order to make it convenient we have uploaded the dataset on Github here [xgboost/ames_dataset](xgboost/ames_dataset). 
 
-### Model Training
-
-#### Dockerfile
+### Dockerfile
 We have attached a Dockerfile with this repo which you can use to create a
 docker image. We have also uploaded the image to gcr.io, which you can use to
 directly download the image.
@@ -42,7 +40,9 @@ Google Container Registry using
 gcloud docker -- push gcr.io/${PROJECT_ID}/${IMAGE_NAME}:${VERSION}
 ```
 
-You can play with the image locally by performing
+### Model Training
+
+You can perform model training by running the following command
 
 ```
 docker run -v /tmp/ames/:/model/ames -it $IMAGE_ID --train-input examples/xgboost/ames_dataset/train.csv \
@@ -50,6 +50,12 @@ docker run -v /tmp/ames/:/model/ames -it $IMAGE_ID --train-input examples/xgboos
                                                    --learning-rate 0.1 \
                                                    --n-estimators 30000 \
                                                    --early-stopping-rounds 50
+```
+
+Check the local host filesystem for the trained XGBoost model
+
+```
+ls -l /tmp/ames/
 ```
 
 ### Model Export
