@@ -17,7 +17,36 @@ In this part you will setup Kubeflow on an existing Kubernetes cluster. Checkout
 Download the dataset from the [Kaggle competition](https://www.kaggle.com/c/house-prices-advanced-regression-techniques/data). 
 
 ### Model Training
-Model training goes here
+
+#### Dockerfile
+We have attached a Dockerfile with this repo which you can use to create a
+docker image. We have also uploaded the image to gcr.io, which you can use to
+directly download the image.
+
+```
+IMAGE_NAME=ames-housing
+VERSION=v1
+```
+
+Let's create a docker image from our Dockerfile
+
+```
+docker build -t ${IMAGE_NAME}:${VERSION} .
+```
+
+Once the above command is successful you should be able to see the docker
+images on your local machine `docker images` and then upload the image to
+Google Container Registry using
+
+```
+gcloud docker -- push gcr.io/${PROJECT_ID}/${IMAGE_NAME}:${VERSION}
+```
+
+You can play with the image locally by performing
+
+```
+docker run -v /tmp/ames/:/model/ames -it $IMAGE_ID --train-input examples/xgboost/ames_dataset/train.csv --model-file /model/ames/housing.dat --learning-rate 0.1 --n-estimators 30000 --early-stopping-rounds 50
+```
 
 ### Model Export
 Model export goes here
@@ -37,15 +66,14 @@ docker image. We have also uploaded the image to gcr.io, which you can use to
 directly download the image.
 
 ```
-PROJECT_ID=`gcloud config get-value project`
-IMAGE_NAME=ames
+IMAGE_NAME=ames-housing
 VERSION=v1
 ```
 
 Let's create a docker image from our Dockerfile
 
 ```
-docker build -t gcr.io/${PROJECT_ID}/${IMAGE_NAME}:${VERSION} .
+docker build -t ${IMAGE_NAME}:${VERSION} .
 ```
 
 Once the above command is successful you should be able to see the docker
