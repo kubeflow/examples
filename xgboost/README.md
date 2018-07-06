@@ -50,7 +50,7 @@ gcloud docker -- push gcr.io/${PROJECT_ID}/${IMAGE_NAME}:${VERSION}
 
 ## Model Training
 
-Once you have performed `docker build` you should be able to see the images by running `docker images`. Get the `IMAGE_ID` for the image `seldonio/housingserve` and run the training by issuing the following command
+Once you have performed `docker build` you should be able to see the images by running `docker images`. Get the `IMAGE_ID` for the image `seldonio/housingserve` and run the training by issuing the following command 
 
 ```
 docker run -v /tmp/ames/:/model/ames -it $IMAGE_ID --train-input examples/xgboost/ames_dataset/train.csv \
@@ -60,7 +60,7 @@ docker run -v /tmp/ames/:/model/ames -it $IMAGE_ID --train-input examples/xgboos
                                                    --early-stopping-rounds 50
 ```
 
-Check the local host filesystem for the trained XGBoost model
+In the above command we have mounted the container filesystem to the host filesystem so that the model is available on localhost. Check the local host filesystem for the trained XGBoost model
 
 ```
 ls -lh /tmp/ames/housing.dat
