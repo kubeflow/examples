@@ -35,4 +35,4 @@ RUN cd .. && \
     cd xgboost && \
     pip install -r seldon_serve/requirements.txt
 
-CMD ["python", "examples/xgboost/housing.py"]
+ENTRYPOINT ["python", "examples/xgboost/housing.py"]

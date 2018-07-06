@@ -54,6 +54,7 @@ def eval_model(model, test_X, test_y):
 def save_model(model, model_file):
     """Save XGBoost model for serving."""
     joblib.dump(model, model_file)
+    print("Model export success {}".format(model_file))
 
 def main(args):
     (train_X, train_y), (test_X, test_y) = read_input(args.train_input)
