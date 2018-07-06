@@ -62,7 +62,7 @@ docker run -v /tmp/ames/:/model/ames -it $IMAGE_ID --train-input examples/xgboos
 Check the local host filesystem for the trained XGBoost model
 
 ```
-ls -l /tmp/ames/
+ls -lh /tmp/ames/housing.dat
 ```
 
 ## Model Export
