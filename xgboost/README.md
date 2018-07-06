@@ -94,6 +94,9 @@ docker run -p 5000:5000 seldonio/housingserve:0.1
 
 Now you are ready to send requests on `localhost:5000`.
 
+### Deploying the model to Kubernetes Cluster
+Details go here
+
 ### Dockerfile
 We have attached a Dockerfile with this repo which you can use to create a
 docker image. We have also uploaded the image to gcr.io, which you can use to
