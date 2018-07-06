@@ -74,7 +74,7 @@ The model is exported at location `/tmp/ames/housing.dat`. We will use [Seldon C
  * `requirements.txt`
 
 ## Model Serving
-We are going to use [seldon-core](https://github.com/SeldonIO/seldon-core/) to serve the model. [HousingServe.py](seldon-serve/HousingServe.py) contains the code to serve the model. Run the following command to create a microservice 
+We are going to use [seldon-core](https://github.com/SeldonIO/seldon-core/) to serve the model. [HousingServe.py](seldon_serve/HousingServe.py) contains the code to serve the model. Run the following command to create a microservice 
 
 ```
 docker run -v $(pwd):/seldon_serve seldonio/core-python-wrapper:0.7 /seldon_serve HousingServe 0.1 seldonio
