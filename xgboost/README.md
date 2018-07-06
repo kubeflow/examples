@@ -85,4 +85,7 @@ python housing.py --train-input housing_prices/train.csv --learning-rate 0.1 --n
 docker run -v $(pwd):/seldon_serve_xgboost seldonio/core-python-wrapper:0.7 /seldon_serve_xgboost HousingServe 0.1 seldonio
 ```
 
+```
+docker run -it $IMAGE --train-input examples/xgboost/ames_dataset/train.csv --model-file housing.dat
+```
 
