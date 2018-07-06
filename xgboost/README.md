@@ -86,6 +86,14 @@ cd build
 ./build_image.sh
 ```
 
+You should see the docker image locally `seldonio/housingserve` which can be run locally to serve the model. 
+
+```
+docker run -p 5000:5000 seldonio/housingserve:0.1
+```
+
+Now you are ready to send requests on `localhost:5000`.
+
 ### Dockerfile
 We have attached a Dockerfile with this repo which you can use to create a
 docker image. We have also uploaded the image to gcr.io, which you can use to
