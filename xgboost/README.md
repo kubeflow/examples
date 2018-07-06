@@ -66,7 +66,7 @@ ls -lh /tmp/ames/housing.dat
 ```
 
 ## Model Export
-The model is exported at location `/tmp/ames/housing.dat` and we will use the model asset to serve it using [Seldon Core](https://github.com/SeldonIO/seldon-core/).
+The model is exported at location `/tmp/ames/housing.dat`. We will use [Seldon Core](https://github.com/SeldonIO/seldon-core/) to serve the model asset. 
 
 ## Model Serving
 Run the following command to create a microservice 
