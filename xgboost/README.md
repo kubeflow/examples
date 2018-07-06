@@ -15,7 +15,8 @@ Kubernetes Engine API. In addition to that you will need to install
  * [Dockerfile](#dockerfile)
  * [Model Training](#model-training)
  * [Model Export](#model-export)
- * [Model Serving](#model-serving)
+ * [Model Serving Locally](#model-serving)
+ * [Deploying Model to Kubernetes Cluster](#deploying-the-model-to-kubernetes-cluster)
 
 ## Kubeflow Setup
 In this part you will setup Kubeflow on an existing Kubernetes cluster. Checkout the Kubeflow [setup guide](https://github.com/kubeflow/kubeflow#setup). 
@@ -94,5 +95,5 @@ docker run -p 5000:5000 seldonio/housingserve:0.1
 
 Now you are ready to send requests on `localhost:5000`.
 
-### Deploying the model to Kubernetes Cluster
+## Deploying the model to Kubernetes Cluster
 Details go here
