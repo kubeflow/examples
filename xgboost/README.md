@@ -86,6 +86,6 @@ docker run -v $(pwd):/seldon_serve_xgboost seldonio/core-python-wrapper:0.7 /sel
 ```
 
 ```
-docker run -it $IMAGE --train-input examples/xgboost/ames_dataset/train.csv --model-file housing.dat
+docker run -v /tmp/ames/:/examples2 -it gcr.io/cloudmlplat/ames:v1 --train-input examples/xgboost/ames_dataset/train.csv --model-file /examples2/housing.dat
 ```
 
