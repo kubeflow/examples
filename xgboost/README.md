@@ -50,7 +50,7 @@ gcloud docker -- push gcr.io/${PROJECT_ID}/${IMAGE_NAME}:${VERSION}
 
 ## Model Training
 
-You can perform model training by running the following command
+Once you have performed `docker build` you should be able to see the images by running `docker images`. Get the `IMAGE_ID` for the image `seldonio/housingserve` and run the training by issuing the following command
 
 ```
 docker run -v /tmp/ames/:/model/ames -it $IMAGE_ID --train-input examples/xgboost/ames_dataset/train.csv \
