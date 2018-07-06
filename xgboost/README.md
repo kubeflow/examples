@@ -79,7 +79,7 @@ Run the following command to create a microservice
 docker run -v $(pwd):/seldon_serve seldonio/core-python-wrapper:0.7 /seldon_serve HousingServe 0.1 seldonio
 ```
 
-Let's build the seldon-core microservice image
+Let's build the seldon-core microservice image. You can find seldon core model wrapping details [here](https://github.com/SeldonIO/seldon-core/blob/master/docs/wrappers/python.md).
 
 ```
 cd build
