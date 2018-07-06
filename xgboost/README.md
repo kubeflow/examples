@@ -11,11 +11,11 @@ Kubernetes Engine API. In addition to that you will need to install
 
 # Steps
  * [Kubeflow Setup](#kubeflow-setup)
- * [Data Preparation](data-preparation)
- * [Dockerfile](dockerfile)
- * [Model Training](model-training)
- * [Model Export](model-export)
- * [Model Serving](model-serving)
+ * [Data Preparation](#data-preparation)
+ * [Dockerfile](#dockerfile)
+ * [Model Training](#model-training)
+ * [Model Export](#model-export)
+ * [Model Serving](#model-serving)
 
 ## Kubeflow Setup
 In this part you will setup Kubeflow on an existing Kubernetes cluster. Checkout the Kubeflow [setup guide](https://github.com/kubeflow/kubeflow#setup). 
