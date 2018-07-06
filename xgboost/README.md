@@ -3,6 +3,12 @@
 In this example we will demonstrate how to use Kubeflow with XGBoost. We will do a detailed
 walk-through of how to implement, train and serve the model. You will be able to run the exact same workload on-prem and/or on any cloud provider. We will be using [Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine/) to show how the end-to-end workflow runs on [Google Cloud Platform](https://cloud.google.com/). 
 
+# Pre-requisites
+
+As a part of running this setup, make sure you have enabled the Google
+Kubernetes Engine API. In addition to that you will need to install
+[Docker](https://docs.docker.com/install/) and [gcloud](https://cloud.google.com/sdk/downloads).
+
 # Steps
  * [Kubeflow Setup](#kubeflow-setup)
  * [Data Preparation](data-preparation)
@@ -75,12 +81,6 @@ Let's build the seldon-core microservice image
 cd build
 ./build_image.sh
 ```
-
-### Pre-requisites
-
-As a part of running this setup, make sure you have enabled the Google
-Kubernetes Engine API. In addition to that you will need to install
-[Docker](https://docs.docker.com/install/) and [gcloud](https://cloud.google.com/sdk/downloads).
 
 ### Dockerfile
 We have attached a Dockerfile with this repo which you can use to create a
