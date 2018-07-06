@@ -3,7 +3,7 @@
 In this example we will demonstrate how to use Kubeflow with XGBoost. We will do a detailed
 walk-through of how to implement, train and serve the model. You will be able to run the exact same workload on-prem and/or on any cloud provider. We will be using [Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine/) to show how the end-to-end workflow runs on the cloud. 
 
-## Steps
+# Steps
  * [Kubeflow Setup](#kubeflow-setup)
  * [Data Preparation](data-preparation)
  * [Dockerfile](dockerfile)
@@ -11,13 +11,13 @@ walk-through of how to implement, train and serve the model. You will be able to
  * [Model Export](model-export)
  * [Model Serving](model-serving)
 
-### Kubeflow Setup
+## Kubeflow Setup
 In this part you will setup Kubeflow on an existing Kubernetes cluster. Checkout the Kubeflow [setup guide](https://github.com/kubeflow/kubeflow#setup). 
 
-### Data Preparation
+## Data Preparation
 You can download the dataset from the [Kaggle competition](https://www.kaggle.com/c/house-prices-advanced-regression-techniques/data). In order to make it convenient we have uploaded the dataset on Github here [xgboost/ames_dataset](xgboost/ames_dataset). 
 
-### Dockerfile
+## Dockerfile
 We have attached a Dockerfile with this repo which you can use to create a
 docker image. We have also uploaded the image to gcr.io, which you can use to
 directly download the image.
@@ -41,7 +41,7 @@ Google Container Registry using
 gcloud docker -- push gcr.io/${PROJECT_ID}/${IMAGE_NAME}:${VERSION}
 ```
 
-### Model Training
+## Model Training
 
 You can perform model training by running the following command
 
@@ -59,10 +59,10 @@ Check the local host filesystem for the trained XGBoost model
 ls -l /tmp/ames/
 ```
 
-### Model Export
+## Model Export
 The model is exported at location `/tmp/ames/housing.dat` and we will use the model asset to serve it using seldon-core.
 
-### Model Serving
+## Model Serving
 Model serving goes here
 
 ### Pre-requisites
