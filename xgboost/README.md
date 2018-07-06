@@ -5,10 +5,11 @@ walk-through of how to implement, train and serve the model. You will be able to
 
 ## Steps
  * [Kubeflow Setup](#kubeflow-setup)
- * Data Preparation
- * Model Training
- * Model Export
- * Model Serving
+ * [Data Preparation](data-preparation)
+ * [Dockerfile](dockerfile)
+ * [Model Training](model-training)
+ * [Model Export](model-export)
+ * [Model Serving](model-serving)
 
 ### Kubeflow Setup
 In this part you will setup Kubeflow on an existing Kubernetes cluster. Checkout the Kubeflow [setup guide](https://github.com/kubeflow/kubeflow#setup). 
