@@ -7,7 +7,7 @@ walk-through of how to implement, train and serve the model. You will be able to
 
 As a part of running this setup on Google Cloud Platform, make sure you have enabled the [Google
 Kubernetes Engine](https://cloud.google.com/kubernetes-engine/). In addition to that you will need to install
-[Docker](https://docs.docker.com/install/) and [gcloud](https://cloud.google.com/sdk/downloads).
+[Docker](https://docs.docker.com/install/) and [gcloud](https://cloud.google.com/sdk/downloads). Note that this setup can run on-prem and on any cloud provider, but here we will demonstrate GCP cloud option. 
 
 # Steps
  * [Kubeflow Setup](#kubeflow-setup)
