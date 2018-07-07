@@ -93,7 +93,7 @@ You should see the docker image locally `seldonio/housingserve` which can be run
 docker run -p 5000:5000 seldonio/housingserve:0.1
 ```
 
-Now you are ready to send requests on `localhost:5000`.
+Now you are ready to send requests on `localhost:5000` [TODO: JSON API Request]
 
 ## Deploying the model to Kubernetes Cluster
-Details go here
+TODO
