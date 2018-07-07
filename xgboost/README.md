@@ -41,10 +41,11 @@ docker build -t ${IMAGE_NAME}:${VERSION} .
 ```
 
 Once the above command is successful you should be able to see the docker
-images on your local machine `docker images` and then upload the image to
-Google Container Registry using
+images on your local machine `docker images`. Next we will upload the image to
+[Google Container Registry](https://cloud.google.com/container-registry/)
 
 ```
+PROJECT_ID=`gcloud config get-value project`
 gcloud docker -- push gcr.io/${PROJECT_ID}/${IMAGE_NAME}:${VERSION}
 ```
 
