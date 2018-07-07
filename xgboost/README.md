@@ -60,7 +60,7 @@ docker run -v /tmp/ames/:/model/ames -it $IMAGE_ID --train-input examples/xgboos
                                                    --early-stopping-rounds 50
 ```
 
-In the above command we have mounted the container filesystem to the host filesystem so that the model is available on localhost. Check the local host filesystem for the trained XGBoost model
+In the above command we have mounted the container filesystem `/model/ames` to the host filesystem `/tmp/ames` so that the model is available on localhost. Check the local host filesystem for the trained XGBoost model
 
 ```
 ls -lh /tmp/ames/housing.dat
