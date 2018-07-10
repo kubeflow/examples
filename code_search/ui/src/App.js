@@ -16,7 +16,7 @@ class App extends Component {
         <div className="App">
           <header className="App-header">
             <img src={logo} className="App-logo" alt="logo" />
-            <h1 className="App-title">Demo: Code Search</h1>
+            <h1 className="App-title">Code Search Demo</h1>
           </header>
             <div className="Search-Wrapper">
               <TextField
