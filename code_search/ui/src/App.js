@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
+import LinearProgress from '@material-ui/core/LinearProgress';
 import { MuiThemeProvider } from '@material-ui/core/styles';
 import SearchIcon from '@material-ui/icons/Search';
 
@@ -8,9 +9,17 @@ import blueTheme from './theme';
 import logo from './logo.svg';
 import './App.css';
 import CodeSample from './CodeSample';
+import code_search_api from './CodeSearchApi';
 
 class App extends Component {
+  state = {
+    codeResults: [],
+    queryStr: '',
+    loading: false,
+  };
+
   render() {
+    const {codeResults, loading} = this.state;
     return (
       <MuiThemeProvider theme={blueTheme}>
         <div className="App">
@@ -25,6 +34,7 @@ class App extends Component {
                 InputProps={{
                   disableUnderline: true,
                 }}
+                onChange={this.onSearchQueryChange}
               />
             </div>
             <div className="Search-Wrapper">
@@ -32,43 +42,46 @@ class App extends Component {
                 variant="contained"
                 color="primary"
                 id="Search-Button"
+                onClick={this.onSearchClick}
+                disabled={loading}
               >
-                <SearchIcon/>Search Code
+                <SearchIcon/> Search Code
               </Button>
             </div>
-            <div className="Search-Results">
-              <h2 className="Search-Results-Title">Search Results</h2>
-              {/** TODO: for illustrative purposes only  **/}
-              <CodeSample
-                nwo="activatedgeek/torchrl"
-                path="torchrl/agents/random_gym_agent.py"
-                lineno={19}
-                function_string={`
-def act(self, obs):
-  return [[self.action_space.sample()] for _ in range(len(obs))]
-                `}
-              />
-              <hr />
-              <CodeSample
-                nwo="activatedgeek/torchrl"
-                path="torchrl/policies/epsilon_greedy.py"
-                lineno={4}
-                function_string={`
-distribution = np.ones((len(choices), action_size),
-                       dtype=np.float32) * eps / action_size
-distribution[np.arange(len(choices)), choices] += 1.0 - eps
-actions = np.array([
-    np.random.choice(np.arange(action_size), p=dist)
-    for dist in distribution
-])
-return np.expand_dims(actions, axis=1)
-                `}
-              />
-            </div>
+            {
+              loading ?
+                <LinearProgress color="primary" /> :
+                <div className="Search-Results">
+                  <h2 className="Search-Results-Title">Search Results</h2>
+                  {
+                    codeResults.map((attrs) => <CodeSample {...attrs}/>)
+                  }
+                </div>
+            }
         </div>
       </MuiThemeProvider>
     );
   }
+
+  onSearchQueryChange = (e) => {
+    const {value} = e.target;
+    this.setState({queryStr: value});
+  };
+
+  onSearchClick = () => {
+    const {queryStr} = this.state;
+    if (queryStr) {
+      this.setState({loading: true});
+      code_search_api(queryStr, (response) => {
+        const {status, results} = response;
+        if (status === 200) {
+          this.setState({codeResults: results, loading: false});
+        } else {
+          this.setState({loading: false});
+        }
+      });
+    }
+  };
 }
 
 export default App;
