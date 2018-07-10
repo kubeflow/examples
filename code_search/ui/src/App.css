@@ -1,0 +1,51 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  position: absolute;
+  top: 0;
+  left: 5em;
+  padding: 1em;
+  height: 6em;
+  background: white;
+  border: solid #4279f4 1px;
+}
+
+.App-header {
+  background-color: #4279f4;
+  padding: 1em;
+  margin-bottom: 4em;
+  color: white;
+}
+
+.App-title {
+  font-size: 1.5em;
+  font-weight: normal;
+}
+
+.App-intro {
+  font-size: large;
+}
+
+
+.Search-Wrapper {
+  position: relative;
+  padding: 1em;
+  width: 100%;
+  text-align: center;
+}
+
+#Search-Bar {
+  position: relative;
+  width: 30em;
+  padding: 1em;
+  border: solid #eee 1px;
+}
+
+#Search-Button {
+  border-radius: 0.1em;
+  font-weight: normal;
+  padding: 1em;
+  background: #4279f4;
+}
