@@ -1,5 +1,5 @@
 .App {
-  text-align: center;
+  box-sizing: border-box;
 }
 
 .App-logo {
@@ -20,6 +20,7 @@
 }
 
 .App-title {
+  text-align: center;
   font-size: 1.5em;
   font-weight: normal;
 }
@@ -31,9 +32,10 @@
 
 .Search-Wrapper {
   position: relative;
-  padding: 1em;
+  padding: 0.5em;
   width: 100%;
   text-align: center;
+  box-sizing: border-box;
 }
 
 #Search-Bar {
@@ -46,6 +48,31 @@
 #Search-Button {
   border-radius: 0.1em;
   font-weight: normal;
-  padding: 1em;
+  padding: 0.5em 1em;
   background: #4279f4;
+}
+
+.Search-Results {
+  position: relative;
+  padding: 1em;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.Search-Results-Title {
+  color: rgba(0, 0, 0, 0.8);
+}
+
+.Code-Url {
+  display: flex;
+  color: rgba(0, 0, 0, 0.7);
+  align-items: center;
+}
+
+.Code-Url .Code-Icon {
+  margin-right: 0.2em;
+}
+
+.Code-Url p {
+  margin: 0;
 }
