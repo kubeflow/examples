@@ -1,13 +1,7 @@
-import argparse
-import base64
-import collections
-import io
 import json
-from matplotlib import pyplot as plt
 import numpy as np
 from PIL import Image
 import requests
-import tensorflow as tf
 
 import visualization_utils as vis_util
 
@@ -43,7 +37,7 @@ def main():
     instance_masks=output_dict.get('detection_masks'),
     use_normalized_coordinates=True,
     line_thickness=8)
-  
+
   output_image = Image.fromarray(img_np)
   output_image.save(args.output_image)
 
