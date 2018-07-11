@@ -95,5 +95,6 @@
     "tfjob-pvc-v1alpha2": {
       name: "tfjob-pvc-v1alpha2",
     },
+    "hp-tune": {},
   },
 }
