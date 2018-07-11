@@ -1,6 +1,6 @@
 # Ames housing value prediction using XGBoost on Kubeflow
 
-In this example we will demonstrate how to use Kubeflow with XGBoost. We will do a detailed
+In this example we will demonstrate how to use Kubeflow with XGBoost using the [Kaggle Ames Housing Prices prediction](https://www.kaggle.com/c/house-prices-advanced-regression-techniques/). We will do a detailed
 walk-through of how to implement, train and serve the model. You will be able to run the exact same workload on-prem and/or on any cloud provider. We will be using [Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine/) to show how the end-to-end workflow runs on [Google Cloud Platform](https://cloud.google.com/). 
 
 # Pre-requisites
@@ -19,7 +19,14 @@ Kubernetes Engine](https://cloud.google.com/kubernetes-engine/). In addition to 
  * [Deploying Model to Kubernetes Cluster](#deploying-the-model-to-kubernetes-cluster)
 
 ## Kubeflow Setup
-In this part you will setup Kubeflow on an existing Kubernetes cluster. Checkout the Kubeflow [setup guide](https://github.com/kubeflow/kubeflow#setup). 
+In this part you will setup Kubeflow on an existing Kubernetes cluster. Checkout the Kubeflow [setup guide](https://github.com/kubeflow/kubeflow#setup).  
+
+### Requirements
+
+ * ksonnet
+ * Kubernetes
+ * minikube
+ * hyperkit (vm-driver)
 
 ## Data Preparation
 You can download the dataset from the [Kaggle competition](https://www.kaggle.com/c/house-prices-advanced-regression-techniques/data). In order to make it convenient we have uploaded the dataset on Github here [xgboost/ames_dataset](ames_dataset). 
@@ -41,10 +48,11 @@ docker build -t ${IMAGE_NAME}:${VERSION} .
 ```
 
 Once the above command is successful you should be able to see the docker
-images on your local machine `docker images` and then upload the image to
-Google Container Registry using
+images on your local machine `docker images`. Next we will upload the image to
+[Google Container Registry](https://cloud.google.com/container-registry/)
 
 ```
+PROJECT_ID=`gcloud config get-value project`
 gcloud docker -- push gcr.io/${PROJECT_ID}/${IMAGE_NAME}:${VERSION}
 ```
 
@@ -60,7 +68,7 @@ docker run -v /tmp/ames/:/model/ames -it $IMAGE_ID --train-input examples/xgboos
                                                    --early-stopping-rounds 50
 ```
 
-In the above command we have mounted the container filesystem to the host filesystem so that the model is available on localhost. Check the local host filesystem for the trained XGBoost model
+In the above command we have mounted the container filesystem `/model/ames` to the host filesystem `/tmp/ames` so that the model is available on localhost. Check the local host filesystem for the trained XGBoost model
 
 ```
 ls -lh /tmp/ames/housing.dat
@@ -93,7 +101,7 @@ You should see the docker image locally `seldonio/housingserve` which can be run
 docker run -p 5000:5000 seldonio/housingserve:0.1
 ```
 
-Now you are ready to send requests on `localhost:5000`.
+Now you are ready to send requests on `localhost:5000` [TODO: JSON API Request]
 
 ## Deploying the model to Kubernetes Cluster
-Details go here
+TODO
