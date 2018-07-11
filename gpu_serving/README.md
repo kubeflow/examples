@@ -24,8 +24,8 @@ gsutil cp faster_rcnn_nas_coco_2018_01_28/saved_model/saved_model.pb gs://YOUR_B
 ```
 ks init ks-app
 cd ks-app
-ks registry add X
-ks pkg install X
+ks registry add kubeflow github.com/kubeflow/kubeflow/tree/master/kubeflow
+ks pkg install kubeflow/tf-serving
 
 ENV=YOUR_ENV
 ks env add $ENV
@@ -37,9 +37,10 @@ ks param set model1 numGpus 1
 ks apply $ENV -c model1
 ```
 
-## Verify deployment
-
-
 ## Send prediction
+```
+python predict.py --url=YOUR_KF_HOST/models/coco
+```
 
-
+The script takes an input image (by default image1.jpg) and should save the result as `output.jpg`.
+The output image has the bounding boxes for detected objects.
