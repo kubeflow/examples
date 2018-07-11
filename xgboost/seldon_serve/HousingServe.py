@@ -22,7 +22,12 @@ class HousingServe(object):
 
     def predict(self, X):
         """Predict using the model for given ndarray."""
-        return self.model.predict(data=X)
+        prediction = self.model.predict(data=X)
+
+        # added this temporarily to keep seldon happy
+        # TODO: Fix https://github.com/SeldonIO/seldon-core/blob/master/wrappers/python/model_microservice.py#L55
+        prediction.extend(prediction)
+        return prediction
 
     def sample_test(self):
         """Generate a random sample feature."""
