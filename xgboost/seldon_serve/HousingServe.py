@@ -20,7 +20,7 @@ class HousingServe(object):
         """Load the housing model using joblib."""
         self.model = joblib.load(model_file)
 
-    def predict(self, X):
+    def predict(self, X, feature_names):
         """Predict using the model for given ndarray."""
         prediction = self.model.predict(data=X)
 
