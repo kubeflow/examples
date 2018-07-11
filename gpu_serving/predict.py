@@ -11,8 +11,9 @@ import tensorflow as tf
 
 import visualization_utils as vis_util
 
-width = 1024
-height = 768
+WIDTH = 1024
+HEIGHT = 768
+
 def main():
   parser = argparse.ArgumentParser()
   parser.add_argument("--url", help='The url to send the request')
@@ -21,15 +22,16 @@ def main():
   args = parser.parse_args()
 
   img = Image.open(args.input_image)
-  img = img.resize((width, height), Image.ANTIALIAS)
+  img = img.resize((WIDTH, HEIGHT), Image.ANTIALIAS)
   img_np = np.array(img)
-  
+
   res = requests.post(
     args.url,
     data=json.dumps({"instances": [{"inputs": img_np.tolist()}]}))
   if res.status_code != 200:
     print('Failed: {}'.format(res.text))
     return
+
   output_dict = json.loads(res.text).get('predictions')[0]
 
   vis_util.visualize_boxes_and_labels_on_image_array(
