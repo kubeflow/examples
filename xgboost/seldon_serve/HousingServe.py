@@ -26,7 +26,7 @@ class HousingServe(object):
 
         # added this temporarily to keep seldon happy
         # TODO: Fix https://github.com/SeldonIO/seldon-core/blob/master/wrappers/python/model_microservice.py#L55
-        return [prediction.item(0), prediction.item(0)]
+        return [[prediction.item(0), prediction.item(0)]]
 
     def sample_test(self):
         """Generate a random sample feature."""

@@ -101,7 +101,32 @@ You should see the docker image locally `seldonio/housingserve` which can be run
 docker run -p 5000:5000 seldonio/housingserve:0.1
 ```
 
-Now you are ready to send requests on `localhost:5000` [TODO: JSON API Request]
+Now you are ready to send requests on `localhost:5000`
+
+```
+curl -H "Content-Type: application/x-www-form-urlencoded" -d 'json={"data":{"tensor":{"shape":[1,37],"values":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37]}}}' http://localhost:5000/predict
+```
+
+```
+{
+  "data": {
+    "names": [
+      "t:0", 
+      "t:1"
+    ], 
+    "tensor": {
+      "shape": [
+        1, 
+        2
+      ], 
+      "values": [
+        97522.359375, 
+        97522.359375
+      ]
+    }
+  }
+}
+```
 
 ## Deploying the model to Kubernetes Cluster
 TODO
