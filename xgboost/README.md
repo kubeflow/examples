@@ -160,4 +160,6 @@ ks generate seldon-serve-simple xgboost-ames   \
                                 --image=seldonio/housingserve:0.1   \
                                 --namespace=${NAMESPACE}   \
                                 --replicas=2
+                                
+ks apply ${KF_ENV} -c xgboost-ames
 ```
