@@ -77,12 +77,29 @@ ls -lh /tmp/ames/housing.dat
 ### Model training on local Kubernetes Cluster (Minikube)
 One of the amazing features of Kubernetes is that you can run it anywhere i.e., local, on-prem and cloud. We will show you how to run your code on local Kubernetes cluster created using minikube and the exact workflow will work on the cloud. 
 
- * Start a local Kubernetes cluster using minikube and specify a `--vm-driver` and checkout the cluster configuration. 
+Start a local Kubernetes cluster using minikube and specify a `--vm-driver` and checkout the cluster configuration in UI.
 
 ```
 minikube start --vm-driver=hyperkit
 minikube dashboard #opens a dashboard local Kubernetes UI
 ```
+
+Deploy Seldon core to your minikube Kubernetes cluster by following the instructions [here](https://github.com/kubeflow/examples/blob/fb2fb26f710f7c03996f08d81607f5ebf7d5af09/github_issue_summarization/serving_the_model.md#deploy-seldon-core). Once everything is successful you can verify it using `kubectl get pods -n${NAMESPACE}`.
+
+```
+NAME                                      READY     STATUS    RESTARTS   AGE
+ambassador-849fb9c8c5-5kx6l               2/2       Running   0          16m
+ambassador-849fb9c8c5-pww4j               2/2       Running   0          16m
+ambassador-849fb9c8c5-zn6gl               2/2       Running   0          16m
+redis-75c969d887-fjqt8                    1/1       Running   0          30s
+seldon-cluster-manager-6c78b7d6c9-6qhtg   1/1       Running   0          30s
+spartakus-volunteer-66cc8ccd5b-9f8tw      1/1       Running   0          16m
+tf-hub-0                                  1/1       Running   0          16m
+tf-job-dashboard-7b57c549c8-bfpp8         1/1       Running   0          16m
+tf-job-operator-594d8c7ddd-lqn8r          1/1       Running   0          16m
+```
+
+
 
 ## Model Export
 The model is exported at location `/tmp/ames/housing.dat`. We will use [Seldon Core](https://github.com/SeldonIO/seldon-core/) to serve the model asset. In order to make the model servable we have created `xgboost/seldon_serve` with the following assets
