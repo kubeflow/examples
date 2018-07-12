@@ -77,7 +77,7 @@ ls -lh /tmp/ames/housing.dat
 ### Model training on local Kubernetes Cluster (Minikube)
 One of the amazing features of Kubernetes is that you can run it anywhere i.e., local, on-prem and cloud. We will show you how to run your code on local Kubernetes cluster created using minikube and the exact workflow will work on the cloud. 
 
-Start a local Kubernetes cluster using minikube and specify a `--vm-driver` and checkout the cluster configuration. 
+ * Start a local Kubernetes cluster using minikube and specify a `--vm-driver` and checkout the cluster configuration. 
 
 ```
 minikube start --vm-driver=hyperkit
