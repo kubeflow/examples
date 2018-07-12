@@ -74,6 +74,16 @@ In the above command we have mounted the container filesystem `/model/ames` to t
 ls -lh /tmp/ames/housing.dat
 ```
 
+### Model training on local Kubernetes Cluster (Minikube)
+One of the amazing features of Kubernetes is that you can run it anywhere i.e., local, on-prem and cloud. We will show you how to run your code on local Kubernetes cluster created using minikube and the exact workflow will work on the cloud. 
+
+Start a local Kubernetes cluster using minikube and specify a `--vm-driver` and checkout the cluster configuration. 
+
+```
+minikube start --vm-driver=hyperkit
+minikube dashboard #opens a dashboard local Kubernetes UI
+```
+
 ## Model Export
 The model is exported at location `/tmp/ames/housing.dat`. We will use [Seldon Core](https://github.com/SeldonIO/seldon-core/) to serve the model asset. In order to make the model servable we have created `xgboost/seldon_serve` with the following assets
 
