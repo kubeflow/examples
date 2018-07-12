@@ -155,5 +155,9 @@ tf-job-operator-594d8c7ddd-lqn8r          1/1       Running   0          16m
 Depoloy the XGBoost model
 
 ```
-ks generate seldon-serve-simple xgboost-ames   --name=xgboost-ames   --image=seldonio/housingserve:0.1   --namespace=${NAMESPACE}   --replicas=2
+ks generate seldon-serve-simple xgboost-ames   \
+                                --name=xgboost-ames   \
+                                --image=seldonio/housingserve:0.1   \
+                                --namespace=${NAMESPACE}   \
+                                --replicas=2
 ```
