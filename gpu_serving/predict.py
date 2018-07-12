@@ -1,7 +1,8 @@
+import argparse
 import json
+import requests
 import numpy as np
 from PIL import Image
-import requests
 
 import visualization_utils as vis_util
 
