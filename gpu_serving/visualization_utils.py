@@ -21,18 +21,19 @@ The functions do not return a value, instead they modify the image itself.
 """
 import collections
 import functools
-import matplotlib
+import six
 import matplotlib.pyplot as plt
 import numpy as np
 import PIL.Image as Image
 import PIL.ImageColor as ImageColor
 import PIL.ImageDraw as ImageDraw
 import PIL.ImageFont as ImageFont
-import six
 import tensorflow as tf
 
 #from object_detection.core import standard_fields as fields
 import standard_fields as fields
+
+# pylint: disable=too-many-arguments, too-many-nested-blocks, too-many-branches
 
 _TITLE_LEFT_MARGIN = 10
 _TITLE_TOP_MARGIN = 10
