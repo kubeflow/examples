@@ -16,7 +16,7 @@ class SimilarityTransformer(t2t_model.T2TModel):
   and docstrings
   """
 
-  def top(self, body_output, features):
+  def top(self, body_output, features):  # pylint: disable=no-self-use,unused-argument
     return body_output
 
   def body(self, features):
@@ -72,6 +72,6 @@ class SimilarityTransformer(t2t_model.T2TModel):
 
     return encoder_output
 
-  def infer(self, features=None, **kwargs):
+  def infer(self, features=None, **kwargs):  # pylint: disable=no-self-use,unused-argument
     predictions, _ = self(features)
     return predictions

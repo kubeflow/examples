@@ -32,7 +32,7 @@ class GithubFunctionDocstring(translate.TranslateProblem):
   def approx_vocab_size(self):
     return 2**13
 
-  def source_data_files(self, dataset_split):
+  def source_data_files(self, dataset_split):  # pylint: disable=no-self-use,unused-argument
     # TODO(sanyamkapoor): separate train/eval data set.
     return _GITHUB_FUNCTION_DOCSTRING_FILES
 
