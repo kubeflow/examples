@@ -9,7 +9,7 @@ First, follow getting started
 kubeflow.
 
 ## Prepare model
-Download the model from model zoo.
+Download a model from [model zoo](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md).
 The model should be in SavedModel format (including a `saved_model.pb` file and a
 optional `variables/` folder.
 
@@ -19,17 +19,14 @@ tar -xzf faster_rcnn_nas_coco_2018_01_28.tar.gz
 gsutil cp faster_rcnn_nas_coco_2018_01_28/saved_model/saved_model.pb gs://YOUR_BUCKET/YOUR_MODEL/1/
 ```
 
+Alternatively, you can use the above model uploaded at `gs://kubeflow-examples-data/object-detection-coco/`.
+
 ## Deploy serving component
 
+After deploying Kubeflow, you should have a ksonnet app; cd to that directory.
 ```
-ks init ks-app
-cd ks-app
-ks registry add kubeflow github.com/kubeflow/kubeflow/tree/master/kubeflow
-ks pkg install kubeflow/tf-serving
-
-ENV=YOUR_ENV
-ks env add $ENV
-ks env set $ENV --namespace kubeflow
+cd YOUR_KS_APP
+ks pkg install kubeflow/tf-serving  # If you haven't done it
 
 ks generate tf-serving model1 --name=coco
 ks param set model1 modelPath gs://YOUR_BUCKET/YOUR_MODEL/

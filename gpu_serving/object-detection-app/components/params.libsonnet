@@ -6,7 +6,7 @@
     model1: {
       cloud: 'gcp',
       deployHttpProxy: true,
-      gcpCredentialSecretName: 'kai-sa',
+      gcpCredentialSecretName: 'user-sa',
       modelPath: 'gs://kai-test2-models/object-detection',
       modelServerImage: 'gcr.io/kubeflow-images-public/tensorflow-serving-1.8gpu:latest',
       name: 'coco',
