@@ -29,7 +29,7 @@ ks env add ${KF_ENV}
 ks param set kubeflow-core cloud gke --env=${KF_ENV}
 
 # Set Jupyter storageclass
-ks param set kubeflow-core jupyterNotebookPVCMount /home/jovyan/work
+ks param set kubeflow-core jupyterNotebookPVCMount /home/jovyan
 
 # Create a namespace for my deployment
 kubectl create namespace ${NAMESPACE}

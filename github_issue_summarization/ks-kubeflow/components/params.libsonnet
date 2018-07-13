@@ -3,7 +3,8 @@
   components: {
     // Component-level parameters, defined initially from 'ks prototype use ...'
     // Each object below should correspond to a component in the components/ directory
-    "data-pvc": {},
+    "data-pvc": {
+    },
     seldon: {
       apifeImage: "seldonio/apife:0.1.5",
       apifeServiceType: "NodePort",
@@ -76,7 +77,7 @@
       jupyterHubAuthenticator: "null",
       jupyterHubImage: "gcr.io/kubeflow/jupyterhub-k8s:v20180531-3bb991b1",
       jupyterHubServiceType: "ClusterIP",
-      jupyterNotebookPVCMount: "null",
+      jupyterNotebookPVCMount: "/home/jovyan",
       jupyterNotebookRegistry: "gcr.io",
       jupyterNotebookRepoName: "kubeflow-images-public",
       name: "kubeflow-core",
