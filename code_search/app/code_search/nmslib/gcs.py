@@ -62,6 +62,7 @@ def upload_gcs_file(src_file, target_file):
 def maybe_upload_gcs_file(src_file, target_file):
   """Wraps `upload_gcs_file` with checks"""
   if not is_gcs_path(target_file):
+    os.rename(src_file, target_file)
     return target_file
 
   return upload_gcs_file(src_file, target_file)
