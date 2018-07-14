@@ -41,10 +41,16 @@ IMAGE_NAME=ames-housing
 VERSION=v1
 ```
 
+Use `gcloud` command to get the GCP project
+
+```
+PROJECT_ID=`gcloud config get-value project`
+```
+
 Let's create a docker image from our Dockerfile
 
 ```
-docker build -t ${IMAGE_NAME}:${VERSION} .
+docker build -t gcr.io/$PROJECT_ID/${IMAGE_NAME}:${VERSION} .
 ```
 
 Once the above command is successful you should be able to see the docker
@@ -52,7 +58,6 @@ images on your local machine `docker images`. Next we will upload the image to
 [Google Container Registry](https://cloud.google.com/container-registry/)
 
 ```
-PROJECT_ID=`gcloud config get-value project`
 gcloud docker -- push gcr.io/${PROJECT_ID}/${IMAGE_NAME}:${VERSION}
 ```
 
