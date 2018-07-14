@@ -58,7 +58,8 @@ images on your local machine `docker images`. Next we will upload the image to
 [Google Container Registry](https://cloud.google.com/container-registry/)
 
 ```
-gcloud docker -- push gcr.io/${PROJECT_ID}/${IMAGE_NAME}:${VERSION}
+gcloud auth configure-docker
+docker push gcr.io/${PROJECT_ID}/${IMAGE_NAME}:${VERSION}
 ```
 
 ## Model Training
