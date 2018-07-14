@@ -67,7 +67,7 @@ docker push gcr.io/${PROJECT_ID}/${IMAGE_NAME}:${VERSION}
 Once you have performed `docker build` you should be able to see the images by running `docker images`. Run the training by issuing the following command 
 
 ```
-IMAGE=`gcr.io/${PROJECT_ID}/${IMAGE_NAME}:${VERSION}`
+IMAGE=gcr.io/${PROJECT_ID}/${IMAGE_NAME}:${VERSION}
 docker run -v /tmp/ames/:/model/ames -it $IMAGE --train-input examples/xgboost/ames_dataset/train.csv \
                                                 --model-file /model/ames/housing.dat \
                                                 --learning-rate 0.1 \
