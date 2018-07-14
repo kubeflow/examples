@@ -64,14 +64,15 @@ docker push gcr.io/${PROJECT_ID}/${IMAGE_NAME}:${VERSION}
 
 ## Model Training
 
-Once you have performed `docker build` you should be able to see the images by running `docker images`. Get the `IMAGE_ID` for the image `seldonio/housingserve` and run the training by issuing the following command 
+Once you have performed `docker build` you should be able to see the images by running `docker images`. Run the training by issuing the following command 
 
 ```
-docker run -v /tmp/ames/:/model/ames -it $IMAGE_ID --train-input examples/xgboost/ames_dataset/train.csv \
-                                                   --model-file /model/ames/housing.dat \
-                                                   --learning-rate 0.1 \
-                                                   --n-estimators 30000 \
-                                                   --early-stopping-rounds 50
+IMAGE=`gcr.io/${PROJECT_ID}/${IMAGE_NAME}:${VERSION}`
+docker run -v /tmp/ames/:/model/ames -it $IMAGE --train-input examples/xgboost/ames_dataset/train.csv \
+                                                --model-file /model/ames/housing.dat \
+                                                --learning-rate 0.1 \
+                                                --n-estimators 30000 \
+                                                --early-stopping-rounds 50
 ```
 
 In the above command we have mounted the container filesystem `/model/ames` to the host filesystem `/tmp/ames` so that the model is available on localhost. Check the local host filesystem for the trained XGBoost model
