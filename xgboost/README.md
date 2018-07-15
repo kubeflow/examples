@@ -94,7 +94,15 @@ In this section we will run the above docker container on a [Google Kubernetes E
    ```
  
  * Run docker container on GKE
-   Foo
+   Use the `kubectl` command to run the image on GKE
+   
+   ```
+   kubectl cluster-info   
+   ```
+   
+   ```
+   kubectl run xgboost-ames --image=$IMAGE
+   ```
 
 ## Model Export
 The model is exported at location `/tmp/ames/housing.dat`. We will use [Seldon Core](https://github.com/SeldonIO/seldon-core/) to serve the model asset. In order to make the model servable we have created `xgboost/seldon_serve` with the following assets
