@@ -88,7 +88,7 @@ In this section we will run the above docker container on a [Google Kubernetes E
    Follow the [instructions](https://cloud.google.com/kubernetes-engine/docs/how-to/creating-a-cluster) to create a GKE cluster
    
    ```
-   CLUSTER_NAME=xgboost_kubeflow
+   CLUSTER_NAME=xgboost-kf
    COMPUTE_ZONE=us-central1-a
    gcloud container clusters create $CLUSTER_NAME --zone $COMPUTE_ZONE --num-nodes 1
    ```
