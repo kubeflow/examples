@@ -101,7 +101,7 @@ In this section we will run the above docker container on a [Google Kubernetes E
    ```
    
    ```
-   kubectl run xgboost3 --image=$IMAGE -- --train-input /mnt/train.csv --model-file /home/housing.dat --learning-rate 0.1 --n-estimators 30000 --early-stopping-rounds 50
+   kubectl run xgboost-kf --image=$IMAGE -- --train-input /mnt/train.csv --model-file /home/housing.dat --learning-rate 0.1 --n-estimators 30000 --early-stopping-rounds 50
    ```
 
 ## Model Export
