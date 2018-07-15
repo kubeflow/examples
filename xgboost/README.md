@@ -81,6 +81,15 @@ In the above command we have mounted the container filesystem `/model/ames` to t
 ls -lh /tmp/ames/housing.dat
 ```
 
+### Run the model training on GKE
+In this section we will run the above docker container on a [Google Kubernetes Engine](gke). There are two steps to eprform the training
+
+ * Create a GKE cluster
+   Follow the [instructions](https://cloud.google.com/kubernetes-engine/docs/how-to/creating-a-cluster) to create a GKE cluster
+ 
+ * Run docker container on GKE
+   Foo
+
 ## Model Export
 The model is exported at location `/tmp/ames/housing.dat`. We will use [Seldon Core](https://github.com/SeldonIO/seldon-core/) to serve the model asset. In order to make the model servable we have created `xgboost/seldon_serve` with the following assets
 
