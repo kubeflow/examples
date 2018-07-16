@@ -131,7 +131,14 @@ cd build
 ./build_image.sh
 ```
 
-You should see the docker image locally `gcr.io/cloudmlplat/housingserve` which can be run locally to serve the model. 
+You should see the docker image locally `gcr.io/cloudmlplat/housingserve` which can be run locally to serve the model. Before running the image locally push it to `gcr.io`
+
+```
+gcloud auth configure-docker
+docker push gcr.io/${PROJECT_ID}/housingserve:0.1
+```
+
+Let's run the docker image now
 
 ```
 docker run -p 5000:5000 gcr.io/cloudmlplat/housingserve:0.1
