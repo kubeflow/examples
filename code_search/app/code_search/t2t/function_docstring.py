@@ -6,7 +6,11 @@ from tensor2tensor.utils import metrics
 from tensor2tensor.utils import registry
 
 
-# There are 10 splits of the data as CSV files.
+##
+# These URLs are only for fallback purposes in case the specified
+# `data_dir` does not contain the data. However, note that the data
+# files must have the same naming pattern.
+#
 _DATA_BASE_URL = 'https://storage.googleapis.com/kubeflow-examples/t2t-code-search/data'
 _GITHUB_FUNCTION_DOCSTRING_FILES = [
     [
