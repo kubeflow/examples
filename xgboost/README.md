@@ -62,7 +62,7 @@ gcloud auth configure-docker
 docker push gcr.io/${PROJECT_ID}/${IMAGE_NAME}:${VERSION}
 ```
 
-## Model Training
+## Model Training Locally
 
 Once you have performed `docker build` you should be able to see the images by running `docker images`. Run the training by issuing the following command 
 
@@ -81,7 +81,7 @@ In the above command we have mounted the container filesystem `/model/ames` to t
 ls -lh /tmp/ames/housing.dat
 ```
 
-### Run the model training on GKE
+## Run the model training on GKE
 In this section we will run the above docker container on a [Google Kubernetes Engine](gke). There are two steps to eprform the training
 
  * Create a GKE cluster
@@ -117,7 +117,7 @@ The model is exported at location `/tmp/ames/housing.dat`. We will use [Seldon C
  * `housing.dat`
  * `requirements.txt`
 
-## Model Serving
+## Model Serving Locally
 We are going to use [seldon-core](https://github.com/SeldonIO/seldon-core/) to serve the model. [HousingServe.py](seldon_serve/HousingServe.py) contains the code to serve the model. Run the following command to create a microservice 
 
 ```
@@ -164,7 +164,7 @@ curl -H "Content-Type: application/x-www-form-urlencoded" -d 'json={"data":{"ten
 }
 ```
 
-### Model deployment on local Kubernetes Cluster (Minikube)
+## Model deployment on local Kubernetes Cluster (Minikube)
 One of the amazing features of Kubernetes is that you can run it anywhere i.e., local, on-prem and cloud. We will show you how to run your code on local Kubernetes cluster created using minikube and the exact workflow will work on the cloud. 
 
 Start a local Kubernetes cluster using minikube and specify a `--vm-driver` and checkout the cluster configuration in UI.
