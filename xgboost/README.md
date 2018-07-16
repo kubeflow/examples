@@ -92,16 +92,36 @@ In this section we will run the above docker container on a [Google Kubernetes E
    COMPUTE_ZONE=us-central1-a
    gcloud container clusters create $CLUSTER_NAME --zone $COMPUTE_ZONE --num-nodes 1
    ```
+   
+ * Create a Persistent Volume by following the instructions [here](https://kubernetes.io/docs/tasks/configure-pod-container/configure-persistent-volume-storage/). You will need to run the following `kubectl create` commands in order to get the `claim` attached to the `pod`.
+ 
+ ```
+ kubectl create -f py-volume.yaml
+ kubectl create -f py-claim.yaml
+ ```
+
  
  * Run docker container on GKE
    Use the `kubectl` command to run the image on GKE
    
    ```
-   kubectl cluster-info   
+   kubectl create -f py-pod.yaml
    ```
    
+   Once the above command finishes you will have an XGBoost model at `/mnt/xgboost/housing.dat`
+   
    ```
-   kubectl run xgboost-kf --image=$IMAGE -- --train-input /mnt/train.csv --model-file /home/housing.dat --learning-rate 0.1 --n-estimators 30000 --early-stopping-rounds 50
+   [202]	validation_0-rmse:30068.2
+[203]	validation_0-rmse:30118.9
+[204]	validation_0-rmse:30117.3
+[205]	validation_0-rmse:30105.4
+Stopping. Best iteration:
+[165]	validation_0-rmse:30021
+
+Best RMSE on eval: 30020.96 with 166 rounds
+
+MAE on test: 16991.32
+Model export success /mnt/xgboost/housing.dat
    ```
 
 ## Model Export
