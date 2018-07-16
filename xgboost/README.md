@@ -109,20 +109,6 @@ In this section we will run the above docker container on a [Google Kubernetes E
    ```
    
    Once the above command finishes you will have an XGBoost model at `/mnt/xgboost/housing.dat`
-   
-   ```
-   [202]	validation_0-rmse:30068.2
-[203]	validation_0-rmse:30118.9
-[204]	validation_0-rmse:30117.3
-[205]	validation_0-rmse:30105.4
-Stopping. Best iteration:
-[165]	validation_0-rmse:30021
-
-Best RMSE on eval: 30020.96 with 166 rounds
-
-MAE on test: 16991.32
-Model export success /mnt/xgboost/housing.dat
-   ```
 
 ## Model Export
 The model is exported at location `/tmp/ames/housing.dat`. We will use [Seldon Core](https://github.com/SeldonIO/seldon-core/) to serve the model asset. In order to make the model servable we have created `xgboost/seldon_serve` with the following assets
