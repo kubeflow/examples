@@ -210,3 +210,38 @@ ks generate seldon-serve-simple xgboost-ames   \
                                 
 ks apply ${KF_ENV} -c xgboost-ames
 ```
+
+## Sample request and response
+Seldon Core uses ambassador to route it's requests. To send requests to the model, you can port-forward the ambassador container locally:
+
+```
+kubectl port-forward $(kubectl get pods -n ${NAMESPACE} -l service=ambassador -o jsonpath='{.items[0].metadata.name}') -n ${NAMESPACE} 8080:80
+
+```
+
+Now you are ready to send requests on `localhost:5000`
+
+```
+curl -H "Content-Type: application/x-www-form-urlencoded" -d 'json={"data":{"tensor":{"shape":[1,37],"values":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37]}}}' http://localhost:5000/predict
+```
+
+```
+{
+  "data": {
+    "names": [
+      "t:0", 
+      "t:1"
+    ], 
+    "tensor": {
+      "shape": [
+        1, 
+        2
+      ], 
+      "values": [
+        97522.359375, 
+        97522.359375
+      ]
+    }
+  }
+}
+```
