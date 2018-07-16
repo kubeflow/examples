@@ -121,7 +121,7 @@ The model is exported at location `/tmp/ames/housing.dat`. We will use [Seldon C
 We are going to use [seldon-core](https://github.com/SeldonIO/seldon-core/) to serve the model. [HousingServe.py](seldon_serve/HousingServe.py) contains the code to serve the model. Run the following command to create a microservice 
 
 ```
-docker run -v $(pwd):/seldon_serve seldonio/core-python-wrapper:0.7 /seldon_serve HousingServe 0.1 seldonio
+docker run -v $(pwd):/seldon_serve seldonio/core-python-wrapper:0.7 /seldon_serve HousingServe 0.1 gcr.io --base-image=python:3.6 --image-name=${PROJECT_ID}/housingserve
 ```
 
 Let's build the seldon-core microservice image. You can find seldon core model wrapping details [here](https://github.com/SeldonIO/seldon-core/blob/master/docs/wrappers/python.md).
@@ -169,6 +169,10 @@ One of the amazing features of Kubernetes is that you can run it anywhere i.e., 
 
 Start a local Kubernetes cluster using minikube and specify a `--vm-driver` and checkout the cluster configuration in UI.
 
+```
+KF_ENV=cloud
+ks env add ${KF_ENV}
+```
 ```
 minikube start --vm-driver=hyperkit
 minikube dashboard #opens a dashboard local Kubernetes UI
