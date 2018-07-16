@@ -10,7 +10,7 @@ spec:
       - name: decompress-images
         image: ubuntu:16.04
         imagePullPolicy: IfNotPresent
-        command: ["tar", "-xzvf", "/pets_data/images.tar.gz", "-C", "/pets_data"]
+        command: ["tar", "--no-same-owner", "-xzvf", "/pets_data/images.tar.gz", "-C", "/pets_data"]
         volumeMounts:
           - mountPath: "/pets_data"
             name: pets-data
