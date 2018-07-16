@@ -20,15 +20,12 @@ class CodeSearchEngine:
     self.index.loadIndex(index_file)
 
   def embed(self, query_str):
-    """This function gets the vector embedding from
-    the target inference server. The steps involved are
-    encoding the input query and decoding the responses
-    from the TF Serving service
-    TODO(sanyamkapoor): This code is still under construction
-    and only representative of the steps needed to build the
-    embedding
+    """Get query embedding from TFServing
+
+    This involves encoding the input query
+    for the TF Serving service
     """
-    encoder, decoder = get_encoder_decoder(self._problem, self._data_dir)
+    encoder, _ = get_encoder_decoder(self._problem, self._data_dir)
     encoded_query = encode_query(encoder, query_str)
     data = {"instances": [{"input": {"b64": encoded_query}}]}
 
@@ -37,10 +34,8 @@ class CodeSearchEngine:
                              data=json.dumps(data))
 
     result = response.json()
-    for prediction in result['predictions']:
-      prediction['outputs'] = decoder.decode(prediction['outputs'])
-
-    return result['predicts'][0]['outputs']
+    result['predictions'] = [preds['outputs'] for preds in result['predictions']]
+    return result
 
   def query(self, query_str: str, k=2):
     embedding = self.embed(query_str)

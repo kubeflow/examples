@@ -11,6 +11,8 @@ class CodeSearchServer:
     self.port = port
     self.engine = engine
 
+    self.init_routes()
+
   def init_routes(self):
     # pylint: disable=unused-variable
 
@@ -20,12 +22,22 @@ class CodeSearchServer:
 
     @self.app.route('/query')
     def query():
-      query_str = request.args.get('query')
+      query_str = request.args.get('q')
       if not query_str:
         abort(make_response(
           jsonify(status=400, error="empty query"), 400))
 
       result = self.engine.query(query_str)
+      return make_response(jsonify(result=result))
+
+    @self.app.route('/embed')
+    def embed():
+      query_str = request.args.get('q')
+      if not query_str:
+        abort(make_response(
+          jsonify(status=400, error="empty query"), 400))
+
+      result = self.engine.embed(query_str)
       return make_response(jsonify(result=result))
 
   def run(self):

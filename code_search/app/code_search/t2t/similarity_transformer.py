@@ -16,13 +16,15 @@ class SimilarityTransformer(t2t_model.T2TModel):
   and docstrings
   """
 
+  def top(self, body_output, features):  # pylint: disable=no-self-use,unused-argument
+    return body_output
+
   def body(self, features):
     """Body of the Similarity Transformer Network."""
 
     with tf.variable_scope('string_embedding'):
       string_embedding = self.encode(features, 'inputs')
 
-    loss = None
     if 'targets' in features:
       with tf.variable_scope('code_embedding'):
         code_embedding = self.encode(features, 'targets')
@@ -45,8 +47,7 @@ class SimilarityTransformer(t2t_model.T2TModel):
       loss = tf.nn.sigmoid_cross_entropy_with_logits(labels=labels,
                                                      logits=logits)
 
-    if loss is not None:
-      return string_embedding, loss
+      return string_embedding, {'training': loss}
 
     return string_embedding
 
@@ -70,3 +71,7 @@ class SimilarityTransformer(t2t_model.T2TModel):
     encoder_output = tf.reduce_mean(tf.squeeze(encoder_output, axis=2), axis=1)
 
     return encoder_output
+
+  def infer(self, features=None, **kwargs):  # pylint: disable=no-self-use,unused-argument
+    predictions, _ = self(features)
+    return predictions

@@ -25,7 +25,7 @@ def parse_server_args(args):
                      help='Path to index file created by nmslib')
   parser.add_argument('--problem', type=str, required=True,
                       help='Name of the T2T problem')
-  parser.add_argument('--data-dir', type=str, metavar='', default='/tmp',
+  parser.add_argument('--data-dir', type=str, required=True,
                      help='Path to working data directory')
   parser.add_argument('--serving-url', type=str, required=True,
                       help='Complete URL to TF Serving Inference server')
@@ -52,7 +52,12 @@ def parse_creator_args(args):
   parser.add_argument('--tmp-dir', type=str, metavar='', default='/tmp/nmslib',
                      help='Path to temporary data directory')
 
-  return parser.parse_args(args)
+  args = parser.parse_args(args)
+  args.data_file = os.path.expanduser(args.data_file)
+  args.index_file = os.path.expanduser(args.index_file)
+  args.tmp_dir = os.path.expanduser(args.tmp_dir)
+
+  return args
 
 def server():
   args = parse_server_args(sys.argv[1:])
@@ -78,8 +83,6 @@ def creator():
     os.makedirs(args.tmp_dir, exist_ok=True)
 
   data_file = maybe_download_gcs_file(args.data_file, args.tmp_dir)
-
-  # TODO(sanyamkapoor): parse data file into a numpy array
 
   data = np.load(data_file)
 
