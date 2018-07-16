@@ -25,8 +25,6 @@ In this part you will setup Kubeflow on an existing Kubernetes cluster. Checkout
 
  * ksonnet
  * Kubernetes
- * minikube
- * hyperkit (vm-driver)
 
 ## Data Preparation
 You can download the dataset from the [Kaggle competition](https://www.kaggle.com/c/house-prices-advanced-regression-techniques/data). In order to make it convenient we have uploaded the dataset on Github here [xgboost/ames_dataset](ames_dataset). 
@@ -179,10 +177,6 @@ Start a local Kubernetes cluster using minikube and specify a `--vm-driver` and 
 ```
 KF_ENV=cloud
 ks env add ${KF_ENV}
-```
-```
-minikube start --vm-driver=hyperkit
-minikube dashboard #opens a dashboard local Kubernetes UI
 ```
 
 Deploy Seldon core to your minikube Kubernetes cluster by following the instructions [here](https://github.com/kubeflow/examples/blob/fb2fb26f710f7c03996f08d81607f5ebf7d5af09/github_issue_summarization/serving_the_model.md#deploy-seldon-core). Once everything is successful you can verify it using `kubectl get pods -n${NAMESPACE}`.
