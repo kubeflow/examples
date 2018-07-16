@@ -164,8 +164,8 @@ curl -H "Content-Type: application/x-www-form-urlencoded" -d 'json={"data":{"ten
 }
 ```
 
-## Model deployment on local Kubernetes Cluster (Minikube)
-One of the amazing features of Kubernetes is that you can run it anywhere i.e., local, on-prem and cloud. We will show you how to run your code on local Kubernetes cluster created using minikube and the exact workflow will work on the cloud. 
+## Model deployment on GKE
+One of the amazing features of Kubernetes is that you can run it anywhere i.e., local, on-prem and cloud. We will show you how to run your code on Google Kubernetes Engine. 
 
 Start a local Kubernetes cluster using minikube and specify a `--vm-driver` and checkout the cluster configuration in UI.
 
