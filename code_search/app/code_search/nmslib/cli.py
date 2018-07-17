@@ -12,9 +12,9 @@ import os
 import argparse
 import numpy as np
 
-from code_search.nmslib.gcs import maybe_download_gcs_file, maybe_upload_gcs_file
-from code_search.nmslib.search_engine import CodeSearchEngine
-from code_search.nmslib.search_server import CodeSearchServer
+from code_search_dataflow.nmslib.gcs import maybe_download_gcs_file, maybe_upload_gcs_file
+from code_search_dataflow.nmslib.search_engine import CodeSearchEngine
+from code_search_dataflow.nmslib.search_server import CodeSearchServer
 
 def parse_server_args(args):
   parser = argparse.ArgumentParser(prog='nmslib Flask Server')

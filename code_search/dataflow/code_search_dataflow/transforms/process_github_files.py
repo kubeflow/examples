@@ -1,102 +1,11 @@
-import os
-import logging
-import time
-import csv
 import io
+import csv
 import apache_beam as beam
-from apache_beam import pvalue
-from apache_beam.metrics import Metrics
-from apache_beam.options.pipeline_options import StandardOptions, PipelineOptions, \
-  GoogleCloudOptions, SetupOptions, WorkerOptions
 from apache_beam.io.gcp.internal.clients import bigquery
 
-
-def create_pipeline_opts(args):
-  """Create standard Pipeline Options for Google Cloud Dataflow"""
-  options = PipelineOptions()
-  options.view_as(StandardOptions).runner = 'DataflowRunner'
-
-  google_cloud_options = options.view_as(GoogleCloudOptions)
-  google_cloud_options.project = args.project
-  google_cloud_options.job_name = args.job_name
-  google_cloud_options.temp_location = '{}/temp'.format(args.storage_bucket)
-  google_cloud_options.staging_location = '{}/staging'.format(args.storage_bucket)
-
-  options.view_as(WorkerOptions).num_workers = args.num_workers
-  options.view_as(WorkerOptions).max_num_workers = args.max_num_workers
-  options.view_as(WorkerOptions).machine_type = args.machine_type
-
-  # Point to `setup.py` to allow Dataflow runner to install the package
-  options.view_as(SetupOptions).setup_file = os.path.join(
-    os.path.dirname(os.path.dirname(__file__)), 'setup.py')
-
-  return options
-
-
-class SplitRepoPath(beam.DoFn):
-  # pylint: disable=abstract-method
-  """Split the space-delimited file `repo_path` into owner repository (`nwo`)
-  and file path (`path`)"""
-
-  def process(self, element, *args, **kwargs): # pylint: disable=unused-argument,no-self-use
-    nwo, path = element.pop('repo_path').split(' ', 1)
-    element['nwo'] = nwo
-    element['path'] = path
-    yield element
-
-
-class TokenizeCodeDocstring(beam.DoFn):
-  # pylint: disable=abstract-method
-  """Compute code/docstring pairs from incoming BigQuery row dict"""
-  def __init__(self):
-    super(TokenizeCodeDocstring, self).__init__()
-
-    self.tokenization_time_ms = Metrics.counter(self.__class__, 'tokenization_time_ms')
-
-  def process(self, element, *args, **kwargs): # pylint: disable=unused-argument,no-self-use
-    try:
-      from preprocess.tokenizer import get_function_docstring_pairs
-
-      start_time = time.time()
-      element['pairs'] = get_function_docstring_pairs(element.pop('content'))
-      self.tokenization_time_ms.inc(int((time.time() - start_time) * 1000.0))
-
-      yield element
-    except Exception as e: #pylint: disable=broad-except
-      logging.warning('Tokenization failed, %s', e.message)
-      yield pvalue.TaggedOutput('err_rows', element)
-
-
-class ExtractFuncInfo(beam.DoFn):
-  # pylint: disable=abstract-method
-  """Convert pair tuples from `TokenizeCodeDocstring` into dict containing query-friendly keys"""
-  def __init__(self, info_keys):
-    super(ExtractFuncInfo, self).__init__()
-
-    self.info_keys = info_keys
-
-  def process(self, element, *args, **kwargs): # pylint: disable=unused-argument
-    try:
-      info_rows = [dict(zip(self.info_keys, pair)) for pair in element.pop('pairs')]
-      info_rows = [self.merge_two_dicts(info_dict, element) for info_dict in info_rows]
-      info_rows = map(self.dict_to_unicode, info_rows)
-      yield info_rows
-    except Exception as e: #pylint: disable=broad-except
-      logging.warning('Function Info extraction failed, %s', e.message)
-      yield pvalue.TaggedOutput('err_rows', element)
-
-  @staticmethod
-  def merge_two_dicts(dict_a, dict_b):
-    result = dict_a.copy()
-    result.update(dict_b)
-    return result
-
-  @staticmethod
-  def dict_to_unicode(data_dict):
-    for k, v in data_dict.items():
-      if isinstance(v, str):
-        data_dict[k] = v.decode('utf-8', 'ignore')
-    return data_dict
+from ..do_fns import ExtractFuncInfo
+from ..do_fns import SplitRepoPath
+from ..do_fns import TokenizeCodeDocstring
 
 
 class ProcessGithubFiles(beam.PTransform):
