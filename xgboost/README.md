@@ -199,9 +199,9 @@ Depoloy the XGBoost model
 ```
 ks generate seldon-serve-simple xgboost-ames   \
                                 --name=xgboost-ames   \
-                                --image=seldonio/housingserve:0.1   \
+                                --image=gcr.io/cloudmlplat/housingserve:0.1   \
                                 --namespace=${NAMESPACE}   \
-                                --replicas=2
+                                --replicas=1
                                 
 ks apply ${KF_ENV} -c xgboost-ames
 ```
