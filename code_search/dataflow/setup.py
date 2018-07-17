@@ -6,7 +6,7 @@ from setuptools import setup, find_packages, Command as SetupToolsCommand
 
 with open('requirements.txt', 'r') as f:
   install_requires = f.readlines()
-  install_requires += ['kubeflow-batch-predict']
+  install_requires += ['kubeflow-batch-predict==0.1-alpha']
 
 CUSTOM_COMMANDS = [
   ['python', '-m', 'spacy', 'download', 'en']
@@ -53,6 +53,12 @@ setup(name='code-search-dataflow',
           'build': Build,
           'CustomCommands': CustomCommands,
       },
+      entry_points={
+        'console_scripts': [
+          'code-search-preprocess=code_search_dataflow.cli:create_github_pipeline',
+          'code-search-predict=code_search_dataflow.cli:create_batch_predict_pipeline',
+        ]
+      },
       dependency_links=[
-          'git+https://github.com/kubeflow/batch-predict.git@master#egg=kubeflow-batch-predict-0.1-alpha',
+          'git+https://github.com/kubeflow/batch-predict#egg=kubeflow-batch-predict-0.1-alpha',
       ])
