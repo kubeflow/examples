@@ -14,6 +14,7 @@ Kubernetes Engine](https://cloud.google.com/kubernetes-engine/). In addition to 
  * [Data Preparation](#data-preparation)
  * [Dockerfile](#dockerfile)
  * [Model Training](#model-training-locally)
+ * [Model Training on GKE](#model-training-on-gke)
  * [Model Export](#model-export)
  * [Model Serving Locally](#model-serving)
  * [Deploying Model to Kubernetes Cluster](#deploying-the-model-to-kubernetes-cluster)
@@ -79,7 +80,7 @@ In the above command we have mounted the container filesystem `/model/ames` to t
 ls -lh /tmp/ames/housing.dat
 ```
 
-## Run the model training on GKE
+## Model training on GKE
 In this section we will run the above docker container on a [Google Kubernetes Engine](gke). There are two steps to eprform the training
 
  * Create a GKE cluster
