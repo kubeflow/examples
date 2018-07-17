@@ -81,6 +81,16 @@ class ProcessGithubFiles(beam.PTransform):
                                                   schema=self.create_output_schema())
     )
 
+  @staticmethod
+  def get_key_list():
+    filter_keys = [
+        'original_function',
+        'lineno',
+    ]
+    key_list = [col for col in ProcessGithubFiles.data_columns
+                if col not in filter_keys]
+    return key_list
+
   def format_for_write(self, row):
     """This method filters keys that we don't need in the
     final CSV. It must ensure that there are no multi-line
@@ -89,11 +99,7 @@ class ProcessGithubFiles(beam.PTransform):
     derived Dataflow steps. This uses the CSV Writer
     to handle all edge cases like quote escaping."""
 
-    filter_keys = [
-        'original_function',
-        'lineno',
-    ]
-    target_keys = [col for col in self.data_columns if col not in filter_keys]
+    target_keys = self.get_key_list()
     target_values = [row[key].encode('utf-8') for key in target_keys]
 
     with io.BytesIO() as fs:
