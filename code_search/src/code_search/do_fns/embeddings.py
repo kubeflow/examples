@@ -41,3 +41,15 @@ class EncodeExample(beam.DoFn):
 
     element['input'] = {'b64': encoded_example}
     yield element
+
+
+class ProcessPrediction(beam.DoFn):
+  """Process results from PredictionDoFn
+
+  TODO(sanyamkapoor):
+  This class processes predictions from another
+  DoFn, to make sure it is a correctly formatted dict.
+  """
+  def process(self, element, *args, **kwargs):
+    data = element
+    yield element

@@ -2,7 +2,7 @@ import apache_beam as beam
 from kubeflow_batch_predict.dataflow.batch_prediction import PredictionDoFn
 
 from ..do_fns.embeddings import GithubCSVToDict
-from ..do_fns.embeddings import EncodeExample
+from ..do_fns.embeddings import EncodeExample, ProcessPrediction
 
 class GithubCodeEmbed(beam.PTransform):
   """Embed text in CSV files using the trained model.
@@ -26,8 +26,9 @@ class GithubCodeEmbed(beam.PTransform):
 
     batch_predict = (csv_dict_rows
       | "Prepare Encoded Input" >> beam.ParDo(EncodeExample(self.problem, self.data_dir))
-      # | "Make predictions" >> beam.ParDo(PredictionDoFn(framework='TENSORFLOW'),
-      #                                    self.saved_model_dir).with_outputs("errors", main="main")
+      | "Execute predictions" >> beam.ParDo(PredictionDoFn(user_project_id='', framework='TENSORFLOW'),
+                                         self.saved_model_dir).with_outputs("errors", main="main")
+      | "Write Predictions to File" >> beam.ParDo(ProcessPrediction())
     )
 
     # predictions, errors = batch_predict.main, batch_predict.errors
