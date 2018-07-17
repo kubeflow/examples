@@ -4,7 +4,7 @@ import csv
 import apache_beam as beam
 from cStringIO import StringIO
 from ..transforms.process_github_files import ProcessGithubFiles
-from ..utils import get_encoder, encode_query
+from ..t2t.query import get_encoder, encode_query
 
 class GithubCSVToDict(beam.DoFn):
   """Split a text row and convert into a dict."""
@@ -41,6 +41,3 @@ class EncodeExample(beam.DoFn):
 
     element['input'] = {'b64': encoded_example}
     yield element
-
-
-

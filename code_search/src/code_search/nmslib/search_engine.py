@@ -3,7 +3,7 @@ import requests
 import nmslib
 import numpy as np
 from tensor2tensor import problems  # pylint: disable=unused-import
-from code_search_dataflow.t2t.query import get_encoder_decoder, encode_query
+from code_search.t2t.query import get_encoder_decoder, encode_query
 
 
 class CodeSearchEngine:

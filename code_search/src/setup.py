@@ -39,8 +39,8 @@ class CustomCommands(SetupToolsCommand):
       self.run_custom_command(command)
 
 
-setup(name='code-search-dataflow',
-      description='Kubeflow Code Search Dataflow Tasks',
+setup(name='code-search',
+      description='Kubeflow Code Search Demo',
       url='https://www.github.com/kubeflow/examples',
       author='Google',
       author_email='sanyamkapoor@google.com',
@@ -55,8 +55,10 @@ setup(name='code-search-dataflow',
       },
       entry_points={
         'console_scripts': [
-          'code-search-preprocess=code_search_dataflow.cli:create_github_pipeline',
-          'code-search-predict=code_search_dataflow.cli:create_batch_predict_pipeline',
+          'code-search-preprocess=code_search.cli:create_github_pipeline',
+          'code-search-predict=code_search.cli:create_batch_predict_pipeline',
+          'nmslib-serve=code_search.nmslib.cli:server',
+          'nmslib-create=code_search.nmslib.cli:creator',
         ]
       },
       dependency_links=[

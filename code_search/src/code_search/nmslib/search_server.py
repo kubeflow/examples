@@ -1,5 +1,5 @@
 from flask import Flask, request, abort, jsonify, make_response
-from code_search_dataflow.nmslib.search_engine import CodeSearchEngine
+from code_search.nmslib.search_engine import CodeSearchEngine
 
 
 class CodeSearchServer:
