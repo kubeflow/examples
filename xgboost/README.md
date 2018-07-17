@@ -171,9 +171,11 @@ curl -H "Content-Type: application/x-www-form-urlencoded" -d 'json={"data":{"ten
 ```
 
 ## Model deployment on GKE
-One of the amazing features of Kubernetes is that you can run it anywhere i.e., local, on-prem and cloud. We will show you how to run your code on Google Kubernetes Engine. 
+One of the amazing features of Kubernetes is that you can run it anywhere i.e., local, on-prem and cloud. We will show you how to run your code on Google Kubernetes Engine. Start a GKE cluster by following the instructions [here](https://cloud.google.com/sdk/gcloud/reference/container/clusters/create). If you get error by following instructions in Kubeflow setup for GKE do the following
 
-Start a local Kubernetes cluster using minikube and specify a `--vm-driver` and checkout the cluster configuration in UI.
+```
+kubectl create clusterrolebinding default-admin --clusterrole=cluster-admin --user=your-user@acme.com
+```
 
 ```
 KF_ENV=cloud
