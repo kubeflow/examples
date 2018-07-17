@@ -13,7 +13,7 @@ Kubernetes Engine](https://cloud.google.com/kubernetes-engine/). In addition to 
  * [Kubeflow Setup](#kubeflow-setup)
  * [Data Preparation](#data-preparation)
  * [Dockerfile](#dockerfile)
- * [Model Training](#model-training-locally)
+ * [Model Training Locally](#model-training-locally)
  * [Model Training on GKE](#model-training-on-gke)
  * [Model Export](#model-export)
  * [Model Serving Locally](#model-serving)
