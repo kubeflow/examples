@@ -1,77 +1,61 @@
 ---
-apiVersion: kubeflow.org/v1alpha1
+apiVersion: kubeflow.org/v1alpha2
 kind: TFJob
 metadata:
   name: pets-training
 spec:
-  replicaSpecs:
-  - replicas: 1
-    template:
-      spec:
-        containers:
-        - image: lcastell/pets_object_detection
-          imagePullPolicy: IfNotPresent
-          name: tensorflow
-          workingDir: /models
-          command:
-            - "python"
-            - "research/object_detection/train.py"
-          args:
-            - "--logtostderr"
-            - "--pipeline_config_path=/pets_data/faster_rcnn_resnet101_pets.config"
-            - "--train_dir=/pets_data/train"
-          volumeMounts:
-          - mountPath: "/pets_data"
-            name: pets-data
-        volumes:
-        - name: pets-data
-          persistentVolumeClaim:
-            claimName: pets-data-claim
-        restartPolicy: OnFailure
-    tfReplicaType: MASTER
-  - replicas: 1
-    template:
-      spec:
-        containers:
-        - image: lcastell/pets_object_detection
-          imagePullPolicy: IfNotPresent
-          name: tensorflow
-          command:
-            - "python"
-            - "research/object_detection/train.py"
-          args:
-            - "--logtostderr"
-            - "--pipeline_config_path=/pets_data/faster_rcnn_resnet101_pets.config"
-            - "--train_dir=/pets_data/train"
-          volumeMounts:
-          - mountPath: "/pets_data"
-            name: pets-data
-        volumes:
-        - name: pets-data
-          persistentVolumeClaim:
-            claimName: pets-data-claim
-        restartPolicy: OnFailure
-    tfReplicaType: WORKER
-  - replicas: 1
-    template:
-      spec:
-        containers:
-        - image: lcastell/pets_object_detection
-          imagePullPolicy: IfNotPresent
-          name: tensorflow
-          command:
-            - "python"
-            - "research/object_detection/train.py"
-          args:
-            - "--logtostderr"
-            - "--pipeline_config_path=/pets_data/faster_rcnn_resnet101_pets.config"
-            - "--train_dir=/pets_data/train"
-          volumeMounts:
-          - mountPath: "/pets_data"
-            name: pets-data
-        volumes:
-        - name: pets-data
-          persistentVolumeClaim:
-            claimName: pets-data-claim
-        restartPolicy: OnFailure
-    tfReplicaType: PS
+  tfReplicaSpecs:
+    PS:
+      replicas: 1
+      restartPolicy: OnFailure
+      template:
+        spec:
+          containers:
+          - name: tensorflow
+            image: lcastell/pets_object_detection
+            resources:
+              limits:
+                nvidia.com/gpu: 1
+            imagePullPolicy: IfNotPresent
+            workingDir: /models
+            command:
+              - "python"
+              - "research/object_detection/train.py"
+            args:
+              - "--logtostderr"
+              - "--pipeline_config_path=/pets_data/faster_rcnn_resnet101_pets.config"
+              - "--train_dir=/pets_data/train"
+            volumeMounts:
+              - mountPath: "/pets_data"
+                name: pets-data
+          volumes:
+            - name: pets-data
+              persistentVolumeClaim:
+                claimName: pets-data-claim
+    Worker:
+      replicas: 1
+      restartPolicy: OnFailure
+      template:
+        spec:
+          containers:
+          - name: tensorflow
+            image: lcastell/pets_object_detection
+            resources:
+              limits:
+                nvidia.com/gpu: 1
+            imagePullPolicy: IfNotPresent
+            workingDir: /models
+            command:
+              - "python"
+              - "research/object_detection/train.py"
+            args:
+              - "--logtostderr"
+              - "--pipeline_config_path=/pets_data/faster_rcnn_resnet101_pets.config"
+              - "--train_dir=/pets_data/train"
+            volumeMounts:
+              - mountPath: "/pets_data"
+                name: pets-data
+          volumes:
+            - name: pets-data
+              persistentVolumeClaim:
+                claimName: pets-data-claim
