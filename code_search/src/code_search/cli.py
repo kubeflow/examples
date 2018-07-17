@@ -10,8 +10,8 @@ from apache_beam.options.pipeline_options import SetupOptions
 from apache_beam.options.pipeline_options import StandardOptions
 from apache_beam.options.pipeline_options import WorkerOptions
 
-from code_search_dataflow.transforms import ProcessGithubFiles
-from code_search_dataflow.transforms import GithubCodeEmbed
+from code_search.transforms import ProcessGithubFiles
+from code_search.transforms import GithubCodeEmbed
 
 
 def create_pipeline_opts(args):
