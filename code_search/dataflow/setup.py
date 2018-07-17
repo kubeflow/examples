@@ -6,8 +6,8 @@ from setuptools import setup, find_packages, Command as SetupToolsCommand
 
 with open('requirements.txt', 'r') as f:
   install_requires = f.readlines()
+  install_requires += ['kubeflow-batch-predict']
 
-VERSION = '0.1.0'
 CUSTOM_COMMANDS = [
   ['python', '-m', 'spacy', 'download', 'en']
 ]
@@ -39,12 +39,12 @@ class CustomCommands(SetupToolsCommand):
       self.run_custom_command(command)
 
 
-setup(name='kubeflow-code-search',
-      description='Kubeflow Code Search Demo Preprocessing',
+setup(name='code-search-dataflow',
+      description='Kubeflow Code Search Dataflow Tasks',
       url='https://www.github.com/kubeflow/examples',
-      author='Sanyam Kapoor',
+      author='Google',
       author_email='sanyamkapoor@google.com',
-      version=VERSION,
+      version='devel',
       license='MIT',
       packages=find_packages(),
       install_requires=install_requires,
@@ -52,4 +52,7 @@ setup(name='kubeflow-code-search',
       cmdclass={
           'build': Build,
           'CustomCommands': CustomCommands,
-      })
+      },
+      dependency_links=[
+          'git+https://github.com/kubeflow/batch-predict.git@master#egg=kubeflow-batch-predict-0.1-alpha',
+      ])
