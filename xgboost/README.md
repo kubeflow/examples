@@ -20,12 +20,7 @@ Kubernetes Engine](https://cloud.google.com/kubernetes-engine/). In addition to 
  * [Deploying Model to Kubernetes Cluster](#deploying-the-model-to-kubernetes-cluster)
 
 ## Kubeflow Setup
-In this part you will setup Kubeflow on an existing Kubernetes cluster. Checkout the Kubeflow [setup guide](https://github.com/kubeflow/kubeflow#setup).  
-
-### Requirements
-
- * ksonnet
- * Kubernetes
+In this part you will setup Kubeflow on an existing Kubernetes cluster. Checkout the Kubeflow [setup guide](https://github.com/kubeflow/kubeflow#setup). 
 
 ## Data Preparation
 You can download the dataset from the [Kaggle competition](https://www.kaggle.com/c/house-prices-advanced-regression-techniques/data). In order to make it convenient we have uploaded the dataset on Github here [xgboost/ames_dataset](ames_dataset). 
