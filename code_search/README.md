@@ -3,16 +3,18 @@
 This demo implements End-to-End Semantic Code Search on Kubeflow. It is based on the public
 Github Dataset hosted on BigQuery.
 
-## Prerequisites
+## Setup
+
+### Prerequisites
 
 * Python 2.7 (with `pip`)
-* Python 3.6+ (with `pip3`)
 * Python `virtualenv`
 * Docker
+* Ksonnet
 
-**NOTE**: `Apache Beam` lacks `Python3` support and hence the multiple versions needed.
+**NOTE**: `Apache Beam` lacks `Python3` support and hence the version requirement.
 
-## Google Cloud Setup
+### Google Cloud Setup
 
 * Install [`gcloud`](https://cloud.google.com/sdk/gcloud/) CLI
 
@@ -30,24 +32,37 @@ $ gcloud services enable dataflow.googleapis.com
 
 See [Google Cloud Docs](https://cloud.google.com/docs/) for more.
 
-## Python Environment Setup
+### Python Environment Setup
 
 This demo needs multiple Python versions and `virtualenv` is an easy way to
 create isolated environments.
 
 ```
-$ virtualenv -p $(which python2) venv2 && virtualenv -p $(which python3) venv3 
+$ virtualenv -p $(which python2) env2.7 
 ```
 
-This creates two environments, `venv2` and `venv3` for `Python2` and `Python3` respectively.
+This creates a `env2.7` environment folder.
 
-To use either of the environments,
+To use the environment,
 
 ```
-$ source venv2/bin/activate | source venv3/bin/activate # Pick one
+$ source env2.7/bin/activate
 ```
 
 See [Virtualenv Docs](https://virtualenv.pypa.io/en/stable/) for more. 
+
+**NOTE**: The `env2.7` environment must be activated for all steps now onwards.
+
+### Python Dependencies
+
+To install dependencies, run the following commands
+
+```
+(env2.7) $ pip install https://github.com/kubeflow/batch-predict/tarball/master
+(env2.7) $ pip install src/
+```
+
+This will install everything needed to run the demo code.
 
 # Pipeline
 
@@ -58,14 +73,14 @@ Results are saved back into a BigQuery table.
 
 * Install dependencies
 ```
-(venv2) $ pip install -r preprocess/requirements.txt
+(env2.7) $ pip install -r preprocess/requirements.txt
 ```
 
 * Execute the `Dataflow` job
 ```
-$ python preprocess/scripts/process_github_archive.py -p kubeflow-dev -j process-github-archive \
-  --storage-bucket gs://kubeflow-examples/t2t-code-search -o code_search:function_docstrings \
-  --machine-type n1-highcpu-32 --num-workers 16 --max-num-workers 16
+(env2.7) $ code-search-preprocess -r DataflowRunner -o code_search:function_docstrings \
+              -p kubeflow-dev -j process-github-archive --storage-bucket gs://kubeflow-examples/t2t-code-search \
+              --machine-type n1-highcpu-32 --num-workers 16 --max-num-workers 16
 ```
 
 ## 2. Model Training
