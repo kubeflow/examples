@@ -31,9 +31,8 @@ def create_pipeline_opts(args):
     options.view_as(WorkerOptions).max_num_workers = args.max_num_workers
     options.view_as(WorkerOptions).machine_type = args.machine_type
 
-    # Point to `setup.py` to allow Dataflow runner to install the package
-    options.view_as(SetupOptions).setup_file = os.path.join(
-      os.path.dirname(os.path.dirname(__file__)), 'setup.py')
+  setup_options = options.view_as(SetupOptions)
+  setup_options.setup_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'setup.py')
 
   return options
 
@@ -46,6 +45,14 @@ def parse_arguments(argv):
                       help='Path to input file')
   parser.add_argument('-o', '--output', metavar='', type=str,
                       help='Output string of the format <dataset>:<table>')
+
+  predict_args_parser = parser.add_argument_group('Batch Prediction Arguments')
+  predict_args_parser.add_argument('--problem', metavar='', type=str,
+                                   help='Name of the T2T problem')
+  predict_args_parser.add_argument('--data-dir', metavar='', type=str,
+                                   help='aPath to directory of the T2T problem data')
+  predict_args_parser.add_argument('--saved-model-dir', metavar='', type=str,
+                                   help='Path to directory containing Tensorflow SavedModel')
 
   # Dataflow related arguments
   dataflow_args_parser = parser.add_argument_group('Dataflow Runner Arguments')
@@ -99,5 +106,5 @@ def create_batch_predict_pipeline(argv=None):
   pipeline_opts = create_pipeline_opts(args)
 
   pipeline = beam.Pipeline(options=pipeline_opts)
-  (pipeline | GithubCodeEmbed()) #pylint: disable=expression-not-assigned
+  (pipeline | GithubCodeEmbed(args.input, args.saved_model_dir, args.problem, args.data_dir)) #pylint: disable=expression-not-assigned
   pipeline.run()
