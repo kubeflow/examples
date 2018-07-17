@@ -3,13 +3,16 @@ import subprocess
 from distutils.command.build import build as distutils_build #pylint: disable=no-name-in-module
 from setuptools import setup, find_packages, Command as SetupToolsCommand
 
+VERSION = '0.1.dev0'
 
 with open('requirements.txt', 'r') as f:
   install_requires = f.readlines()
-  install_requires += ['kubeflow-batch-predict==0.1-alpha']
 
 CUSTOM_COMMANDS = [
-  ['python', '-m', 'spacy', 'download', 'en']
+  ['python', '-m', 'spacy', 'download', 'en'],
+  # TODO(sanyamkapoor): This is terrible but no other way for a seamless experience.
+  # Must be manually installed locally
+  ['pip', 'install', 'git+https://github.com/kubeflow/batch-predict']
 ]
 
 
@@ -44,7 +47,7 @@ setup(name='code-search',
       url='https://www.github.com/kubeflow/examples',
       author='Google',
       author_email='sanyamkapoor@google.com',
-      version='devel',
+      version=VERSION,
       license='MIT',
       packages=find_packages(),
       install_requires=install_requires,
@@ -60,7 +63,4 @@ setup(name='code-search',
           'nmslib-serve=code_search.nmslib.cli:server',
           'nmslib-create=code_search.nmslib.cli:creator',
         ]
-      },
-      dependency_links=[
-          'git+https://github.com/kubeflow/batch-predict#egg=kubeflow-batch-predict-0.1-alpha',
-      ])
+      })
