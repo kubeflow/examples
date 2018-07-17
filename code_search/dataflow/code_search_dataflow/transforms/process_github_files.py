@@ -15,6 +15,10 @@ class ProcessGithubFiles(beam.PTransform):
   and writes back the processed code-docstring pairs in a query-friendly format back to BigQuery
   table.
   """
+  data_columns = ['nwo', 'path', 'function_name', 'lineno', 'original_function',
+                       'function_tokens', 'docstring_tokens']
+  data_types = ['STRING', 'STRING', 'STRING', 'INTEGER', 'STRING', 'STRING', 'STRING']
+
   def __init__(self, project, query_string, output_string, storage_bucket):
     super(ProcessGithubFiles, self).__init__()
 
@@ -22,10 +26,6 @@ class ProcessGithubFiles(beam.PTransform):
     self.query_string = query_string
     self.output_dataset, self.output_table = output_string.split(':')
     self.storage_bucket = storage_bucket
-
-    self.data_columns = ['nwo', 'path', 'function_name', 'lineno', 'original_function',
-                         'function_tokens', 'docstring_tokens']
-    self.data_types = ['STRING', 'STRING', 'STRING', 'INTEGER', 'STRING', 'STRING', 'STRING']
 
     self.num_shards = 10
 
