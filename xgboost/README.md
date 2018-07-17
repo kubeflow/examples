@@ -178,7 +178,6 @@ Start a local Kubernetes cluster using minikube and specify a `--vm-driver` and 
 ```
 KF_ENV=cloud
 ks env add ${KF_ENV}
-NAMESPACE=kubeflow
 ```
 
 Deploy Seldon core to your minikube Kubernetes cluster by following the instructions [here](https://github.com/kubeflow/examples/blob/fb2fb26f710f7c03996f08d81607f5ebf7d5af09/github_issue_summarization/serving_the_model.md#deploy-seldon-core). Once everything is successful you can verify it using `kubectl get pods -n${NAMESPACE}`.
