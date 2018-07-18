@@ -1,22 +1,22 @@
 import apache_beam as beam
 from kubeflow_batch_predict.dataflow.batch_prediction import PredictionDoFn
 
-from ..do_fns.embeddings import GithubCSVToDict
+from ..do_fns.embeddings import GithubCSVToDict, GithubDictToCSV
 from ..do_fns.embeddings import EncodeExample, ProcessPrediction
 
 class GithubCodeEmbed(beam.PTransform):
-  """Embed text in CSV files using the trained model.
+  """Embed text in CSV files using the trained model."""
 
-  TODO(sanyamkapoor): Sink for predicted values
-  """
-
-  def __init__(self, input_files, saved_model_dir, problem, data_dir):
+  def __init__(self, input_files, saved_model_dir, problem, data_dir, storage_bucket):
     super(GithubCodeEmbed, self).__init__()
 
     self.input_files = input_files
     self.saved_model_dir = saved_model_dir
     self.problem = problem
     self.data_dir = data_dir
+
+    self.storage_bucket = storage_bucket
+    self.num_shards = 10
 
   def expand(self, input_or_inputs):
     csv_dict_rows = (input_or_inputs
@@ -35,6 +35,10 @@ class GithubCodeEmbed(beam.PTransform):
 
     (predictions
       | "Process Predictions" >> beam.ParDo(ProcessPrediction())
+      | "Format For CSV Write" >> beam.ParDo(GithubDictToCSV())
+      | "Write To CSV File" >> beam.io.WriteToText('{}/embeddings'.format(self.storage_bucket),
+                                              file_name_suffix='.csv',
+                                              num_shards=self.num_shards)
     )
 
     return csv_dict_rows
