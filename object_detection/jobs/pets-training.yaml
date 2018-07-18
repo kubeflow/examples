@@ -13,9 +13,6 @@ spec:
           containers:
           - name: tensorflow
             image: lcastell/pets_object_detection
-            resources:
-              limits:
-                nvidia.com/gpu: 1
             imagePullPolicy: IfNotPresent
             workingDir: /models
             command:
@@ -40,9 +37,6 @@ spec:
           containers:
           - name: tensorflow
             image: lcastell/pets_object_detection
-            resources:
-              limits:
-                nvidia.com/gpu: 1
             imagePullPolicy: IfNotPresent
             workingDir: /models
             command:
