@@ -7,7 +7,7 @@ from ..do_fns.embeddings import EncodeExample, ProcessPrediction
 class GithubCodeEmbed(beam.PTransform):
   """Embed text in CSV files using the trained model.
 
-  TODO(sanyamkapoor): Fill in details using PredictionDoFn
+  TODO(sanyamkapoor): Sink for predicted values
   """
 
   def __init__(self, input_files, saved_model_dir, problem, data_dir):
