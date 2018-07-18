@@ -36,12 +36,8 @@ class EncodeExample(beam.DoFn):
   def process(self, element, *args, **kwargs):  # pylint: disable=unused-argument
     encoder = get_encoder(self.problem, self.data_dir)
     encoded_function = encode_query(encoder, element['function_tokens'])
-    encoded_docstring = encode_query(encoder, element['docstring_tokens'])
 
-    element['instances'] = [
-        {'input': {'b64': encoded_function}},
-        {'input': {'b64': encoded_docstring}},
-    ]
+    element['instances'] = [{'input': {'b64': encoded_function}}]
     yield element
 
 
@@ -53,7 +49,6 @@ class ProcessPrediction(beam.DoFn):
   """
   def process(self, element, *args, **kwargs):
     element['function_embedding'] = element['predictions'][0]['outputs']
-    element['docstring_embedding'] = element['predictions'][1]['outputs']
 
     element.pop('instances')
     element.pop('predictions')
