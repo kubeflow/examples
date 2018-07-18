@@ -16,8 +16,8 @@ Kubernetes Engine](https://cloud.google.com/kubernetes-engine/). In addition to 
  * [Model Training Locally](#model-training-locally)
  * [Model Training on GKE](#model-training-on-gke)
  * [Model Export](#model-export)
- * [Model Serving Locally](#model-serving)
- * [Deploying Model to Kubernetes Cluster](#deploying-the-model-to-kubernetes-cluster)
+ * [Model Serving Locally](#model-serving-locally)
+ * [Deploying Model to Kubernetes Cluster](#model-serving-on-gke)
 
 ## Kubeflow Setup
 In this part you will setup Kubeflow on an existing Kubernetes cluster. Checkout the Kubeflow [setup guide](https://github.com/kubeflow/kubeflow#setup). 
@@ -165,7 +165,7 @@ curl -H "Content-Type: application/x-www-form-urlencoded" -d 'json={"data":{"ten
 }
 ```
 
-## Model deployment on GKE
+## Model serving on GKE
 One of the amazing features of Kubernetes is that you can run it anywhere i.e., local, on-prem and cloud. We will show you how to run your code on Google Kubernetes Engine. Start a GKE cluster by following the instructions [here](https://cloud.google.com/sdk/gcloud/reference/container/clusters/create). If you get error by following instructions in Kubeflow setup for GKE do the following
 
 ```
