@@ -3,14 +3,13 @@ import requests
 import nmslib
 import numpy as np
 from tensor2tensor import problems  # pylint: disable=unused-import
-from code_search.t2t.query import get_encoder_decoder, encode_query
+from code_search.t2t.query import get_encoder, encode_query
 
 
 class CodeSearchEngine:
   """This is a utility class which takes an nmslib
   index file and a data file to return data from"""
-  def __init__(self, problem: str, data_dir: str, serving_url: str,
-               index_file: str):
+  def __init__(self, problem, data_dir, serving_url, index_file):
     self._serving_url = serving_url
     self._problem = problem
     self._data_dir = data_dir
@@ -25,7 +24,7 @@ class CodeSearchEngine:
     This involves encoding the input query
     for the TF Serving service
     """
-    encoder, _ = get_encoder_decoder(self._problem, self._data_dir)
+    encoder, _ = get_encoder(self._problem, self._data_dir)
     encoded_query = encode_query(encoder, query_str)
     data = {"instances": [{"input": {"b64": encoded_query}}]}
 
@@ -37,7 +36,7 @@ class CodeSearchEngine:
     result['predictions'] = [preds['outputs'] for preds in result['predictions']]
     return result
 
-  def query(self, query_str: str, k=2):
+  def query(self, query_str, k=2):
     embedding = self.embed(query_str)
     idxs, dists = self.index.knnQuery(embedding, k=k)
 
@@ -56,7 +55,7 @@ class CodeSearchEngine:
     return index
 
   @staticmethod
-  def create_index(data: np.array, save_path: str):
+  def create_index(data, save_path):
     """Add numpy data to the index and save to path"""
     index = CodeSearchEngine.nmslib_init()
     index.addDataPointBatch(data)

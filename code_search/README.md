@@ -9,6 +9,7 @@ Github Dataset hosted on BigQuery.
 
 * Python 2.7 (with `pip`)
 * Python `virtualenv`
+* Node
 * Docker
 * Ksonnet
 
@@ -30,7 +31,22 @@ $ gcloud services enable dataflow.googleapis.com
 
 * Create a Google Cloud Project and Google Storage Bucket.
 
+* Authenticate with Google Container Registry to push Docker images
+```
+$ gcloud auth configure-docker
+```
+
 See [Google Cloud Docs](https://cloud.google.com/docs/) for more.
+
+### Create Kubernetes Secrets 
+
+This is needed for deployed pods in the Kubernetes cluster to access Google Cloud resources.
+
+```
+$ PROJECT=my-project ./create_secrets.sh
+```
+
+**NOTE**: Use `create_secrets.sh -d` to remove any side-effects of the above step.
 
 ### Python Environment Setup
 
@@ -64,75 +80,119 @@ To install dependencies, run the following commands
 
 This will install everything needed to run the demo code.
 
+### Node Dependencies
+
+```
+$ pushd ui && npm i && popd
+```
+
+### Build and Push Docker Images
+
+TODO(sanyamkapoor)
+
+See [GCR Pushing and Pulling Images](https://cloud.google.com/container-registry/docs/pushing-and-pulling) for more.
+
 # Pipeline
 
 ## 1. Data Pre-processing
 
 This step takes in the public Github dataset and generates function and docstring token pairs.
-Results are saved back into a BigQuery table.
+Results are saved back into a BigQuery table. It is done via a `Dataflow` job.
 
-* Install dependencies
 ```
-(env2.7) $ pip install -r preprocess/requirements.txt
-```
-
-* Execute the `Dataflow` job
-```
+(env2.7) $ export GCS_DIR=gs://kubeflow-examples/t2t-code-search
 (env2.7) $ code-search-preprocess -r DataflowRunner -o code_search:function_docstrings \
-              -p kubeflow-dev -j process-github-archive --storage-bucket gs://kubeflow-examples/t2t-code-search \
+              -p kubeflow-dev -j process-github-archive --storage-bucket ${GCS_DIR} \
               --machine-type n1-highcpu-32 --num-workers 16 --max-num-workers 16
 ```
 
 ## 2. Model Training
 
+We use `tensor2tensor` to train our model.
+
+```
+(env2.7) $ t2t-trainer --generate_data --problem=github_function_docstring --model=similarity_transformer --hparams_set=transformer_tiny \
+                      --data_dir=${GCS_DIR}/data --output_dir=${GCS_DIR}/output \
+                      --train_steps=100 --eval_steps=10 \
+                      --t2t_usr_dir=src/code_search/t2t
+```
+
 A `Dockerfile` based on Tensorflow is provided along which has all the dependencies for this part of the pipeline. 
 By default, it is based off Tensorflow CPU 1.8.0 for `Python3` but can be overridden in the Docker image build.
 This script builds and pushes the docker image to Google Container Registry.
 
-### 2.1 Build & Push images to GCR
+## 3. Model Export
 
-**NOTE**: The images can be pushed to any registry of choice but rest of the 
+We use `t2t-exporter` to export our trained model above into the TensorFlow `SavedModel` format.
 
-* Authenticate with GCR
 ```
-$ gcloud auth configure-docker
-```
-
-* Build and push the image
-```
-$ PROJECT=my-project ./build_image.sh
-```
-and a GPU image
-```
-$ GPU=1 PROJECT=my-project ./build_image.sh
+(env2.7) $ t2t-exporter --problem=github_function_docstring --model=similarity_transformer --hparams_set=transformer_tiny \
+                      --data_dir=${GCS_DIR}/data --output_dir=${GCS_DIR}/output \
+                      --t2t_usr_dir=src/code_search/t2t
 ```
 
-See [GCR Pushing and Pulling Images](https://cloud.google.com/container-registry/docs/pushing-and-pulling) for more.
+## 4. Batch Prediction for Code Embeddings
 
+We run another `Dataflow` pipeline to use the exported model above and get a high-dimensional embedding of each of
+our code. Specify the model version (which is a UNIX timestamp) from the output directory. This should be the name of 
+a folder at path `${GCS_DIR}/output/export/Servo`
 
-### 2.2 Train Locally
-
-**WARNING**: The container might run out of memory and be killed.
-
-#### 2.2.1 Function Summarizer
-
-* Train transduction model using `Tranformer Networks` and a base hyper-parameters set
 ```
-$ export MOUNT_DATA_DIR=/path/to/data/folder
-$ export MOUNT_OUTPUT_DIR=/path/to/output/folder
-$ docker run --rm -it -v ${MOUNT_DATA_DIR}:/data -v ${MOUNT_OUTPUT_DIR}:/output ${BUILD_IMAGE_TAG} \
-    --generate_data --problem=github_function_docstring --data_dir=/data --output_dir=/output \
-    --model=similarity_transformer --hparams_set=transformer_tiny
+(env2.7) $ export MODEL_VERSION=<put_unix_timestamp_here>
 ```
 
-### 2.2 Train on Kubeflow
+Now, start the job,
 
-* Setup secrets for access permissions Google Cloud Storage and Google Container Registry
-```shell
-$ PROJECT=my-project ./create_secrets.sh
+```
+(env2.7) $ export SAVED_MODEL_DIR=${GCS_DIR}/output/export/Servo/${MODEL_VERSION}
+(env2.7) $ code-search-predict -r DataflowRunner --problem=github_function_docstring -i "${GCS_DIR}/data/*.csv" \
+              --data-dir "${GCS_DIR}/data" --saved-model-dir "${SAVED_MODEL_DIR}"
+              -p kubeflow-dev -j batch-predict-github-archive --storage-bucket ${GCS_DIR} \
+              --machine-type n1-highcpu-32 --num-workers 16 --max-num-workers 16
 ```
 
-**NOTE**: Use `create_secrets.sh -d` to remove any side-effects of the above step.
+## 5. Create an NMSLib Index
+
+Using the above embeddings, we will now create an NMSLib index which will serve as our search index for
+new incoming queries.
+
+
+```
+(env2.7) $ export INDEX_FILE=  # TODO(sanyamkapoor): Add the index file
+(env2.7) $ nmslib-create --data-file=${EMBEDDINGS_FILE} --index-file=${INDEX_FILE}
+```
+
+
+## 6. Run a TensorFlow Serving container
+
+This will start a TF Serving container using the model export above and export it at port 8501.
+
+```
+$ docker run --rm -p8501:8501 gcr.io/kubeflow-images-public/tensorflow-serving-1.8 tensorflow_model_server \
+             --rest_api_port=8501 --model_name=t2t_code_search --model_base_path=${GCS_DIR}/output/export/Servo
+```
+
+## 7. Serve the Search Engine
+
+We will now serve the search engine via a simple REST interface
+
+```
+(env2.7) $ nmslib-serve --serving-url=http://localhost:8501/v1/models/t2t_code_search:predict \
+                        --problem=github_function_docstring --data-dir=${GCS_DIR}/data --index-file=${INDEX_FILE}
+```
+
+## 8. Serve the UI
+
+This will serve as the graphical wrapper on top of the REST search engine started in the previous step.
+
+```
+$ pushd ui && npm run build && popd
+$ serve -s ui/build
+```
+
+# Pipeline on Kubeflow
+
+TODO
 
 # Acknowledgements
 
