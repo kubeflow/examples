@@ -26,11 +26,12 @@ class GithubCodeEmbed(beam.PTransform):
 
     batch_predict = (csv_dict_rows
       | "Prepare Encoded Input" >> beam.ParDo(EncodeExample(self.problem, self.data_dir))
-      | "Execute predictions" >> beam.ParDo(PredictionDoFn(user_project_id='', framework='TENSORFLOW'),
-                                         self.saved_model_dir).with_outputs("errors", main="main")
+      | "Execute predictions" >> beam.ParDo(PredictionDoFn(user_project_id=''),
+                                         self.saved_model_dir).with_outputs("errors",
+                                                                            main="main")
       | "Write Predictions to File" >> beam.ParDo(ProcessPrediction())
     )
 
-    # predictions, errors = batch_predict.main, batch_predict.errors
+    predictions, errors = batch_predict.main, batch_predict.errors
 
     return csv_dict_rows

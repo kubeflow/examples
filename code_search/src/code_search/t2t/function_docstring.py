@@ -1,5 +1,6 @@
 """Github function/text similatrity problems."""
 import csv
+import os
 from tensor2tensor.data_generators import generator_utils
 from tensor2tensor.data_generators import translate
 from tensor2tensor.utils import metrics
@@ -11,12 +12,9 @@ from tensor2tensor.utils import registry
 # `data_dir` does not contain the data. However, note that the data
 # files must have the same naming pattern.
 #
-_DATA_BASE_URL = 'https://storage.googleapis.com/kubeflow-examples/t2t-code-search/data'
+_DATA_BASE_URL = 'gs://kubeflow-examples/t2t-code-search/data'
 _GITHUB_FUNCTION_DOCSTRING_FILES = [
-    [
-        '{}/pairs-0000{}-of-00010.csv'.format(_DATA_BASE_URL, i),
-        'pairs-0000{}-of-00010.csv'.format(i),
-    ]
+    'pairs-0000{}-of-00010.csv'.format(i)
     for i in range(10)
 ]
 
@@ -41,11 +39,17 @@ class GithubFunctionDocstring(translate.TranslateProblem):
     return _GITHUB_FUNCTION_DOCSTRING_FILES
 
   def generate_samples(self, data_dir, tmp_dir, dataset_split):  # pylint: disable=no-self-use,unused-argument
-    """Returns a generator to return {"inputs": [text], "targets": [text]}."""
+    """Returns a generator to return {"inputs": [text], "targets": [text]}.
 
+    If the `data_dir` is a GCS path, all data is downloaded to the
+    `tmp_dir`.
+    """
+
+    download_dir = tmp_dir if data_dir.startswith('gs://') else data_dir
+    uri_base = data_dir if data_dir.startswith('gs://') else _DATA_BASE_URL
     pair_csv_files = [
-        generator_utils.maybe_download(data_dir, filename, uri)
-        for uri, filename in self.source_data_files(dataset_split)
+        generator_utils.maybe_download(download_dir, filename, os.path.join(uri_base, filename))
+        for filename in self.source_data_files(dataset_split)
     ]
 
     for pairs_file in pair_csv_files:

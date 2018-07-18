@@ -9,7 +9,7 @@ from ..t2t.query import get_encoder, encode_query
 class GithubCSVToDict(beam.DoFn):
   """Split a text row and convert into a dict."""
 
-  def process(self, element, *args, **kwargs):
+  def process(self, element, *args, **kwargs):  # pylint: disable=unused-argument,no-self-use
     element = element.encode('utf-8')
     row = StringIO(element)
     reader = csv.reader(row, delimiter=',')
@@ -33,7 +33,7 @@ class EncodeExample(beam.DoFn):
     self.problem = problem
     self.data_dir = data_dir
 
-  def process(self, element, *args, **kwargs):
+  def process(self, element, *args, **kwargs):  # pylint: disable=unused-argument
     function_token_string = element['function_tokens']
 
     encoder = get_encoder(self.problem, self.data_dir)
