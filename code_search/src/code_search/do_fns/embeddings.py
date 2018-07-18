@@ -34,22 +34,28 @@ class EncodeExample(beam.DoFn):
     self.data_dir = data_dir
 
   def process(self, element, *args, **kwargs):  # pylint: disable=unused-argument
-    function_token_string = element['function_tokens']
-
     encoder = get_encoder(self.problem, self.data_dir)
-    encoded_example = encode_query(encoder, function_token_string)
+    encoded_function = encode_query(encoder, element['function_tokens'])
+    encoded_docstring = encode_query(encoder, element['docstring_tokens'])
 
-    element['input'] = {'b64': encoded_example}
+    element['instances'] = [
+        {'input': {'b64': encoded_function}},
+        {'input': {'b64': encoded_docstring}},
+    ]
     yield element
 
 
 class ProcessPrediction(beam.DoFn):
-  """Process results from PredictionDoFn
+  """Process results from PredictionDoFn.
 
-  TODO(sanyamkapoor):
   This class processes predictions from another
   DoFn, to make sure it is a correctly formatted dict.
   """
   def process(self, element, *args, **kwargs):
-    data = element
+    element['function_embedding'] = element['predictions'][0]['outputs']
+    element['docstring_embedding'] = element['predictions'][1]['outputs']
+
+    element.pop('instances')
+    element.pop('predictions')
+
     yield element

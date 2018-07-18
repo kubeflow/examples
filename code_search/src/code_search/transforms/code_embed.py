@@ -29,9 +29,12 @@ class GithubCodeEmbed(beam.PTransform):
       | "Execute predictions" >> beam.ParDo(PredictionDoFn(user_project_id=''),
                                          self.saved_model_dir).with_outputs("errors",
                                                                             main="main")
-      | "Write Predictions to File" >> beam.ParDo(ProcessPrediction())
     )
 
     predictions, errors = batch_predict.main, batch_predict.errors
+
+    (predictions
+      | "Process Predictions" >> beam.ParDo(ProcessPrediction())
+    )
 
     return csv_dict_rows
