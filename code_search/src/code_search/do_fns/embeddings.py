@@ -1,5 +1,5 @@
 """Beam DoFns for prediction related tasks"""
-
+import io
 import csv
 import apache_beam as beam
 from cStringIO import StringIO
@@ -19,6 +19,23 @@ class GithubCSVToDict(beam.DoFn):
 
     result = dict(zip(keys, values))
     yield result
+
+
+class GithubDictToCSV(beam.DoFn):
+  """Convert dictionary to writable CSV string."""
+
+  def process(self, element, *args, **kwargs):
+    element['function_embedding'] = ','.join(str(val) for val in element['function_embedding'])
+
+    target_keys = ['nwo', 'path', 'function_name', 'function_embedding']
+    target_values = [element[key].encode('utf-8') for key in target_keys]
+
+    with io.BytesIO() as fs:
+      cw = csv.writer(fs)
+      cw.writerow(target_values)
+      result_str = fs.getvalue().strip('\r\n')
+
+    return result_str
 
 
 class EncodeExample(beam.DoFn):
