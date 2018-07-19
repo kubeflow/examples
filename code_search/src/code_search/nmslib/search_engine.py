@@ -1,8 +1,6 @@
 import json
 import requests
 import nmslib
-import numpy as np
-from tensor2tensor import problems  # pylint: disable=unused-import
 from code_search.t2t.query import get_encoder, encode_query
 
 

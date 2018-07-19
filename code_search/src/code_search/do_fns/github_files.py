@@ -11,7 +11,7 @@ class SplitRepoPath(beam.DoFn):
   """Split the space-delimited file `repo_path` into owner repository (`nwo`)
   and file path (`path`)"""
 
-  def process(self, element, *args, **kwargs): # pylint: disable=unused-argument,no-self-use
+  def process(self, element): # pylint: disable=no-self-use
     nwo, path = element.pop('repo_path').split(' ', 1)
     element['nwo'] = nwo
     element['path'] = path
@@ -26,7 +26,7 @@ class TokenizeCodeDocstring(beam.DoFn):
 
     self.tokenization_time_ms = Metrics.counter(self.__class__, 'tokenization_time_ms')
 
-  def process(self, element, *args, **kwargs): # pylint: disable=unused-argument,no-self-use
+  def process(self, element): # pylint: disable=no-self-use
     try:
       from ..utils import get_function_docstring_pairs
 
@@ -48,7 +48,7 @@ class ExtractFuncInfo(beam.DoFn):
 
     self.info_keys = info_keys
 
-  def process(self, element, *args, **kwargs): # pylint: disable=unused-argument
+  def process(self, element):
     try:
       info_rows = [dict(zip(self.info_keys, pair)) for pair in element.pop('pairs')]
       info_rows = [self.merge_two_dicts(info_dict, element) for info_dict in info_rows]
