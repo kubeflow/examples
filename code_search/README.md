@@ -88,7 +88,23 @@ $ pushd ui && npm i && popd
 
 ### Build and Push Docker Images
 
-TODO(sanyamkapoor)
+The `docker` directory contains Dockerfiles for each target application with its own `build.sh`. This is needed
+to run the training jobs in Kubeflow cluster.
+
+To build the Docker image for training jobs
+
+```
+$ ./docker/t2t/build.sh
+```
+
+To build the Docker image for Code Search UI
+
+```
+$ ./docker/ui/build.sh
+```
+
+Optionally, to push these images to GCR, one must export the `PROJECT=<my project name>` environment variable
+and use the appropriate build script.
 
 See [GCR Pushing and Pulling Images](https://cloud.google.com/container-registry/docs/pushing-and-pulling) for more.
 
