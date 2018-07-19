@@ -82,16 +82,11 @@ ls -lh /tmp/ames/housing.dat
 ```
 
 ## Model training on GKE
-In this section we will run the above docker container on a [Google Kubernetes Engine](gke). There are two steps to eprform the training
+In this section we will run the above docker container on a [Google Kubernetes Engine](gke). There are two steps to perform the training
 
  * Create a GKE cluster
-   Follow the [instructions](https://cloud.google.com/kubernetes-engine/docs/how-to/creating-a-cluster) to create a GKE cluster
-   
-   ```
-   CLUSTER_NAME=xgboost-kf
-   COMPUTE_ZONE=us-central1-a
-   gcloud container clusters create $CLUSTER_NAME --zone $COMPUTE_ZONE --num-nodes 1
-   ```
+   Follow the [instructions](https://www.kubeflow.org/docs/started/getting-started-gke/) to create a GKE cluster
+  
    
  * Create a Persistent Volume by following the instructions [here](https://kubernetes.io/docs/tasks/configure-pod-container/configure-persistent-volume-storage/). You will need to run the following `kubectl create` commands in order to get the `claim` attached to the `pod`.
  
