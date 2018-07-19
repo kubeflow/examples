@@ -9,7 +9,7 @@ from ..t2t.query import get_encoder, encode_query
 class GithubCSVToDict(beam.DoFn):
   """Split a text row and convert into a dict."""
 
-  def process(self, element, *args, **kwargs):  # pylint: disable=unused-argument,no-self-use
+  def process(self, element):  # pylint: disable=no-self-use
     element = element.encode('utf-8')
     row = StringIO(element)
     reader = csv.reader(row, delimiter=',')
@@ -24,7 +24,7 @@ class GithubCSVToDict(beam.DoFn):
 class GithubDictToCSV(beam.DoFn):
   """Convert dictionary to writable CSV string."""
 
-  def process(self, element, *args, **kwargs):
+  def process(self, element):  # pylint: disable=no-self-use
     element['function_embedding'] = ','.join(str(val) for val in element['function_embedding'])
 
     target_keys = ['nwo', 'path', 'function_name', 'function_embedding']
@@ -50,7 +50,7 @@ class EncodeExample(beam.DoFn):
     self.problem = problem
     self.data_dir = data_dir
 
-  def process(self, element, *args, **kwargs):  # pylint: disable=unused-argument
+  def process(self, element):
     encoder = get_encoder(self.problem, self.data_dir)
     encoded_function = encode_query(encoder, element['function_tokens'])
 
@@ -64,7 +64,7 @@ class ProcessPrediction(beam.DoFn):
   This class processes predictions from another
   DoFn, to make sure it is a correctly formatted dict.
   """
-  def process(self, element, *args, **kwargs):
+  def process(self, element):  # pylint: disable=no-self-use
     element['function_embedding'] = element['predictions'][0]['outputs']
 
     element.pop('instances')
