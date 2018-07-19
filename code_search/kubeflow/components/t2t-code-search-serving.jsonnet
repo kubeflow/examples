@@ -1,5 +1,5 @@
 local env = std.extVar("__ksonnet/environments");
-local params = std.extVar("__ksonnet/params").components["t2t-translate-serving"];
+local params = std.extVar("__ksonnet/params").components["t2t-code-search-serving"];
 
 local k = import "k.libsonnet";
 
