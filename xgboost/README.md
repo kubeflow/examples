@@ -60,6 +60,8 @@ gcloud auth configure-docker
 docker push gcr.io/${PROJECT_ID}/${IMAGE_NAME}:${VERSION}
 ```
 
+One public copy is available at `gcr.io/kubeflow-examples/ames-housing:v1`.
+
 ## Model Training Locally
 
 Once you have performed `docker build` you should be able to see the images by running `docker images`. Run the training by issuing the following command 
