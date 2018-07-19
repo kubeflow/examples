@@ -167,16 +167,7 @@ curl -H "Content-Type: application/x-www-form-urlencoded" -d 'json={"data":{"ten
 ```
 
 ## Model serving on GKE
-One of the amazing features of Kubernetes is that you can run it anywhere i.e., local, on-prem and cloud. We will show you how to run your code on Google Kubernetes Engine. Start a GKE cluster by following the instructions [here](https://cloud.google.com/sdk/gcloud/reference/container/clusters/create). If you get error by following instructions in Kubeflow setup for GKE do the following
-
-```
-kubectl create clusterrolebinding default-admin --clusterrole=cluster-admin --user=your-user@acme.com
-```
-
-```
-KF_ENV=cloud
-ks env add ${KF_ENV}
-```
+One of the amazing features of Kubernetes is that you can run it anywhere i.e., local, on-prem and cloud. We will show you how to run your code on Google Kubernetes Engine. Start a GKE cluster by following the instructions [here](https://www.kubeflow.org/docs/started/getting-started-gke/). 
 
 Deploy Seldon core to your minikube Kubernetes cluster by following the instructions [here](https://github.com/kubeflow/examples/blob/fb2fb26f710f7c03996f08d81607f5ebf7d5af09/github_issue_summarization/serving_the_model.md#deploy-seldon-core). Once everything is successful you can verify it using `kubectl get pods -n${NAMESPACE}`.
 
