@@ -18,8 +18,8 @@
       train_steps: 100,
       eval_steps: 10,
 
-      image: "gcr.io/kubeflow-dev/code-search:v20180719-271017f",
-      imageGpu: "gcr.io/kubeflow-dev/code-search:v20180719-gpu-3388618",
+      image: "gcr.io/kubeflow-dev/code-search:v20180719-f04a4b7",
+      imageGpu: "gcr.io/kubeflow-dev/code-search:v20180719-gpu-9b8b4a8",
       imagePullSecrets: [],
 
       dataDir: "null",
@@ -30,7 +30,6 @@
 
     "t2t-code-search-trainer": {
       jobType: "trainer",
-      numMaster: 1,
       numWorker: 2,
       numPs: 1,
       // numWorkerGpu: 1,
