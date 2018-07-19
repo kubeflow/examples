@@ -1,6 +1,7 @@
 """Github function/text similatrity problems."""
 import csv
 import os
+from cStringIO import StringIO
 from tensor2tensor.data_generators import generator_utils
 from tensor2tensor.data_generators import translate
 from tensor2tensor.utils import metrics
@@ -11,11 +12,12 @@ from tensor2tensor.utils import registry
 # These URLs are only for fallback purposes in case the specified
 # `data_dir` does not contain the data. However, note that the data
 # files must have the same naming pattern.
+# TODO: The memory is exploding, need to fix this.
 #
 _DATA_BASE_URL = 'gs://kubeflow-examples/t2t-code-search/data'
 _GITHUB_FUNCTION_DOCSTRING_FILES = [
     'pairs-0000{}-of-00010.csv'.format(i)
-    for i in range(10)
+    for i in range(1)
 ]
 
 
@@ -54,9 +56,9 @@ class GithubFunctionDocstring(translate.TranslateProblem):
 
     for pairs_file in pair_csv_files:
       with open(pairs_file, 'r') as csv_file:
-        pairs_reader = csv.reader(csv_file)
-        for row in pairs_reader:
-          function_tokens, docstring_tokens = row[-2:]
+        for line in csv_file:
+          reader = csv.reader(StringIO(line), delimiter=',')
+          function_tokens, docstring_tokens = next(reader)[-2:]
           yield {'inputs': docstring_tokens, 'targets': function_tokens}
 
   def eval_metrics(self):  # pylint: disable=no-self-use

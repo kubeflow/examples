@@ -9,7 +9,7 @@
 set -ex
 
 GPU=${GPU:-0}
-BASE_IMAGE_TAG=$([[ "${GPU}" = "1" ]] && echo "1.8.0-gpu-py3" || echo "1.8.0-py3")
+BASE_IMAGE_TAG=$([[ "${GPU}" = "1" ]] && echo "1.8.0-gpu" || echo "1.8.0")
 BUILD_IMAGE_UUID=$(python3 -c 'import uuid; print(uuid.uuid4().hex[:7]);')
 BUILD_IMAGE_TAG="code-search:v$(date +%Y%m%d)$([[ ${GPU} = "1" ]] && echo '-gpu' || echo '')-${BUILD_IMAGE_UUID}"
 
