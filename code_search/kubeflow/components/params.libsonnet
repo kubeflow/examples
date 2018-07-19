@@ -18,8 +18,8 @@
       train_steps: 100,
       eval_steps: 10,
 
-      image: "gcr.io/kubeflow-dev/code-search:v20180718-6844cab",
-      imageGpu: "gcr.io/kubeflow-dev/code-search:v20180718-gpu-50a1dc4",
+      image: "gcr.io/kubeflow-dev/code-search:v20180719-271017f",
+      imageGpu: "gcr.io/kubeflow-dev/code-search:v20180719-gpu-3388618",
       imagePullSecrets: [],
 
       dataDir: "null",
@@ -33,8 +33,8 @@
       numMaster: 1,
       numWorker: 2,
       numPs: 1,
-      numWorkerGpu: 1,
-      numPsGpu: 1,
+      // numWorkerGpu: 1,
+      // numPsGpu: 1,
 
       name: "t2t-code-search-trainer",
 
@@ -42,7 +42,7 @@
       dataDir: "gs://kubeflow-examples/t2t-code-search/data",
       outputDir: "gs://kubeflow-examples/t2t-code-search/output",
       model: "similarity_transformer",
-      hparams_set: "transformer_base_single_gpu",
+      hparams_set: "transformer_tiny",
     },
 
     "t2t-code-search-exporter": {
@@ -54,7 +54,7 @@
       dataDir: "gs://kubeflow-examples/t2t-code-search/data",
       outputDir: "gs://kubeflow-examples/t2t-code-search/output",
       model: "similarity_transformer",
-      hparams_set: "transformer_base_single_gpu",
+      hparams_set: "transformer_tiny",
     },
 
     "t2t-code-search-serving": {
