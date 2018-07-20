@@ -1,6 +1,6 @@
 import ast
 import astor
-from nltk.tokenize import RegexpTokenizer
+import nltk.tokenize as tokenize
 import spacy
 
 
@@ -13,7 +13,7 @@ def tokenize_docstring(text):
 
 def tokenize_code(text):
   """A very basic procedure for tokenizing code strings."""
-  return RegexpTokenizer(r'\w+').tokenize(text)
+  return tokenize.RegexpTokenizer(r'\w+').tokenize(text)
 
 
 def get_function_docstring_pairs(blob):

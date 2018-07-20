@@ -1,5 +1,5 @@
 import apache_beam as beam
-from apache_beam.io.gcp.internal.clients import bigquery
+import apache_beam.io.gcp.internal.clients as clients
 
 
 class BigQueryRead(beam.PTransform):
@@ -74,10 +74,10 @@ class BigQueryWrite(beam.PTransform):
 
   @staticmethod
   def construct_schema(column_list):
-    table_schema = bigquery.TableSchema()
+    table_schema = clients.bigquery.TableSchema()
 
     for column_name, column_type in column_list:
-      field_schema = bigquery.TableFieldSchema()
+      field_schema = clients.bigquery.TableFieldSchema()
       field_schema.name = column_name
       field_schema.type = column_type
       field_schema.mode = 'nullable'
