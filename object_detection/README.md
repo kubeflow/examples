@@ -9,4 +9,4 @@ This example is based on the TensorFlow [Pets tutorial](https://github.com/tenso
 2. [Submit a distributed object detection training job](submit_job.md)
 3. [Monitor your training job](monitor_job.md)
 4. [Export model](export_tf_graph.md)
-5. [Serving the model with GPU](tf_serving_gpu.md)
+5. [Serve the model with GPU](tf_serving_gpu.md)
