@@ -65,8 +65,9 @@ class ProcessPrediction(beam.DoFn):
   DoFn, to make sure it is a correctly formatted dict.
   """
   def process(self, element):  # pylint: disable=no-self-use
-    element['function_embedding'] = element['predictions'][0]['outputs']
+    element['function_embedding'] = ','.join([str(val) for val in element['predictions'][0]['outputs']])
 
+    element.pop('function_tokens')
     element.pop('instances')
     element.pop('predictions')
 
