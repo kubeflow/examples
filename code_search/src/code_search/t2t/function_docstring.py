@@ -58,7 +58,7 @@ class GithubFunctionDocstring(translate.TranslateProblem):
       with open(pairs_file, 'r') as csv_file:
         for line in csv_file:
           reader = csv.reader(StringIO(line), delimiter=',')
-          function_tokens, docstring_tokens = next(reader)[-2:]
+          function_tokens, docstring_tokens = next(reader)[-2:]  # pylint: disable=stop-iteration-return
           yield {'inputs': docstring_tokens, 'targets': function_tokens}
 
   def eval_metrics(self):  # pylint: disable=no-self-use

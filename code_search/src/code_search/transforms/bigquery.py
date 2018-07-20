@@ -9,7 +9,7 @@ class BigQueryRead(beam.PTransform):
   the `query_string` property to specify the query
   string.
   """
-  
+
   def __init__(self, project):
     super(BigQueryRead, self).__init__()
 

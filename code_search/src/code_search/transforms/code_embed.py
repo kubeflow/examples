@@ -39,13 +39,13 @@ class GithubBatchPredict(beam.PTransform):
                                                                                main="main")
     )
 
-    predictions, errors = batch_predict.main, batch_predict.errors
+    predictions = batch_predict.main
 
     formatted_predictions = (predictions
       | "Process Predictions" >> beam.ParDo(ProcessPrediction())
     )
 
-    (formatted_predictions
+    (formatted_predictions  # pylint: disable=expression-not-assigned
       | "Save Index Data" >> WriteGithubIndexData(self.project,
                                                   self.index_dataset, self.index_table,
                                                   batch_size=self.batch_size)
