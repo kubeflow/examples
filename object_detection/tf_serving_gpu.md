@@ -1,14 +1,20 @@
 # Serving an object detection model with GPU
 
+## Setup
+
+If you followed previous steps to train the model, skip to deploy [section](#deploy-serving-component).
+
+Alternatively, you can do the following to deploy kubeflow and get a model.
+
 Reference
 [blog](https://cloud.google.com/blog/big-data/2017/09/performing-prediction-with-tensorflow-object-detection-models-on-google-cloud-machine-learning-engine)
 
-## Deploy Kubeflow
-First, follow getting started
+### Deploy Kubeflow
+Follow getting started
 [guide](https://www.kubeflow.org/docs/started/getting-started/) to deploy
 kubeflow.
 
-## Prepare model
+### Prepare model
 Download a model from [model zoo](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md).
 The model should be in SavedModel format (including a `saved_model.pb` file and a
 optional `variables/` folder.
@@ -19,7 +25,7 @@ tar -xzf faster_rcnn_nas_coco_2018_01_28.tar.gz
 gsutil cp faster_rcnn_nas_coco_2018_01_28/saved_model/saved_model.pb gs://YOUR_BUCKET/YOUR_MODEL/1/
 ```
 
-Alternatively, you can use the above model uploaded at `gs://kubeflow-examples-data/object-detection-coco/`.
+Or you can use the above model uploaded at `gs://kubeflow-examples-data/object-detection-coco/`.
 
 ## Deploy serving component
 
@@ -36,6 +42,7 @@ ks apply $ENV -c model1
 
 ## Send prediction
 ```
+cd serving_script
 python predict.py --url=YOUR_KF_HOST/models/coco
 ```
 
