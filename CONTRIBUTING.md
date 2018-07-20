@@ -146,7 +146,7 @@ your github ID in the appropriate column, creating a corresponding GitHub issue,
 a PR. It is not an exhaustive list, only the result of brainstorming for
 inspiration. Feel free to add to this list and/or reprioritize.
 
-Priority guidance: 
+Priority guidance:
 
 * **P0**: Very important, try to self-assign if there is a P0 available
 * **P1**: Important, try to self-assign if there is no P0 available
@@ -160,8 +160,8 @@ Priority guidance:
 | [Zillow housing prediction](https://www.kaggle.com/c/zillow-prize-1/kernels) | Zillow's home value prediction on Kaggle | **P0** | High prize Kaggle competition w/ opportunity to show XGBoost | XGBoost | [puneith](https://github.com/puneith) | Google | [issue #16](https://github.com/kubeflow/examples/issues/16) |
 | [Mercari price suggestion challenge](https://www.kaggle.com/c/mercari-price-suggestion-challenge) | Automatically suggest product process to online sellers | **P0** | | | | | |
 | [Airbnb new user bookings](https://www.kaggle.com/c/airbnb-recruiting-new-user-bookings) | Where will a new guest book their first travel experience | | | | | | |
-| [TensorFlow object detection](https://github.com/tensorflow/models/tree/master/research/object_detection) | Object detection using TensorFlow API | | | | | | |
-| [TFGAN](https://github.com/tensorflow/models/blob/master/research/gan/tutorial.ipynb) | Define, Train and Evaluate GAN | | GANs are of great interest currently | | | | |
-| [Nested LSTM](https://github.com/hannw/nlstm) | TensorFlow implementation of nested LSTM cell | | LSTM are the canonical implementation of RNN to solve vanishing gradient problem and widely used for Time Series | | | | |
-| [How to solve 90% of NLP problems: A step by step guide on Medium](https://blog.insightdatascience.com/how-to-solve-90-of-nlp-problems-a-step-by-step-guide-fda605278e4e) | Medium post on how to solve 90% of NLP problems from Emmanuel Ameisen | | Solves a really common problem in a generic way. Great example for people who want to do NLP and don't know how to do 80% of stuff like tokenzation, basic transforms, stop word removal etc and are boilerplate across every NLP task | | | | |
-| [Tour of top-10 algorithms for ML newbies](https://towardsdatascience.com/a-tour-of-the-top-10-algorithms-for-machine-learning-newbies-dde4edffae11) | Top 10 algorithms for ML newbies | | Medium post with 8K claps and a guide for ML newbies to get started with ML | | | | | |
+| [TensorFlow object detection](https://github.com/tensorflow/models/tree/master/research/object_detection) | Object detection using TensorFlow API | | | TensorFlow | [ldcastell](https://github.com/ldcastell) | Intel | [issue #73](https://github.com/kubeflow/examples/issues/73) |
+| [TFGAN](https://github.com/tensorflow/models/blob/master/research/gan/tutorial.ipynb) | Define, Train and Evaluate GAN | GANs are of great interest currently | | | | | |
+| [Nested LSTM](https://github.com/hannw/nlstm) | TensorFlow implementation of nested LSTM cell | LSTM are the canonical implementation of RNN to solve vanishing gradient problem and widely used for Time Series | | | | | |
+| [How to solve 90% of NLP problems: A step by step guide on Medium](https://blog.insightdatascience.com/how-to-solve-90-of-nlp-problems-a-step-by-step-guide-fda605278e4e) | Medium post on how to solve 90% of NLP problems from Emmanuel Ameisen | Solves a really common problem in a generic way. Great example for people who want to do NLP and don't know how to do 80% of stuff like tokenzation, basic transforms, stop word removal etc and are boilerplate across every NLP task | | | | | |
+| [Tour of top-10 algorithms for ML newbies](https://towardsdatascience.com/a-tour-of-the-top-10-algorithms-for-machine-learning-newbies-dde4edffae11) | Top 10 algorithms for ML newbies | Medium post with 8K claps and a guide for ML newbies to get started with ML | | | | | |

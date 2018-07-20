@@ -49,6 +49,7 @@ local baseParams = std.extVar("__ksonnet/params").components["t2t-job"];
   getTrainerCmd(params):: {
       local trainer = [
         "t2t-trainer",
+        "--generate_data",
         "--problem=" + params.problem,
         "--data_dir=" + params.dataDir,
         "--output_dir=" + params.outputDir,

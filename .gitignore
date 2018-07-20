@@ -44,4 +44,9 @@ examples/.ipynb_checkpoints/
 *.dpkl
 
 # Build directory
+**/build
 github_issue_summarization/build/
+
+# Don't check in the go vendor directory
+# We can just use the dep tool to install them.
+github_issue_summarization/hp-tune/vendor

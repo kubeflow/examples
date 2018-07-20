@@ -63,10 +63,9 @@ Results are saved back into a BigQuery table.
 
 * Execute the `Dataflow` job
 ```
-$ python preprocess/scripts/process_github_archive.py -i files/select_github_archive.sql \
-         -o code_search:function_docstrings -p kubeflow-dev -j process-github-archive \
-         --storage-bucket gs://kubeflow-dev --machine-type n1-highcpu-32 --num-workers 16 \
-         --max-num-workers 16
+$ python preprocess/scripts/process_github_archive.py -p kubeflow-dev -j process-github-archive \
+  --storage-bucket gs://kubeflow-examples/t2t-code-search -o code_search:function_docstrings \
+  --machine-type n1-highcpu-32 --num-workers 16 --max-num-workers 16
 ```
 
 ## 2. Model Training
@@ -86,11 +85,11 @@ $ gcloud auth configure-docker
 
 * Build and push the image
 ```
-$ PROJECT=my-project ./language_task/build_image.sh
+$ PROJECT=my-project ./build_image.sh
 ```
 and a GPU image
 ```
-$ GPU=1 PROJECT=my-project ./language_task/build_image.sh
+$ GPU=1 PROJECT=my-project ./build_image.sh
 ```
 
 See [GCR Pushing and Pulling Images](https://cloud.google.com/container-registry/docs/pushing-and-pulling) for more.
@@ -102,23 +101,13 @@ See [GCR Pushing and Pulling Images](https://cloud.google.com/container-registry
 
 #### 2.2.1 Function Summarizer
 
-This part generates a model to summarize functions into docstrings using the data generated in previous
-step. It uses `tensor2tensor`.
-
-* Generate `TFRecords` for training
-```
-$ export MOUNT_DATA_DIR=/path/to/data/folder
-$ docker run --rm -it -v ${MOUNT_DATA_DIR}:/data ${BUILD_IMAGE_TAG} \
-    t2t-datagen --problem=github_function_summarizer --data_dir=/data
-```
-
 * Train transduction model using `Tranformer Networks` and a base hyper-parameters set
 ```
 $ export MOUNT_DATA_DIR=/path/to/data/folder
 $ export MOUNT_OUTPUT_DIR=/path/to/output/folder
 $ docker run --rm -it -v ${MOUNT_DATA_DIR}:/data -v ${MOUNT_OUTPUT_DIR}:/output ${BUILD_IMAGE_TAG} \
-    t2t-trainer --problem=github_function_summarizer --data_dir=/data --output_dir=/output \
-                --model=transformer --hparams_set=transformer_base
+    --generate_data --problem=github_function_docstring --data_dir=/data --output_dir=/output \
+    --model=similarity_transformer --hparams_set=transformer_tiny
 ```
 
 ### 2.2 Train on Kubeflow

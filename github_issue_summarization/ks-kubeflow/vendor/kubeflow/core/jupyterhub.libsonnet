@@ -3,7 +3,7 @@
     $.parts(params.namespace).jupyterHubConfigMap(params.jupyterHubAuthenticator, params.disks),
     $.parts(params.namespace).jupyterHubService,
     $.parts(params.namespace).jupyterHubLoadBalancer(params.jupyterHubServiceType),
-    $.parts(params.namespace).jupyterHub(params.jupyterHubImage),
+    $.parts(params.namespace).jupyterHub(params.jupyterHubImage, params.jupyterNotebookPVCMount, params.cloud, params.jupyterNotebookRegistry, params.jupyterNotebookRepoName),
     $.parts(params.namespace).jupyterHubRole,
     $.parts(params.namespace).jupyterHubServiceAccount,
     $.parts(params.namespace).jupyterHubRoleBinding,
@@ -19,7 +19,7 @@
 
     kubeSpawner(authenticator, volumeClaims=[]): {
       // TODO(jlewi): We should make whether we use PVC configurable.
-      local baseKubeConfigSpawner = importstr "jupyterhub_spawner.py",
+      local baseKubeConfigSpawner = importstr "kubeform_spawner.py",
 
       authenticatorOptions:: {
 
@@ -56,11 +56,13 @@ c.RemoteUserAuthenticator.header_name = 'x-goog-authenticated-user-email'",
 
         options::
           if std.length(volumeClaims) > 0 then
+            // we need to merge the PVC from the spawner config
+            // with any added by a provisioner
             std.join("\n",
                      [
                        "###### Volumes #######",
-                       "c.KubeSpawner.volumes = " + std.manifestPython(volumes),
-                       "c.KubeSpawner.volume_mounts = " + std.manifestPython(volumeMounts),
+                       "c.KubeSpawner.volumes.extend(" + std.manifestPython(volumes) + ")",
+                       "c.KubeSpawner.volume_mounts.extend(" + std.manifestPython(volumeMounts) + ")",
                      ])
           else "",
 
@@ -119,6 +121,27 @@ c.RemoteUserAuthenticator.header_name = 'x-goog-authenticated-user-email'",
         },
         name: "tf-hub-lb",
         namespace: namespace,
+        annotations: {
+          "getambassador.io/config":
+            std.join("\n", [
+              "---",
+              "apiVersion: ambassador/v0",
+              "kind:  Mapping",
+              "name: tf-hub-lb-hub-mapping",
+              "prefix: /hub/",
+              "rewrite: /hub/",
+              "timeout_ms: 300000",
+              "service: tf-hub-lb." + namespace,
+              "---",
+              "apiVersion: ambassador/v0",
+              "kind:  Mapping",
+              "name: tf-hub-lb-user-mapping",
+              "prefix: /user/",
+              "rewrite: /user/",
+              "timeout_ms: 300000",
+              "service: tf-hub-lb." + namespace,
+            ]),
+        },  //annotations
       },
       spec: {
         ports: [
@@ -136,7 +159,7 @@ c.RemoteUserAuthenticator.header_name = 'x-goog-authenticated-user-email'",
     },
 
     // image: Image for JupyterHub
-    jupyterHub(image): {
+    jupyterHub(image, notebookPVCMount, cloud, registry, repoName): {
       apiVersion: "apps/v1beta1",
       kind: "StatefulSet",
       metadata: {
@@ -178,6 +201,24 @@ c.RemoteUserAuthenticator.header_name = 'x-goog-authenticated-user-email'",
                     containerPort: 8081,
                   },
                 ],
+                env: [
+                  {
+                    name: "NOTEBOOK_PVC_MOUNT",
+                    value: notebookPVCMount,
+                  },
+                  {
+                    name: "CLOUD_NAME",
+                    value: cloud,
+                  },
+                  {
+                    name: "REGISTRY",
+                    value: registry,
+                  },
+                  {
+                    name: "REPO_NAME",
+                    value: repoName,
+                  },
+                ],
               },  // jupyterHub container
             ],
             serviceAccountName: "jupyter-hub",
@@ -197,6 +238,7 @@ c.RemoteUserAuthenticator.header_name = 'x-goog-authenticated-user-email'",
       },
     },
 
+    // contents based on https://github.com/jupyterhub/zero-to-jupyterhub-k8s/blob/master/jupyterhub/templates/hub/rbac.yaml
     jupyterHubRole: {
       apiVersion: "rbac.authorization.k8s.io/v1beta1",
       kind: "Role",
@@ -207,14 +249,31 @@ c.RemoteUserAuthenticator.header_name = 'x-goog-authenticated-user-email'",
       rules: [
         {
           apiGroups: [
-            "*",
+            "",
           ],
-          // TODO(jlewi): This is very permissive so we may want to lock this down.
           resources: [
-            "*",
+            "pods",
+            "persistentvolumeclaims",
           ],
           verbs: [
-            "*",
+            "get",
+            "watch",
+            "list",
+            "create",
+            "delete",
+          ],
+        },
+        {
+          apiGroups: [
+            "",
+          ],
+          resources: [
+            "events",
+          ],
+          verbs: [
+            "get",
+            "watch",
+            "list",
           ],
         },
       ],

@@ -1,5 +1,6 @@
 from __future__ import print_function
 import argparse
+import os
 import apache_beam as beam
 
 from preprocess.pipeline import create_pipeline_opts, ProcessGithubFiles
@@ -7,7 +8,10 @@ from preprocess.pipeline import create_pipeline_opts, ProcessGithubFiles
 
 def parse_arguments(args):
   parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-  parser.add_argument('-i', '--input', metavar='', type=str, help='Path to BigQuery SQL script')
+
+  default_script_file = os.path.abspath('{}/../../files/select_github_archive.sql'.format(__file__))
+  parser.add_argument('-i', '--input', metavar='', type=str, default=default_script_file,
+                      help='Path to BigQuery SQL script')
   parser.add_argument('-o', '--output', metavar='', type=str,
                       help='Output string of the format <dataset>:<table>')
   parser.add_argument('-p', '--project', metavar='', type=str, default='Project', help='Project ID')

@@ -47,13 +47,14 @@ required for distributed training.
 
 ```
 cd tensor2tensor/github
-docker build . -t gcr.io/${GCR_REGISTRY}/tensor2tensor-training:latest
-gcloud docker -- push gcr.io/${GCR_REGISTRY}/tensor2tensor-training:latest
+docker build . -t gcr.io/${GCR_REGISTRY}/tensor2tensor-training-cpu:latest \
+  --build-arg BASE_IMAGE=gcr.io/kubeflow-images-public/tensorflow-1.7.0-notebook-cpu:latest
+gcloud docker -- push gcr.io/${GCR_REGISTRY}/tensor2tensor-training-cpu:latest
 ```
 
 ## Launch distributed training
 
-[notebooks](notebooks) contains a ksonnet app([ks-app](notebooks/ks-app)) to deploy the TFJob.
+This directory contains a ksonnet app([ks-kubeflow](./ks-kubeflow)) to deploy the TFJob.
 
 
 Set the appropriate params for the tfjob component
@@ -61,28 +62,31 @@ Set the appropriate params for the tfjob component
 ```commandline
 ks param set tensor2tensor namespace ${NAMESPACE}
 
+ks param set tensor2tensor dataDir "gs://${BUCKET_NAME}/${DATA_DIR}"
+ks param set tensor2tensor outputGCSPath "gs://${BUCKET_NAME}/training"
 # The image pushed in the previous step
-ks param set tensor2tensor image "gcr.io/${GCR_REGISTRY}/tensor2tensor-training:latest"
+ks param set tensor2tensor cpuImage "gcr.io/${GCR_REGISTRY}/tensor2tensor-training:latest"
 ks param set tensor2tensor workers 3
-ks param set tensor2tensor train_steps 5000
+ks param set tensor2tensor trainSteps 5000
 
 ```
 
 Deploy the app:
 
 ```commandline
-ks apply tensor2tensor -c tfjob
+ks apply ${KF_ENV} -c tensor2tensor
 ```
 
-You can view the logs of the tf-job operator using
+You can view the logs of the master job using:
 
 ```commandline
-kubectl logs -f $(kubectl get pods -n=${NAMESPACE} -lname=tf-job-operator -o=jsonpath='{.items[0].metadata.name}')
+kubectl logs -f \
+  $(kubectl get pods -ltf_job_name=tensor2tensor,job_type=MASTER -o=jsonpath='{.items[0].metadata.name}')
 ```
 
 For information on:
 - [Training the model](02_training_the_model.md)
-- [Training the model using TFJob](02_training_model_tfjob.md)
+- [Training the model using TFJob](02_training_the_model_tfjob.md)
 
 *Next*: [Serving the model](03_serving_the_model.md)
 

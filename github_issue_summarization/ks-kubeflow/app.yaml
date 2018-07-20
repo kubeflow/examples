@@ -14,9 +14,9 @@ environments:
     path: default
   jlewi:
     destination:
-      namespace: jlewi
-      server: https://35.188.73.10
-    k8sVersion: v1.7.0
+      namespace: kubeflow
+      server: https://35.196.4.129
+    k8sVersion: v1.9.6
     path: jlewi
   kubecon-gh-demo-1:
     destination:
@@ -28,28 +28,28 @@ kind: ksonnet.io/app
 libraries:
   core:
     gitVersion:
-      commitSha: 20bdb46ee436b56fb9e3690d2a383b2afc8989f4
-      refSpec: v0.1.0
+      commitSha: 3da7eb254cefd6a8a79ed7db57a30adfb91b734e
+      refSpec: master
     name: core
+    registry: kubeflow
+  examples:
+    gitVersion:
+      commitSha: 3da7eb254cefd6a8a79ed7db57a30adfb91b734e
+      refSpec: master
+    name: examples
     registry: kubeflow
   seldon:
     gitVersion:
-      commitSha: 5eb0d7260fedddbd02081711ff7e945f035427d8
+      commitSha: 3da7eb254cefd6a8a79ed7db57a30adfb91b734e
       refSpec: master
     name: seldon
     registry: kubeflow
 name: ks-kubeflow
 registries:
-  incubator:
-    gitVersion:
-      commitSha: 40285d8a14f1ac5787e405e1023cf0c07f6aa28c
-      refSpec: master
-    protocol: github
-    uri: github.com/ksonnet/parts/tree/master/incubator
   kubeflow:
     gitVersion:
-      commitSha: 20bdb46ee436b56fb9e3690d2a383b2afc8989f4
-      refSpec: v0.1.0
+      commitSha: 3be196cfa1d68d9a33e0674c133ffbbcc3e57d46
+      refSpec: v0.2.0-rc.1
     protocol: github
-    uri: github.com/kubeflow/kubeflow/tree/v0.1.0/kubeflow
+    uri: github.com/kubeflow/kubeflow/tree/v0.2.0-rc.1/kubeflow
 version: 0.0.1

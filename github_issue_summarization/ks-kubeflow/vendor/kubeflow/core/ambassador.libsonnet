@@ -1,16 +1,15 @@
 {
   all(params):: [
-    $.parts(params.namespace).service(params.tfAmbassadorServiceType),
-    $.parts(params.namespace).adminService,
-    $.parts(params.namespace).role,
-    $.parts(params.namespace).serviceAccount,
-    $.parts(params.namespace).roleBinding,
-    $.parts(params.namespace).deploy,
-    $.parts(params.namespace).k8sDashboard(params.cloud),
+    $.parts(params.namespace, params.AmbassadorImage).service(params.AmbassadorServiceType),
+    $.parts(params.namespace, params.AmbassadorImage).adminService,
+    $.parts(params.namespace, params.AmbassadorImage).role,
+    $.parts(params.namespace, params.AmbassadorImage).serviceAccount,
+    $.parts(params.namespace, params.AmbassadorImage).roleBinding,
+    $.parts(params.namespace, params.AmbassadorImage).deploy(params.StatsdImage),
+    $.parts(params.namespace, params.AmbassadorImage).k8sDashboard(params.cloud),
   ],
 
-  parts(namespace):: {
-    local ambassadorImage = "quay.io/datawire/ambassador:0.30.1",
+  parts(namespace, ambassadorImage):: {
     service(serviceType):: {
       apiVersion: "v1",
       kind: "Service",
@@ -144,7 +143,7 @@
       ],
     },  // roleBinding
 
-    deploy:: {
+    deploy(statsdImage):: {
       apiVersion: "extensions/v1beta1",
       kind: "Deployment",
       metadata: {
@@ -207,7 +206,7 @@
                 },
               },
               {
-                image: "quay.io/datawire/statsd:0.30.1",
+                image: statsdImage,
                 name: "statsd",
               },
             ],
@@ -240,7 +239,7 @@
               "name: k8s-dashboard-ui-mapping",
               "prefix: /k8s/ui/",
               "rewrite: /",
-              "tls: " + $.parts(namespace).isDashboardTls(cloud),
+              "tls: " + $.parts(namespace, ambassadorImage).isDashboardTls(cloud),
               // We redirect to the K8s service created for the dashboard
               // in namespace kube-system. We don't use the k8s-dashboard service
               // because that isn't in the kube-system namespace and I don't think
