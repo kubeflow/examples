@@ -4,34 +4,31 @@ from __future__ import print_function
 import argparse
 import os
 import apache_beam as beam
-from apache_beam.options.pipeline_options import GoogleCloudOptions
-from apache_beam.options.pipeline_options import PipelineOptions
-from apache_beam.options.pipeline_options import SetupOptions
-from apache_beam.options.pipeline_options import StandardOptions
-from apache_beam.options.pipeline_options import WorkerOptions
+import apache_beam.options.pipeline_options as pipeline_options
 
-from code_search.transforms import ProcessGithubFiles
-from code_search.transforms import GithubBatchPredict
+import code_search.transforms.process_github_files as process_github_files
+import code_search.transforms.code_embed as code_embed
 
 
 def create_pipeline_opts(args):
   """Create standard Pipeline Options for Beam"""
 
-  options = PipelineOptions()
-  options.view_as(StandardOptions).runner = args.runner
+  options = pipeline_options.PipelineOptions()
+  options.view_as(pipeline_options.StandardOptions).runner = args.runner
 
-  google_cloud_options = options.view_as(GoogleCloudOptions)
+  google_cloud_options = options.view_as(pipeline_options.GoogleCloudOptions)
   google_cloud_options.project = args.project
   if args.runner == 'DataflowRunner':
     google_cloud_options.job_name = args.job_name
     google_cloud_options.temp_location = '{}/temp'.format(args.storage_bucket)
     google_cloud_options.staging_location = '{}/staging'.format(args.storage_bucket)
 
-    options.view_as(WorkerOptions).num_workers = args.num_workers
-    options.view_as(WorkerOptions).max_num_workers = args.max_num_workers
-    options.view_as(WorkerOptions).machine_type = args.machine_type
+    worker_options = options.view_as(pipeline_options.WorkerOptions)
+    worker_options.num_workers = args.num_workers
+    worker_options.max_num_workers = args.max_num_workers
+    worker_options.machine_type = args.machine_type
 
-  setup_options = options.view_as(SetupOptions)
+  setup_options = options.view_as(pipeline_options.SetupOptions)
   setup_options.setup_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'setup.py')
 
   return options
@@ -91,7 +88,10 @@ def create_github_pipeline(argv=None):
     query_string = f.read()
 
   pipeline = beam.Pipeline(options=pipeline_opts)
-  (pipeline | ProcessGithubFiles(args.project, query_string, args.output, args.storage_bucket)) #pylint: disable=expression-not-assigned
+  (pipeline #pylint: disable=expression-not-assigned
+    | process_github_files.ProcessGithubFiles(args.project, query_string,
+                                    args.output, args.storage_bucket)
+  )
   result = pipeline.run()
   if args.runner == 'DirectRunner':
     result.wait_until_finish()
@@ -109,8 +109,8 @@ def create_batch_predict_pipeline(argv=None):
 
   pipeline = beam.Pipeline(options=pipeline_opts)
   (pipeline  #pylint: disable=expression-not-assigned
-    | GithubBatchPredict(args.project, args.problem, args.data_dir,
-                         args.saved_model_dir)
+    | code_embed.GithubBatchPredict(args.project, args.problem,
+                                    args.data_dir, args.saved_model_dir)
   )
   result = pipeline.run()
   if args.runner == 'DirectRunner':

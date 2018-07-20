@@ -3,8 +3,8 @@ import io
 import csv
 from cStringIO import StringIO
 import apache_beam as beam
-from ..transforms.process_github_files import ProcessGithubFiles
-from ..t2t.query import get_encoder, encode_query
+from code_search.transforms.process_github_files import ProcessGithubFiles
+from code_search.t2t.query import get_encoder, encode_query
 
 class GithubCSVToDict(beam.DoFn):
   """Split a text row and convert into a dict."""

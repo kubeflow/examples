@@ -1,11 +1,9 @@
 import io
 import csv
 import apache_beam as beam
-from apache_beam.io.gcp.internal.clients import bigquery
+import apache_beam.io.gcp.internal.clients as clients
 
-from ..do_fns import ExtractFuncInfo
-from ..do_fns import SplitRepoPath
-from ..do_fns import TokenizeCodeDocstring
+import code_search.do_fns as do_fns
 
 
 class ProcessGithubFiles(beam.PTransform):
@@ -33,8 +31,8 @@ class ProcessGithubFiles(beam.PTransform):
     tokenize_result = (input_or_inputs
       | "Read Github Dataset" >> beam.io.Read(beam.io.BigQuerySource(query=self.query_string,
                                                           use_standard_sql=True))
-      | "Split 'repo_path'" >> beam.ParDo(SplitRepoPath())
-      | "Tokenize Code/Docstring Pairs" >> beam.ParDo(TokenizeCodeDocstring())
+      | "Split 'repo_path'" >> beam.ParDo(do_fns.SplitRepoPath())
+      | "Tokenize Code/Docstring Pairs" >> beam.ParDo(do_fns.TokenizeCodeDocstring())
                                                .with_outputs('err_rows', main='rows')
     )
 
@@ -49,7 +47,7 @@ class ProcessGithubFiles(beam.PTransform):
 
 
     info_result = (tokenize_result.rows
-      | "Extract Function Info" >> beam.ParDo(ExtractFuncInfo(self.data_columns[2:]))
+      | "Extract Function Info" >> beam.ParDo(do_fns.ExtractFuncInfo(self.data_columns[2:]))
                                        .with_outputs('err_rows', main='rows')
     )
 
@@ -110,10 +108,10 @@ class ProcessGithubFiles(beam.PTransform):
     return result_str
 
   def create_output_schema(self):
-    table_schema = bigquery.TableSchema()
+    table_schema = clients.bigquery.TableSchema()
 
     for column, data_type in zip(self.data_columns, self.data_types):
-      field_schema = bigquery.TableFieldSchema()
+      field_schema = clients.bigquery.TableFieldSchema()
       field_schema.name = column
       field_schema.type = data_type
       field_schema.mode = 'nullable'
@@ -122,11 +120,11 @@ class ProcessGithubFiles(beam.PTransform):
     return table_schema
 
   def create_failed_output_schema(self):
-    table_schema = bigquery.TableSchema()
+    table_schema = clients.bigquery.TableSchema()
 
     for column, data_type in zip(self.data_columns[:2] + ['content'],
                                  self.data_types[:2] + ['STRING']):
-      field_schema = bigquery.TableFieldSchema()
+      field_schema = clients.bigquery.TableFieldSchema()
       field_schema.name = column
       field_schema.type = data_type
       field_schema.mode = 'nullable'

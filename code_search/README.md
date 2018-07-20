@@ -150,7 +150,7 @@ We use `t2t-exporter` to export our trained model above into the TensorFlow `Sav
 ## 4. Batch Prediction for Code Embeddings
 
 We run another `Dataflow` pipeline to use the exported model above and get a high-dimensional embedding of each of
-our code. Specify the model version (which is a UNIX timestamp) from the output directory. This should be the name of 
+our code example. Specify the model version (which is a UNIX timestamp) from the output directory. This should be the name of 
 a folder at path `${GCS_DIR}/output/export/Servo`
 
 ```

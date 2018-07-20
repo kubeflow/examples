@@ -1,7 +1,7 @@
-from .bigquery import BigQueryRead, BigQueryWrite
+import code_search.transforms.bigquery as bigquery
 
 
-class ReadOriginalGithubPythonData(BigQueryRead):
+class ReadOriginalGithubPythonData(bigquery.BigQueryRead):
   @property
   def limit(self):
     return None
@@ -55,7 +55,7 @@ class ReadOriginalGithubPythonData(BigQueryRead):
     return query
 
 
-class ReadProcessedGithubData(BigQueryRead):
+class ReadProcessedGithubData(bigquery.BigQueryRead):
   @property
   def limit(self):
     return 100
@@ -74,7 +74,7 @@ class ReadProcessedGithubData(BigQueryRead):
     return query
 
 
-class WriteGithubIndexData(BigQueryWrite):
+class WriteGithubIndexData(bigquery.BigQueryWrite):
   @property
   def column_list(self):
     return [
