@@ -20,9 +20,9 @@ def create_pipeline_opts(args):
   options = PipelineOptions()
   options.view_as(StandardOptions).runner = args.runner
 
+  google_cloud_options = options.view_as(GoogleCloudOptions)
+  google_cloud_options.project = args.project
   if args.runner == 'DataflowRunner':
-    google_cloud_options = options.view_as(GoogleCloudOptions)
-    google_cloud_options.project = args.project
     google_cloud_options.job_name = args.job_name
     google_cloud_options.temp_location = '{}/temp'.format(args.storage_bucket)
     google_cloud_options.staging_location = '{}/staging'.format(args.storage_bucket)
@@ -106,5 +106,9 @@ def create_batch_predict_pipeline(argv=None):
   pipeline_opts = create_pipeline_opts(args)
 
   pipeline = beam.Pipeline(options=pipeline_opts)
-  (pipeline | GithubCodeEmbed(args.input, args.saved_model_dir, args.problem, args.data_dir, args.storage_bucket)) #pylint: disable=expression-not-assigned,line-too-long
-  pipeline.run()
+  (pipeline | GithubCodeEmbed(args.project, args.input, args.saved_model_dir, args.problem, args.data_dir, args.storage_bucket)) #pylint: disable=expression-not-assigned,line-too-long
+  result = pipeline.run()
+  result.wait_until_finish()
+
+if __name__ == '__main__':
+  create_batch_predict_pipeline()
