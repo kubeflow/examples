@@ -11,7 +11,7 @@ from apache_beam.options.pipeline_options import StandardOptions
 from apache_beam.options.pipeline_options import WorkerOptions
 
 from code_search.transforms import ProcessGithubFiles
-from code_search.transforms import GithubCodeEmbed
+from code_search.transforms import GithubBatchPredict
 
 
 def create_pipeline_opts(args):
@@ -92,7 +92,9 @@ def create_github_pipeline(argv=None):
 
   pipeline = beam.Pipeline(options=pipeline_opts)
   (pipeline | ProcessGithubFiles(args.project, query_string, args.output, args.storage_bucket)) #pylint: disable=expression-not-assigned
-  pipeline.run()
+  result = pipeline.run()
+  if args.runner == 'DirectRunner':
+    result.wait_until_finish()
 
 
 def create_batch_predict_pipeline(argv=None):
@@ -106,9 +108,13 @@ def create_batch_predict_pipeline(argv=None):
   pipeline_opts = create_pipeline_opts(args)
 
   pipeline = beam.Pipeline(options=pipeline_opts)
-  (pipeline | GithubCodeEmbed(args.project, args.input, args.saved_model_dir, args.problem, args.data_dir, args.storage_bucket)) #pylint: disable=expression-not-assigned,line-too-long
+  (pipeline
+    | GithubBatchPredict(args.project, args.problem, args.data_dir,
+                         args.saved_model_dir)
+  )
   result = pipeline.run()
-  result.wait_until_finish()
+  if args.runner == 'DirectRunner':
+    result.wait_until_finish()
 
 if __name__ == '__main__':
   create_batch_predict_pipeline()
