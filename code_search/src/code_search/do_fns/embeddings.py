@@ -1,8 +1,8 @@
 """Beam DoFns for prediction related tasks"""
 import io
 import csv
-import apache_beam as beam
 from cStringIO import StringIO
+import apache_beam as beam
 from ..transforms.process_github_files import ProcessGithubFiles
 from ..t2t.query import get_encoder, encode_query
 
@@ -15,7 +15,7 @@ class GithubCSVToDict(beam.DoFn):
     reader = csv.reader(row, delimiter=',')
 
     keys = ProcessGithubFiles.get_key_list()
-    values = next(reader)
+    values = next(reader)  # pylint: disable=stop-iteration-return
 
     result = dict(zip(keys, values))
     yield result
@@ -65,7 +65,9 @@ class ProcessPrediction(beam.DoFn):
   DoFn, to make sure it is a correctly formatted dict.
   """
   def process(self, element):  # pylint: disable=no-self-use
-    element['function_embedding'] = ','.join([str(val) for val in element['predictions'][0]['outputs']])
+    element['function_embedding'] = ','.join([
+      str(val) for val in element['predictions'][0]['outputs']
+    ])
 
     element.pop('function_tokens')
     element.pop('instances')

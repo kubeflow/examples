@@ -108,7 +108,7 @@ def create_batch_predict_pipeline(argv=None):
   pipeline_opts = create_pipeline_opts(args)
 
   pipeline = beam.Pipeline(options=pipeline_opts)
-  (pipeline
+  (pipeline  #pylint: disable=expression-not-assigned
     | GithubBatchPredict(args.project, args.problem, args.data_dir,
                          args.saved_model_dir)
   )
