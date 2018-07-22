@@ -1,0 +1,35 @@
+{
+   "name": "k8s-job",
+   "apiVersion": "0.0.1",
+   "kind": "ksonnet.io/parts",
+   "description": "Object Detection ksonnet protptypes to run distributed training using kubeflow.\n",
+   "author": "Daniel Castellanos <luis.daniel.castellnos@intel.com>",
+   "contributors": [
+      {
+         "name": "Daniel Castellanos",
+         "email": "luis.daniel.castellanos@intel.com"
+      }
+   ],
+   "repository": {
+      "type": "git",
+      "url": "https://github.com/kubeflow/examples/object_detection"
+   },
+   "bugs": {
+      "url": "https://github.com/kubeflow/examples/issues"
+   },
+   "keywords": [
+      "kubeflow",
+      "job",
+      "database"
+   ],
+   "quickStart": {
+      "prototype": "io.ksonnet.pkg.obj-detection",
+      "componentName": "obj-detection",
+      "flags": {
+         "name": "obj-detection",
+         "namespace": "default"
+      },
+      "comment": "Set of prototypes for object detection distributed training"
+   },
+   "license": "Apache 2.0"
+}
