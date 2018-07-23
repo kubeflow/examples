@@ -1,6 +1,6 @@
 """ Script to send prediction request.
 
-Usage: 
+Usage:
   python predict.py --url=YOUR_KF_HOST/models/coco --input_image=YOUR_LOCAL_IMAGE
     --output_image=OUTPUT_IMAGE_NAME.
 
