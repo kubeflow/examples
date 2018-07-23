@@ -1,8 +1,0 @@
-tensor2tensor~=1.6.0
-tensorflow~=1.8.0
-oauth2client~=4.1.0
-Flask~=1.0.0
-nmslib~=1.7.0
-numpy~=1.14.0
-google-cloud-storage~=1.10.0
-requests~=2.18.0

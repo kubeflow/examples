@@ -4,15 +4,14 @@ from tensor2tensor.data_generators import text_encoder
 from tensor2tensor.utils import registry
 
 
-def get_encoder_decoder(problem_name, data_dir):
+def get_encoder(problem_name, data_dir):
   """Get encoder from the T2T problem.This might
   vary by problem, keeping generic as a reference
   """
   problem = registry.problem(problem_name)
   hparams = tf.contrib.training.HParams(data_dir=data_dir)
   problem.get_hparams(hparams)
-  return problem.feature_info["inputs"].encoder, \
-         problem.feature_info["targets"].encoder
+  return problem.feature_info["inputs"].encoder
 
 
 def encode_query(encoder, query_str):

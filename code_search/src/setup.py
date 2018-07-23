@@ -3,13 +3,18 @@ import subprocess
 from distutils.command.build import build as distutils_build #pylint: disable=no-name-in-module
 from setuptools import setup, find_packages, Command as SetupToolsCommand
 
+VERSION = '0.1.dev0'
 
 with open('requirements.txt', 'r') as f:
   install_requires = f.readlines()
 
-VERSION = '0.1.0'
 CUSTOM_COMMANDS = [
-  ['python', '-m', 'spacy', 'download', 'en']
+  ['python', '-m', 'spacy', 'download', 'en'],
+  ##
+  # TODO(sanyamkapoor): This isn't ideal but no other way for a seamless install right now.
+  # This currently uses a fork due to API limitations (See kubeflow/batch-predict#10). The
+  # API limitations have a workaround via kubeflow/batch-predict#9.
+  ['pip', 'install', 'https://github.com/activatedgeek/batch-predict/tarball/fix-value-provider']
 ]
 
 
@@ -39,10 +44,10 @@ class CustomCommands(SetupToolsCommand):
       self.run_custom_command(command)
 
 
-setup(name='kubeflow-code-search',
-      description='Kubeflow Code Search Demo Preprocessing',
+setup(name='code-search',
+      description='Kubeflow Code Search Demo',
       url='https://www.github.com/kubeflow/examples',
-      author='Sanyam Kapoor',
+      author='Google',
       author_email='sanyamkapoor@google.com',
       version=VERSION,
       license='MIT',
@@ -52,4 +57,12 @@ setup(name='kubeflow-code-search',
       cmdclass={
           'build': Build,
           'CustomCommands': CustomCommands,
+      },
+      entry_points={
+        'console_scripts': [
+          'code-search-preprocess=code_search.cli:create_github_pipeline',
+          'code-search-predict=code_search.cli:create_batch_predict_pipeline',
+          'nmslib-serve=code_search.nmslib.cli:server',
+          'nmslib-create=code_search.nmslib.cli:creator',
+        ]
       })

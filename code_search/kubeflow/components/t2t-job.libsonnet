@@ -2,33 +2,6 @@ local tfJob = import "kubeflow/tf-job/tf-job.libsonnet";
 local baseParams = std.extVar("__ksonnet/params").components["t2t-job"];
 
 {
-  getGcloudAuthCmd()::
-    [
-      "/root/google-cloud-sdk/bin/gcloud",
-      "auth",
-      "activate-service-account",
-      "--key-file",
-      "$GOOGLE_APPLICATION_CREDENTIALS",
-    ],
-
-  getGsUtilCmd(src_dir, dst_dir)::
-    [
-      "/root/google-cloud-sdk/bin/gsutil",
-      "cp",
-      "-r",
-      src_dir,
-      dst_dir,
-    ],
-
-  wrapGsUtil(cmd, params):: {
-    local resultCmd =
-      (if params.gsDataDir == "null" && params.gsOutputDir == "null" then [] else $.getGcloudAuthCmd() + ["&&"]) +
-      (if params.gsDataDir == "null" then [] else $.getGsUtilCmd(params.gsDataDir, params.dataDir) + ["&&"]) +
-      cmd +
-      (if params.gsOutputDir == "null" then [] else ["&&"] + $.getGsUtilCmd(params.outputDir, params.gsOutputDir)),
-    result: ["-c", std.join(" ", resultCmd)]
-  }.result,
-
   getDatagenCmd(params)::
     [
       "t2t-datagen",
@@ -38,6 +11,7 @@ local baseParams = std.extVar("__ksonnet/params").components["t2t-job"];
 
   getExporterCmd(params)::
     [
+      "/usr/local/sbin/t2t-entrypoint",
       "t2t-exporter",
       "--problem=" + params.problem,
       "--data_dir=" + params.dataDir,
@@ -48,13 +22,14 @@ local baseParams = std.extVar("__ksonnet/params").components["t2t-job"];
 
   getTrainerCmd(params):: {
       local trainer = [
+        "/usr/local/sbin/t2t-entrypoint",
         "t2t-trainer",
         "--generate_data",
         "--problem=" + params.problem,
-        "--data_dir=" + params.dataDir,
-        "--output_dir=" + params.outputDir,
         "--model=" + params.model,
         "--hparams_set=" + params.hparams_set,
+        "--data_dir=" + params.dataDir,
+        "--output_dir=" + params.outputDir,
         "--train_steps=" + std.toString(params.train_steps),
       ],
 
@@ -139,38 +114,24 @@ local baseParams = std.extVar("__ksonnet/params").components["t2t-job"];
       },
     ],
 
-    // TODO(sanyamkapoor): A workaround for tensorflow/tensor2tensor#879
-    // once fixed, simply get rid of $.wrapGsUtil method
     local cmd = $.getTrainerCmd(params),
-    local finalCmd = {
-      master: $.wrapGsUtil(["/usr/local/sbin/t2t-entrypoint"] + cmd.master, params),
-      worker: $.wrapGsUtil(["/usr/local/sbin/t2t-entrypoint"] + cmd.worker, params),
-      ps: $.wrapGsUtil(["/usr/local/sbin/t2t-entrypoint"] + cmd.ps, params),
-    },
-    local datagenCmd = $.wrapGsUtil(["/usr/local/sbin/t2t-entrypoint"] + $.getDatagenCmd(params), params),
-    local exporterCmd = $.wrapGsUtil(["/usr/local/sbin/t2t-entrypoint"] + $.getExporterCmd(params), params),
 
     job::
       tfJob.parts.tfJob(
         params.name,
         env.namespace,
-        if params.jobType == "datagen" then
+        if params.jobType == "exporter" then
           [
-            $.tfJobReplica("MASTER", params.numMaster, datagenCmd, workerImage, params.numWorkerGpu,
-                            workerImagePullSecrets, workerEnv, workerVolumes, workerVolumeMounts),
-          ]
-        else if params.jobType == "exporter" then
-          [
-            $.tfJobReplica("MASTER", params.numMaster, exporterCmd, workerImage, params.numWorkerGpu,
+            $.tfJobReplica("MASTER", params.numMaster, $.getExporterCmd(params), workerImage, params.numWorkerGpu,
                             workerImagePullSecrets, workerEnv, workerVolumes, workerVolumeMounts),
           ]
         else
           [
-            $.tfJobReplica("MASTER", params.numMaster, finalCmd.master, workerImage, params.numWorkerGpu,
+            $.tfJobReplica("MASTER", params.numMaster, cmd.master, workerImage, params.numWorkerGpu,
                             workerImagePullSecrets, workerEnv, workerVolumes, workerVolumeMounts),
-            $.tfJobReplica("WORKER", params.numWorker, finalCmd.worker, workerImage, params.numWorkerGpu,
+            $.tfJobReplica("WORKER", params.numWorker, cmd.worker, workerImage, params.numWorkerGpu,
                             workerImagePullSecrets, workerEnv, workerVolumes, workerVolumeMounts),
-            $.tfJobReplica("PS", params.numPs, finalCmd.ps, workerImage, params.numPsGpu,
+            $.tfJobReplica("PS", params.numPs, cmd.ps, workerImage, params.numPsGpu,
                             workerImagePullSecrets, workerEnv, workerVolumes, workerVolumeMounts),
           ],
         terminationPolicy
