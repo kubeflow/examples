@@ -1,8 +1,7 @@
 
 ## Export the TensorFlow Graph  
-  
-In the [jobs](./jobs) directory you will find a manifest file [export-tf-graph.yaml](./jobs/export-tf-graph.yaml).
-Before executing the job we first need to identify a checkpoint candidate in the `pets-data-claim` pvc under  
+
+Before exporting the graph we first need to identify a checkpoint candidate in the `pets-data-claim` pvc under
 `/pets_data/train`.  
   
 To see what's being saved in `/pets_data/train` while the training job is running you can use:
@@ -12,13 +11,21 @@ kubectl -n kubeflow exec -it pets-training-master-r1hv-0-i6k7c sh
 This will open an interactive shell to your container and now you can execute `ls /pets_data/train` and look for a  
 checkpoint candidate.  
   
-Once you have identified the checkpoint open the `export-tf-graph.yaml` file under the ./jobs directory  
-and edit the container command args: `--trained_checkpoint_prefix model.ckpt-<number>`  
-(line 20) to match the chosen checkpoint.  
+Once you have identified the checkpoint now we can generate the export-job component and apply it
   
-Now you can execute the job with:  
+Generating the component:
 ```  
-kubectl -n kubeflow apply ./jobs/export-tf-graph.yaml  
+ks generate generic-job  export-tf-graph-job \
+--pvc="pets-pvc" \
+--mountPath="/pets-data" \
+--image="lcastell/pets_object_detection" \
+--command=["python", "models/research/object_detection/export_inference_graph.py"] \
+--args=["--input_type=image_tensor", \
+"--pipeline_config_path=/pets_data/faster_rcnn_resnet101_pets.config", \
+"--trained_checkpoint_prefix=/pets_data/train/model.ckpt-<number>", \
+"--output_directory=/pets_data/exported_graphs"]
+
+ks apply ${ENV} -c export-tf-graph-job
 ```  
   
 Once the job is completed a new directory called `exported_graphs` under `/pets_data` in the pets-data-claim PCV  

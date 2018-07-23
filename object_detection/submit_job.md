@@ -22,7 +22,7 @@ docker push <your_server:your_port>/pets_object_detection
 ```
 
 ## Create  training TF-Job deployment and launching it
-**NOTE:** You can skip this step and copy the [pets-training.yaml](./jobs/pets-training.yaml) from the `conf` directory and modify it to your needs.
+**NOTE:** You can skip this step and copy the [pets-training.yaml](./jobs/pets-training.yaml) from the `jobs` directory and modify it to your needs.
 Or simply run:
 
 ```
@@ -43,7 +43,7 @@ ks generate tf-job pets-training --name=pets-traning \
 ```
 Dump the generated component into a K8s deployment manifest file.
 ```
-ks show nocloud -c pets-training > pets-training.yaml
+ks show ${ENV} -c pets-training > pets-training.yaml
 ``` 
 Add the volume mounts information at the end manifest file. We will be mounting `/pets_data` path to all the containers so they can pull the data for the training job
 ```
@@ -54,7 +54,7 @@ Add the following to the template.spec:
 volumes:
   - name: pets-data
     persistentVolumeClaim:
-      claimName: pets-data-claim
+      claimName: pets-pvc
 ```
 Add the following to the container properties:
 ```

@@ -22,37 +22,99 @@ ambassador-7987df44b9-qrgsm       2/2       Running   0          1m
 tf-hub-0                          1/1       Running   0          1m
 tf-job-operator-78757955b-qkg7s   1/1       Running   0          1m
 ```
-## Preparing the training data
-We have prepared a set of K8s batch jobs to create a persistent volume and copy the data to it.
-The `yaml` manifest files for these jobs can be found at [jobs](./jobs) directory. These `yaml` files are numbered and must be executed in order.
+### Adding objectDetection package to your Ksonnet app
 
 ```
-# First create the PVC where the training data will be stored
-kubectl -n kubeflow apply -f ./jobs/00create-pvc.yaml
+# Add the registry
+ks registry add objectDetection github.com/kuebflow/examples/tree/master/object_detection
+
+#install the package
+ks pkg install objectDetection/obj-detection
 ```
-The 00create-pvc.yaml creates a PVC with `ReadWriteMany` access mode if your Kubernetes cluster
-does not support this feature you can modify the manifest to create the PVC in `ReadWriteOnce`
+
+## Preparing the training data
+We have prepared a set of ksonnet prototypes to create a persistent volume and copy the data to it.
+The prototypes can be found at [obj-detection](./obj-detection) directory. We will create a set of components and we will apply them in order for better results.
+
+```
+# First create the PVC component and apply it to create a PVC where the training data will be stored
+ks generate pvc pets-pvc --storage="20Gi" --accessMode="ReadWriteMany"
+ks apply ${ENV} -c pets-pvc
+```
+The commands above will create a PVC with `ReadWriteMany` access mode if your Kubernetes cluster
+does not support this feature you can modify the `--accessMode` value to create the PVC in `ReadWriteOnce`
 and before you execute the tf-job to train the model add a `nodeSelector:` configuration to execute the pods
 in the same node. You can find more about assigning pods to specific nodes [here](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/)
 
+Now we will get the data we need to prepare our training pipeline:
+
 ```
-# Get the dataset, annotations and faster-rcnn-model tars
-kubectl -n kubeflow apply -f ./jobs/01get-dataset.yaml
-kubectl -n kubeflow apply -f ./jobs/02get-annotations.yaml
-kubectl -n kubeflow apply -f ./jobs/03get-model-job.yaml
+# Create the components and apply them
+ks generate get-data-job get-dataset-job \
+--pvc="pets-pvc" \
+--mountPath="/pets-data" \
+--url="http://www.robots.ox.ac.uk/~vgg/data/pets/data/images.tar.gz"
+
+ks generate get-data-job get-annotations-job \
+--pvc="pets-pvc" \
+--mountPath="/pets-data" \
+--url="http://www.robots.ox.ac.uk/~vgg/data/pets/data/annotations.tar.gz"
+
+ks generate get-data-job get-model-job \
+--pvc="pets-pvc" \
+--mountPath="/pets-data" \
+--url="http://download.tensorflow.org/models/object_detection/faster_rcnn_resnet101_coco_2018_01_28.tar.gz"
+
+ks apply ${ENV} -c get-dataset-job
+ks apply ${ENV} -c get-annotations-job
+ks apply ${ENV} -c get-model-job
+
 ```
 
 ```
-# Decompress tar files
-kubectl -n kubeflow apply -f ./jobs/04decompress-images.yaml
-kubectl -n kubeflow apply -f ./jobs/05decompress-annotations.yaml
-kubectl -n kubeflow apply -f ./jobs/06decompress-model.yaml
+# Generate and apply the decompression jobs
+
+ks generate decompress-data-job decompress-dataset-job \
+--pvc="pets-pvc" \
+--mountPath="/pets-data" \
+--pathToFile="/pets-data/images.tar.gz"
+
+ks generate decompress-data-job decompress-annotations-job \
+--pvc="pets-pvc" \
+--mountPath="/pets-data" \
+--pathToFile="/pets-data/annotations.tar.gz"
+
+ks generate decompress-data-job decompress-model-job \
+--pvc="pets-pvc" \
+--mountPath="/pets-data" \
+--pathToFile="/pets-data/faster_rcnn_resnet101_coco_2018_01_28.tar.gz"
+
+# Apply the components
+ks apply ${ENV} -c decompress-dataset-job
+ks apply ${ENV} -c decompress-annotations-job
+ks apply ${ENV} -c decompress-model-job
 ```
 
 ```
-# Configuring the training pipeline
-kubectl -n kubeflow apply -f ./jobs/07get-fasterrcnn-config.yaml
-kubectl -n kubeflow apply -f ./jobs/08create-pet-record.yaml
+# Create the components to configure the training pipeline
+ks generate get-data-job get-pipeline-config-job \
+--pvc="pets-pvc" \
+--mountPath="/pets-data" \
+--url="https://raw.githubusercontent.com/kubeflow/examples/master/object_detection/conf/faster_rcnn_resnet101_pets.config"
+
+# Create pet record
+ks generate generic-job  create-pet-record-job \
+--pvc="pets-pvc" \
+--mountPath="/pets-data" \
+--image="lcastell/pets_object_detection" \
+--command=["python", "/models/research/object_detection/dataset_tools/create_pet_tf_record.py"] \
+--args=["--label_map_path=models/research/object_detection/data/pet_label_map.pbtxt", \
+"--data_dir=/pets_data", \
+"--output_dir=/pets_data"]
+
+ks apply ${ENV} -c get-pipeline-config-job
+ks apply ${ENV} -c create-pet-record-job
+
 ```
 
 ## Next
