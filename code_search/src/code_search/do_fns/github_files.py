@@ -28,10 +28,10 @@ class TokenizeCodeDocstring(beam.DoFn):
 
   def process(self, element): # pylint: disable=no-self-use
     try:
-      from ..utils import get_function_docstring_pairs
+      import code_search.utils as utils
 
       start_time = time.time()
-      element['pairs'] = get_function_docstring_pairs(element.pop('content'))
+      element['pairs'] = utils.get_function_docstring_pairs(element.pop('content'))
       self.tokenization_time_ms.inc(int((time.time() - start_time) * 1000.0))
 
       yield element
@@ -42,7 +42,14 @@ class TokenizeCodeDocstring(beam.DoFn):
 
 class ExtractFuncInfo(beam.DoFn):
   # pylint: disable=abstract-method
-  """Convert pair tuples from `TokenizeCodeDocstring` into dict containing query-friendly keys"""
+  """Convert pair tuples to dict.
+
+  This takes a list of values from `TokenizeCodeDocstring`
+  and converts into a dictionary so that values can be
+  indexed by names instead of indices. `info_keys` is the
+  list of names of those values in order which will become
+  the keys of each new dict.
+  """
   def __init__(self, info_keys):
     super(ExtractFuncInfo, self).__init__()
 
