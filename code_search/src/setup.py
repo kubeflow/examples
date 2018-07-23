@@ -10,8 +10,10 @@ with open('requirements.txt', 'r') as f:
 
 CUSTOM_COMMANDS = [
   ['python', '-m', 'spacy', 'download', 'en'],
+  ##
   # TODO(sanyamkapoor): This isn't ideal but no other way for a seamless install right now.
-  # TODO(sanyamkapoor): Switch to upstream source after merge
+  # This currently uses a fork due to API limitations (See kubeflow/batch-predict#10). The
+  # API limitations have a workaround via kubeflow/batch-predict#9.
   ['pip', 'install', 'https://github.com/activatedgeek/batch-predict/tarball/fix-value-provider']
 ]
 
