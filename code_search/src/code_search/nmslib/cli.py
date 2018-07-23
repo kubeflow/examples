@@ -7,9 +7,9 @@ and `nmslib-serve` binaries (see `setup.py`). Use `-h` to get a list
 of input CLI arguments to both.
 """
 
-import sys
 import os
 import argparse
+import csv
 import numpy as np
 
 from code_search.nmslib.gcs import maybe_download_gcs_file, maybe_upload_gcs_file
@@ -21,6 +21,8 @@ def parse_server_args(args):
 
   parser.add_argument('--tmp-dir', type=str, metavar='', default='/tmp/nmslib',
                      help='Path to temporary data directory')
+  parser.add_argument('--data-file', type=str, required=True,
+                     help='Path to CSV file containing human-readable data')
   parser.add_argument('--index-file', type=str, required=True,
                      help='Path to index file created by nmslib')
   parser.add_argument('--problem', type=str, required=True,
@@ -36,6 +38,7 @@ def parse_server_args(args):
 
   args = parser.parse_args(args)
   args.tmp_dir = os.path.expanduser(args.tmp_dir)
+  args.data_file = os.path.expanduser(args.data_file)
   args.index_file = os.path.expanduser(args.index_file)
   args.data_dir = os.path.expanduser(args.data_dir)
 
@@ -59,32 +62,41 @@ def parse_creator_args(args):
 
   return args
 
-def server():
-  args = parse_server_args(sys.argv[1:])
+def server(argv=None):
+  args = parse_server_args(argv)
 
   if not os.path.isdir(args.tmp_dir):
     os.makedirs(args.tmp_dir, exist_ok=True)
 
   # Download relevant files if needed
   index_file = maybe_download_gcs_file(args.index_file, args.tmp_dir)
+  data_file = maybe_download_gcs_file(args.data_file, args.tmp_dir)
 
   search_engine = CodeSearchEngine(args.problem, args.data_dir, args.serving_url,
-                                   index_file)
+                                   index_file, data_file)
 
   search_server = CodeSearchServer(engine=search_engine,
                                    host=args.host, port=args.port)
   search_server.run()
 
 
-def creator():
-  args = parse_creator_args(sys.argv[1:])
+def creator(argv=None):
+  args = parse_creator_args(argv)
 
   if not os.path.isdir(args.tmp_dir):
-    os.makedirs(args.tmp_dir, exist_ok=True)
+    os.makedirs(args.tmp_dir)
 
   data_file = maybe_download_gcs_file(args.data_file, args.tmp_dir)
 
-  data = np.load(data_file)
+  data = np.empty((0, 128), dtype=np.float32)
+  with open(data_file, 'r') as csv_file:
+    data_reader = csv.reader(csv_file)
+    next(data_reader, None) # Skip the header
+    for row in data_reader:
+      vector_string = row[-1]
+      embedding_vector = [float(value) for value in vector_string.split(',')]
+      np_row = np.expand_dims(embedding_vector, axis=0)
+      data = np.append(data, np_row, axis=0)
 
   tmp_index_file = os.path.join(args.tmp_dir, os.path.basename(args.index_file))
 
