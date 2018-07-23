@@ -227,7 +227,7 @@ You should also be able to see the Seldon model serving image on Docker Hub unde
 <your user>/issuesummarization:<pachyderm job id>
 ```
 
-That image is now ready to be used in Seldon to server the model. You can follow [this example](https://github.com/kubeflow/examples/tree/master/github_issue_summarization) to deploy Seldon with KubeFlow, deploy the model serving, and deploy an example frontend to query the model.
+That image is now ready to be used in Seldon to serve the model. You can follow [this example](../jupyter_seldon/03_serving_the_model.md) to deploy Seldon with KubeFlow, deploy the model serving, and deploy an example frontend to query the model.
 
 Congrats! You have set up a complete end-to-end data pipeline with KubeFlow and Pachyderm, from raw data to versioned and exported model!
 
@@ -274,7 +274,7 @@ b496e8c500df43d58d667d113ee8aee7 export/98c3f65fcd3d4f41bebff0e83452f7db      2 
 70eb099852b543ce9818bf11dbe68c76 split/99468d94ac51433e8968362b1015fb2c       2 hours ago   2 minutes  0       1 + 0 / 1 2.561MiB 104.2KiB success
 ```
 
-Once all the jobs (split, pre-process, train, build, and export) finish, you will have an branch new model image ready for serving, but you will also be able to tie this, or another, model image back to the exact jobs, data, and code that produced it! One way you can access this information is with Pachyderm's built in commit inspection API, which returns "data provenance" (i.e., all the data and processing specs that lead to a specific commit of data):
+Once all the jobs (split, pre-process, train, build, and export) finish, you will have an brand new model image ready for serving, but you will also be able to tie this, or another, model image back to the exact jobs, data, and code that produced it! One way you can access this information is with Pachyderm's built in commit inspection API, which returns "data provenance" (i.e., all the data and processing specs that lead to a specific commit of data):
 
 ```
 $ pachctl inspect-commit train a096f70a6ffc43b883285d26dccf4a29
