@@ -31,7 +31,7 @@ Or you can use the above model uploaded at `gs://kubeflow-examples-data/object-d
 
 After deploying Kubeflow, you should have a ksonnet app; cd to that directory.
 ```
-cd YOUR_KS_APP
+cd YOUR_KS_APP  # you can use the ks-app in this dir.
 ks pkg install kubeflow/tf-serving  # If you haven't done it
 
 ks generate tf-serving model1 --name=coco

@@ -1,3 +1,12 @@
+""" Script to send prediction request.
+
+Usage: 
+  python predict.py --url=YOUR_KF_HOST/models/coco --input_image=YOUR_LOCAL_IMAGE
+    --output_image=OUTPUT_IMAGE_NAME.
+
+This will save the prediction result as OUTPUT_IMAGE_NAME.
+The output image is the input image with the detected bounding boxes.
+"""
 import argparse
 import json
 import requests
