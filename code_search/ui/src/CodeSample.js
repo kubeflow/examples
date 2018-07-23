@@ -6,7 +6,7 @@ import CodeIcon from '@material-ui/icons/Code';
 
 class CodeSample extends Component {
   render() {
-    const {nwo, path, function_string, lineno} = this.props;
+    const {nwo, path, original_function, lineno} = this.props;
 
     const codeUrl = `${nwo}/blob/master/${path}#L${lineno}`;
 
@@ -24,7 +24,7 @@ class CodeSample extends Component {
         </div>
 
         <SyntaxHighlighter style={docco}>
-          {function_string}
+          {original_function}
         </SyntaxHighlighter>
       </div>
     );
@@ -34,8 +34,8 @@ class CodeSample extends Component {
 CodeSample.propTypes = {
   nwo: PropTypes.string.isRequired,
   path: PropTypes.string.isRequired,
-  function_string: PropTypes.string.isRequired,
-  lineno: PropTypes.number.isRequired,
+  original_function: PropTypes.string.isRequired,
+  lineno: PropTypes.string.isRequired,
 };
 
 export default CodeSample;
