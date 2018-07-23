@@ -40,7 +40,7 @@
       "--train_steps=" + updatedParams.trainSteps,
       "--hparams_set=" + updatedParams.hparams,
       "--model=" + updatedParams.model,
-      "--problems=" + updatedParams.problem,
+      "--problem=" + updatedParams.problem,
       "--t2t_usr_dir=" + updatedParams.usrDir,
       "--data_dir=" + updatedParams.dataDir,
       "--output_dir=" + updatedParams.outputGCSPath,

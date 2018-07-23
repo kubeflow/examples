@@ -1,8 +1,8 @@
 {
   parts(namespace):: {
     local k = import "k.libsonnet",
-    local certManagerImage = "quay.io/jetstack/cert-manager-controller:v0.2.3",
-    local certManagerIngressShimImage = "quay.io/jetstack/cert-manager-ingress-shim:v0.2.3",
+    local certManagerImage = "quay.io/jetstack/cert-manager-controller:v0.2.4",
+    local certManagerIngressShimImage = "quay.io/jetstack/cert-manager-ingress-shim:v0.2.4",
 
     // Note, not using std.prune to preserve required empty http01 map in the Issuer spec.
     certManagerParts(acmeEmail, acmeUrl):: k.core.v1.list.new([
@@ -20,7 +20,7 @@
       apiVersion: "apiextensions.k8s.io/v1beta1",
       kind: "CustomResourceDefinition",
       metadata: {
-        name: "certificates.certmanager.k8s.io"
+        name: "certificates.certmanager.k8s.io",
       },
       spec: {
         group: "certmanager.k8s.io",
@@ -39,7 +39,7 @@
       metadata: {
         name: "clusterissuers.certmanager.k8s.io",
       },
-        
+
       spec: {
         group: "certmanager.k8s.io",
         version: "v1alpha1",
@@ -55,7 +55,7 @@
       apiVersion: "apiextensions.k8s.io/v1beta1",
       kind: "CustomResourceDefinition",
       metadata: {
-        name: "issuers.certmanager.k8s.io"
+        name: "issuers.certmanager.k8s.io",
       },
       spec: {
         group: "certmanager.k8s.io",
@@ -67,14 +67,14 @@
         scope: "Namespaced",
       },
     },
-    
+
     serviceAccount:: {
       apiVersion: "v1",
       kind: "ServiceAccount",
       metadata: {
         name: "cert-manager",
         namespace: namespace,
-      }
+      },
     },
 
     clusterRole:: {

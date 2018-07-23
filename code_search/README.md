@@ -8,6 +8,7 @@ Github Dataset hosted on BigQuery.
 * Python 2.7 (with `pip`)
 * Python 3.6+ (with `pip3`)
 * Python `virtualenv`
+* Docker
 
 **NOTE**: `Apache Beam` lacks `Python3` support and hence the multiple versions needed.
 
@@ -46,7 +47,7 @@ To use either of the environments,
 $ source venv2/bin/activate | source venv3/bin/activate # Pick one
 ```
 
-See [Virtualenv Docs](https://virtualenv.pypa.io/en/stable/) for more.
+See [Virtualenv Docs](https://virtualenv.pypa.io/en/stable/) for more. 
 
 # Pipeline
 
@@ -62,33 +63,61 @@ Results are saved back into a BigQuery table.
 
 * Execute the `Dataflow` job
 ```
-$ python preprocess/scripts/process_github_archive.py -i files/select_github_archive.sql \
-         -o code_search:function_docstrings -p kubeflow-dev -j process-github-archive \
-         --storage-bucket gs://kubeflow-dev --machine-type n1-highcpu-32 --num-workers 16 \
-         --max-num-workers 16
+$ python preprocess/scripts/process_github_archive.py -p kubeflow-dev -j process-github-archive \
+  --storage-bucket gs://kubeflow-examples/t2t-code-search -o code_search:function_docstrings \
+  --machine-type n1-highcpu-32 --num-workers 16 --max-num-workers 16
 ```
 
-## 2. Function Summarizer
+## 2. Model Training
 
-This part generates a model to summarize functions into docstrings using the data generated in previous
-step. It uses `tensor2tensor`.
+A `Dockerfile` based on Tensorflow is provided along which has all the dependencies for this part of the pipeline. 
+By default, it is based off Tensorflow CPU 1.8.0 for `Python3` but can be overridden in the Docker image build.
+This script builds and pushes the docker image to Google Container Registry.
 
-* Install dependencies
+### 2.1 Build & Push images to GCR
+
+**NOTE**: The images can be pushed to any registry of choice but rest of the 
+
+* Authenticate with GCR
 ```
-(venv3) $ pip install -r summarizer/requirements.txt
+$ gcloud auth configure-docker
 ```
 
-* Generate `TFRecords` for training
+* Build and push the image
 ```
-(venv3) $ t2t-datagen --t2t_usr_dir=summarizer/gh_function_summarizer --problem=github_function_summarizer \
-                      --data_dir=~/data --tmp_dir=/tmp
+$ PROJECT=my-project ./build_image.sh
 ```
+and a GPU image
+```
+$ GPU=1 PROJECT=my-project ./build_image.sh
+```
+
+See [GCR Pushing and Pulling Images](https://cloud.google.com/container-registry/docs/pushing-and-pulling) for more.
+
+
+### 2.2 Train Locally
+
+**WARNING**: The container might run out of memory and be killed.
+
+#### 2.2.1 Function Summarizer
 
 * Train transduction model using `Tranformer Networks` and a base hyper-parameters set
 ```
-(venv3) $ t2t-trainer --t2t_usr_dir=summarizer/gh_function_summarizer --problem=github_function_summarizer \
-                      --data_dir=~/data --model=transformer --hparams_set=transformer_base --output_dir=~/train
+$ export MOUNT_DATA_DIR=/path/to/data/folder
+$ export MOUNT_OUTPUT_DIR=/path/to/output/folder
+$ docker run --rm -it -v ${MOUNT_DATA_DIR}:/data -v ${MOUNT_OUTPUT_DIR}:/output ${BUILD_IMAGE_TAG} \
+    --generate_data --problem=github_function_docstring --data_dir=/data --output_dir=/output \
+    --model=similarity_transformer --hparams_set=transformer_tiny
 ```
+
+### 2.2 Train on Kubeflow
+
+* Setup secrets for access permissions Google Cloud Storage and Google Container Registry
+```shell
+$ PROJECT=my-project ./create_secrets.sh
+```
+
+**NOTE**: Use `create_secrets.sh -d` to remove any side-effects of the above step.
 
 # Acknowledgements
 

@@ -52,6 +52,15 @@ This example covers the following concepts:
 1. Monitoring with Argo UI and Tensorboard
 1. Serving with Tensorflow
 
+### [Distributed Object Detection](./object_detection)
+
+Author: [Daniel Castellanos](https://github.com/ldcastell)
+
+This example covers the following concepts:
+1. Gathering and preparing the data for model training using K8s jobs
+1. Using Kubeflow tf-job and tf-operator to launch a distributed object training job
+1. Serving the model through Kubeflow's tf-serving
+
 ## Component-focused
 
 1.
@@ -62,7 +71,7 @@ This example covers the following concepts:
 
 ## Third-party hosted
 
-| Source | Example | Description | 
+| Source | Example | Description |
 | ------ | ------- | ----------- |
 | | | | |
 

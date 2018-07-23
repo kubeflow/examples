@@ -1,7 +1,7 @@
 import ast
+from nltk.tokenize import RegexpTokenizer
 import astor
 import spacy
-from nltk.tokenize import RegexpTokenizer
 
 
 def tokenize_docstring(text):
