@@ -18,7 +18,7 @@ The following are two approaches to training, managing, and deploying a model th
 The first (using Jupyter and Seldon) includes exploratory and manual workflow components, whereas the
 second (using Pachyderm and Seldon) automates and tracks similar components. 
 
-#### [GitHub issue summarization (Jupyter and Seldon)](./github_issue_summarization/jupyter_argo_seldon)
+#### [GitHub issue summarization (Jupyter and Seldon)](./github_issue_summarization/jupyter_seldon)
 Author: [Hamel Husain](https://github.com/hamelsmu)
 
 This example covers the following concepts:
@@ -31,7 +31,7 @@ This example covers the following concepts:
 1. Serving with Seldon Core
 1. Flask front-end
 
-#### [GitHub issue summarization (Pachyderm and Seldon)](./github_issue_summarization/pachyderm_seldon_kvc)
+#### [GitHub issue summarization (Pachyderm and Seldon)](./github_issue_summarization/pachyderm_seldon)
 Author: [Daniel Whitenack](https://github.com/dwhitena)
 
 This example covers the following concepts:

@@ -9,7 +9,7 @@ This example will guide you through an end-to-end KubeFlow pipeline that:
 - version controls model binaries, and
 - builds Docker images for serving the model.
 
-This example is based on the modeling code from [another KubeFlow example](https://github.com/dwhitena/examples/tree/master/github_issue_summarization). However, by using [Pachyderm](http://pachyderm.io/) to manage this example's data and pipeline, we can create a distributed pipeline that can:
+This example is based on the modeling code from [another KubeFlow example](../jupyter_seldon). However, by using [Pachyderm](http://pachyderm.io/) to manage this example's data and pipeline, we can create a distributed pipeline that can:
 
 - Scale to large data sets (by distributing pre-processing and other tasks via Pachyderm built in [distributed processing capabilities](http://pachyderm.readthedocs.io/en/latest/fundamentals/distributed_computing.html) and [support for resources such as GPUs](https://youtu.be/OZSA5hmkb0o)),
 - Flexibly utilize non-distributed TensorFlow outside of a TFJob, non-distributed TensorFlow managed via a TFJob, or distributed TensorFlow (and, actually, any other framework such as PyTorch, Caffe, etc., because Pachyderm pipeline stages support any language/framework and can be managed independently),
