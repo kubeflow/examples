@@ -15,7 +15,9 @@ def create_github_pipeline(argv=None):
       pre-processed table instead (using flag `--pre-transformed`)
     - Tokenize files into pairs of function definitions and docstrings
     - All results are stored in a BigQuery dataset (`args.target_dataset`)
-    - See `github_dataset.TransformGithubDataset` for details of tables created
+    - See `transforms.github_dataset.TransformGithubDataset` for details of tables created
+    - Additionally, store pairs of docstring and function tokens in a CSV file
+      for training
   """
   args = arguments.parse_arguments(argv)
   pipeline_opts = arguments.create_pipeline_opts(args)
@@ -36,7 +38,7 @@ def create_github_pipeline(argv=None):
                                                                            args.target_dataset)
     )
 
-  (token_pairs
+  (token_pairs  # pylint: disable=expression-not-assigned
     | "Format for CSV Write" >> beam.ParDo(dict_to_csv.DictToCSVString(['docstring_tokens', 'function_tokens']))
     | "Write CSV" >> beam.io.WriteToText('{}/func-doc-pairs'.format(args.data_dir),
                                          file_name_suffix='.csv')
