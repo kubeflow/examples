@@ -107,10 +107,10 @@ ks generate generic-job  create-pet-record-job \
 --pvc="pets-pvc" \
 --mountPath="/pets-data" \
 --image="lcastell/pets_object_detection" \
---command=["python", "/models/research/object_detection/dataset_tools/create_pet_tf_record.py"] \
---args=["--label_map_path=models/research/object_detection/data/pet_label_map.pbtxt", \
+--command='["python", "/models/research/object_detection/dataset_tools/create_pet_tf_record.py"]' \
+--args='["--label_map_path=models/research/object_detection/data/pet_label_map.pbtxt", \
 "--data_dir=/pets_data", \
-"--output_dir=/pets_data"]
+"--output_dir=/pets_data"]'
 
 ks apply ${ENV} -c get-pipeline-config-job
 ks apply ${ENV} -c create-pet-record-job

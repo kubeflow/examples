@@ -34,39 +34,42 @@ kubectl -n kubeflow apply -f ./jobs/pets-training.yaml
 Generate the ksonnet component using the tf-job prototype
 ```
 # from the my-kubeflow directory
-ks generate tf-job pets-training --name=pets-traning \
---namespace=kubeflow \
+ks generate tf-training-job pets-training \
 --image=<your_server:your_port>/pets_object_detection \
---num_masters=1 \
---num_workers= 1 \
---num_ps= 1
+--numWorkers=1 \
+--numPs=1 \
+--pvc="pets-pvc" \
+--mountPath="/pets-data" \
+--pipelineConfigPath="/pets_data/faster_rcnn_resnet101_pets.config" \
+--trainDir="/pets_data/train"
 ```
-Dump the generated component into a K8s deployment manifest file.
+To see the yaml manifest you can dump the generated component into a K8s deployment manifest file.
 ```
 ks show ${ENV} -c pets-training > pets-training.yaml
-``` 
-Add the volume mounts information at the end manifest file. We will be mounting `/pets_data` path to all the containers so they can pull the data for the training job
-```
-vim pets-training.yaml
-```
-Add the following to the template.spec:
-```
-volumes:
-  - name: pets-data
-    persistentVolumeClaim:
-      claimName: pets-pvc
-```
-Add the following to the container properties:
-```
-volumeMounts:
-- mountPath: "/pets_data"
-  name: pets-data
+cat ./pets-training.yaml
 ```
 At the end you should have something similar to [this](./jobs/pets-training.yaml)
 
 No you can submit the TF-Job to K8s:
 ```
+ks apply ${ENV} -c pets-training
+# OR
 kubectl -n kubeflow apply -f pets-training.yaml
+```
+
+For GPU support change use the `--numGpu=<number of Gpus to request>` param like:
+```
+# from the my-kubeflow directory
+ks generate tf-training-job pets-training --name=pets-traning \
+--namespace=kubeflow \
+--image=<your_server:your_port>/pets_object_detection_gpu \
+--numWorkers= 1 \
+--numPs= 1 \
+--numGpu=1 \
+--pvc="pets-pvc" \
+--mountPath="/pets-data" \
+--pipelineConfigPath="/pets_data/faster_rcnn_resnet101_pets.config" \
+--trainDir="/pets_data/train"
 ```
 
 ## Next

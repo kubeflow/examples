@@ -46,7 +46,7 @@
               name: "decompress-data",
               image: "ubuntu:16.04",
               imagePullPolicy: "IfNotPresent",
-              command: ["tar", "--no-same-owner", "-xzvf",  pathToFile, "-C", "mountPath"],
+              command: ["tar", "--no-same-owner", "-xzvf",  pathToFile, "-C", mountPath],
               volumeMounts: [{
                   mountPath: mountPath,
                   name: "pets-data",
