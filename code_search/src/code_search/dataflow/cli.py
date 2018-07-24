@@ -6,7 +6,8 @@ import os
 import apache_beam as beam
 import apache_beam.options.pipeline_options as pipeline_options
 
-import code_search.dataflow.transforms.process_github_files as process_github_files
+import code_search.dataflow.transforms.github_bigquery as gh_bq
+import code_search.dataflow.transforms.github_dataset as github_dataset
 import code_search.dataflow.transforms.code_embed as code_embed
 
 
@@ -38,8 +39,12 @@ def parse_arguments(argv):
 
   parser.add_argument('-r', '--runner', metavar='', type=str, default='DirectRunner',
                       help='Type of runner - DirectRunner or DataflowRunner')
-  parser.add_argument('-o', '--output', metavar='', type=str,
-                      help='Output string of the format <dataset>:<table>')
+  parser.add_argument('-p', '--project', metavar='', type=str,
+                      help='Project ID')
+  parser.add_argument('-d', '--target-dataset', metavar='', type=str,
+                      help='Name of the BigQuery dataset for output results')
+  # parser.add_argument('-o', '--output', metavar='', type=str,
+  #                     help='Output string of the format <dataset>:<table>')
 
   predict_args_parser = parser.add_argument_group('Batch Prediction Arguments')
   predict_args_parser.add_argument('--problem', metavar='', type=str,
@@ -51,8 +56,6 @@ def parse_arguments(argv):
 
   # Dataflow related arguments
   dataflow_args_parser = parser.add_argument_group('Dataflow Runner Arguments')
-  dataflow_args_parser.add_argument('-p', '--project', metavar='', type=str, default='Project',
-                                    help='Project ID')
   dataflow_args_parser.add_argument('-j', '--job-name', metavar='', type=str, default='Beam Job',
                                     help='Job name')
   dataflow_args_parser.add_argument('--storage-bucket', metavar='', type=str, default='gs://bucket',
@@ -80,9 +83,19 @@ def create_github_pipeline(argv=None):
 
   pipeline = beam.Pipeline(options=pipeline_opts)
   (pipeline #pylint: disable=expression-not-assigned
-    | process_github_files.ProcessGithubFiles(args.project,
-                                    args.output, args.storage_bucket)
+    | "Read Github Dataset" >> gh_bq.ReadGithubDataset(args.project)
+    | "Transform Github Dataset" >> github_dataset.TransformGithubDataset(args.project,
+                                                                          args.target_dataset)
   )
+
+  """
+  (
+   | "Format For Write" >> beam.Map(self.format_for_write)
+   | "Write To File" >> beam.io.WriteToText('{}/data/pairs'.format(self.storage_bucket),
+                                       file_name_suffix='.csv',
+                                       num_shards=self.num_shards))
+  """
+
   result = pipeline.run()
   if args.runner == 'DirectRunner':
     result.wait_until_finish()

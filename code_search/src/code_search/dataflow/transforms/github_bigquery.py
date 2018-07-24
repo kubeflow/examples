@@ -67,6 +67,30 @@ class ReadGithubDataset(bigquery.BigQueryRead):
     return query
 
 
+class WriteFailedTokenizedData(bigquery.BigQueryWrite):
+  @property
+  def column_list(self):
+    return [
+      ('nwo', 'STRING'),
+      ('path', 'STRING'),
+      ('content', 'STRING')
+    ]
+
+
+class WriteTokenizedData(bigquery.BigQueryWrite):
+  @property
+  def column_list(self):
+    return [
+      ('nwo', 'STRING'),
+      ('path', 'STRING'),
+      ('function_name', 'STRING'),
+      ('lineno', 'STRING'),
+      ('original_function', 'STRING'),
+      ('function_tokens', 'STRING'),
+      ('docstring_tokens', 'STRING'),
+    ]
+
+
 class ReadProcessedGithubData(bigquery.BigQueryRead):
   @property
   def limit(self):
