@@ -95,8 +95,8 @@ class WriteTokenizedData(bigquery.BigQueryWrite):
 class ReadTransformedGithubDataset(bigquery.BigQueryRead):
   @property
   def limit(self):
-    return 500
-    # return None
+    # return 500
+    return None
 
   @property
   def query_string(self):
@@ -119,7 +119,7 @@ class WriteGithubIndexData(bigquery.BigQueryWrite):
       ('nwo', 'STRING'),
       ('path', 'STRING'),
       ('function_name', 'STRING'),
-      ('lineno', 'INTEGER'),
+      ('lineno', 'STRING'),
       ('original_function', 'STRING'),
       ('function_embedding', 'STRING')
     ]

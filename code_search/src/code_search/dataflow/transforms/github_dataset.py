@@ -11,7 +11,7 @@ class TransformGithubDataset(beam.PTransform):
   BigQuery, tokenizes functions and docstrings in Python files,
   and dumps into a new BigQuery dataset for further processing.
 
-  This transform creates two BigQuery tables in the `target_dataset`
+  This transform creates following tables in the `target_dataset`
   which are defined as properties for easy modification.
     - `self.failed_tokenize_table`
     - `self.pairs_table`
