@@ -6,8 +6,8 @@ import os
 import apache_beam as beam
 import apache_beam.options.pipeline_options as pipeline_options
 
-import code_search.transforms.process_github_files as process_github_files
-import code_search.transforms.code_embed as code_embed
+import code_search.dataflow.transforms.process_github_files as process_github_files
+import code_search.dataflow.transforms.code_embed as code_embed
 
 
 def create_pipeline_opts(args):
@@ -38,8 +38,6 @@ def parse_arguments(argv):
 
   parser.add_argument('-r', '--runner', metavar='', type=str, default='DirectRunner',
                       help='Type of runner - DirectRunner or DataflowRunner')
-  parser.add_argument('-i', '--input', metavar='', type=str, default='',
-                      help='Path to input file')
   parser.add_argument('-o', '--output', metavar='', type=str,
                       help='Output string of the format <dataset>:<table>')
 
@@ -78,18 +76,11 @@ def create_github_pipeline(argv=None):
   An SQL file is included with the module.
   """
   args = parse_arguments(argv)
-
-  default_sql_file = os.path.abspath('{}/../../files/select_github_archive.sql'.format(__file__))
-  args.input = args.input or default_sql_file
-
   pipeline_opts = create_pipeline_opts(args)
-
-  with open(args.input, 'r') as f:
-    query_string = f.read()
 
   pipeline = beam.Pipeline(options=pipeline_opts)
   (pipeline #pylint: disable=expression-not-assigned
-    | process_github_files.ProcessGithubFiles(args.project, query_string,
+    | process_github_files.ProcessGithubFiles(args.project,
                                     args.output, args.storage_bucket)
   )
   result = pipeline.run()
@@ -115,6 +106,3 @@ def create_batch_predict_pipeline(argv=None):
   result = pipeline.run()
   if args.runner == 'DirectRunner':
     result.wait_until_finish()
-
-if __name__ == '__main__':
-  create_batch_predict_pipeline()

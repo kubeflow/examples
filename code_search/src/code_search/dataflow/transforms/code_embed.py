@@ -1,8 +1,8 @@
 import apache_beam as beam
 import kubeflow_batch_predict.dataflow.batch_prediction as batch_prediction
 
-import code_search.do_fns.embeddings as embeddings
-import code_search.transforms.github_bigquery as github_bigquery
+import code_search.dataflow.do_fns.embeddings as embeddings
+import code_search.dataflow.transforms.github_bigquery as github_bigquery
 
 
 class GithubBatchPredict(beam.PTransform):

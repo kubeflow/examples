@@ -1,10 +1,22 @@
-import code_search.transforms.bigquery as bigquery
+import code_search.dataflow.transforms.bigquery as bigquery
 
 
-class ReadOriginalGithubPythonData(bigquery.BigQueryRead):
+class ReadGithubDataset(bigquery.BigQueryRead):
+  """Read original Github files from BigQuery.
+
+  This utility Transform reads Python files
+  from a BigQuery public dump which are smaller
+  than 15k lines of code, contain at least one
+  function definition and its repository has been
+  watched at least twice since 2017.
+
+  NOTE: Make sure to modify the `self.limit` property
+  as desired.
+  """
+
   @property
   def limit(self):
-    return None
+    return 100
 
   @property
   def query_string(self):
