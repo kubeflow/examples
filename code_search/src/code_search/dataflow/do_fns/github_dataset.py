@@ -1,4 +1,5 @@
-"""Beam DoFns for Github related tasks"""
+"""Beam DoFns specific to `code_search.dataflow.transforms.github_dataset`."""
+
 import time
 import logging
 import apache_beam as beam
@@ -7,37 +8,43 @@ from apache_beam.metrics import Metrics
 
 
 class SplitRepoPath(beam.DoFn):
-  # pylint: disable=abstract-method
-  """Split the space-delimited file `repo_path` into owner repository (`nwo`)
-  and file path (`path`)"""
+  """Update element keys to separate repo path and file path.
 
-  def process(self, element): # pylint: disable=no-self-use
+  This DoFn's only purpose is to be used after
+  `code_search.dataflow.transforms.github_bigquery.ReadGithubDataset`
+  to split the `repo_path` dictionary key into two new keys
+  `nwo` (repository path) and `path` (the relative file path).
+  The original dataset has these two values separate by a space
+  character.
+  """
+
+  def process(self, element, *args, **kwargs):
     nwo, path = element.pop('repo_path').split(' ', 1)
     element['nwo'] = nwo
     element['path'] = path
     yield element
 
 
-class TokenizeCodeDocstring(beam.DoFn):
-  # pylint: disable=abstract-method
-  """Compute code/docstring pairs from incoming BigQuery row dict"""
-  def __init__(self):
-    super(TokenizeCodeDocstring, self).__init__()
+class TokenizeFunctionDocstrings(beam.DoFn):
+  """Tokenize function and docstrings.
 
-    self.tokenization_time_ms = Metrics.counter(self.__class__, 'tokenization_time_ms')
+  This DoFn takes in the rows from BigQuery and tokenizes
+  the file content present in the 'content' key. This
+  yields an updated dictionary with the new tokenized
+  data in the 'pairs' key. In cases where the tokenization
+  fails, a side output is returned.
+  """
 
-  def process(self, element): # pylint: disable=no-self-use
+  def process(self, element, *args, **kwargs):
     try:
-      import code_search.utils as utils
+      import code_search.dataflow.utils as utils
 
-      start_time = time.time()
-      element['pairs'] = utils.get_function_docstring_pairs(element.pop('content'))
-      self.tokenization_time_ms.inc(int((time.time() - start_time) * 1000.0))
+      element['pairs'] = utils.get_function_docstring_pairs(element.get('content'))
 
       yield element
     except Exception as e: #pylint: disable=broad-except
       logging.warning('Tokenization failed, %s', e.message)
-      yield pvalue.TaggedOutput('err_rows', element)
+      yield pvalue.TaggedOutput('err', element)
 
 
 class ExtractFuncInfo(beam.DoFn):

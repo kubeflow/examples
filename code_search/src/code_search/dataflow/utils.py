@@ -17,7 +17,12 @@ def tokenize_code(text):
 
 
 def get_function_docstring_pairs(blob):
-  """Extract (function/method, docstring) pairs from a given code blob."""
+  """Extract (function/method, docstring) pairs from a given code blob.
+
+  Given a file as an input string blob, this returns a list of tuples
+  of the form:
+    (function_name, lineno, original_function, function_tokens, docstring_tokens)
+  """
   pairs = []
   try:
     module = ast.parse(blob)

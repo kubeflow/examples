@@ -3,7 +3,7 @@ import io
 import csv
 from cStringIO import StringIO
 import apache_beam as beam
-from code_search.transforms.process_github_files import ProcessGithubFiles
+from code_search.dataflow.transforms.process_github_files import ProcessGithubFiles
 from code_search.t2t.query import get_encoder, encode_query
 
 class GithubCSVToDict(beam.DoFn):
