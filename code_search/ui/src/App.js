@@ -54,7 +54,7 @@ class App extends Component {
                 <div className="Search-Results">
                   <h2 className="Search-Results-Title">Search Results</h2>
                   {
-                    codeResults.map((attrs) => <CodeSample {...attrs}/>)
+                    codeResults.map((attrs, index) => <CodeSample key={index} {...attrs}/>)
                   }
                 </div>
             }
@@ -72,13 +72,11 @@ class App extends Component {
     const {queryStr} = this.state;
     if (queryStr) {
       this.setState({loading: true});
-      code_search_api(queryStr, (response) => {
-        const {status, results} = response;
-        if (status === 200) {
-          this.setState({codeResults: results, loading: false});
-        } else {
-          this.setState({loading: false});
-        }
+      code_search_api(queryStr).then((res) => {
+        this.setState({codeResults: res.body.result, loading: false});
+      }).catch((err) => {
+        console.log(err);
+        this.setState({loading: false});
       });
     }
   };

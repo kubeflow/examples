@@ -1,4 +1,5 @@
 from flask import Flask, request, abort, jsonify, make_response
+from flask_cors import CORS
 
 
 class CodeSearchServer:
@@ -40,4 +41,5 @@ class CodeSearchServer:
       return make_response(jsonify(result=result))
 
   def run(self):
+    CORS(self.app)
     self.app.run(host=self.host, port=self.port)
