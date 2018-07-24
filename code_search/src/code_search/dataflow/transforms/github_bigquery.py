@@ -16,7 +16,8 @@ class ReadGithubDataset(bigquery.BigQueryRead):
 
   @property
   def limit(self):
-    return 100
+    # return 500
+    return None
 
   @property
   def query_string(self):
@@ -91,19 +92,20 @@ class WriteTokenizedData(bigquery.BigQueryWrite):
     ]
 
 
-class ReadProcessedGithubData(bigquery.BigQueryRead):
+class ReadTransformedGithubDataset(bigquery.BigQueryRead):
   @property
   def limit(self):
-    return 100
+    return 500
+    # return None
 
   @property
   def query_string(self):
     query = """
       SELECT 
-        nwo, path, function_name, lineno, original_function, function_tokens
+        nwo, path, function_name, lineno, original_function, function_tokens, docstring_tokens
       FROM
-        code_search.function_docstrings
-    """
+        {}.{}
+    """.format(self.dataset, self.table)
 
     if self.limit:
       query += '\nLIMIT {}'.format(self.limit)

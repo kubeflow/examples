@@ -60,8 +60,6 @@ setup(name='code-search',
       },
       entry_points={
         'console_scripts': [
-          'code-search-preprocess=code_search.cli:create_github_pipeline',
-          'code-search-predict=code_search.cli:create_batch_predict_pipeline',
           'nmslib-serve=code_search.nmslib.cli:server',
           'nmslib-create=code_search.nmslib.cli:creator',
         ]

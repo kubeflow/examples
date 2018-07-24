@@ -27,7 +27,7 @@ class GithubBatchPredict(beam.PTransform):
 
   def expand(self, input_or_inputs):
     rows = (input_or_inputs
-      | "Read Processed Github Dataset" >> github_bigquery.ReadProcessedGithubData(self.project)
+      | "Read Processed Github Dataset" >> github_bigquery.ReadTransformedGithubDataset(self.project)
     )
 
     batch_predict = (rows

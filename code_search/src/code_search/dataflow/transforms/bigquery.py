@@ -10,10 +10,12 @@ class BigQueryRead(beam.PTransform):
   string.
   """
 
-  def __init__(self, project):
+  def __init__(self, project, dataset=None, table=None):
     super(BigQueryRead, self).__init__()
 
     self.project = project
+    self.dataset = dataset
+    self.table = table
 
   @property
   def limit(self):
