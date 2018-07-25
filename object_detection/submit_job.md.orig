@@ -22,15 +22,24 @@ docker push <your_server:your_port>/pets_object_detection
 ```
 
 ## Create  training TF-Job deployment and launching it
-**NOTE:** You can skip this step and copy the [pets-training.yaml](./jobs/pets-training.yaml) from the `conf` directory and modify it to your needs.
-Or simply run:
 
 ```
-kubectl -n kubeflow apply -f ./jobs/pets-training.yaml
-```
+# from the ks-app directory
 
-### Follow these steps to generate the tf-job manifest file:
+PIPELINE_CONFIG_PATH="${MOUNT_PATH}/faster_rcnn_resnet101_pets.config"
+TRAINING_DIR="${MOUNT_PATH}/train"
 
+<<<<<<< HEAD
+ks param set tf-training-job image ${OBJ_DETECTION_IMAGE}
+ks param set tf-training-job mountPath ${MOUNT_PATH}
+ks param set tf-training-job pvc ${PVC}
+ks param set tf-training-job numPs 1
+ks param set tf-training-job numWorkers 1
+ks param set tf-training-job pipelineConfigPath ${PIPELINE_CONFIG_PATH}
+ks param set tf-training-job trainDir ${TRAINING_DIR}
+
+ks apply ${ENV} -c tf-training-job
+=======
 Generate the ksonnet component using the tf-job prototype
 ```
 # from the my-kubeflow directory
@@ -61,13 +70,27 @@ Add the following to the container properties:
 volumeMounts:
 - mountPath: "/pets_data"
   name: pets-data
+>>>>>>> adding batch-predict on GPU example
 ```
-At the end you should have something similar to [this](./jobs/pets-training.yaml)
 
-No you can submit the TF-Job to K8s:
+For GPU support set the `numGpu` param like:
 ```
-kubectl -n kubeflow apply -f pets-training.yaml
+# from the ks-app directory
+ks param set tf-training-job numGpu 1
 ```
+
+Here is a quick description for the `tf-training-job` component parameters:
+
+- `image` string, docker image to use
+- `mountPath` string, Volume mount path
+- `numGpu` number, optional param, default to 0
+- `numPs` number, Number of Parameter servers to use
+- `numWorkers` number, Number of workers to use
+- `pipelineConfigPath` string, the path to the pipeline config file in the volume mount
+- `pvc` string, Persistent Volume Claim name to use
+- `trainDir` string, Directory where the training outputs will be saved
+
+To see the default values for the `tf-training-job` component params, please take a look at the [params.libsonnet](./ks-app/params.libsonnet) file.
 
 ## Next
 [Monitor your job](monitor_job.md)

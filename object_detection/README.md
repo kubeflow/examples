@@ -4,9 +4,9 @@ the [TensorFlow object detection API](https://github.com/tensorflow/models/tree/
 
 This example is based on the TensorFlow [Pets tutorial](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/running_pets.md).
 
-## Steps: 
+## Steps:
 1. [Setup a Kubeflow cluster](setup.md)
 2. [Submit a distributed object detection training job](submit_job.md)
 3. [Monitor your training job](monitor_job.md)
-4. [Export model](export_tf_graph.md)
-5. [Serve the model with GPU](tf_serving_gpu.md)
+4. [Serve your model with TensorFlow serving](export_tf_graph.md)
+5. [Submit a batch prediction job](submit_batch_predict.md)

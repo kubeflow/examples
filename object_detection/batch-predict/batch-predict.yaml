@@ -1,0 +1,36 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: batch-predict-object-detection
+spec:
+  template:
+    spec:
+      containers:
+      - name: batch-predict-object-detection
+        image: gcr.io/cloud-ml-yxshi/kubeflow-batch-predict:tf18-gpu
+        imagePullPolicy: Always
+        args:
+          - "--input_file_pattern=gs://kubeflow-examples/object-detection-coco/data/object-detection-images.tfrecord"
+          - "--input_file_format=tfrecord"
+          - "--model_dir=gs://kubeflow-examples/object-detection-coco/image_string_model/saved_model"
+          - "--batch_size=4"
+          - "--output_result_prefix=gs://cloud-ml-dev-yxshi/detection_result2"
+          - "--output_error_prefix=gs://cloud-ml-dev-yxshi/detection_error"
+        env:
+          - name: "GOOGLE_APPLICATION_CREDENTIALS"
+            value: "/secret/gcp-credentials/key.json"
+        volumeMounts:
+          - name: gcp-credentials
+            readOnly: True
+            mountPath: /secret/gcp-credentials
+        resources:
+            limits:
+              nvidia.com/gpu: 1
+      restartPolicy: Never
+      volumes:
+          - name: gcp-credentials
+            secret:
+              secretName: yxshi-kf-gpu-secret
+
+  backoffLimit: 1
