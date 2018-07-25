@@ -1,0 +1,34 @@
+# FROM tensorflow/tensorflow:1.8.0-gpu
+FROM tensorflow/tensorflow:1.8.0
+
+MAINTAINER Yixin Shi <yixin.shi@gmail.com>
+
+RUN     apt-get update && apt-get install -y software-properties-common && \
+        add-apt-repository ppa:ubuntu-toolchain-r/test -y && \
+        apt-get update && apt-get install -y \
+        build-essential \
+        curl \
+        libcurl3-dev \
+        git \
+        libfreetype6-dev \
+        libpng12-dev \
+        libzmq3-dev \
+        pkg-config \
+        python-dev \
+        python-numpy \
+        python-pip \
+        swig \
+        zip \
+        zlib1g-dev \
+        && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /root
+
+RUN pip install -U setuptools && \
+  pip install apache-beam[gcp]==2.3.0 && \
+  pip install git+https://github.com/kubeflow/batch-predict && \
+  rm -rf /root/.cache/pip;
+
+ENTRYPOINT [ "python", "-m", "kubeflow_batch_predict.dataflow.batch_prediction_main" ]

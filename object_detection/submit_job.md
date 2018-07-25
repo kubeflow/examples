@@ -1,17 +1,17 @@
 # Launch a distributed object detection training job
 ## Requirements
 
- - Docker 
+ - Docker
  - Docker Registry
  - Object Detection Training Docker Image
 
 Build the TensorFlow object detection training image, or use the pre-built image `lcastell/pets_object_detection` in Docker hub.
 
 ## To build the image:
-First copy the Dockerfile file from `./docker` directory into your $HOME path
+First copy the Dockerfile.training tfile from `./docker` directory into your $HOME path
 ```
 # from your $HOME directory
-docker build --pull -t $USER/pets_object_detection -f ./Dockerfile .
+docker build --pull -t $USER/pets_object_detection -f ./Dockerfile.training .
 ```
 
 ### Push the image to your docker registry
@@ -44,7 +44,7 @@ ks generate tf-job pets-training --name=pets-traning \
 Dump the generated component into a K8s deployment manifest file.
 ```
 ks show nocloud -c pets-training > pets-training.yaml
-``` 
+```
 Add the volume mounts information at the end manifest file. We will be mounting `/pets_data` path to all the containers so they can pull the data for the training job
 ```
 vim pets-training.yaml
