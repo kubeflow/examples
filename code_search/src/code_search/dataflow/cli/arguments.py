@@ -38,8 +38,6 @@ def parse_arguments(argv):
                       help='Name of the BigQuery dataset for output results')
   parser.add_argument('--pre-transformed', action='store_true',
                       help='Use a pre-transformed dataset')
-  # parser.add_argument('-o', '--output', metavar='', type=str,
-  #                     help='Output string of the format <dataset>:<table>')
 
   predict_args_parser = parser.add_argument_group('Batch Prediction Arguments')
   predict_args_parser.add_argument('--problem', metavar='', type=str,

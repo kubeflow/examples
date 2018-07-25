@@ -36,7 +36,7 @@ class SplitRepoPath(beam.DoFn):
   def target_keys(self):
     return [u'nwo', u'path']
 
-  def process(self, element, *args, **kwargs):
+  def process(self, element, *_args, **_kwargs):
     values = element.pop(self.source_key).split(' ', 1)
 
     for key, value in zip(self.target_keys, values):
@@ -90,7 +90,7 @@ class TokenizeFunctionDocstrings(beam.DoFn):
       u'docstring_tokens',
     ]
 
-  def process(self, element, *args, **kwargs):
+  def process(self, element, *_args, **_kwargs):
     try:
       import code_search.dataflow.utils as utils
 
