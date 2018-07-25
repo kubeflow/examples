@@ -17,19 +17,15 @@ class TransformGithubDataset(beam.PTransform):
     - `self.pairs_table`
   """
 
-  def __init__(self, project, target_dataset):
+  def __init__(self, project, target_dataset,
+               pairs_table=gh_bq.DEFAULT_PAIRS_TABLE,
+               failed_tokenize_table=gh_bq.FAILED_TOKENIZE_TABLE):
     super(TransformGithubDataset, self).__init__()
 
     self.project = project
     self.target_dataset = target_dataset
-
-  @property
-  def failed_tokenize_table(self):
-    return 'failed_tokenize'
-
-  @property
-  def pairs_table(self):
-    return 'token_pairs'
+    self.pairs_table = pairs_table
+    self.failed_tokenize_table = failed_tokenize_table
 
   def expand(self, input_or_inputs):
     tokenize_result = (input_or_inputs

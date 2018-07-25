@@ -5,45 +5,18 @@ import apache_beam as beam
 from code_search.t2t.query import get_encoder, encode_query
 
 
-class EncodeExample(beam.DoFn):
-  """Encode string to integer tokens.
+class EncodeFunctionTokens(beam.DoFn):
+  """Encode function tokens.
 
-  This is needed so that the data can be sent in
-  for prediction. This DoFn adds a new "instances"
-  key which contains the encoded input to be sent
-  into a SavedModel instance later.
+  This DoFn prepares the function tokens for
+  inference by a SavedModel estimator downstream.
 
-  Input element is a dict of the form:
-    {
-      "nwo": "STRING",
-      "path": "STRING",
-      "function_name": "STRING",
-      "lineno": "STRING",
-      "original_function": "STRING",
-      "function_tokens": "STRING",
-      "docstring_tokens": "STRING",
-    }
-
-  Output element is a dict of the form:
-    {
-      "nwo": "STRING",
-      "path": "STRING",
-      "function_name": "STRING",
-      "lineno": "STRING",
-      "original_function": "STRING",
-      "function_tokens": "STRING",
-      "docstring_tokens": "STRING",
-      "instances": [
-        {
-          "input": {
-            "b64": "STRING",
-          }
-        }
-      ]
-    }
+  Args:
+    problem: A string representing the registered Tensor2Tensor Problem.
+    data_dir: A string representing the path to data directory.
   """
   def __init__(self, problem, data_dir):
-    super(EncodeExample, self).__init__()
+    super(EncodeFunctionTokens, self).__init__()
 
     self.problem = problem
     self.data_dir = data_dir
@@ -57,6 +30,47 @@ class EncodeExample(beam.DoFn):
     return u'instances'
 
   def process(self, element, *_args, **_kwargs):
+    """Encode the function instance.
+
+    This DoFn takes a tokenized function string and
+    encodes them into a base64 string of TFExample
+    binary format. The "function_tokens" are encoded
+    and stored into the "instances" key in a format
+    ready for consumption by TensorFlow SavedModel
+    estimators. The encoder is provided by a
+    Tensor2Tensor problem as provided in the constructor.
+
+    Args:
+      element: A Python dict of the form,
+        {
+          "nwo": "STRING",
+          "path": "STRING",
+          "function_name": "STRING",
+          "lineno": "STRING",
+          "original_function": "STRING",
+          "function_tokens": "STRING",
+          "docstring_tokens": "STRING",
+        }
+
+    Yields:
+      An updated Python dict of the form
+        {
+          "nwo": "STRING",
+          "path": "STRING",
+          "function_name": "STRING",
+          "lineno": "STRING",
+          "original_function": "STRING",
+          "function_tokens": "STRING",
+          "docstring_tokens": "STRING",
+          "instances": [
+            {
+              "input": {
+                "b64": "STRING",
+              }
+            }
+          ]
+        }
+    """
     encoder = get_encoder(self.problem, self.data_dir)
     encoded_function = encode_query(encoder, element.get(self.function_tokens_key))
 
@@ -64,51 +78,12 @@ class EncodeExample(beam.DoFn):
     yield element
 
 
-class ProcessPrediction(beam.DoFn):
+class ProcessFunctionEmbedding(beam.DoFn):
   """Process results from PredictionDoFn.
 
-  This class processes predictions from another
-  DoFn. The main processing part involves converting
-  the embedding into a serializable string for downstream
-  processing. It also converts the "lineno" key into a unicode
-  string.
-
-  Input element is a dict of the form:
-    {
-      "nwo": "STRING",
-      "path": "STRING",
-      "function_name": "STRING",
-      "lineno": "STRING",
-      "original_function": "STRING",
-      "function_tokens": "STRING",
-      "docstring_tokens": "STRING",
-      "instances": [
-        {
-          "input": {
-            "b64": "STRING",
-          }
-        }
-      ],
-      "predictions": [
-        {
-          "outputs": [ # List of floats
-            1.0,
-            2.0,
-            ...
-          ]
-        }
-      ],
-    }
-
-  Output element is a dict of the form:
-    {
-      "nwo": "STRING",
-      "path": "STRING",
-      "function_name": "STRING",
-      "lineno": "STRING",
-      "original_function": "STRING",
-      "function_embedding": "STRING",
-    }
+  This is a DoFn for post-processing on inference
+  results from a SavedModel estimator which are
+  returned by the PredictionDoFn.
   """
 
   @property
@@ -129,6 +104,53 @@ class ProcessPrediction(beam.DoFn):
     ]
 
   def process(self, element, *_args, **_kwargs):
+    """Post-Process Function embedding.
+
+    This converts the incoming function instance
+    embedding into a serializable string for downstream
+    tasks. It also pops any extraneous keys which are
+    no more required. The "lineno" key is also converted
+    to a string for serializability downstream.
+
+    Args:
+      element: A Python dict of the form,
+        {
+          "nwo": "STRING",
+          "path": "STRING",
+          "function_name": "STRING",
+          "lineno": "STRING",
+          "original_function": "STRING",
+          "function_tokens": "STRING",
+          "docstring_tokens": "STRING",
+          "instances": [
+            {
+              "input": {
+                "b64": "STRING",
+              }
+            }
+          ],
+          "predictions": [
+            {
+              "outputs": [
+                FLOAT,
+                FLOAT,
+                ...
+              ]
+            }
+          ],
+        }
+
+    Yields:
+      An update Python dict of the form,
+        {
+          "nwo": "STRING",
+          "path": "STRING",
+          "function_name": "STRING",
+          "lineno": "STRING",
+          "original_function": "STRING",
+          "function_embedding": "STRING",
+        }
+    """
     prediction = element.get(self.predictions_key)[0]['outputs']
     element[self.function_embedding_key] = ','.join([
       str(val).decode('utf-8') for val in prediction

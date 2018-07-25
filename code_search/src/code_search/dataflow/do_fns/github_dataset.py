@@ -10,22 +10,7 @@ class SplitRepoPath(beam.DoFn):
 
   This DoFn's only purpose is to be used after
   `code_search.dataflow.transforms.github_bigquery.ReadGithubDataset`
-  to split the source dictionary key into two target keys which
-  represent the repository owner and relative file path.
-  The original dataset has these two values separate by a space
-  character. All values are unicode for serialization.
-
-  Input element is a dict of the form:
-    {
-      "repo_path": "STRING",
-      "content": "STRING",
-    }
-  Output element is a dict of the form:
-    {
-      "nwo": "STRING",
-      "path": "STRING",
-      "content": "STRING",
-    }
+  to split the source dictionary key into two target keys.
   """
 
   @property
@@ -37,6 +22,29 @@ class SplitRepoPath(beam.DoFn):
     return [u'nwo', u'path']
 
   def process(self, element, *_args, **_kwargs):
+    """Process Python file attributes.
+
+    This simple DoFn splits the `repo_path` into
+    independent properties of owner (`nwo`) and
+    relative file path (`path`). This value is
+    space-delimited and split over the first space
+    is enough.
+
+    Args:
+      element: A Python dict of the form,
+        {
+          "repo_path": "STRING",
+          "content": "STRING",
+        }
+
+    Yields:
+      An updated Python dict of the form,
+        {
+          "nwo": "STRING",
+          "path": "STRING",
+          "content": "STRING",
+        }
+    """
     values = element.pop(self.source_key).split(' ', 1)
 
     for key, value in zip(self.target_keys, values):
@@ -51,29 +59,7 @@ class TokenizeFunctionDocstrings(beam.DoFn):
   This DoFn takes in the rows from BigQuery and tokenizes
   the file content present in the content key. This
   yields an updated dictionary with the new tokenized
-  data in the pairs key. In cases where the tokenization
-  fails, a side output is returned. All values are unicode for
-  serialization.
-
-  Input element is a dict of the form:
-    {
-      "nwo": "STRING",
-      "path": "STRING",
-      "content": "STRING",
-    }
-  Output element is a list of the form:
-    [
-      {
-        "nwo": "STRING",
-        "path": "STRING",
-        "function_name": "STRING",
-        "lineno": "STRING",
-        "original_function": "STRING",
-        "function_tokens": "STRING",
-        "docstring_tokens": "STRING",
-      },
-      ...
-    ]
+  data in the pairs key.
   """
 
   @property
@@ -91,6 +77,38 @@ class TokenizeFunctionDocstrings(beam.DoFn):
     ]
 
   def process(self, element, *_args, **_kwargs):
+    """Get list of Function-Docstring tokens
+
+    This processes each Python file's content
+    and returns a list of metadata for each extracted
+    pair. These contain the tokenized functions and
+    docstrings. In cases where the tokenization fails,
+    a side output is returned. All values are unicode
+    for serialization.
+
+    Args:
+      element: A Python dict of the form,
+        {
+          "nwo": "STRING",
+          "path": "STRING",
+          "content": "STRING",
+        }
+
+    Yields:
+      A Python list of the form,
+      [
+        {
+          "nwo": "STRING",
+          "path": "STRING",
+          "function_name": "STRING",
+          "lineno": "STRING",
+          "original_function": "STRING",
+          "function_tokens": "STRING",
+          "docstring_tokens": "STRING",
+        },
+        ...
+      ]
+    """
     try:
       import code_search.dataflow.utils as utils
 

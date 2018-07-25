@@ -6,12 +6,12 @@ import code_search.dataflow.transforms.github_dataset as github_dataset
 import code_search.dataflow.do_fns.dict_to_csv as dict_to_csv
 
 
-def create_github_pipeline(argv=None):
-  """Creates the Github pre-processing pipeline.
+def preprocess_github_dataset(argv=None):
+  """Apache Beam pipeline for pre-processing Github dataset.
 
   At a high level, this pipeline does the following things:
     - Read Github Python files from BigQuery
-    - If Github Python files have already been process, use the
+    - If Github Python files have already been processed, use the
       pre-processed table instead (using flag `--pre-transformed`)
     - Tokenize files into pairs of function definitions and docstrings
     - All results are stored in a BigQuery dataset (`args.target_dataset`)
@@ -27,7 +27,7 @@ def create_github_pipeline(argv=None):
   if args.pre_transformed:
     token_pairs = (pipeline
       | "Read Transformed Github Dataset" >> gh_bq.ReadTransformedGithubDataset(
-        args.project, dataset=args.target_dataset, table='function_docstrings')
+        args.project, dataset=args.target_dataset)
     )
   else:
     token_pairs = (pipeline
@@ -49,4 +49,4 @@ def create_github_pipeline(argv=None):
 
 
 if __name__ == '__main__':
-  create_github_pipeline()
+  preprocess_github_dataset()

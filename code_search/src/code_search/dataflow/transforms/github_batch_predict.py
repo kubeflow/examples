@@ -33,8 +33,8 @@ class GithubBatchPredict(beam.PTransform):
 
   def expand(self, input_or_inputs):
     batch_predict = (input_or_inputs
-      | "Prepare Encoded Input" >> beam.ParDo(github_batch_predict.EncodeExample(self.problem,
-                                                                                 self.data_dir))
+      | "Prepare Encoded Input" >> beam.ParDo(github_batch_predict.EncodeFunctionTokens(self.problem,
+                                                                                        self.data_dir))
       | "Execute Predictions" >> beam.ParDo(batch_prediction.PredictionDoFn(),
                                             self.saved_model_dir).with_outputs('err',
                                                                                main='main')
@@ -43,7 +43,7 @@ class GithubBatchPredict(beam.PTransform):
     predictions = batch_predict.main
 
     formatted_predictions = (predictions
-      | "Process Predictions" >> beam.ParDo(github_batch_predict.ProcessPrediction())
+      | "Process Predictions" >> beam.ParDo(github_batch_predict.ProcessFunctionEmbedding())
     )
 
     (formatted_predictions  # pylint: disable=expression-not-assigned
