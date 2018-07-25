@@ -34,7 +34,8 @@ ks pkg install objectDetection/obj-detection
 
 ## Preparing the training data
 We have prepared a set of ksonnet prototypes to create a persistent volume and copy the data to it.
-The prototypes can be found at [obj-detection](./obj-detection) directory. We will create a set of components and we will apply them in order for better results.
+The prototypes can be found at the [obj-detection](./obj-detection) directory.
+We will start creating a set of components and we will apply them in order for better results.
 
 ```
 # First create the PVC component and apply it to create a PVC where the training data will be stored
@@ -52,17 +53,17 @@ Now we will get the data we need to prepare our training pipeline:
 # Create the components and apply them
 ks generate get-data-job get-dataset-job \
 --pvc="pets-pvc" \
---mountPath="/pets-data" \
+--mountPath="/pets_data" \
 --url="http://www.robots.ox.ac.uk/~vgg/data/pets/data/images.tar.gz"
 
 ks generate get-data-job get-annotations-job \
 --pvc="pets-pvc" \
---mountPath="/pets-data" \
+--mountPath="/pets_data" \
 --url="http://www.robots.ox.ac.uk/~vgg/data/pets/data/annotations.tar.gz"
 
 ks generate get-data-job get-model-job \
 --pvc="pets-pvc" \
---mountPath="/pets-data" \
+--mountPath="/pets_data" \
 --url="http://download.tensorflow.org/models/object_detection/faster_rcnn_resnet101_coco_2018_01_28.tar.gz"
 
 ks apply ${ENV} -c get-dataset-job
@@ -71,23 +72,25 @@ ks apply ${ENV} -c get-model-job
 
 ```
 
+Now, before moving to the next set of commands make sure all of the jobs to get the data were completed.
+
 ```
 # Generate and apply the decompression jobs
 
 ks generate decompress-data-job decompress-dataset-job \
 --pvc="pets-pvc" \
---mountPath="/pets-data" \
---pathToFile="/pets-data/images.tar.gz"
+--mountPath="/pets_data" \
+--pathToFile="/pets_data/images.tar.gz"
 
 ks generate decompress-data-job decompress-annotations-job \
 --pvc="pets-pvc" \
---mountPath="/pets-data" \
---pathToFile="/pets-data/annotations.tar.gz"
+--mountPath="/pets_data" \
+--pathToFile="/pets_data/annotations.tar.gz"
 
 ks generate decompress-data-job decompress-model-job \
 --pvc="pets-pvc" \
---mountPath="/pets-data" \
---pathToFile="/pets-data/faster_rcnn_resnet101_coco_2018_01_28.tar.gz"
+--mountPath="/pets_data" \
+--pathToFile="/pets_data/faster_rcnn_resnet101_coco_2018_01_28.tar.gz"
 
 # Apply the components
 ks apply ${ENV} -c decompress-dataset-job
@@ -95,17 +98,19 @@ ks apply ${ENV} -c decompress-annotations-job
 ks apply ${ENV} -c decompress-model-job
 ```
 
+Finally, we just need to get our pipeline config file and create the pet records:
+
 ```
 # Create the components to configure the training pipeline
 ks generate get-data-job get-pipeline-config-job \
 --pvc="pets-pvc" \
---mountPath="/pets-data" \
+--mountPath="/pets_data" \
 --url="https://raw.githubusercontent.com/kubeflow/examples/master/object_detection/conf/faster_rcnn_resnet101_pets.config"
 
 # Create pet record
 ks generate generic-job  create-pet-record-job \
 --pvc="pets-pvc" \
---mountPath="/pets-data" \
+--mountPath="/pets_data" \
 --image="lcastell/pets_object_detection" \
 --command='["python", "/models/research/object_detection/dataset_tools/create_pet_tf_record.py"]' \
 --args='["--label_map_path=models/research/object_detection/data/pet_label_map.pbtxt", \

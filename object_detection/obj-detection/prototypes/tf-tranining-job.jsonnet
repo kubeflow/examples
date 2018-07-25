@@ -1,7 +1,7 @@
 // @apiVersion 0.1
 // @name io.ksonnet.pkg.tf-training-job
-// @description tf-job-simple
-// @shortDescription A simple TFJob to run CNN benchmark
+// @description tf-training-job
+// @shortDescription A simple TFJob to run object detection training
 // @param name string Name for the job.
 // @param image string Image to use for the job.
 // @param numWorkers number Number of workers.
@@ -10,7 +10,7 @@
 // @param pvc string Persistent volume claim name to use
 // @param pipelineConfigPath string Path to the pipeline configuration file
 // @param trainDir string Training output directory
-
+// @optionalParam numGpu number 0 Number of GPU resources to use
 
 local k = import "k.libsonnet";
 
@@ -23,7 +23,7 @@ local mountPath = import 'param://mountPath';
 local pvc = import 'param://pvc';
 local pipelineConfigPath = import 'param://pipelineConfigPath';
 local trainDir = import 'param://trainDir';
-local numGpu = 0;
+local numGpu = import 'param://numGpu';
 
 local tfjob_cpu = {
   apiVersion: "kubeflow.org/v1alpha2",
@@ -52,8 +52,23 @@ local tfjob_cpu = {
                 ],
                 image: image,
                 name: "tensorflow",
+                [if numGpu > 0 then "resources"] : {
+                  limits:{
+                    "nvidia.com/gpu": numGpu,
+                  },
+                },
+                volumeMounts: [{
+                  mountPath: mountPath,
+                  name: "pets-data",
+                },],
               },
             ],
+            volumes: [{
+                name: "pets-data",
+                persistentVolumeClaim: {
+                  claimName: pvc,
+                },
+            },],
             restartPolicy: "OnFailure",
           },
         },
@@ -76,6 +91,11 @@ local tfjob_cpu = {
                 ],
                 image: image,
                 name: "tensorflow",
+                [if numGpu > 0 then "resources"] : {
+                  limits:{
+                    "nvidia.com/gpu": numGpu,
+                  },
+                },
                 volumeMounts: [{
                   mountPath: mountPath,
                   name: "pets-data",

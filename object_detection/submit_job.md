@@ -22,16 +22,10 @@ docker push <your_server:your_port>/pets_object_detection
 ```
 
 ## Create  training TF-Job deployment and launching it
-**NOTE:** You can skip this step and copy the [pets-training.yaml](./jobs/pets-training.yaml) from the `jobs` directory and modify it to your needs.
-Or simply run:
 
-```
-kubectl -n kubeflow apply -f ./jobs/pets-training.yaml
-```
+### Follow these steps to generate the tf-training-job component:
 
-### Follow these steps to generate the tf-job manifest file:
-
-Generate the ksonnet component using the tf-job prototype
+Generate the ksonnet component using the tf-training-job [prototype](obj-detection/prototypes/tf-tranining-job.jsonnet)
 ```
 # from the my-kubeflow directory
 ks generate tf-training-job pets-training \
@@ -39,7 +33,7 @@ ks generate tf-training-job pets-training \
 --numWorkers=1 \
 --numPs=1 \
 --pvc="pets-pvc" \
---mountPath="/pets-data" \
+--mountPath="/pets_data" \
 --pipelineConfigPath="/pets_data/faster_rcnn_resnet101_pets.config" \
 --trainDir="/pets_data/train"
 ```
@@ -48,26 +42,23 @@ To see the yaml manifest you can dump the generated component into a K8s deploym
 ks show ${ENV} -c pets-training > pets-training.yaml
 cat ./pets-training.yaml
 ```
-At the end you should have something similar to [this](./jobs/pets-training.yaml)
-
 No you can submit the TF-Job to K8s:
 ```
 ks apply ${ENV} -c pets-training
 # OR
-kubectl -n kubeflow apply -f pets-training.yaml
+kubectl apply -f pets-training.yaml
 ```
 
-For GPU support change use the `--numGpu=<number of Gpus to request>` param like:
+For GPU support use the `--numGpu=<number of Gpus to request>` param like:
 ```
 # from the my-kubeflow directory
-ks generate tf-training-job pets-training --name=pets-traning \
---namespace=kubeflow \
+ks generate tf-training-job pets-training \
 --image=<your_server:your_port>/pets_object_detection_gpu \
---numWorkers= 1 \
---numPs= 1 \
+--numWorkers=1 \
+--numPs=1 \
 --numGpu=1 \
 --pvc="pets-pvc" \
---mountPath="/pets-data" \
+--mountPath="/pets_data" \
 --pipelineConfigPath="/pets_data/faster_rcnn_resnet101_pets.config" \
 --trainDir="/pets_data/train"
 ```

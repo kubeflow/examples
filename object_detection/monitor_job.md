@@ -44,7 +44,12 @@ Now you have a trained model!! find it at `/pets_data/train` inside pvc `pets-da
 
 ### Delete job
 ```
-kubectl -n kubeflow delete -f training/pets-tf-jobs.yaml
+ks delete ${ENV} -c pets-training
+```
+OR
+```
+# using the previously generated yaml manifest
+kubectl -n kubeflow delete -f pets-training.yaml
 ```
 
 ## Next
