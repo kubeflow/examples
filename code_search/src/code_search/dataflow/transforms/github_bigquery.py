@@ -2,8 +2,8 @@ import apache_beam.io.gcp.bigquery as bigquery
 import code_search.dataflow.transforms.bigquery as bq_transform
 
 
-# Default pairs table
-DEFAULT_PAIRS_TABLE = 'token_pairs'
+# Default internal table names
+PAIRS_TABLE = 'token_pairs'
 FAILED_TOKENIZE_TABLE = 'failed_tokenize'
 FUNCTION_EMBEDDINGS_TABLE = 'function_embeddings'
 
@@ -101,7 +101,7 @@ class WriteTokenizedData(bq_transform.BigQueryWrite):
 
 class ReadTransformedGithubDataset(bq_transform.BigQueryRead):
 
-  def __init__(self, project, dataset=None, table=DEFAULT_PAIRS_TABLE):
+  def __init__(self, project, dataset=None, table=PAIRS_TABLE):
     super(ReadTransformedGithubDataset, self).__init__(project, dataset=dataset, table=table)
 
   @property

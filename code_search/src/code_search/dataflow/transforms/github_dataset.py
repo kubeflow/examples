@@ -10,6 +10,8 @@ class TransformGithubDataset(beam.PTransform):
   This is a Beam Pipeline which reads the Github Dataset from
   BigQuery, tokenizes functions and docstrings in Python files,
   and dumps into a new BigQuery dataset for further processing.
+  All tiny docstrings (smaller than `self.min_docstring_tokens`)
+  are filtered out.
 
   This transform creates following tables in the `target_dataset`
   which are defined as properties for easy modification.
@@ -18,7 +20,7 @@ class TransformGithubDataset(beam.PTransform):
   """
 
   def __init__(self, project, target_dataset,
-               pairs_table=gh_bq.DEFAULT_PAIRS_TABLE,
+               pairs_table=gh_bq.PAIRS_TABLE,
                failed_tokenize_table=gh_bq.FAILED_TOKENIZE_TABLE):
     super(TransformGithubDataset, self).__init__()
 
@@ -26,6 +28,10 @@ class TransformGithubDataset(beam.PTransform):
     self.target_dataset = target_dataset
     self.pairs_table = pairs_table
     self.failed_tokenize_table = failed_tokenize_table
+
+  @property
+  def min_docstring_tokens(self):
+    return 5
 
   def expand(self, input_or_inputs):
     tokenize_result = (input_or_inputs
@@ -44,7 +50,7 @@ class TransformGithubDataset(beam.PTransform):
     flat_rows = (pairs
       | "Flatten Rows" >> beam.FlatMap(lambda x: x)
       | "Filter Tiny Docstrings" >> beam.Filter(
-        lambda row: len(row['docstring_tokens'].split(' ')) > 5)
+        lambda row: len(row['docstring_tokens'].split(' ')) > self.min_docstring_tokens)
     )
 
     (flat_rows  # pylint: disable=expression-not-assigned
