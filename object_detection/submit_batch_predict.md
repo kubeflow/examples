@@ -80,7 +80,7 @@ Output path to save the prediction errors.
 For more flags available to Kubeflow batch predict, please refer the [user
 guide](https://www.kubeflow.org/docs/about/user_guide)
 
-##  Monitoring jobs
+##  Monitoring jobs and visualize the detection results.
 Once you submit the job, you can check the status and log of the pod that runs the
 batch-predict job:
 
@@ -90,4 +90,6 @@ kubectl log <your-pod-name>
 
 When the pod status is "complete", then check the result and error files to see
 if the job is successful.
+
+You can use [this script](./serving_script/visualization_utils.py) to visualize the detection boxes from the prediction results files on images.
 
