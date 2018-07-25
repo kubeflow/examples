@@ -47,7 +47,7 @@ def parse_arguments(argv):
   predict_args_parser.add_argument('--saved-model-dir', metavar='', type=str,
                                    help='Path to directory containing Tensorflow SavedModel')
 
-  # Dataflow related arguments
+  # TODO: Use pre-built options parser from Apache Beam
   dataflow_args_parser = parser.add_argument_group('Dataflow Runner Arguments')
   dataflow_args_parser.add_argument('-j', '--job-name', metavar='', type=str,
                                     help='Job name')

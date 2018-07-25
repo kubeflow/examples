@@ -2,11 +2,11 @@ import apache_beam as beam
 
 import code_search.dataflow.cli.arguments as arguments
 import code_search.dataflow.transforms.github_bigquery as gh_bq
-import code_search.dataflow.transforms.github_batch_predict as github_batch_predict
+import code_search.dataflow.transforms.function_embeddings as func_embed
 import code_search.dataflow.do_fns.dict_to_csv as dict_to_csv
 
 
-def create_batch_predict_pipeline(argv=None):
+def create_function_embeddings(argv=None):
   """Creates Batch Prediction Pipeline using trained model.
 
   At a high level, this pipeline does the following things:
@@ -23,22 +23,21 @@ def create_batch_predict_pipeline(argv=None):
 
   pipeline = beam.Pipeline(options=pipeline_opts)
 
-  # TODO(sanyamkapoor): update to new table
   token_pairs = (pipeline
     | "Read Transformed Github Dataset" >> gh_bq.ReadTransformedGithubDataset(
-        args.project, dataset=args.target_dataset, table='function_docstrings')
-    | "Run Batch Prediction" >> github_batch_predict.GithubBatchPredict(args.project,
-                                                                        args.target_dataset,
-                                                                        args.problem,
-                                                                        args.data_dir,
-                                                                        args.saved_model_dir)
+        args.project, dataset=args.target_dataset)
+    | "Compute Function Embeddings" >> func_embed.FunctionEmbeddings(args.project,
+                                                                     args.target_dataset,
+                                                                     args.problem,
+                                                                     args.data_dir,
+                                                                     args.saved_model_dir)
   )
 
   (token_pairs  # pylint: disable=expression-not-assigned
     | "Format for CSV Write" >> beam.ParDo(dict_to_csv.DictToCSVString(
         ['nwo', 'path', 'function_name', 'lineno', 'original_function', 'function_embedding']))
-    | "Write CSV" >> beam.io.WriteToText('{}/func-index'.format(args.data_dir),
-                                         file_name_suffix='.csv')
+    | "Write Embeddings to CSV" >> beam.io.WriteToText('{}/func-index'.format(args.data_dir),
+                                                       file_name_suffix='.csv')
   )
 
   result = pipeline.run()
@@ -47,4 +46,4 @@ def create_batch_predict_pipeline(argv=None):
 
 
 if __name__ == '__main__':
-  create_batch_predict_pipeline()
+  create_function_embeddings()

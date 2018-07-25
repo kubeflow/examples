@@ -1,12 +1,14 @@
-import code_search.dataflow.transforms.bigquery as bigquery
+import apache_beam.io.gcp.bigquery as bigquery
+import code_search.dataflow.transforms.bigquery as bq_transform
 
 
 # Default pairs table
 DEFAULT_PAIRS_TABLE = 'token_pairs'
 FAILED_TOKENIZE_TABLE = 'failed_tokenize'
+FUNCTION_EMBEDDINGS_TABLE = 'function_embeddings'
 
 
-class ReadGithubDataset(bigquery.BigQueryRead):
+class ReadGithubDataset(bq_transform.BigQueryRead):
   """Read original Github files from BigQuery.
 
   This utility Transform reads Python files
@@ -73,7 +75,7 @@ class ReadGithubDataset(bigquery.BigQueryRead):
     return query
 
 
-class WriteFailedTokenizedData(bigquery.BigQueryWrite):
+class WriteFailedTokenizedData(bq_transform.BigQueryWrite):
   @property
   def column_list(self):
     return [
@@ -83,7 +85,7 @@ class WriteFailedTokenizedData(bigquery.BigQueryWrite):
     ]
 
 
-class WriteTokenizedData(bigquery.BigQueryWrite):
+class WriteTokenizedData(bq_transform.BigQueryWrite):
   @property
   def column_list(self):
     return [
@@ -97,7 +99,7 @@ class WriteTokenizedData(bigquery.BigQueryWrite):
     ]
 
 
-class ReadTransformedGithubDataset(bigquery.BigQueryRead):
+class ReadTransformedGithubDataset(bq_transform.BigQueryRead):
 
   def __init__(self, project, dataset=None, table=DEFAULT_PAIRS_TABLE):
     super(ReadTransformedGithubDataset, self).__init__(project, dataset=dataset, table=table)
@@ -121,7 +123,14 @@ class ReadTransformedGithubDataset(bigquery.BigQueryRead):
     return query
 
 
-class WriteGithubIndexData(bigquery.BigQueryWrite):
+class WriteGithubFunctionEmbeddings(bq_transform.BigQueryWrite):
+
+  def __init__(self, project, dataset, table=FUNCTION_EMBEDDINGS_TABLE, batch_size=500,
+               write_disposition=bigquery.BigQueryDisposition.WRITE_TRUNCATE):
+    super(WriteGithubFunctionEmbeddings, self).__init__(project, dataset, table,
+                                                        batch_size=batch_size,
+                                                        write_disposition=write_disposition)
+
   @property
   def column_list(self):
     return [

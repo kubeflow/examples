@@ -1,4 +1,4 @@
-"""Beam DoFns specific to `code_search.dataflow.transforms.github_batch_predict`."""
+"""Beam DoFns specific to `code_search.dataflow.transforms.function_embeddings`."""
 
 import apache_beam as beam
 
