@@ -5,23 +5,55 @@ import spacy
 
 
 def tokenize_docstring(text):
-  """Apply tokenization using spacy to docstrings."""
+  """Tokenize docstrings.
+
+  Args:
+    text: A docstring to be tokenized.
+
+  Returns:
+    A list of strings representing the tokens in the docstring.
+  """
   en = spacy.load('en')
-  tokens = en.tokenizer(text.decode('utf8', 'ignore'))
+  tokens = en.tokenizer(text.decode('utf8'))
   return [token.text.lower() for token in tokens if not token.is_space]
 
 
 def tokenize_code(text):
-  """A very basic procedure for tokenizing code strings."""
+  """Tokenize code strings.
+
+  This simply considers whitespaces as token delimiters.
+
+  Args:
+    text: A code string to be tokenized.
+
+  Returns:
+    A list of strings representing the tokens in the code.
+  """
   return tokenize.RegexpTokenizer(r'\w+').tokenize(text)
 
 
 def get_function_docstring_pairs(blob):
   """Extract (function/method, docstring) pairs from a given code blob.
 
-  Given a file as an input string blob, this returns a list of tuples
-  of the form:
-    (function_name, lineno, original_function, function_tokens, docstring_tokens)
+  This method reads a string representing a Python file, builds an
+  abstract syntax tree (AST) and returns a list of Docstring and Function
+  pairs along with supporting metadata.
+
+  Args:
+    blob: A string representing the Python file contents.
+
+  Returns:
+    A list of tuples of the form:
+      [
+        (
+          function_name,
+          lineno,
+          original_function,
+          function_tokens,
+          docstring_tokens
+        ),
+        ...
+      ]
   """
   pairs = []
   try:

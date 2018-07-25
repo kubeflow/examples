@@ -1,6 +1,11 @@
 import code_search.dataflow.transforms.bigquery as bigquery
 
 
+# Default pairs table
+DEFAULT_PAIRS_TABLE = 'token_pairs'
+FAILED_TOKENIZE_TABLE = 'failed_tokenize'
+
+
 class ReadGithubDataset(bigquery.BigQueryRead):
   """Read original Github files from BigQuery.
 
@@ -93,6 +98,10 @@ class WriteTokenizedData(bigquery.BigQueryWrite):
 
 
 class ReadTransformedGithubDataset(bigquery.BigQueryRead):
+
+  def __init__(self, project, dataset=None, table=DEFAULT_PAIRS_TABLE):
+    super(ReadTransformedGithubDataset, self).__init__(project, dataset=dataset, table=table)
+
   @property
   def limit(self):
     # return 500
