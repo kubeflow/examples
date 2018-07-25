@@ -56,7 +56,7 @@ class EncodeExample(beam.DoFn):
   def instances_key(self):
     return u'instances'
 
-  def process(self, element, *args, **kwargs):
+  def process(self, element, *_args, **_kwargs):
     encoder = get_encoder(self.problem, self.data_dir)
     encoded_function = encode_query(encoder, element.get(self.function_tokens_key))
 
@@ -128,13 +128,13 @@ class ProcessPrediction(beam.DoFn):
       'instances',
     ]
 
-  def process(self, element, *args, **kwargs):
+  def process(self, element, *_args, **_kwargs):
     prediction = element.get(self.predictions_key)[0]['outputs']
     element[self.function_embedding_key] = ','.join([
-      unicode(val) for val in prediction
+      str(val).decode('utf-8') for val in prediction
     ])
 
-    element['lineno'] = unicode(element['lineno'])
+    element['lineno'] = str(element['lineno']).decode('utf-8')
 
     for key in self.pop_keys:
       element.pop(key)

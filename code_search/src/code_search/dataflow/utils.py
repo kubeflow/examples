@@ -36,11 +36,11 @@ def get_function_docstring_pairs(blob):
       docstring = ast.get_docstring(f) if ast.get_docstring(f) else ''
       func = source.replace(ast.get_docstring(f, clean=False), '') if docstring else source
       pair_tuple = (
-        unicode(f.name),
-        unicode(f.lineno),
-        unicode(source),
-        unicode(' '.join(tokenize_code(func))),
-        unicode(' '.join(tokenize_docstring(docstring.split('\n\n')[0])))
+        f.name,
+        f.lineno,
+        source,
+        ' '.join(tokenize_code(func)),
+        ' '.join(tokenize_docstring(docstring.split('\n\n')[0]))
       )
       pairs.append(pair_tuple)
   except (AssertionError, MemoryError, SyntaxError, UnicodeEncodeError):

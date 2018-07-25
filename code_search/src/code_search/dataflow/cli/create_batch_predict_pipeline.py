@@ -12,7 +12,7 @@ def create_batch_predict_pipeline(argv=None):
   At a high level, this pipeline does the following things:
     - Read the Processed Github Dataset from BigQuery
     - Encode the functions using T2T problem
-    - Get function embeddings using `kubeflow_batch_predict.dataflow.batch_prediction.PredictionDoFn`
+    - Get function embeddings using `kubeflow_batch_predict.dataflow.batch_prediction`
     - All results are stored in a BigQuery dataset (`args.target_dataset`)
     - See `transforms.github_dataset.GithubBatchPredict` for details of tables created
     - Additionally, store CSV of docstring, original functions and other metadata for
@@ -23,11 +23,10 @@ def create_batch_predict_pipeline(argv=None):
 
   pipeline = beam.Pipeline(options=pipeline_opts)
 
+  # TODO(sanyamkapoor): update to new table
   token_pairs = (pipeline
-    | "Read Transformed Github Dataset" >> gh_bq.ReadTransformedGithubDataset(args.project,
-                                                                              dataset=args.target_dataset,
-                                                                              # TODO: update to new table
-                                                                              table='function_docstrings')
+    | "Read Transformed Github Dataset" >> gh_bq.ReadTransformedGithubDataset(
+        args.project, dataset=args.target_dataset, table='function_docstrings')
     | "Run Batch Prediction" >> github_batch_predict.GithubBatchPredict(args.project,
                                                                         args.target_dataset,
                                                                         args.problem,
@@ -36,9 +35,8 @@ def create_batch_predict_pipeline(argv=None):
   )
 
   (token_pairs  # pylint: disable=expression-not-assigned
-    | "Format for CSV Write" >> beam.ParDo(dict_to_csv.DictToCSVString(['nwo', 'path', 'function_name',
-                                                                        'lineno', 'original_function',
-                                                                        'function_embedding']))
+    | "Format for CSV Write" >> beam.ParDo(dict_to_csv.DictToCSVString(
+        ['nwo', 'path', 'function_name', 'lineno', 'original_function', 'function_embedding']))
     | "Write CSV" >> beam.io.WriteToText('{}/func-index'.format(args.data_dir),
                                          file_name_suffix='.csv')
   )

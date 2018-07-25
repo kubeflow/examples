@@ -26,20 +26,19 @@ def create_github_pipeline(argv=None):
 
   if args.pre_transformed:
     token_pairs = (pipeline
-      | "Read Transformed Github Dataset" >> gh_bq.ReadTransformedGithubDataset(args.project,
-                                                                                dataset=args.target_dataset,
-                                                                                # TODO: update to new table
-                                                                                table='function_docstrings')
+      | "Read Transformed Github Dataset" >> gh_bq.ReadTransformedGithubDataset(
+        args.project, dataset=args.target_dataset, table='function_docstrings')
     )
   else:
     token_pairs = (pipeline
-     | "Read Github Dataset" >> gh_bq.ReadGithubDataset(args.project)
-     | "Transform Github Dataset" >> github_dataset.TransformGithubDataset(args.project,
-                                                                           args.target_dataset)
+      | "Read Github Dataset" >> gh_bq.ReadGithubDataset(args.project)
+      | "Transform Github Dataset" >> github_dataset.TransformGithubDataset(args.project,
+                                                                            args.target_dataset)
     )
 
   (token_pairs  # pylint: disable=expression-not-assigned
-    | "Format for CSV Write" >> beam.ParDo(dict_to_csv.DictToCSVString(['docstring_tokens', 'function_tokens']))
+    | "Format for CSV Write" >> beam.ParDo(dict_to_csv.DictToCSVString(
+      ['docstring_tokens', 'function_tokens']))
     | "Write CSV" >> beam.io.WriteToText('{}/func-doc-pairs'.format(args.data_dir),
                                          file_name_suffix='.csv')
   )

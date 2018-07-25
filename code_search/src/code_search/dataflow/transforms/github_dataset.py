@@ -34,8 +34,8 @@ class TransformGithubDataset(beam.PTransform):
   def expand(self, input_or_inputs):
     tokenize_result = (input_or_inputs
      | "Split 'repo_path'" >> beam.ParDo(gh_do_fns.SplitRepoPath())
-     | "Tokenize Code/Docstring Pairs" >> beam.ParDo(gh_do_fns.TokenizeFunctionDocstrings()).with_outputs('err',
-                                                                                                          main='rows')
+     | "Tokenize Code/Docstring Pairs" >> beam.ParDo(
+        gh_do_fns.TokenizeFunctionDocstrings()).with_outputs('err', main='rows')
     )
 
     pairs, tokenize_errors = tokenize_result.rows, tokenize_result.err
@@ -47,7 +47,8 @@ class TransformGithubDataset(beam.PTransform):
 
     flat_rows = (pairs
       | "Flatten Rows" >> beam.FlatMap(lambda x: x)
-      | "Filter Tiny Docstrings" >> beam.Filter(lambda row: len(row['docstring_tokens'].split(' ')) > 5)
+      | "Filter Tiny Docstrings" >> beam.Filter(
+        lambda row: len(row['docstring_tokens'].split(' ')) > 5)
     )
 
     (flat_rows  # pylint: disable=expression-not-assigned

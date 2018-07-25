@@ -18,7 +18,7 @@ class DictToCSVString(beam.DoFn):
 
     self.fieldnames = fieldnames
 
-  def process(self, element, *args, **kwargs):
+  def process(self, element, *_args, **_kwargs):
     fieldnames = self.fieldnames
     filtered_element = {
       key: value.encode('utf-8')
