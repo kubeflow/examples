@@ -1,64 +1,68 @@
-import argparse
 import os
+import sys
 import apache_beam.options.pipeline_options as pipeline_options
 
 
-def create_pipeline_opts(args):
-  """Create standard Pipeline Options for Beam"""
+class PipelineCLIOptions(pipeline_options.StandardOptions,
+                         pipeline_options.WorkerOptions,
+                         pipeline_options.SetupOptions,
+                         pipeline_options.GoogleCloudOptions):
+  """A unified arguments parser.
 
-  options = pipeline_options.PipelineOptions()
-  options.view_as(pipeline_options.StandardOptions).runner = args.runner
+  This parser directly exposes all the underlying Beam
+  options available to the user (along with some custom
+  arguments). To use, simply pass the arguments list as
+  `PipelineCLIOptions(argv)`.
 
-  google_cloud_options = options.view_as(pipeline_options.GoogleCloudOptions)
-  google_cloud_options.project = args.project
-  if args.runner == 'DataflowRunner':
-    google_cloud_options.job_name = args.job_name
-    google_cloud_options.temp_location = '{}/temp'.format(args.job_bucket)
-    google_cloud_options.staging_location = '{}/staging'.format(args.job_bucket)
+  Args:
+    argv: A list of strings representing CLI options.
+  """
 
-    worker_options = options.view_as(pipeline_options.WorkerOptions)
-    worker_options.num_workers = args.num_workers
-    worker_options.max_num_workers = args.max_num_workers
-    worker_options.machine_type = args.machine_type
+  @classmethod
+  def _add_argparse_args(cls, parser):
+    add_parser_arguments(parser)
 
-  # Setup file is needed to install all dependencies
-  setup_options = options.view_as(pipeline_options.SetupOptions)
-  setup_options.setup_file = os.path.abspath(os.path.join(__file__, '../../../../setup.py'))
 
-  return options
-
-def parse_arguments(argv):
-  parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-
-  parser.add_argument('-r', '--runner', metavar='', type=str, default='DirectRunner',
-                      help='Type of runner - DirectRunner or DataflowRunner')
-  parser.add_argument('-p', '--project', metavar='', type=str,
-                      help='Project ID')
-  parser.add_argument('-d', '--target-dataset', metavar='', type=str,
-                      help='Name of the BigQuery dataset for output results')
-  parser.add_argument('--pre-transformed', action='store_true',
-                      help='Use a pre-transformed dataset')
+def add_parser_arguments(parser):
+  additional_args_parser = parser.add_argument_group('Custom Arguments')
+  additional_args_parser.add_argument('--target_dataset', metavar='', type=str,
+                      help='BigQuery dataset for output results')
+  additional_args_parser.add_argument('--pre_transformed', action='store_true',
+                      help='Use a pre-transformed BigQuery dataset')
 
   predict_args_parser = parser.add_argument_group('Batch Prediction Arguments')
   predict_args_parser.add_argument('--problem', metavar='', type=str,
                                    help='Name of the T2T problem')
-  predict_args_parser.add_argument('--data-dir', metavar='', type=str,
+  predict_args_parser.add_argument('--data_dir', metavar='', type=str,
                                    help='Path to directory of the T2T problem data')
-  predict_args_parser.add_argument('--saved-model-dir', metavar='', type=str,
+  predict_args_parser.add_argument('--saved_model_dir', metavar='', type=str,
                                    help='Path to directory containing Tensorflow SavedModel')
 
-  # TODO: Use pre-built options parser from Apache Beam
-  dataflow_args_parser = parser.add_argument_group('Dataflow Runner Arguments')
-  dataflow_args_parser.add_argument('-j', '--job-name', metavar='', type=str,
-                                    help='Job name')
-  dataflow_args_parser.add_argument('--job-bucket', metavar='', type=str,
-                                    help='Path to Google Storage Bucket for Dataflow job')
-  dataflow_args_parser.add_argument('--num-workers', metavar='', type=int, default=1,
-                                    help='Number of workers')
-  dataflow_args_parser.add_argument('--max-num-workers', metavar='', type=int, default=1,
-                                    help='Maximum number of workers')
-  dataflow_args_parser.add_argument('--machine-type', metavar='', type=str, default='n1-standard-1',
-                                    help='Google Cloud Machine Type to use')
 
-  parsed_args = parser.parse_args(argv)
-  return parsed_args
+def prepare_pipeline_opts(argv=None):
+  """Prepare pipeline options from CLI arguments.
+
+  This uses the unified PipelineCLIOptions parser
+  and adds modifications on top. It adds a `setup_file`
+  to allow installation of dependencies on Dataflow workers.
+  These implicit changes allow ease-of-use.
+
+  Use `-h` CLI argument to see the list of all possible
+  arguments.
+
+  Args:
+    argv: A list of strings representing the CLI arguments.
+
+  Returns:
+    A PipelineCLIOptions object whose `_visible_options`
+    contains the parsed Namespace object.
+  """
+  argv = argv or sys.argv[1:]
+  argv.extend([
+    '--setup_file',
+    os.path.abspath(os.path.join(__file__, '../../../../setup.py')),
+  ])
+
+  pipeline_opts = PipelineCLIOptions(flags=argv)
+
+  return pipeline_opts

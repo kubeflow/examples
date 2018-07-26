@@ -18,8 +18,8 @@ def create_function_embeddings(argv=None):
     - Additionally, store CSV of docstring, original functions and other metadata for
       reverse index lookup during search engine queries.
   """
-  args = arguments.parse_arguments(argv)
-  pipeline_opts = arguments.create_pipeline_opts(args)
+  pipeline_opts = arguments.prepare_pipeline_opts(argv)
+  args = pipeline_opts._visible_options  # pylint: disable=protected-access
 
   pipeline = beam.Pipeline(options=pipeline_opts)
 
