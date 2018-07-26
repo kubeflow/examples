@@ -19,8 +19,8 @@ def preprocess_github_dataset(argv=None):
     - Additionally, store pairs of docstring and function tokens in a CSV file
       for training
   """
-  args = arguments.parse_arguments(argv)
-  pipeline_opts = arguments.create_pipeline_opts(args)
+  pipeline_opts = arguments.prepare_pipeline_opts(argv)
+  args = pipeline_opts._visible_options  # pylint: disable=protected-access
 
   pipeline = beam.Pipeline(options=pipeline_opts)
 
