@@ -1,0 +1,85 @@
+# You will need NFS storage class, or any other ReadWriteMany storageclass
+# Quick and easy way to get it is https://github.com/helm/charts/tree/master/stable/nfs-server-provisioner
+
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: models
+spec:
+  storageClassName: "nfs"
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi
+
+---
+apiVersion: "kubeflow.org/v1alpha2"
+kind: TFJob
+metadata:
+  name: github
+spec:
+  tfReplicaSpecs:
+    Master:
+      replicas: 1
+      template:
+        spec:
+          containers:
+          - name: tensorflow
+            image: inc0/issues
+            command: ["python", "/issues/train.py"]
+            volumeMounts:
+            - name: data
+              mountPath: "/data"
+            - name: models
+              mountPath: "/model"
+          volumes:
+            - name: data
+              hostPath:
+                path: "/opt/data"
+            - name: models
+              persistentVolumeClaim:
+                claimName: models
+    Worker:
+      replicas: 20
+      template:
+        spec:
+          containers:
+          - name: tensorflow
+            image: inc0/issues
+            command: ["python", "/issues/train.py"]
+            volumeMounts:
+            - name: data
+              mountPath: "/data"
+            - name: models
+              mountPath: "/model"
+          volumes:
+            - name: data
+              hostPath:
+                path: "/opt/data"
+            - name: models
+              persistentVolumeClaim:
+                claimName: models
+    PS:
+      replicas: 1
+      template:
+        spec:
+          containers:
+          - name: tensorflow
+            image: inc0/issues
+            command: ["python", "/issues/train.py"]
+            volumeMounts:
+            - name: data
+              mountPath: "/data"
+            - name: models
+              mountPath: "/model"
+            ports:
+            - containerPort: 6006
+          volumes:
+            - name: data
+              hostPath:
+                path: "/opt/data"
+            - name: models
+              persistentVolumeClaim:
+                claimName: models
