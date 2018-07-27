@@ -215,7 +215,7 @@ def extract_decoder_model(model):
   return decoder_model
 
 
-class Seq2Seq_Inference(object):
+class Seq2Seq_Inference():
 
   # pylint: disable=too-many-instance-attributes
 
@@ -430,4 +430,3 @@ class Seq2Seq_Inference(object):
     # erroneous results.
     bleu = corpus_bleu([[a] for a in actual], predicted)
     return bleu
-
