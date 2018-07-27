@@ -7,7 +7,7 @@
 
 ### Setup
 Refer to the [user guide](https://www.kubeflow.org/docs/about/user_guide) for instructions on how to setup kubeflow on your kubernetes cluster. Specifically, look at the section on [deploying kubeflow](https://www.kubeflow.org/docs/about/user_guide#deploy-kubeflow).
-For this example, we will be using ks `nocloud` environment. If you plan to use `cloud` ks environment, please make sure you follow the proper instructions in the kubeflow user guide.
+For this example, we will be using ks `nocloud` environment (on premise K8s). If you plan to use `cloud` ks environment, please make sure you follow the proper instructions in the kubeflow user guide.
 
 After completing the steps in the kubeflow user guide you will have the following:
 - A ksonnet app directory called `my-kubeflow` 
@@ -37,6 +37,7 @@ We have prepared a set of ksonnet prototypes to create a persistent volume and c
 The prototypes can be found at the [obj-detection](./obj-detection) directory.
 We will start creating a set of components and we will apply them in order for better results.
 
+Create a PVC to store the data. This step assumes that you K8s cluster has [Dynamic Volume Provisioning](https://kubernetes.io/docs/concepts/storage/dynamic-provisioning/) enabled.
 ```
 # First create the PVC component and apply it to create a PVC where the training data will be stored
 ks generate pvc pets-pvc --storage="20Gi" --accessMode="ReadWriteMany"
@@ -50,64 +51,47 @@ in the same node. You can find more about assigning pods to specific nodes [here
 Now we will get the data we need to prepare our training pipeline:
 
 ```
-# Create the components and apply them
-ks generate get-data-job get-dataset-job \
+# Create the component a get-data component and apply it, this component will download
+# the dataset, annotations, the model we will use for the fine tune checkpoint, and
+# the pipeline configration file
+
+ks generate get-data-job get-data-job \
 --pvc="pets-pvc" \
 --mountPath="/pets_data" \
---url="http://www.robots.ox.ac.uk/~vgg/data/pets/data/images.tar.gz"
+--urlData="http://www.robots.ox.ac.uk/~vgg/data/pets/data/images.tar.gz" \
+--urlAnnotations="http://www.robots.ox.ac.uk/~vgg/data/pets/data/annotations.tar.gz" \
+--urlModel="http://download.tensorflow.org/models/object_detection/faster_rcnn_resnet101_coco_2018_01_28.tar.gz" \
+--urlPipelineConfig="https://raw.githubusercontent.com/kubeflow/examples/master/object_detection/conf/faster_rcnn_resnet101_pets.config"
 
-ks generate get-data-job get-annotations-job \
---pvc="pets-pvc" \
---mountPath="/pets_data" \
---url="http://www.robots.ox.ac.uk/~vgg/data/pets/data/annotations.tar.gz"
-
-ks generate get-data-job get-model-job \
---pvc="pets-pvc" \
---mountPath="/pets_data" \
---url="http://download.tensorflow.org/models/object_detection/faster_rcnn_resnet101_coco_2018_01_28.tar.gz"
-
-ks apply ${ENV} -c get-dataset-job
-ks apply ${ENV} -c get-annotations-job
-ks apply ${ENV} -c get-model-job
+ks apply ${ENV} -c get-data-job
 
 ```
+The command avobe will launch a set of Kubernetes batch jobs. Before moving to the next set of commands
+make sure all of the jobs to get the data were completed.
 
-Now, before moving to the next set of commands make sure all of the jobs to get the data were completed.
+The next command will generate a component to decompress the data that was downloaded after applying the
+`get-data-job` component.
+
 
 ```
 # Generate and apply the decompression jobs
 
-ks generate decompress-data-job decompress-dataset-job \
+ks generate decompress-data-job decompress-data-job \
 --pvc="pets-pvc" \
 --mountPath="/pets_data" \
---pathToFile="/pets_data/images.tar.gz"
-
-ks generate decompress-data-job decompress-annotations-job \
---pvc="pets-pvc" \
---mountPath="/pets_data" \
---pathToFile="/pets_data/annotations.tar.gz"
-
-ks generate decompress-data-job decompress-model-job \
---pvc="pets-pvc" \
---mountPath="/pets_data" \
---pathToFile="/pets_data/faster_rcnn_resnet101_coco_2018_01_28.tar.gz"
+--pathToDataset="/pets_data/images.tar.gz" \
+--pathToAnnotations="/pets_data/annotations.tar.gz" \
+--pathToModel="/pets_data/faster_rcnn_resnet101_coco_2018_01_28.tar.gz"
 
 # Apply the components
-ks apply ${ENV} -c decompress-dataset-job
-ks apply ${ENV} -c decompress-annotations-job
-ks apply ${ENV} -c decompress-model-job
+ks apply ${ENV} -c decompress-data-job
 ```
 
-Finally, we just need to get our pipeline config file and create the pet records:
+Finally, we just need to create the pet records:
 
 ```
-# Create the components to configure the training pipeline
-ks generate get-data-job get-pipeline-config-job \
---pvc="pets-pvc" \
---mountPath="/pets_data" \
---url="https://raw.githubusercontent.com/kubeflow/examples/master/object_detection/conf/faster_rcnn_resnet101_pets.config"
+# Generate the component to create the pet record for the training pipeline
 
-# Create pet record
 ks generate generic-job  create-pet-record-job \
 --pvc="pets-pvc" \
 --mountPath="/pets_data" \
@@ -117,7 +101,6 @@ ks generate generic-job  create-pet-record-job \
 "--data_dir=/pets_data", \
 "--output_dir=/pets_data"]'
 
-ks apply ${ENV} -c get-pipeline-config-job
 ks apply ${ENV} -c create-pet-record-job
 
 ```

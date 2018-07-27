@@ -5,7 +5,9 @@
 // @param name string Name to give to each of the components
 // @param pvc string Name of the PVC
 // @param mountPath string Path to mount the PVC
-// @param pathToFile string Path to the .tar.gz file
+// @param pathToDataset string Path to the dataset .tar.gz file
+// @param pathToAnnotations string Path to the annotations .tar.gz file
+// @param pathToModel string Path to the model .tar.gz file
 
 local k = import "k.libsonnet";
 local obj_detection = import "objectDetection/obj-detection/obj-detection.libsonnet";
@@ -13,7 +15,12 @@ local obj_detection = import "objectDetection/obj-detection/obj-detection.libson
 local namespace = env.namespace;
 local jobName = import 'param://name';
 local pvc = import 'param://pvc';
-local pathToFile = import 'param://pathToFile';
+local pathToDataset = import 'param://pathToDataset';
+local pathToAnnotations = import 'param://pathToAnnotations';
+local pathToModel = import 'param://pathToModel';
 local mountPath = import 'param://mountPath';
 
-std.prune(k.core.v1.list.new(obj_detection.decompress_job(namespace, jobName, pvc, pathToFile, mountPath)))
+std.prune(k.core.v1.list.new([
+obj_detection.decompress_job(namespace, jobName + "-dataset", pvc, pathToDataset, mountPath),
+obj_detection.decompress_job(namespace, jobName + "-annotations", pvc, pathToAnnotations, mountPath),
+obj_detection.decompress_job(namespace, jobName + "-model", pvc, pathToModel, mountPath)]))
