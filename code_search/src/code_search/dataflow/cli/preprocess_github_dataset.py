@@ -40,7 +40,8 @@ def preprocess_github_dataset(argv=None):
     | "Format for CSV Write" >> beam.ParDo(dict_to_csv.DictToCSVString(
       ['docstring_tokens', 'function_tokens']))
     | "Write CSV" >> beam.io.WriteToText('{}/func-doc-pairs'.format(args.data_dir),
-                                         file_name_suffix='.csv')
+                                         file_name_suffix='.csv',
+                                         num_shards=100)
   )
 
   result = pipeline.run()

@@ -37,7 +37,8 @@ def create_function_embeddings(argv=None):
     | "Format for CSV Write" >> beam.ParDo(dict_to_csv.DictToCSVString(
         ['nwo', 'path', 'function_name', 'lineno', 'original_function', 'function_embedding']))
     | "Write Embeddings to CSV" >> beam.io.WriteToText('{}/func-index'.format(args.data_dir),
-                                                       file_name_suffix='.csv')
+                                                       file_name_suffix='.csv',
+                                                       num_shards=100)
   )
 
   result = pipeline.run()

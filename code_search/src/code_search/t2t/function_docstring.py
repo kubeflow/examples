@@ -1,32 +1,21 @@
 """Github function/text similatrity problems."""
+from cStringIO import StringIO
 import csv
 import os
-from cStringIO import StringIO
 from tensor2tensor.data_generators import generator_utils
 from tensor2tensor.data_generators import translate
 from tensor2tensor.utils import metrics
 from tensor2tensor.utils import registry
-
-
-##
-# These URLs are only for fallback purposes in case the specified
-# `data_dir` does not contain the data. However, note that the data
-# files must have the same naming pattern.
-# TODO: The memory is exploding, need to fix this.
-#
-_DATA_BASE_URL = 'gs://kubeflow-examples/t2t-code-search/data'
-_GITHUB_FUNCTION_DOCSTRING_FILES = [
-    'pairs-0000{}-of-00010.csv'.format(i)
-    for i in range(1)
-]
+import tensorflow as tf
 
 
 @registry.register_problem
 class GithubFunctionDocstring(translate.TranslateProblem):
-  # pylint: disable=abstract-method
+  """Function and Docstring similarity Problem.
 
-  """This class defines the problem of finding similarity between Python
-  function and docstring"""
+  This problem contains the data consisting of function
+  and docstring pairs as CSV files.
+  """
 
   @property
   def is_generate_per_split(self):
@@ -36,29 +25,66 @@ class GithubFunctionDocstring(translate.TranslateProblem):
   def approx_vocab_size(self):
     return 2**13
 
-  def source_data_files(self, dataset_split):  # pylint: disable=no-self-use,unused-argument
-    # TODO(sanyamkapoor): separate train/eval data set.
-    return _GITHUB_FUNCTION_DOCSTRING_FILES
+  def _get_csv_files(self, data_dir, tmp_dir, dataset_split, limit=None):
+    """Get a list of CSV files.
 
-  def generate_samples(self, data_dir, tmp_dir, dataset_split):  # pylint: disable=no-self-use,unused-argument
-    """Returns a generator to return {"inputs": [text], "targets": [text]}.
+    This routine gets the list of CSV files in data_dir. If
+    the files don't exist on a local path, they are downloaded
+    into the temporary directory. Optionally, one can limit the
+    number of CSV files to process.
 
-    If the `data_dir` is a GCS path, all data is downloaded to the
-    `tmp_dir`.
+    FIXME(sanyamkapoor): `limit` exists to handle memory explosion.
+    TODO(sanyamkapoor): separate train/eval data set.
+
+    Args:
+      data_dir: A string representing the data directory.
+      tmp_dir: A string representing the temporary directory and is
+              used to download files if not already available.
+      dataset_split: Unused.
+      limit: Limit the number of CSV files returned.
+
+    Returns:
+      A list of strings representing the CSV file paths on local filesystem.
     """
+    glob_string = '{}/*.csv'.format(data_dir)
+    csv_files = tf.gfile.Glob(glob_string)
+    if limit:
+      csv_files = csv_files[:limit]
 
-    download_dir = tmp_dir if data_dir.startswith('gs://') else data_dir
-    uri_base = data_dir if data_dir.startswith('gs://') else _DATA_BASE_URL
-    pair_csv_files = [
-        generator_utils.maybe_download(download_dir, filename, os.path.join(uri_base, filename))
-        for filename in self.source_data_files(dataset_split)
+    if os.path.isdir(data_dir):
+      return csv_files
+
+    return [
+        generator_utils.maybe_download(tmp_dir, os.path.basename(uri), uri)
+        for uri in csv_files
     ]
 
-    for pairs_file in pair_csv_files:
+  def generate_samples(self, data_dir, tmp_dir, dataset_split):
+    """A generator to return data samples.Returns the data generator to return .
+
+
+    Args:
+      data_dir: A string representing the data directory.
+      tmp_dir: A string representing the temporary directory and is
+              used to download files if not already available.
+      dataset_split: Train, Test or Eval.
+
+    Yields:
+      Each element yielded is of a Python dict of the form
+        {"inputs": "STRING", "targets": "STRING"}
+    """
+
+    csv_files = self._get_csv_files(data_dir, tmp_dir, dataset_split, limit=1000)
+
+    if not csv_files:
+      tf.logging.fatal('No CSV files found or downloaded!')
+
+    for pairs_file in csv_files:
+      tf.logging.debug('Reading {}'.format(pairs_file))
       with open(pairs_file, 'r') as csv_file:
         for line in csv_file:
-          reader = csv.reader(StringIO(line), delimiter=',')
-          function_tokens, docstring_tokens = next(reader)[-2:]  # pylint: disable=stop-iteration-return
+          reader = csv.reader(StringIO(line))
+          docstring_tokens, function_tokens = next(reader)
           yield {'inputs': docstring_tokens, 'targets': function_tokens}
 
   def eval_metrics(self):  # pylint: disable=no-self-use
