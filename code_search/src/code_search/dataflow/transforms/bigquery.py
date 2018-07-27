@@ -1,4 +1,5 @@
 import apache_beam as beam
+import apache_beam.io.gcp.bigquery as bigquery
 import apache_beam.io.gcp.internal.clients as clients
 
 
@@ -10,10 +11,12 @@ class BigQueryRead(beam.PTransform):
   string.
   """
 
-  def __init__(self, project):
+  def __init__(self, project, dataset=None, table=None):
     super(BigQueryRead, self).__init__()
 
     self.project = project
+    self.dataset = dataset
+    self.table = table
 
   @property
   def limit(self):
@@ -47,12 +50,14 @@ class BigQueryWrite(beam.PTransform):
     ]
   """
 
-  def __init__(self, project, dataset, table, batch_size=500):
+  def __init__(self, project, dataset, table, batch_size=500,
+               write_disposition=bigquery.BigQueryDisposition.WRITE_TRUNCATE):
     super(BigQueryWrite, self).__init__()
 
     self.project = project
     self.dataset = dataset
     self.table = table
+    self.write_disposition = write_disposition
     self.batch_size = batch_size
 
   @property
@@ -69,7 +74,8 @@ class BigQueryWrite(beam.PTransform):
                                 dataset=self.dataset,
                                 table=self.table,
                                 schema=self.output_schema,
-                                batch_size=self.batch_size)
+                                batch_size=self.batch_size,
+                                write_disposition=self.write_disposition)
     )
 
   @staticmethod

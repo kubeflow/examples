@@ -1,3 +1,0 @@
-from code_search.do_fns.github_files import ExtractFuncInfo
-from code_search.do_fns.github_files import TokenizeCodeDocstring
-from code_search.do_fns.github_files import SplitRepoPath
