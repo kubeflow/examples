@@ -25,7 +25,12 @@ class GithubFunctionDocstring(translate.TranslateProblem):
   def approx_vocab_size(self):
     return 2**13
 
-  def _get_csv_files(self, data_dir, tmp_dir, dataset_split, limit=None):
+  # FIXME(sanyamkapoor): This exists to handle memory explosion.
+  @property
+  def max_samples_for_vocab(self):
+    return int(3e5)
+
+  def _get_csv_files(self, data_dir, tmp_dir, dataset_split):
     """Get a list of CSV files.
 
     This routine gets the list of CSV files in data_dir. If
@@ -33,23 +38,19 @@ class GithubFunctionDocstring(translate.TranslateProblem):
     into the temporary directory. Optionally, one can limit the
     number of CSV files to process.
 
-    FIXME(sanyamkapoor): `limit` exists to handle memory explosion.
-    TODO(sanyamkapoor): separate train/eval data set.
+    TODO(sanyamkapoor): Manually separate train/eval data set.
 
     Args:
       data_dir: A string representing the data directory.
       tmp_dir: A string representing the temporary directory and is
               used to download files if not already available.
       dataset_split: Unused.
-      limit: Limit the number of CSV files returned.
 
     Returns:
       A list of strings representing the CSV file paths on local filesystem.
     """
     glob_string = '{}/*.csv'.format(data_dir)
     csv_files = tf.gfile.Glob(glob_string)
-    if limit:
-      csv_files = csv_files[:limit]
 
     if os.path.isdir(data_dir):
       return csv_files
@@ -74,7 +75,7 @@ class GithubFunctionDocstring(translate.TranslateProblem):
         {"inputs": "STRING", "targets": "STRING"}
     """
 
-    csv_files = self._get_csv_files(data_dir, tmp_dir, dataset_split, limit=1000)
+    csv_files = self._get_csv_files(data_dir, tmp_dir, dataset_split)
 
     if not csv_files:
       tf.logging.fatal('No CSV files found or downloaded!')
