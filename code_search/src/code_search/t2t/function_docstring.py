@@ -1,7 +1,6 @@
 """Github function/text similatrity problems."""
 from cStringIO import StringIO
 import csv
-import os
 from tensor2tensor.data_generators import generator_utils
 from tensor2tensor.data_generators import translate
 from tensor2tensor.utils import metrics
@@ -14,8 +13,18 @@ class GithubFunctionDocstring(translate.TranslateProblem):
   """Function and Docstring similarity Problem.
 
   This problem contains the data consisting of function
-  and docstring pairs as CSV files.
+  and docstring pairs as CSV files. The files are structured
+  such that they contain two columns without headers containing
+  the docstring tokens and function tokens. The delimiter is
+  ",".
   """
+
+  FILES_BASE_URL = 'gs://kubeflow-examples/t2t-code-search/raw_data'
+
+  GITHUB_FUNC_DOC_PAIR_FILES = [
+    'func-doc-pairs-000{:02}-of-00100.csv'.format(i)
+    for i in range(100)
+  ]
 
   @property
   def is_generate_per_split(self):
@@ -25,40 +34,14 @@ class GithubFunctionDocstring(translate.TranslateProblem):
   def approx_vocab_size(self):
     return 2**13
 
-  # FIXME(sanyamkapoor): This exists to handle memory explosion.
+  def source_data_files(self, _):
+    # TODO(sanyamkapoor): Manually separate train/eval data set.
+    return self.GITHUB_FUNC_DOC_PAIR_FILES
+
   @property
   def max_samples_for_vocab(self):
-    return int(3e5)
-
-  def _get_csv_files(self, data_dir, tmp_dir, dataset_split):
-    """Get a list of CSV files.
-
-    This routine gets the list of CSV files in data_dir. If
-    the files don't exist on a local path, they are downloaded
-    into the temporary directory. Optionally, one can limit the
-    number of CSV files to process.
-
-    TODO(sanyamkapoor): Manually separate train/eval data set.
-
-    Args:
-      data_dir: A string representing the data directory.
-      tmp_dir: A string representing the temporary directory and is
-              used to download files if not already available.
-      dataset_split: Unused.
-
-    Returns:
-      A list of strings representing the CSV file paths on local filesystem.
-    """
-    glob_string = '{}/*.csv'.format(data_dir)
-    csv_files = tf.gfile.Glob(glob_string)
-
-    if os.path.isdir(data_dir):
-      return csv_files
-
-    return [
-        generator_utils.maybe_download(tmp_dir, os.path.basename(uri), uri)
-        for uri in csv_files
-    ]
+    # FIXME(sanyamkapoor): This exists to handle memory explosion.
+    return int(3.5e5)
 
   def generate_samples(self, data_dir, tmp_dir, dataset_split):
     """A generator to return data samples.Returns the data generator to return .
@@ -75,10 +58,14 @@ class GithubFunctionDocstring(translate.TranslateProblem):
         {"inputs": "STRING", "targets": "STRING"}
     """
 
-    csv_files = self._get_csv_files(data_dir, tmp_dir, dataset_split)
-
-    if not csv_files:
-      tf.logging.fatal('No CSV files found or downloaded!')
+    csv_file_names = self.source_data_files(dataset_split)
+    download_dir = tmp_dir if data_dir.startswith('gs://') else data_dir
+    csv_files = [
+        generator_utils.maybe_download(download_dir, filename,
+                                       '{}/{}'.format(self.FILES_BASE_URL,
+                                                      filename))
+        for filename in csv_file_names
+    ]
 
     for pairs_file in csv_files:
       tf.logging.debug('Reading {}'.format(pairs_file))
