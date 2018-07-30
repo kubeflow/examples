@@ -23,44 +23,15 @@ docker push <your_server:your_port>/pets_object_detection
 
 ## Create  training TF-Job deployment and launching it
 
-### Follow these steps to generate the tf-training-job component:
-
-Generate the ksonnet component using the tf-training-job [prototype](obj-detection/prototypes/tf-tranining-job.jsonnet)
 ```
-# from the my-kubeflow directory
-ks generate tf-training-job pets-training \
---image=<your_server:your_port>/pets_object_detection \
---numWorkers=1 \
---numPs=1 \
---pvc="pets-pvc" \
---mountPath="/pets_data" \
---pipelineConfigPath="/pets_data/faster_rcnn_resnet101_pets.config" \
---trainDir="/pets_data/train"
-```
-To see the yaml manifest you can dump the generated component into a K8s deployment manifest file.
-```
-ks show ${ENV} -c pets-training > pets-training.yaml
-cat ./pets-training.yaml
-```
-No you can submit the TF-Job to K8s:
-```
-ks apply ${ENV} -c pets-training
-# OR
-kubectl apply -f pets-training.yaml
+# from the ks-app directory
+ks apply ${ENV} -c tf-training-job
 ```
 
-For GPU support use the `--numGpu=<number of Gpus to request>` param like:
+For GPU support set the `numGpu` param like:
 ```
-# from the my-kubeflow directory
-ks generate tf-training-job pets-training \
---image=<your_server:your_port>/pets_object_detection_gpu \
---numWorkers=1 \
---numPs=1 \
---numGpu=1 \
---pvc="pets-pvc" \
---mountPath="/pets_data" \
---pipelineConfigPath="/pets_data/faster_rcnn_resnet101_pets.config" \
---trainDir="/pets_data/train"
+# from the ks-app directory
+ks param set tf-training-job numGpu 1
 ```
 
 ## Next

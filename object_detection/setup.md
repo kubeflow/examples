@@ -33,65 +33,66 @@ ks pkg install objectDetection/obj-detection
 ```
 
 ## Preparing the training data
-We have prepared a set of ksonnet prototypes to create a persistent volume and copy the data to it.
+We have prepared a ksonnet app `ks-app` you can use to create a persistent volume and copy the data to it.
 The prototypes can be found at the [obj-detection](./obj-detection) directory.
-We will start creating a set of components and we will apply them in order for better results.
 
 Create a PVC to store the data. This step assumes that you K8s cluster has [Dynamic Volume Provisioning](https://kubernetes.io/docs/concepts/storage/dynamic-provisioning/) enabled.
 ```
 # First create the PVC component and apply it to create a PVC where the training data will be stored
-ks generate pvc pets-pvc --storage="20Gi" --accessMode="ReadWriteMany"
 ks apply ${ENV} -c pets-pvc
 ```
-The commands above will create a PVC with `ReadWriteMany` access mode if your Kubernetes cluster
-does not support this feature you can modify the `--accessMode` value to create the PVC in `ReadWriteOnce`
+
+The available parameters for the above component are: `accessMode=ReadWriteMany` and `storage=20Gi`.
+You can override these parameters with `ks set param` command.
+
+By default the command above will create a PVC with `ReadWriteMany` access mode if your Kubernetes cluster
+does not support this feature you can modify the `accessMode` value to create the PVC in `ReadWriteOnce`
 and before you execute the tf-job to train the model add a `nodeSelector:` configuration to execute the pods
 in the same node. You can find more about assigning pods to specific nodes [here](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/)
 
 Now we will get the data we need to prepare our training pipeline:
 
 ```
-# Create the component a get-data component and apply it, this component will download
-# the dataset, annotations, the model we will use for the fine tune checkpoint, and
-# the pipeline configration file
-
-ks generate get-data-job get-data-job \
---pvc="pets-pvc" \
---mountPath="/pets_data" \
---urlData="http://www.robots.ox.ac.uk/~vgg/data/pets/data/images.tar.gz" \
---urlAnnotations="http://www.robots.ox.ac.uk/~vgg/data/pets/data/annotations.tar.gz" \
---urlModel="http://download.tensorflow.org/models/object_detection/faster_rcnn_resnet101_coco_2018_01_28.tar.gz" \
---urlPipelineConfig="https://raw.githubusercontent.com/kubeflow/examples/master/object_detection/conf/faster_rcnn_resnet101_pets.config"
+# Apply the get-data-job component this component will download the dataset,
+# annotations, the model we will use for the fine tune checkpoint, and
+# the pipeline configuration file
 
 ks apply ${ENV} -c get-data-job
+```
+The overridable parameters for the `get-data-job` component are:
+
+- `mountPath` string, volume mount path.
+- `pvc` string, name of the PVC where the data will be stored.
+- `urlData` string, remote URL of the dataset that will be used for training.
+- `urlAnnotations` string, remote URL of the annotations that will be used for training.
+- `urlModel` string, remote URL of the model that will be used for fine tuning.
+- `urlPipelineConfig` string, remote URL of the pipeline configuration file to use.
+
+Before moving to the next set of commands make sure all of the jobs to get the data were completed.
+
+Now we will apply the decompress data component:
 
 ```
-The command avobe will launch a set of Kubernetes batch jobs. Before moving to the next set of commands
-make sure all of the jobs to get the data were completed.
-
-The next command will generate a component to decompress the data that was downloaded after applying the
-`get-data-job` component.
-
-
-```
-# Generate and apply the decompression jobs
-
-ks generate decompress-data-job decompress-data-job \
---pvc="pets-pvc" \
---mountPath="/pets_data" \
---pathToDataset="/pets_data/images.tar.gz" \
---pathToAnnotations="/pets_data/annotations.tar.gz" \
---pathToModel="/pets_data/faster_rcnn_resnet101_coco_2018_01_28.tar.gz"
-
-# Apply the components
+# Apply the component
 ks apply ${ENV} -c decompress-data-job
 ```
+
+The overridable parameters for the `decompress-data-job` component are:
+
+- `mountPath` string, volume mount path.
+- `pvc` string, name of the PVC where the data is located.
+- `pathToAnnotations` string, File system path to the annotations .tar.gz file
+- `pathToDataset` string, File system path to the dataset .tar.gz file
+- `pathToModel` string, File system path to the model .tar.gz file
 
 Finally, we just need to create the pet records:
 
 ```
-# Generate the component to create the pet record for the training pipeline
+ks apply ${ENV} -c create-pet-record-job
 
+```
+
+```
 ks generate generic-job  create-pet-record-job \
 --pvc="pets-pvc" \
 --mountPath="/pets_data" \
@@ -100,10 +101,19 @@ ks generate generic-job  create-pet-record-job \
 --args='["--label_map_path=models/research/object_detection/data/pet_label_map.pbtxt", \
 "--data_dir=/pets_data", \
 "--output_dir=/pets_data"]'
-
-ks apply ${ENV} -c create-pet-record-job
-
 ```
+
+The overridable parameters for the `create-pet-record-job` component are:
+
+- `mountPath` string, volume mount path.
+- `pvc` string, name of the PVC where the data is located.
+- `image` string, name of the docker image to use.
+- `command` array, the command to use.
+- `args` array, the command args to use.
+- `data_dir` string, the directory with the images
+- `output_dir` string, the output directory for the pet records.
+
+To see the default values of the components used in this set of steps look at: [params.libsonnet](./ks-app/components/params.libsonnet)
 
 ## Next
 [Submit the TF Job](submit_job.md)

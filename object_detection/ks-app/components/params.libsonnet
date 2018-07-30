@@ -3,6 +3,55 @@
   components: {
     // Component-level parameters, defined initially from 'ks prototype use ...'
     // Each object below should correspond to a component in the components/ directory
+    "pets-pvc": {
+      accessMode: 'ReadWriteMany',
+      name: 'pets-pvc',
+      storage: '20Gi',
+    },
+    "get-data-job": {
+      mountPath: '/pets_data',
+      name: 'get-data-job',
+      pvc: 'pets-pvc',
+      urlAnnotations: 'http://www.robots.ox.ac.uk/~vgg/data/pets/data/annotations.tar.gz',
+      urlData: 'http://www.robots.ox.ac.uk/~vgg/data/pets/data/images.tar.gz',
+      urlModel: 'http://download.tensorflow.org/models/object_detection/faster_rcnn_resnet101_coco_2018_01_28.tar.gz',
+      urlPipelineConfig: 'https://raw.githubusercontent.com/kubeflow/examples/master/object_detection/conf/faster_rcnn_resnet101_pets.config',
+    },
+    "decompress-data-job": {
+      mountPath: '/pets_data',
+      name: 'decompress-data-job',
+      pathToAnnotations: '/pets_data/annotations.tar.gz',
+      pathToDataset: '/pets_data/images.tar.gz',
+      pathToModel: '/pets_data/faster_rcnn_resnet101_coco_2018_01_28.tar.gz',
+      pvc: 'pets-pvc',
+    },
+    "create-pet-record-job": {
+      args: ['--label_map_path=models/research/object_detection/data/pet_label_map.pbtxt', '--data_dir=/pets_data', '--output_dir=/pets_data'],
+      command: ['python', '/models/research/object_detection/dataset_tools/create_pet_tf_record.py'],
+      image: 'lcastell/pets_object_detection',
+      mountPath: '/pets_data',
+      name: 'create-pet-record-job',
+      pvc: 'pets-pvc',
+    },
+    "tf-training-job": {
+      image: 'lcastell/pets_object_detection',
+      mountPath: '/pets-data',
+      name: 'tf-training-job',
+      numGpu: 0,
+      numPs: 1,
+      numWorkers: 1,
+      pipelineConfigPath: '/pets_data/faster_rcnn_resnet101_pets.config',
+      pvc: 'pets-pvc',
+      trainDir: '/pets_data/train',
+    },
+    "export-tf-graph-job": {
+      args: ['--input_type=image_tensor','--pipeline_config_path=/pets_data/faster_rcnn_resnet101_pets.config','--trained_checkpoint_prefix=/pets_data/train/model.ckpt-<number>','--output_directory=/pets_data/exported_graphs'],
+      command: ['python', 'models/research/object_detection/export_inference_graph.py'],
+      image: 'lcastell/pets_object_detection',
+      mountPath: '/pets_data',
+      name: 'export-tf-graph-job',
+      pvc: 'pets-pvc',
+    },
     model1: {
       cloud: 'gcp',
       deployHttpProxy: true,

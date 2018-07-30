@@ -1,6 +1,0 @@
-apiVersion: '0.1'
-kind: ksonnet.io/registry
-libraries:
-  obj-detection:
-    version: master
-    path: obj-detection
