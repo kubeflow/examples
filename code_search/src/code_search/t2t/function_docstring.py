@@ -19,12 +19,16 @@ class GithubFunctionDocstring(translate.TranslateProblem):
   ",".
   """
 
-  FILES_BASE_URL = 'gs://kubeflow-examples/t2t-code-search/raw_data'
+  @property
+  def base_url(self):
+    return 'gs://kubeflow-examples/t2t-code-search/raw_data'
 
-  GITHUB_FUNC_DOC_PAIR_FILES = [
-    'func-doc-pairs-000{:02}-of-00100.csv'.format(i)
-    for i in range(100)
-  ]
+  @property
+  def pair_files_list(self):
+    return [
+        'func-doc-pairs-000{:02}-of-00100.csv'.format(i)
+        for i in range(100)
+    ]
 
   @property
   def is_generate_per_split(self):
@@ -36,7 +40,7 @@ class GithubFunctionDocstring(translate.TranslateProblem):
 
   def source_data_files(self, _):
     # TODO(sanyamkapoor): Manually separate train/eval data set.
-    return self.GITHUB_FUNC_DOC_PAIR_FILES
+    return self.pair_files_list
 
   @property
   def max_samples_for_vocab(self):
@@ -62,7 +66,7 @@ class GithubFunctionDocstring(translate.TranslateProblem):
     download_dir = tmp_dir if data_dir.startswith('gs://') else data_dir
     csv_files = [
         generator_utils.maybe_download(download_dir, filename,
-                                       '{}/{}'.format(self.FILES_BASE_URL,
+                                       '{}/{}'.format(self.base_url,
                                                       filename))
         for filename in csv_file_names
     ]
