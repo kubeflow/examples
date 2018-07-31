@@ -7,12 +7,12 @@ from tensor2tensor.utils import metrics
 from tensor2tensor.utils import registry
 import tensorflow as tf
 
-# pylint: disable=g-import-not-at-top
+# pylint: disable-all
 if six.PY2:
   from StringIO import StringIO
 else:
   from io import StringIO
-# pylint: enable=g-import-not-at-top
+# pylint: enable-all
 
 
 @registry.register_problem
@@ -54,7 +54,7 @@ class GithubFunctionDocstring(translate.TranslateProblem):
     # FIXME(sanyamkapoor): This exists to handle memory explosion.
     return int(3.5e5)
 
-  def generate_samples(self, data_dir, tmp_dir, dataset_split):
+  def generate_samples(self, _data_dir, tmp_dir, dataset_split):
     """A generator to return data samples.Returns the data generator to return.
 
 
