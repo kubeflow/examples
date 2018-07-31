@@ -34,5 +34,18 @@ For GPU support set the `numGpu` param like:
 ks param set tf-training-job numGpu 1
 ```
 
+The overridable parameters for the `tf-training-job` component are:
+
+- `image` string, docker image to use
+- `mountPath` string, Volume mount path
+- `numGpu` number, optional param, default to 0
+- `numPs` number, Number of Parameter servers to use
+- `numWorkers` number, Number of workers to use
+- `pipelineConfigPath` string, the path to the pipeline config file in the volume mount
+- `pvc` string, Persistent Volume Claim name to use
+- `trainDir` string, Directory where the training outputs will be saved
+
+To see the default values for the `tf-training-job` component params, please take a look at the [params.libsonnet](./ks-app/params.libsonnet) file.
+
 ## Next
 [Monitor your job](monitor_job.md)

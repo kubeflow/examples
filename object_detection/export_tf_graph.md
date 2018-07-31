@@ -23,7 +23,7 @@ ks param set export-tf-graph-job args \
 
 ks apply ${ENV} -c export-tf-graph-job
 ```  
-To see the default values of the `export-tf-graph-job` component look at: [params.libsonnet](./ks-app/components/params.libsonnet)
+To see the default values and params of the `export-tf-graph-job` component look at: [params.libsonnet](./ks-app/components/params.libsonnet)
 
 Once the job is completed a new directory called `exported_graphs` under `/pets_data` in the pets-data-claim PCV  
 will be created containing the model and the frozen graph.  

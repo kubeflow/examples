@@ -46,11 +46,6 @@ Now you have a trained model!! find it at `/pets_data/train` inside pvc `pets-da
 ```
 ks delete ${ENV} -c pets-training
 ```
-OR
-```
-# using the previously generated yaml manifest
-kubectl -n kubeflow delete -f pets-training.yaml
-```
 
 ## Next
 [Export the TensorFlow Graph and Serve the model with TF Serving](./export_tf_graph.md)

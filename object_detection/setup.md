@@ -6,10 +6,10 @@
  - Ksonnet CLI: [ks](https://ksonnet.io/)
 
 ### Setup
-Refer to the [user guide](https://www.kubeflow.org/docs/about/user_guide) for instructions on how to setup kubeflow on your kubernetes cluster. Specifically, look at the section on [deploying kubeflow](https://www.kubeflow.org/docs/about/user_guide#deploy-kubeflow).
-For this example, we will be using ks `nocloud` environment (on premise K8s). If you plan to use `cloud` ks environment, please make sure you follow the proper instructions in the kubeflow user guide.
+Refer to the [getting started guide](https://www.kubeflow.org/docs/started/getting-started) for instructions on how to setup kubeflow on your kubernetes cluster. Specifically, look at the [quick start](https://www.kubeflow.org/docs/started/getting-started/#quick-start) section.
+For this example, we will be using ks `nocloud` environment (on premise K8s). If you plan to use `cloud` ks environment, please make sure you follow the proper instructions in the kubeflow getting started guide.
 
-After completing the steps in the kubeflow user guide you will have the following:
+After completing the steps in the kubeflow getting started guide you will have the following:
 - A ksonnet app directory called `my-kubeflow` 
 - A new namespace in you K8s cluster called `kubeflow`
 - The following pods in your kubernetes cluster in the `kubeflow` namespace:
@@ -22,23 +22,19 @@ ambassador-7987df44b9-qrgsm       2/2       Running   0          1m
 tf-hub-0                          1/1       Running   0          1m
 tf-job-operator-78757955b-qkg7s   1/1       Running   0          1m
 ```
-### Adding objectDetection package to your Ksonnet app
-
-```
-# Add the registry
-ks registry add objectDetection github.com/kuebflow/examples/tree/master/object_detection
-
-#install the package
-ks pkg install objectDetection/obj-detection
-```
 
 ## Preparing the training data
+
 We have prepared a ksonnet app `ks-app` you can use to create a persistent volume and copy the data to it.
-The prototypes can be found at the [obj-detection](./obj-detection) directory.
+The components can be found at the [ks-app/components](./ks-app/components) directory.
+
+```
+cd ks-app
+```
 
 Create a PVC to store the data. This step assumes that you K8s cluster has [Dynamic Volume Provisioning](https://kubernetes.io/docs/concepts/storage/dynamic-provisioning/) enabled.
 ```
-# First create the PVC component and apply it to create a PVC where the training data will be stored
+# First, apply the pets-pvc to create a PVC where the training data will be stored
 ks apply ${ENV} -c pets-pvc
 ```
 
@@ -90,17 +86,6 @@ Finally, we just need to create the pet records:
 ```
 ks apply ${ENV} -c create-pet-record-job
 
-```
-
-```
-ks generate generic-job  create-pet-record-job \
---pvc="pets-pvc" \
---mountPath="/pets_data" \
---image="lcastell/pets_object_detection" \
---command='["python", "/models/research/object_detection/dataset_tools/create_pet_tf_record.py"]' \
---args='["--label_map_path=models/research/object_detection/data/pet_label_map.pbtxt", \
-"--data_dir=/pets_data", \
-"--output_dir=/pets_data"]'
 ```
 
 The overridable parameters for the `create-pet-record-job` component are:
