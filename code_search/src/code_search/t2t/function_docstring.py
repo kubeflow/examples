@@ -48,7 +48,7 @@ class GithubFunctionDocstring(translate.TranslateProblem):
     return int(3.5e5)
 
   def generate_samples(self, data_dir, tmp_dir, dataset_split):
-    """A generator to return data samples.Returns the data generator to return .
+    """A generator to return data samples.Returns the data generator to return.
 
 
     Args:
@@ -76,8 +76,8 @@ class GithubFunctionDocstring(translate.TranslateProblem):
       with open(pairs_file, 'r') as csv_file:
         for line in csv_file:
           reader = csv.reader(StringIO(line))
-          docstring_tokens, function_tokens = next(reader)
-          yield {'inputs': docstring_tokens, 'targets': function_tokens}
+          for docstring_tokens, function_tokens in reader:
+            yield {'inputs': docstring_tokens, 'targets': function_tokens}
 
   def eval_metrics(self):  # pylint: disable=no-self-use
     return [

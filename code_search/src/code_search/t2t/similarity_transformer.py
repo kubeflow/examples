@@ -18,7 +18,7 @@ class SimilarityTransformer(t2t_model.T2TModel):
   string embeddings.
   """
 
-  def top(self, body_output, features):
+  def top(self, body_output, _):  # pylint: disable=no-self-use
     return body_output
 
   def body(self, features):
