@@ -1,11 +1,18 @@
 """Github function/text similatrity problems."""
-from cStringIO import StringIO
 import csv
+import six
 from tensor2tensor.data_generators import generator_utils
 from tensor2tensor.data_generators import translate
 from tensor2tensor.utils import metrics
 from tensor2tensor.utils import registry
 import tensorflow as tf
+
+# pylint: disable=g-import-not-at-top
+if six.PY2:
+  from StringIO import StringIO
+else:
+  from io import StringIO
+# pylint: enable=g-import-not-at-top
 
 
 @registry.register_problem
@@ -21,12 +28,12 @@ class GithubFunctionDocstring(translate.TranslateProblem):
 
   @property
   def base_url(self):
-    return 'gs://kubeflow-examples/t2t-code-search/raw_data'
+    return "gs://kubeflow-examples/t2t-code-search/raw_data"
 
   @property
   def pair_files_list(self):
     return [
-        'func-doc-pairs-000{:02}-of-00100.csv'.format(i)
+        "func-doc-pairs-000{:02}-of-00100.csv".format(i)
         for i in range(100)
     ]
 
@@ -63,21 +70,20 @@ class GithubFunctionDocstring(translate.TranslateProblem):
     """
 
     csv_file_names = self.source_data_files(dataset_split)
-    download_dir = tmp_dir if data_dir.startswith('gs://') else data_dir
     csv_files = [
-        generator_utils.maybe_download(download_dir, filename,
-                                       '{}/{}'.format(self.base_url,
+        generator_utils.maybe_download(tmp_dir, filename,
+                                       "{}/{}".format(self.base_url,
                                                       filename))
         for filename in csv_file_names
     ]
 
     for pairs_file in csv_files:
-      tf.logging.debug('Reading {}'.format(pairs_file))
-      with open(pairs_file, 'r') as csv_file:
+      tf.logging.debug("Reading {}".format(pairs_file))
+      with open(pairs_file, "r") as csv_file:
         for line in csv_file:
           reader = csv.reader(StringIO(line))
           for docstring_tokens, function_tokens in reader:
-            yield {'inputs': docstring_tokens, 'targets': function_tokens}
+            yield {"inputs": docstring_tokens, "targets": function_tokens}
 
   def eval_metrics(self):  # pylint: disable=no-self-use
     return [
