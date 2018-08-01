@@ -18,18 +18,15 @@ Requirements:
  choose different
  [runners](https://beam.apache.org/documentation/runners/capability-matrix/) to run the job remotely, such as [Google Dataflow](https://cloud.google.com/dataflow/). As of July 2018, Google Dataflow does not support GPUs.
 
-### Build the image
-Build a kubeflow batch prediction image, or use the pre-built images at
-at gcr.io/kubeflow-examples/batch-predict.
+### Build and push the image
+Build a kubeflow batch prediction image, or use the [pre-built
+image](https://gcr.io/kubeflow-examples/batch-predict) at Google Container
+Registry (GCR). Following is an example to use GCR to host the image.
 
 ```
-docker build --pull -t kubeflow-batch-predict -f ./Dockerfile.batch-predict .
-```
-
-### Push the image to your docker registry
-```
-docker tag  $USER/batch-predict ${YOUR_REGISTRY}/batch-predict
-docker push ${YOUR_REGISTRY}/batch-predict
+IMAGE="gcr.io/${YOUR_GCP_PROJECT}/batch-predict"
+docker build -t ${IMAGE} -f ./Dockerfile.batch-predict .
+docker push ${IMAGE}
 ```
 
 ### Prepare the model
