@@ -18,16 +18,38 @@ class GithubFunctionDocstring(text_problems.Text2TextProblem):
   the docstring tokens and function tokens. The delimiter is
   ",".
   """
-
-  @property
-  def base_url(self):
-    return "gs://kubeflow-examples/t2t-code-search/raw_data"
-
   @property
   def pair_files_list(self):
+    """Return URL and file names.
+
+    This format is a convention across the Tensor2Tensor (T2T)
+    codebase. It should be noted that the file names are currently
+    hardcoded. This is to preserve the semantics of a T2T problem.
+    In case a change of these values is desired, one must subclass
+    and override this property.
+
+    # TODO(sanyamkapoor): Manually separate train/eval data set.
+
+    Returns:
+      A list of the format,
+        [
+          [
+            "STRING",
+            ("STRING", "STRING", ...)
+          ],
+          ...
+        ]
+      Each element is a list of size 2 where the first represents
+      the source URL and the next is an n-tuple of file names.
+
+      In this case, the tuple is of size 1 because the URL points
+      to a file itself.
+    """
+    base_url = "gs://kubeflow-examples/t2t-code-search/raw_data"
+
     return [
         [
-            "{}/func-doc-pairs-000{:02}-of-00100.csv".format(self.base_url, i),
+            "{}/func-doc-pairs-000{:02}-of-00100.csv".format(base_url, i),
             ("func-doc-pairs-000{:02}-of-00100.csv".format(i),)
         ]
         for i in range(100)
@@ -60,12 +82,9 @@ class GithubFunctionDocstring(text_problems.Text2TextProblem):
       Each element yielded is of a Python dict of the form
         {"inputs": "STRING", "targets": "STRING"}
     """
-
-    # TODO(sanyamkapoor): Manually separate train/eval data set.
-    csv_file_names = self.pair_files_list
     csv_files = [
         generator_utils.maybe_download(tmp_dir, file_list[0], uri)
-        for uri, file_list in csv_file_names
+        for uri, file_list in self.pair_files_list
     ]
 
     for pairs_file in csv_files:

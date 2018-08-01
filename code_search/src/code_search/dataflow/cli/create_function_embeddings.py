@@ -17,6 +17,9 @@ def create_function_embeddings(argv=None):
     - See `transforms.github_dataset.GithubBatchPredict` for details of tables created
     - Additionally, store CSV of docstring, original functions and other metadata for
       reverse index lookup during search engine queries.
+
+  NOTE: The number of output file shards have been fixed (at 100) to avoid a large
+  number of output files, making it manageable.
   """
   pipeline_opts = arguments.prepare_pipeline_opts(argv)
   args = pipeline_opts._visible_options  # pylint: disable=protected-access
