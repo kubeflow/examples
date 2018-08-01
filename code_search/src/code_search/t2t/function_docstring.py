@@ -33,7 +33,10 @@ class GithubFunctionDocstring(translate.TranslateProblem):
   @property
   def pair_files_list(self):
     return [
-        "func-doc-pairs-000{:02}-of-00100.csv".format(i)
+        [
+            "{}/func-doc-pairs-000{:02}-of-00100.csv".format(self.base_url, i),
+            ("func-doc-pairs-000{:02}-of-00100.csv".format(i),)
+        ]
         for i in range(100)
     ]
 
@@ -71,10 +74,8 @@ class GithubFunctionDocstring(translate.TranslateProblem):
 
     csv_file_names = self.source_data_files(dataset_split)
     csv_files = [
-        generator_utils.maybe_download(tmp_dir, filename,
-                                       "{}/{}".format(self.base_url,
-                                                      filename))
-        for filename in csv_file_names
+        generator_utils.maybe_download(tmp_dir, file_list[0], uri)
+        for uri, file_list in csv_file_names
     ]
 
     for pairs_file in csv_files:
