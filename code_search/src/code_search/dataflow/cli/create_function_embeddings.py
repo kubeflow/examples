@@ -17,6 +17,9 @@ def create_function_embeddings(argv=None):
     - See `transforms.github_dataset.GithubBatchPredict` for details of tables created
     - Additionally, store CSV of docstring, original functions and other metadata for
       reverse index lookup during search engine queries.
+
+  NOTE: The number of output file shards have been fixed (at 100) to avoid a large
+  number of output files, making it manageable.
   """
   pipeline_opts = arguments.prepare_pipeline_opts(argv)
   args = pipeline_opts._visible_options  # pylint: disable=protected-access
@@ -37,7 +40,8 @@ def create_function_embeddings(argv=None):
     | "Format for CSV Write" >> beam.ParDo(dict_to_csv.DictToCSVString(
         ['nwo', 'path', 'function_name', 'lineno', 'original_function', 'function_embedding']))
     | "Write Embeddings to CSV" >> beam.io.WriteToText('{}/func-index'.format(args.data_dir),
-                                                       file_name_suffix='.csv')
+                                                       file_name_suffix='.csv',
+                                                       num_shards=100)
   )
 
   result = pipeline.run()

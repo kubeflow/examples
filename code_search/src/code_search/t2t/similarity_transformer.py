@@ -9,19 +9,19 @@ import tensorflow as tf
 
 @registry.register_model
 class SimilarityTransformer(t2t_model.T2TModel):
-  # pylint: disable=abstract-method
+  """Transformer Model for Similarity between two strings.
 
-  """
-  This class defines the model to compute similarity scores between functions
-  and docstrings
+  This model defines the architecture using two transformer
+  networks, each of which embed a string and the loss is
+  calculated as a Binary Cross-Entropy loss. Normalized
+  Dot Product is used as the distance measure between two
+  string embeddings.
   """
 
-  def top(self, body_output, features):  # pylint: disable=no-self-use,unused-argument
+  def top(self, body_output, _):  # pylint: disable=no-self-use
     return body_output
 
   def body(self, features):
-    """Body of the Similarity Transformer Network."""
-
     with tf.variable_scope('string_embedding'):
       string_embedding = self.encode(features, 'inputs')
 
@@ -57,21 +57,21 @@ class SimilarityTransformer(t2t_model.T2TModel):
 
     (encoder_input, encoder_self_attention_bias, _) = (
         transformer.transformer_prepare_encoder(inputs, problem.SpaceID.EN_TOK,
-                                                self._hparams))
+                                                hparams))
 
     encoder_input = tf.nn.dropout(encoder_input,
                                   1.0 - hparams.layer_prepostprocess_dropout)
     encoder_output = transformer.transformer_encoder(
         encoder_input,
         encoder_self_attention_bias,
-        self._hparams,
+        hparams,
         nonpadding=transformer.features_to_nonpadding(features, input_key))
-    encoder_output = tf.expand_dims(encoder_output, 2)
 
-    encoder_output = tf.reduce_mean(tf.squeeze(encoder_output, axis=2), axis=1)
+    encoder_output = tf.reduce_mean(encoder_output, axis=1)
 
     return encoder_output
 
-  def infer(self, features=None, **kwargs):  # pylint: disable=no-self-use,unused-argument
+  def infer(self, features=None, **kwargs):
+    del kwargs
     predictions, _ = self(features)
     return predictions

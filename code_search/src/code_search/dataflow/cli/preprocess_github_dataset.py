@@ -18,6 +18,9 @@ def preprocess_github_dataset(argv=None):
     - See `transforms.github_dataset.TransformGithubDataset` for details of tables created
     - Additionally, store pairs of docstring and function tokens in a CSV file
       for training
+
+  NOTE: The number of output file shards have been fixed (at 100) to avoid a large
+  number of output files, making it manageable.
   """
   pipeline_opts = arguments.prepare_pipeline_opts(argv)
   args = pipeline_opts._visible_options  # pylint: disable=protected-access
@@ -40,7 +43,8 @@ def preprocess_github_dataset(argv=None):
     | "Format for CSV Write" >> beam.ParDo(dict_to_csv.DictToCSVString(
       ['docstring_tokens', 'function_tokens']))
     | "Write CSV" >> beam.io.WriteToText('{}/func-doc-pairs'.format(args.data_dir),
-                                         file_name_suffix='.csv')
+                                         file_name_suffix='.csv',
+                                         num_shards=100)
   )
 
   result = pipeline.run()
