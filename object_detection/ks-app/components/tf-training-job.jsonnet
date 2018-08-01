@@ -3,28 +3,17 @@ local params = std.extVar("__ksonnet/params").components["tf-training-job"];
 
 local k = import "k.libsonnet";
 
-local name = params.name;
-local namespace = env.namespace;
-local image = params.image;
-local numWorkers = params.numWorkers;
-local numPs = params.numPs;
-local mountPath = params.mountPath;
-local pvc = params.pvc;
-local pipelineConfigPath = params.pipelineConfigPath;
-local trainDir = params.trainDir;
-local numGpu = params.numGpu;
-
-local tfjob_cpu = {
+local tfJobCpu = {
   apiVersion: "kubeflow.org/v1alpha2",
   kind: "TFJob",
   metadata: {
-    name: name,
-    namespace: namespace,
+    name: params.name,
+    namespace: env.namespace,
   },
   spec: {
     tfReplicaSpecs: {
       Worker: {
-        replicas: numWorkers,
+        replicas: params.numWorkers,
         template: {
           spec: {
             containers: [
@@ -36,18 +25,18 @@ local tfjob_cpu = {
                 ],
                 args:[
                   "--logstostderr",
-                  "--pipeline_config_path=" + pipelineConfigPath,
-                  "--train_dir=" + trainDir,
+                  "--pipeline_config_path=" + params.pipelineConfigPath,
+                  "--train_dir=" + params.trainDir,
                 ],
-                image: image,
+                image: params.image,
                 name: "tensorflow",
-                [if numGpu > 0 then "resources"] : {
+                [if params.numGpu > 0 then "resources"] : {
                   limits:{
-                    "nvidia.com/gpu": numGpu,
+                    "nvidia.com/gpu": params.numGpu,
                   },
                 },
                 volumeMounts: [{
-                  mountPath: mountPath,
+                  mountPath: params.mountPath,
                   name: "pets-data",
                 },],
               },
@@ -55,7 +44,7 @@ local tfjob_cpu = {
             volumes: [{
                 name: "pets-data",
                 persistentVolumeClaim: {
-                  claimName: pvc,
+                  claimName: params.pvc,
                 },
             },],
             restartPolicy: "OnFailure",
@@ -63,7 +52,7 @@ local tfjob_cpu = {
         },
       },
       Ps: {
-        replicas: numPs,
+        replicas: params.numPs,
         template: {
           spec: {
             containers: [
@@ -75,18 +64,18 @@ local tfjob_cpu = {
                 ],
                 args:[
                   "--logstostderr",
-                  "--pipeline_config_path=" + pipelineConfigPath,
-                  "--train_dir=" + trainDir,
+                  "--pipeline_config_path=" + params.pipelineConfigPath,
+                  "--train_dir=" + params.trainDir,
                 ],
-                image: image,
+                image: params.image,
                 name: "tensorflow",
-                [if numGpu > 0 then "resources"] : {
+                [if params.numGpu > 0 then "resources"] : {
                   limits:{
-                    "nvidia.com/gpu": numGpu,
+                    "nvidia.com/gpu": params.numGpu,
                   },
                 },
                 volumeMounts: [{
-                  mountPath: mountPath,
+                  mountPath: params.mountPath,
                   name: "pets-data",
                 },],
               },
@@ -94,7 +83,7 @@ local tfjob_cpu = {
             volumes: [{
                 name: "pets-data",
                 persistentVolumeClaim: {
-                  claimName: pvc,
+                  claimName: params.pvc,
                 },
             },],
             restartPolicy: "OnFailure",
@@ -107,5 +96,5 @@ local tfjob_cpu = {
 };
 
 k.core.v1.list.new([
-  tfjob_cpu,
+  tfJobCpu,
 ])

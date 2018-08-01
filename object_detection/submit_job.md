@@ -25,6 +25,18 @@ docker push <your_server:your_port>/pets_object_detection
 
 ```
 # from the ks-app directory
+
+PIPELINE_CONFIG_PATH="${MOUNT_PATH}/faster_rcnn_resnet101_pets.config"
+TRAINING_DIR="${MOUNT_PATH}/train"
+
+ks param set tf-training-job image ${OBJ_DETECTION_IMAGE}
+ks param set tf-training-job mountPath ${MOUNT_PATH}
+ks param set tf-training-job pvc ${PVC}
+ks param set tf-training-job numPs 1
+ks param set tf-training-job numWorkers 1
+ks param set tf-training-job pipelineConfigPath ${PIPELINE_CONFIG_PATH}
+ks param set tf-training-job trainDir ${TRAINING_DIR}
+
 ks apply ${ENV} -c tf-training-job
 ```
 
@@ -34,7 +46,7 @@ For GPU support set the `numGpu` param like:
 ks param set tf-training-job numGpu 1
 ```
 
-The overridable parameters for the `tf-training-job` component are:
+Here is a quick description for the `tf-training-job` component parameters:
 
 - `image` string, docker image to use
 - `mountPath` string, Volume mount path

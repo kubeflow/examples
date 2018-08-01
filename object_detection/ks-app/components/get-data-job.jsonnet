@@ -2,19 +2,42 @@ local env = std.extVar("__ksonnet/environments");
 local params = std.extVar("__ksonnet/params").components["get-data-job"];
 
 local k = import "k.libsonnet";
-local obj_detection = import "obj-detection.libsonnet";
 
-local namespace = env.namespace;
-local jobName = params.name;
-local pvc = params.pvc;
-local urlData = params.urlData;
-local urlAnnotations = params.urlAnnotations;
-local urlModel = params.urlModel;
-local urlPipelineConfig = params.urlPipelineConfig;
-local mountPath = params.mountPath;
+local getDataJob(namespace, name, pvc, url, mountPath) = {
+      apiVersion: "batch/v1",
+      kind: "Job",
+      metadata: {
+        name: name,
+        namespace: namespace,
+      },
+      spec: {
+        template: {
+          spec: {
+            containers: [{
+              name: "get-data",
+              image: "inutano/wget",
+              imagePullPolicy: "IfNotPresent",
+              command: ["wget",  url, "-P", mountPath],
+              volumeMounts: [{
+                  mountPath: mountPath,
+                  name: "pets-data",
+              },],
+              },],
+            volumes: [{
+                name: "pets-data",
+                persistentVolumeClaim: {
+                  claimName: pvc,
+                },
+            },],
+            restartPolicy: "Never",
+          },
+        },
+        backoffLimit: 4,
+      },
+    };
 
 std.prune(k.core.v1.list.new([
-  obj_detection.get_data_job(namespace, jobName + "-dataset", pvc, urlData, mountPath),
-  obj_detection.get_data_job(namespace, jobName + "-annotations", pvc, urlAnnotations, mountPath),
-  obj_detection.get_data_job(namespace, jobName + "-model", pvc, urlModel, mountPath),
-  obj_detection.get_data_job(namespace, jobName + "-config", pvc, urlPipelineConfig, mountPath)]))
+  getDataJob(env.namespace, params.name + "-dataset", params.pvc, params.urlData, params.mountPath),
+  getDataJob(env.namespace, params.name + "-annotations", params.pvc, params.urlAnnotations, params.mountPath),
+  getDataJob(env.namespace, params.name + "-model", params.pvc, params.urlModel, params.mountPath),
+  getDataJob(env.namespace, params.name + "-config", params.pvc, params.urlPipelineConfig, params.mountPath)]))

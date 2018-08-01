@@ -2,17 +2,41 @@ local env = std.extVar("__ksonnet/environments");
 local params = std.extVar("__ksonnet/params").components["decompress-data-job"];
 
 local k = import "k.libsonnet";
-local obj_detection = import "obj-detection.libsonnet";
 
-local namespace = env.namespace;
-local jobName = params.name;
-local pvc = params.pvc;
-local pathToDataset = params.pathToDataset;
-local pathToAnnotations = params.pathToAnnotations;
-local pathToModel = params.pathToModel;
-local mountPath = params.mountPath;
+local decompressDataJob(namespace, name, pvc, pathToFile, mountPath) = {
+      apiVersion: "batch/v1",
+      kind: "Job",
+      metadata: {
+        name: name,
+        namespace: namespace,
+      },
+      spec: {
+        template: {
+          spec: {
+            containers: [{
+              name: "decompress-data",
+              image: "ubuntu:16.04",
+              imagePullPolicy: "IfNotPresent",
+              command: ["tar", "--no-same-owner", "-xzvf",  pathToFile, "-C", mountPath],
+              volumeMounts: [{
+                  mountPath: mountPath,
+                  name: "pets-data",
+              },],
+              },],
+            volumes: [{
+                name: "pets-data",
+                persistentVolumeClaim: {
+                  claimName: pvc,
+                },
+            },],
+            restartPolicy: "Never",
+          },
+        },
+        backoffLimit: 4,
+      },
+    };
 
 std.prune(k.core.v1.list.new([
-obj_detection.decompress_job(namespace, jobName + "-dataset", pvc, pathToDataset, mountPath),
-obj_detection.decompress_job(namespace, jobName + "-annotations", pvc, pathToAnnotations, mountPath),
-obj_detection.decompress_job(namespace, jobName + "-model", pvc, pathToModel, mountPath)]))
+decompressDataJob(env.namespace, params.name + "-dataset", params.pvc, params.pathToDataset, params.mountPath),
+decompressDataJob(env.namespace, params.name + "-annotations", params.pvc, params.pathToAnnotations, params.mountPath),
+decompressDataJob(env.namespace, params.name + "-model", params.pvc, params.pathToModel, params.mountPath)]))

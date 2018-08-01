@@ -26,11 +26,11 @@
       pvc: 'pets-pvc',
     },
     "create-pet-record-job": {
-      args: ['--label_map_path=models/research/object_detection/data/pet_label_map.pbtxt', '--data_dir=/pets_data', '--output_dir=/pets_data'],
-      command: ['python', '/models/research/object_detection/dataset_tools/create_pet_tf_record.py'],
+      dataDirPath: '/pets_data/images',
       image: 'lcastell/pets_object_detection',
       mountPath: '/pets_data',
       name: 'create-pet-record-job',
+      outputDirPath: '/pets_data',
       pvc: 'pets-pvc',
     },
     "tf-training-job": {
@@ -45,8 +45,10 @@
       trainDir: '/pets_data/train',
     },
     "export-tf-graph-job": {
-      args: ['--input_type=image_tensor','--pipeline_config_path=/pets_data/faster_rcnn_resnet101_pets.config','--trained_checkpoint_prefix=/pets_data/train/model.ckpt-<number>','--output_directory=/pets_data/exported_graphs'],
-      command: ['python', 'models/research/object_detection/export_inference_graph.py'],
+      inputType: 'image_tensor',
+      pipelineConfigPath: '/pets_data/faster_rcnn_resnet101_pets.config',
+      trainedCheckpoint: '/pets_data/train/model.ckpt-<number>',
+      outputDir: '/pets_data/exported_graphs',
       image: 'lcastell/pets_object_detection',
       mountPath: '/pets_data',
       name: 'export-tf-graph-job',
@@ -60,6 +62,13 @@
       modelServerImage: 'gcr.io/kubeflow-images-public/tensorflow-serving-1.8gpu:latest',
       name: 'coco',
       numGpus: 1,
+    },
+    "pets-model": {
+      deployHttpProxy: true,
+      modelPath: '/mnt/exported_graphs/saved_model',
+      modelStorageType: 'nfs',
+      nfsPVC: 'pets-pvc',
+      name: 'pets-model',
     },
   },
 }
