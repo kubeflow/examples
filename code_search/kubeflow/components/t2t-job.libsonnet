@@ -81,20 +81,17 @@ local baseParams = std.extVar("__ksonnet/params").components["t2t-job"];
     local params = baseParams + newParams,
 
     local workerImage = if params.numWorkerGpu > 0 then params.imageGpu else params.image,
-    local workerImagePullSecrets = [
-      { name: "gcp-registry-credentials" },
-    ],
     local workerEnv = [
       {
         name: "GOOGLE_APPLICATION_CREDENTIALS",
-        value: "/secret/gcp-credentials/key.json"
+        value: "/secret/gcp-credentials/user-gcp-sa.json"
       },
     ],
     local workerVolumes = [
       {
         name: "gcp-credentials",
         secret: {
-          secretName: "gcp-credentials",
+          secretName: "user-gcp-sa",
         },
       },
     ],
@@ -120,13 +117,16 @@ local baseParams = std.extVar("__ksonnet/params").components["t2t-job"];
       spec: {
         tfReplicaSpecs: {
           [if params.numPs > 0 then "PS"]: $.tfJobReplica("PS", params.numPs, cmd.ps, workerImage,
-                                                          params.numPsGpu, workerImagePullSecrets,
-                                                          workerEnv, workerVolumes,
-                                                          workerVolumeMounts),
-          [if params.numWorker > 0 then "Worker"]: $.tfJobReplica("WORKER", params.numWorker, workerCmd,
-                                                              workerImage, params.numWorkerGpu,
-                                                              workerImagePullSecrets, workerEnv,
-                                                              workerVolumes, workerVolumeMounts),
+                                                          numGpus=params.numPsGpu,
+                                                          env=workerEnv,
+                                                          volumes=workerVolumes,
+                                                          volumeMounts=workerVolumeMounts),
+          [if params.numWorker > 0 then "Worker"]: $.tfJobReplica("WORKER", params.numWorker,
+                                                                  workerCmd, workerImage,
+                                                                  numGpus=params.numPsGpu,
+                                                                  env=workerEnv,
+                                                                  volumes=workerVolumes,
+                                                                  volumeMounts=workerVolumeMounts),
         },
       },
     },
