@@ -20,7 +20,6 @@ if [[ ! -z "${TF_CONFIG}" ]]; then
 
     if [[ "${TARGET_BIN}" = "t2t-trainer" ]]; then
         TARGET_BIN_OPTS="${TARGET_BIN_OPTS} --master=grpc://${MASTER_INSTANCE} --worker_id=${WORKER_ID}"
-        echo "${TF_CONFIG}"
     fi
 fi
 

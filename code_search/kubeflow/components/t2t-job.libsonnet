@@ -51,7 +51,7 @@ local baseParams = std.extVar("__ksonnet/params").components["t2t-job"];
   tfJobReplica(replicaType, number, args, image, numGpus=0, imagePullSecrets=[], env=[], volumes=[], volumeMounts=[])::
     local containerSpec = {
       image: image,
-      name: replicaType,
+      name: "tensorflow",
       [if std.length(args) > 0 then "args"]: args,
       [if numGpus > 0 then "resources"]: {
         limits: {
