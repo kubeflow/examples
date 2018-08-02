@@ -18,7 +18,7 @@ if [[ ! -z "${TF_CONFIG}" ]]; then
     WORKER_TYPE=$(echo "${TF_CONFIG}" | jq -r ".task.type")
     MASTER_INSTANCE=$(echo "${TF_CONFIG}" | jq -r ".cluster.${WORKER_TYPE}[${WORKER_ID}]")
 
-    # FIXME(sanyamkapoor): Distributed training hangs, removing any TF_CONFIG
+    # FIXME(sanyamkapoor): Distributed training hangs. See kubeflow/examples#208.
 #    if [[ "${TARGET_BIN}" = "t2t-trainer" ]]; then
 #        TARGET_BIN_OPTS="${TARGET_BIN_OPTS} --master=grpc://${MASTER_INSTANCE} --worker_id=${WORKER_ID}"
 #    fi
