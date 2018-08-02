@@ -3,6 +3,7 @@ local baseParams = std.extVar("__ksonnet/params").components["t2t-job"];
 {
   getDatagenCmd(params)::
     [
+      "/usr/local/sbin/t2t-entrypoint",
       "t2t-datagen",
       "--problem=" + params.problem,
       "--data_dir=" + params.dataDir,
@@ -23,16 +24,19 @@ local baseParams = std.extVar("__ksonnet/params").components["t2t-job"];
       local trainer = [
         "/usr/local/sbin/t2t-entrypoint",
         "t2t-trainer",
-        "--generate_data",
         "--problem=" + params.problem,
         "--model=" + params.model,
         "--hparams_set=" + params.hparams_set,
         "--data_dir=" + params.dataDir,
         "--output_dir=" + params.outputDir,
         "--train_steps=" + std.toString(params.train_steps),
+        "--eval_steps=" + std.toString(params.eval_steps),
+        "--t2t_usr_dir=/app/code_search/t2t",
       ],
 
-      worker: trainer + [
+      worker: trainer,
+
+      worker_dist: trainer + [
         "--schedule=train",
         "--ps_gpu=" + std.toString(params.numPsGpu),
         "--worker_gpu=" + std.toString(params.numWorkerGpu),
@@ -53,9 +57,9 @@ local baseParams = std.extVar("__ksonnet/params").components["t2t-job"];
       image: image,
       name: "tensorflow",
       [if std.length(args) > 0 then "args"]: args,
-      [if numGpus > 0 then "resources"]: {
+      resources: {
         limits: {
-          "nvidia.com/gpu": numGpus,
+          [if numGpus > 0 then "nvidia.com/gpu"]: numGpus,
         },
       },
       [if std.length(env) > 0 then "env"]: env,
@@ -102,7 +106,9 @@ local baseParams = std.extVar("__ksonnet/params").components["t2t-job"];
     ],
 
     local cmd = $.getTrainerCmd(params),
-    local workerCmd = if params.jobType == "exporter" then $.getExporterCmd(params) else cmd.worker,
+    local workerCmd = if params.jobType == "exporter" then $.getExporterCmd(params)
+                      else if params.jobType == "datagen" then $.getDatagenCmd(params)
+                      else cmd.worker,
 
     job:: {
       apiVersion: "kubeflow.org/v1alpha2",
@@ -117,7 +123,7 @@ local baseParams = std.extVar("__ksonnet/params").components["t2t-job"];
                                                           params.numPsGpu, workerImagePullSecrets,
                                                           workerEnv, workerVolumes,
                                                           workerVolumeMounts),
-          [if params.numPs > 0 then "Worker"]: $.tfJobReplica("WORKER", params.numWorker, workerCmd,
+          [if params.numWorker > 0 then "Worker"]: $.tfJobReplica("WORKER", params.numWorker, workerCmd,
                                                               workerImage, params.numWorkerGpu,
                                                               workerImagePullSecrets, workerEnv,
                                                               workerVolumes, workerVolumeMounts),

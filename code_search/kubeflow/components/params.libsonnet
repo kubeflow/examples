@@ -2,7 +2,7 @@
   global: {
     // User-defined global parameters; accessible to all component and environments, Ex:
     // replicas: 4,
-    t2tWorkingDir: "gs://kubeflow-examples/t2t-code-search/20180801",
+    t2tWorkingDir: "gs://kubeflow-examples/t2t-code-search/20180802",
   },
   components: {
     // Component-level parameters, defined initially from 'ks prototype use ...'
@@ -18,8 +18,8 @@
       train_steps: 100,
       eval_steps: 10,
 
-      image: "gcr.io/kubeflow-dev/code-search:v20180801-784b560",
-      imageGpu: "gcr.io/kubeflow-dev/code-search:v20180801-784b560-gpu",
+      image: "gcr.io/kubeflow-dev/code-search:v20180802-cbc301b",
+      imageGpu: "gcr.io/kubeflow-dev/code-search:v20180802-cbc301b-gpu",
       imagePullSecrets: [],
 
       dataDir: "null",
@@ -28,12 +28,17 @@
       hparams_set: "null",
     },
 
+    "t2t-code-search-datagen": {
+      jobType: "datagen",
+
+      name: "t2t-code-search-datagen",
+
+      problem: "github_function_docstring",
+      dataDir: $.global.t2tWorkingDir + "/data",
+    },
+
     "t2t-code-search-trainer": {
       jobType: "trainer",
-      numWorker: 2,
-      numPs: 1,
-      numWorkerGpu: 1,
-      numPsGpu: 0,
 
       name: "t2t-code-search-trainer",
 
@@ -59,7 +64,7 @@
     "t2t-code-search-serving": {
       name: "t2t-code-search",
 
-      modelName: "t2t_code_search",
+      modelName: "t2t-code-search",
       modelPath: $.global.t2tWorkingDir + "/output/export/Servo",
       modelServerImage: "gcr.io/kubeflow-images-public/tensorflow-serving-1.8:latest",
       cloud: "gcp",
