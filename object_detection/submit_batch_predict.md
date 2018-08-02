@@ -16,7 +16,7 @@ are using local runner to run the job in the K8s cluser in this example. One can
 choose different [runners](https://beam.apache.org/documentation/runners/capability-matrix/) to run the job remotely, such as on [Google Dataflow](https://cloud.google.com/dataflow/) service. As of July 2018, Google Dataflow does NOT support GPUs.
 
 ### Build and push the image
-Use the pre-built image: [gcr.io/kubeflow-examples/batch-predict] (https://gcr.io/kubeflow-examples/batch-predict) at Google Container Registry (GCR) or build a kubeflow batch predict image. Following is an example to build and host the image in GCR.
+Use the pre-built image: [gcr.io/kubeflow-examples/batch-predict](https://gcr.io/kubeflow-examples/batch-predict) at Google Container Registry (GCR) or build a kubeflow batch predict image. Following is an example to build and host the image in GCR.
 
 ```
 IMAGE="gcr.io/${YOUR_GCP_PROJECT}/batch-predict"
@@ -51,13 +51,11 @@ locations. Simply run:
 kubectl -n <your_name_space> apply -f ./batch-predict/batch-predict.yaml
 ```
 
-## Arguments
+**Arguments**
 
   * **input_file_patterns** The list of input files or file patterns, separated by commas.
 
-  * **input_file_format** One of the following formats: json, tfrecord, and tfrecord_gzip. For the model in this example, the input is a JPEG-encoded image string tensor. The input file contains TF records of JPEG bytes.
-
-  If you use a model from the [model zoo](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md) directly, the input is a numpy array instead. Then, your input file should contain multiple numeric arrays. Then the input format should be json. [Here](gs://kubeflow-examples-data/object-detection-coco/data/object-detection-images.json) is such a sample input, which contains two images.
+  * **input_file_format** One of the following formats: json, tfrecord, and tfrecord_gzip. For the model in this example, the input is a JPEG-encoded image string tensor. The input file contains TF records of JPEG bytes. If you use a model from the [model zoo](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md) directly, the input is a numpy array instead. Then, your input file should contain multiple numeric arrays. Then the input format should be json. [Here](gs://kubeflow-examples-data/object-detection-coco/data/object-detection-images.json) is such a sample input, which contains two images.
 
   * **model_dir** The directory contains the model files in SavedModel format.
 
