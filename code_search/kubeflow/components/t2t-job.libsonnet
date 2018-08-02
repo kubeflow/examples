@@ -1,4 +1,3 @@
-local tfJob = import "kubeflow/tf-job/tf-job.libsonnet";
 local baseParams = std.extVar("__ksonnet/params").components["t2t-job"];
 
 {
@@ -33,33 +32,26 @@ local baseParams = std.extVar("__ksonnet/params").components["t2t-job"];
         "--train_steps=" + std.toString(params.train_steps),
       ],
 
-      local workerBase = trainer + [
+      worker: trainer + [
         "--schedule=train",
         "--ps_gpu=" + std.toString(params.numPsGpu),
         "--worker_gpu=" + std.toString(params.numWorkerGpu),
-        "--worker_replicas=" + std.toString(params.numWorker + params.numMaster),
+        "--worker_replicas=" + std.toString(params.numWorker),
         "--ps_replicas=" + std.toString(params.numPs),
         "--eval_steps=" + std.toString(params.eval_steps),
+        "--worker_job=/job:worker",
       ],
 
       ps: trainer + [
         "--schedule=run_std_server",
         "--ps_job=/job:ps",
       ],
-
-      worker: workerBase + [
-        "--worker_job=/job:worker",
-      ],
-
-      master: workerBase + [
-        "--worker_job=/job:master",
-      ],
   },
 
   tfJobReplica(replicaType, number, args, image, numGpus=0, imagePullSecrets=[], env=[], volumes=[], volumeMounts=[])::
     local containerSpec = {
       image: image,
-      name: "tensorflow",
+      name: replicaType,
       [if std.length(args) > 0 then "args"]: args,
       [if numGpus > 0 then "resources"]: {
         limits: {
@@ -76,18 +68,13 @@ local baseParams = std.extVar("__ksonnet/params").components["t2t-job"];
           containers: [ containerSpec ],
           [if std.length(imagePullSecrets) > 0 then "imagePullSecrets"]: imagePullSecrets,
           [if std.length(volumes) > 0 then "volumes"]: volumes,
-          restartPolicy: "OnFailure",
+          // restartPolicy: "OnFailure",
         },
       },
-      tfReplicaType: replicaType,
     },
 
   parts(newParams, env):: {
     local params = baseParams + newParams,
-
-    local terminationPolicy = if params.numMaster == 1
-                              then tfJob.parts.tfJobTerminationPolicy("MASTER", 0)
-                              else tfJob.parts.tfJobTerminationPolicy("WORKER", 0),
 
     local workerImage = if params.numWorkerGpu > 0 then params.imageGpu else params.image,
     local workerImagePullSecrets = [
@@ -115,26 +102,27 @@ local baseParams = std.extVar("__ksonnet/params").components["t2t-job"];
     ],
 
     local cmd = $.getTrainerCmd(params),
+    local workerCmd = if params.jobType == "exporter" then $.getExporterCmd(params) else cmd.worker,
 
-    job::
-      tfJob.parts.tfJob(
-        params.name,
-        env.namespace,
-        if params.jobType == "exporter" then
-          [
-            $.tfJobReplica("MASTER", params.numMaster, $.getExporterCmd(params), workerImage, params.numWorkerGpu,
-                            workerImagePullSecrets, workerEnv, workerVolumes, workerVolumeMounts),
-          ]
-        else
-          [
-            $.tfJobReplica("MASTER", params.numMaster, cmd.master, workerImage, params.numWorkerGpu,
-                            workerImagePullSecrets, workerEnv, workerVolumes, workerVolumeMounts),
-            $.tfJobReplica("WORKER", params.numWorker, cmd.worker, workerImage, params.numWorkerGpu,
-                            workerImagePullSecrets, workerEnv, workerVolumes, workerVolumeMounts),
-            $.tfJobReplica("PS", params.numPs, cmd.ps, workerImage, params.numPsGpu,
-                            workerImagePullSecrets, workerEnv, workerVolumes, workerVolumeMounts),
-          ],
-        terminationPolicy
-      ),
+    job:: {
+      apiVersion: "kubeflow.org/v1alpha2",
+      kind: "TFJob",
+      metadata: {
+        name: params.name,
+        namespace: env.namespace,
+      },
+      spec: {
+        tfReplicaSpecs: {
+          [if params.numPs > 0 then "PS"]: $.tfJobReplica("PS", params.numPs, cmd.ps, workerImage,
+                                                          params.numPsGpu, workerImagePullSecrets,
+                                                          workerEnv, workerVolumes,
+                                                          workerVolumeMounts),
+          [if params.numPs > 0 then "Worker"]: $.tfJobReplica("WORKER", params.numWorker, workerCmd,
+                                                              workerImage, params.numWorkerGpu,
+                                                              workerImagePullSecrets, workerEnv,
+                                                              workerVolumes, workerVolumeMounts),
+        },
+      },
+    },
   },
 }
