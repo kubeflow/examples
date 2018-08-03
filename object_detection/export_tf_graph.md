@@ -34,4 +34,4 @@ Once the job is completed a new directory called `exported_graphs` under `/pets_
 will be created containing the model and the frozen graph.  
 
 ## Next
-- Serve the model with  [CPU](./tf_serving_cpu) or [GPU](./tf_serving_gpu)
+- Serve the model with  [CPU](./tf_serving_cpu.md) or [GPU](./tf_serving_gpu.md)
