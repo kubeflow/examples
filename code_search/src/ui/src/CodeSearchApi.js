@@ -1,6 +1,6 @@
 import request from 'superagent';
 
-const SEARCH_URL='//localhost:8008/query'
+const SEARCH_URL='/query';
 
 function code_search_api(str) {
   return request.get(SEARCH_URL).query({'q': str});
