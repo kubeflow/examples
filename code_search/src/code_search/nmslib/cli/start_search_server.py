@@ -1,60 +1,66 @@
-"""
-This module serves as the entrypoint to either create an nmslib index or
-start a Flask server to serve the index via a simple REST interface. It
-internally talks to TF Serving for inference related tasks. The
-two entrypoints `server` and `creator` are exposed as `nmslib-create`
-and `nmslib-serve` binaries (see `setup.py`). Use `-h` to get a list
-of input CLI arguments to both.
-"""
-
+import csv
+import json
 import os
-import argparse
+import requests
+import tensorflow as tf
+import functools
 
-from code_search.nmslib.gcs import maybe_download_gcs_file, maybe_upload_gcs_file
+import code_search.nmslib.cli.arguments as arguments
+import code_search.t2t.query as query
 from code_search.nmslib.search_engine import CodeSearchEngine
 from code_search.nmslib.search_server import CodeSearchServer
 
-def parse_server_args(args):
-  parser = argparse.ArgumentParser(prog='nmslib Flask Server')
 
-  parser.add_argument('--tmp-dir', type=str, metavar='', default='/tmp/nmslib',
-                     help='Path to temporary data directory')
-  parser.add_argument('--data-file', type=str, required=True,
-                     help='Path to CSV file containing human-readable data')
-  parser.add_argument('--index-file', type=str, required=True,
-                     help='Path to index file created by nmslib')
-  parser.add_argument('--problem', type=str, required=True,
-                      help='Name of the T2T problem')
-  parser.add_argument('--data-dir', type=str, required=True,
-                     help='Path to working data directory')
-  parser.add_argument('--serving-url', type=str, required=True,
-                      help='Complete URL to TF Serving Inference server')
-  parser.add_argument('--host', type=str, metavar='', default='0.0.0.0',
-                     help='Host to start server on')
-  parser.add_argument('--port', type=int, metavar='', default=8008,
-                     help='Port to bind server to')
+def embed_query(encoder, serving_url, query_str):
+  data = {"instances": [{"input": {"b64": encoder(query_str)}}]}
 
-  args = parser.parse_args(args)
-  args.tmp_dir = os.path.expanduser(args.tmp_dir)
-  args.data_file = os.path.expanduser(args.data_file)
-  args.index_file = os.path.expanduser(args.index_file)
-  args.data_dir = os.path.expanduser(args.data_dir)
+  response = requests.post(url=serving_url,
+                           headers={'content-type': 'application/json'},
+                           data=json.dumps(data))
 
-  return args
+  result = response.json()
+  return result['predictions'][0]['outputs']
 
-def server(argv=None):
-  args = parse_server_args(argv)
+
+def start_search_server(argv=None):
+  """Start a Flask REST server.
+
+  This routine starts a Flask server which maintains
+  an in memory index and a reverse-lookup database of
+  Python files which can be queried via a simple REST
+  API. It also serves the UI for a friendlier interface.
+
+  Args:
+    argv: A list of strings representing command line arguments.
+  """
+  tf.logging.set_verbosity(tf.logging.INFO)
+
+  args = arguments.parse_arguments(argv)
 
   if not os.path.isdir(args.tmp_dir):
-    os.makedirs(args.tmp_dir, exist_ok=True)
+    os.makedirs(args.tmp_dir)
 
-  # Download relevant files if needed
-  index_file = maybe_download_gcs_file(args.index_file, args.tmp_dir)
-  data_file = maybe_download_gcs_file(args.data_file, args.tmp_dir)
+  tf.logging.debug('Reading {}'.format(args.lookup_file))
+  lookup_data = []
+  with tf.gfile.Open(args.lookup_file) as lookup_file:
+    reader = csv.reader(lookup_file)
+    for row in reader:
+      lookup_data.append(row)
 
-  search_engine = CodeSearchEngine(args.problem, args.data_dir, args.serving_url,
-                                   index_file, data_file)
+  tmp_index_file = os.path.join(args.tmp_dir, os.path.basename(args.index_file))
 
-  search_server = CodeSearchServer(engine=search_engine,
-                                   host=args.host, port=args.port)
+  tf.logging.debug('Reading {}'.format(args.index_file))
+  if not os.path.isfile(tmp_index_file):
+    tf.gfile.Copy(args.index_file, tmp_index_file)
+
+  encoder = query.get_encoder(args.problem, args.data_dir)
+  query_encoder = functools.partial(query.encode_query, encoder)
+  embedding_fn = functools.partial(embed_query, query_encoder, args.serving_url)
+
+  search_engine = CodeSearchEngine(tmp_index_file, lookup_data, embedding_fn)
+  search_server = CodeSearchServer(search_engine, host=args.host, port=args.port)
   search_server.run()
+
+
+if __name__ == '__main__':
+  start_search_server()

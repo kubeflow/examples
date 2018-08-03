@@ -2,10 +2,17 @@ import os
 from flask import Flask, request, abort, jsonify, make_response
 
 
-
 class CodeSearchServer:
-  """This utility class wraps the search engine into
-  an HTTP server based on Flask"""
+  """Flask server wrapping the Search Engine.
+
+  This utility class simply wraps the search engine
+  into an HTTP server based on Flask.
+
+  Args:
+    engine: An instance of CodeSearchEngine.
+    host: A string host in IPv4 format.
+    port: An integer for port binding.
+  """
   def __init__(self, engine, host='0.0.0.0', port=8008):
     self.app = Flask(__name__,
                      static_folder=os.path.abspath(os.path.join(__file__,
