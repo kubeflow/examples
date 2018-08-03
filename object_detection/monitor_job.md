@@ -2,7 +2,7 @@
 
 ### View status
 ```
-kubectl -n kubeflow describe tfjobs pets-training
+kubectl -n kubeflow describe tfjobs tf-training-job
 ```
 
 ### View logs of individual pods
@@ -40,11 +40,11 @@ INFO:tensorflow:Stopping Training.
 INFO:tensorflow:Finished training! Saving model to disk.
 ```
 
-Now you have a trained model!! find it at `/pets_data/train` inside pvc `pets-data-claim``.
+Now you have a trained model!! find it at `/pets_data/train` inside pvc `pets-pvc``.
 
 ### Delete job
 ```
-kubectl -n kubeflow delete -f training/pets-tf-jobs.yaml
+ks delete ${ENV} -c tf-training-job
 ```
 
 ## Next
