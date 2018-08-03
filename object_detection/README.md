@@ -1,5 +1,4 @@
 # Distributed TensorFlow Object Detection Training and Serving on K8s with [Kubeflow](https://github.com/kubeflow/kubeflow)
-
 This example demonstrates how to use `kubeflow` to train/serve an object detection model on an existing K8s cluster using
 the [TensorFlow object detection API](https://github.com/tensorflow/models/tree/master/research/object_detection)
 
