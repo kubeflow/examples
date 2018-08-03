@@ -57,7 +57,7 @@ Here is a quick description for the `tf-training-job` component parameters:
 - `pvc` string, Persistent Volume Claim name to use
 - `trainDir` string, Directory where the training outputs will be saved
 
-To see the default values for the `tf-training-job` component params, please take a look at the [params.libsonnet](./ks-app/params.libsonnet) file.
+To see the default values for the `tf-training-job` component params, please take a look at the [params.libsonnet](./ks-app/components/params.libsonnet) file.
 
 ## Next
 [Monitor your job](monitor_job.md)
