@@ -1,7 +1,7 @@
 # Launch a distributed object detection training job
 ## Requirements
 
- - Docker 
+ - Docker
  - Docker Registry
  - Object Detection Training Docker Image
 
@@ -11,7 +11,7 @@ Build the TensorFlow object detection training image, or use the pre-built image
 First copy the Dockerfile file from `./docker` directory into your $HOME path
 ```
 # from your $HOME directory
-docker build --pull -t $USER/pets_object_detection -f ./Dockerfile .
+docker build --pull -t $USER/pets_object_detection -f ./Dockerfile.training .
 ```
 
 ### Push the image to your docker registry
