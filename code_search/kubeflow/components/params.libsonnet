@@ -2,6 +2,7 @@
   global: {
     // User-defined global parameters; accessible to all component and environments, Ex:
     // replicas: 4,
+    t2tWorkingDir: "gs://kubeflow-examples/t2t-code-search/20180802",
   },
   components: {
     // Component-level parameters, defined initially from 'ks prototype use ...'
@@ -9,8 +10,7 @@
     "t2t-job": {
       jobType: "trainer",
 
-      numMaster: 1,
-      numWorker: 0,
+      numWorker: 1,
       numPs: 0,
       numWorkerGpu: 0,
       numPsGpu: 0,
@@ -18,8 +18,8 @@
       train_steps: 100,
       eval_steps: 10,
 
-      image: "gcr.io/kubeflow-dev/code-search:v20180719-f04a4b7",
-      imageGpu: "gcr.io/kubeflow-dev/code-search:v20180719-gpu-9b8b4a8",
+      image: "gcr.io/kubeflow-dev/code-search:v20180802-c622aac",
+      imageGpu: "gcr.io/kubeflow-dev/code-search:v20180802-c622aac-gpu",
       imagePullSecrets: [],
 
       dataDir: "null",
@@ -28,18 +28,23 @@
       hparams_set: "null",
     },
 
+    "t2t-code-search-datagen": {
+      jobType: "datagen",
+
+      name: "t2t-code-search-datagen",
+
+      problem: "github_function_docstring",
+      dataDir: $.global.t2tWorkingDir + "/data",
+    },
+
     "t2t-code-search-trainer": {
       jobType: "trainer",
-      numWorker: 2,
-      numPs: 1,
-      // numWorkerGpu: 1,
-      // numPsGpu: 1,
 
       name: "t2t-code-search-trainer",
 
       problem: "github_function_docstring",
-      dataDir: "gs://kubeflow-examples/t2t-code-search/data",
-      outputDir: "gs://kubeflow-examples/t2t-code-search/output",
+      dataDir: $.global.t2tWorkingDir + "/data",
+      outputDir: $.global.t2tWorkingDir + "/output",
       model: "similarity_transformer",
       hparams_set: "transformer_tiny",
     },
@@ -50,8 +55,8 @@
       name: "t2t-code-search-exporter",
 
       problem: "github_function_docstring",
-      dataDir: "gs://kubeflow-examples/t2t-code-search/data",
-      outputDir: "gs://kubeflow-examples/t2t-code-search/output",
+      dataDir: $.global.t2tWorkingDir + "/data",
+      outputDir: $.global.t2tWorkingDir + "/output",
       model: "similarity_transformer",
       hparams_set: "transformer_tiny",
     },
@@ -59,8 +64,8 @@
     "t2t-code-search-serving": {
       name: "t2t-code-search",
 
-      modelName: "t2t_code_search",
-      modelPath: "gs://kubeflow-examples/t2t-code-search/output/export/Servo",
+      modelName: "t2t-code-search",
+      modelPath: $.global.t2tWorkingDir + "/output/export/Servo",
       modelServerImage: "gcr.io/kubeflow-images-public/tensorflow-serving-1.8:latest",
       cloud: "gcp",
       gcpCredentialSecretName: "gcp-credentials",

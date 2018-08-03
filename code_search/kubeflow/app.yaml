@@ -1,37 +1,23 @@
-apiVersion: 0.1.0
+apiVersion: 0.2.0
 environments:
-  code-search:
+  kf-cs:
     destination:
       namespace: kubeflow
-      server: https://35.193.190.6
+      server: https://35.232.164.190
     k8sVersion: v1.9.6
-    path: code-search
+    path: kf-cs
 kind: ksonnet.io/app
 libraries:
-  tf-job:
-    gitVersion:
-      commitSha: d8e19a4762406bb454453331f52ed5a4433c0df9
-      refSpec: master
-    name: tf-job
-    registry: kubeflow
   tf-serving:
-    gitVersion:
-      commitSha: e1b2aee865866b2e7e4f8c41b34ae03b4c4bb0db
-      refSpec: master
     name: tf-serving
     registry: kubeflow
+    version: e95f94a1a97a0974ada734895d590b5ba565fa77
 name: kubeflow
 registries:
   incubator:
-    gitVersion:
-      commitSha: 40285d8a14f1ac5787e405e1023cf0c07f6aa28c
-      refSpec: master
     protocol: github
     uri: github.com/ksonnet/parts/tree/master/incubator
   kubeflow:
-    gitVersion:
-      commitSha: d8e19a4762406bb454453331f52ed5a4433c0df9
-      refSpec: master
     protocol: github
-    uri: github.com/kubeflow/kubeflow/tree/master/kubeflow
+    uri: https://github.com/kubeflow/kubeflow/tree/v0.2.2/kubeflow
 version: 0.0.1

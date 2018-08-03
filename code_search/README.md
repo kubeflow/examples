@@ -38,16 +38,6 @@ $ gcloud auth configure-docker
 
 See [Google Cloud Docs](https://cloud.google.com/docs/) for more.
 
-### Create Kubernetes Secrets 
-
-This is needed for deployed pods in the Kubernetes cluster to access Google Cloud resources.
-
-```
-$ PROJECT=my-project ./create_secrets.sh
-```
-
-**NOTE**: Use `create_secrets.sh -d` to remove any side-effects of the above step.
-
 ### Python Environment Setup
 
 This demo needs multiple Python versions and `virtualenv` is an easy way to
@@ -74,7 +64,7 @@ See [Virtualenv Docs](https://virtualenv.pypa.io/en/stable/) for more.
 To install dependencies, run the following commands
 
 ```
-(env2.7) $ pip install https://github.com/kubeflow/batch-predict/tarball/master
+(env2.7) $ pip install https://github.com/activatedgeek/batch-predict/tarball/fix-value-provider
 (env2.7) $ pip install src/
 ```
 
