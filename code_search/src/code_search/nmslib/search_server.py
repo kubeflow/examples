@@ -1,12 +1,16 @@
+import os
 from flask import Flask, request, abort, jsonify, make_response
-from flask_cors import CORS
+
 
 
 class CodeSearchServer:
   """This utility class wraps the search engine into
   an HTTP server based on Flask"""
   def __init__(self, engine, host='0.0.0.0', port=8008):
-    self.app = Flask(__name__)
+    self.app = Flask(__name__,
+                     static_folder=os.path.abspath(os.path.join(__file__,
+                                                                '../../ui/build')),
+                     static_url_path='')
     self.host = host
     self.port = port
     self.engine = engine
@@ -41,5 +45,4 @@ class CodeSearchServer:
       return make_response(jsonify(result=result))
 
   def run(self):
-    CORS(self.app)
     self.app.run(host=self.host, port=self.port)

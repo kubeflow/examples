@@ -9,8 +9,6 @@ of input CLI arguments to both.
 
 import os
 import argparse
-import csv
-import numpy as np
 
 from code_search.nmslib.gcs import maybe_download_gcs_file, maybe_upload_gcs_file
 from code_search.nmslib.search_engine import CodeSearchEngine
@@ -44,24 +42,6 @@ def parse_server_args(args):
 
   return args
 
-
-def parse_creator_args(args):
-  parser = argparse.ArgumentParser(prog='nmslib Index Creator')
-
-  parser.add_argument('--data-file', type=str, required=True,
-                     help='Path to csv data file for human-readable data')
-  parser.add_argument('--index-file', type=str, metavar='', default='/tmp/index.nmslib',
-                     help='Path to output index file')
-  parser.add_argument('--tmp-dir', type=str, metavar='', default='/tmp/nmslib',
-                     help='Path to temporary data directory')
-
-  args = parser.parse_args(args)
-  args.data_file = os.path.expanduser(args.data_file)
-  args.index_file = os.path.expanduser(args.index_file)
-  args.tmp_dir = os.path.expanduser(args.tmp_dir)
-
-  return args
-
 def server(argv=None):
   args = parse_server_args(argv)
 
@@ -78,28 +58,3 @@ def server(argv=None):
   search_server = CodeSearchServer(engine=search_engine,
                                    host=args.host, port=args.port)
   search_server.run()
-
-
-def creator(argv=None):
-  args = parse_creator_args(argv)
-
-  if not os.path.isdir(args.tmp_dir):
-    os.makedirs(args.tmp_dir)
-
-  data_file = maybe_download_gcs_file(args.data_file, args.tmp_dir)
-
-  data = np.empty((0, 128), dtype=np.float32)
-  with open(data_file, 'r') as csv_file:
-    data_reader = csv.reader(csv_file)
-    next(data_reader, None) # Skip the header
-    for row in data_reader:
-      vector_string = row[-1]
-      embedding_vector = [float(value) for value in vector_string.split(',')]
-      np_row = np.expand_dims(embedding_vector, axis=0)
-      data = np.append(data, np_row, axis=0)
-
-  tmp_index_file = os.path.join(args.tmp_dir, os.path.basename(args.index_file))
-
-  CodeSearchEngine.create_index(data, tmp_index_file)
-
-  maybe_upload_gcs_file(tmp_index_file, args.index_file)
