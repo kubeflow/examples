@@ -28,7 +28,7 @@ gcloud docker -- push ${IMAGE}
 
 ### Prepare models
 The model used in this example can be downloaded from
-[here](gs://kubeflow-examples-data/object-detection-coco/image_string_model). It is a slightly
+[gs://kubeflow-examples-data/object-detection-coco/image_string_model/saved_model](https://storage.googleapis.com/kubeflow-examples-data/object-detection-coco/image_string_model/saved_model/saved_model.pb). It is a slightly
 modified version from the [faster RCNN object detection model](http://download.tensorflow.org/models/object_detection/faster_rcnn_nas_coco_2018_01_28.tar.gz) from [TensorFlow model zoo](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md). The model in this example accepts JPEG bytes as its input data.
 
 Alternatively, you can follow the [steps](./export_tf_graph.md) to export your
