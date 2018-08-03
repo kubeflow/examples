@@ -38,17 +38,8 @@ class CodeSearchServer:
         abort(make_response(
           jsonify(status=400, error="empty query"), 400))
 
-      result = self.engine.query(query_str)
-      return make_response(jsonify(result=result))
-
-    @self.app.route('/embed')
-    def embed():
-      query_str = request.args.get('q')
-      if not query_str:
-        abort(make_response(
-          jsonify(status=400, error="empty query"), 400))
-
-      result = self.engine.embed(query_str)
+      num_results = int(request.args.get('n', 2))
+      result = self.engine.query(query_str, k=num_results)
       return make_response(jsonify(result=result))
 
   def run(self):

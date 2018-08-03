@@ -1,9 +1,9 @@
 import csv
 import json
 import os
+import functools
 import requests
 import tensorflow as tf
-import functools
 
 import code_search.nmslib.cli.arguments as arguments
 import code_search.t2t.query as query

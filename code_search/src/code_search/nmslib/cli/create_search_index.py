@@ -1,6 +1,6 @@
 import csv
-import numpy as np
 import os
+import numpy as np
 import tensorflow as tf
 
 import code_search.nmslib.cli.arguments as arguments
