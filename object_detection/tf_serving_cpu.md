@@ -45,5 +45,5 @@ E0621 19:20:34.134165172       7 ev_epoll1_linux.c:1051]     grpc epoll fd: 3
 ```
 Now you can use a gRPC client to run inference using your trained model!
 
-##Next
-[Serving the model with GPU](./tf_serving_gpu)
+## Next
+[Serving the model with GPU](./tf_serving_gpu.md)
