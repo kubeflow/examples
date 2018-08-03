@@ -22,6 +22,8 @@ def add_server_arguments(parser):
                      help='Host to start server on')
   parser.add_argument('--port', type=int, metavar='', default=8008,
                      help='Port to bind server to')
+  parser.add_argument('--ui_dir', type=int, metavar='',
+                     help='Path to static assets for the UI')
 
 
 def parse_arguments(argv=None):
@@ -37,5 +39,7 @@ def parse_arguments(argv=None):
   args.lookup_file = os.path.expanduser(args.lookup_file)
   args.index_file = os.path.expanduser(args.index_file)
   args.tmp_dir = os.path.expanduser(args.tmp_dir)
+
+  args.ui_dir = os.path.abspath(os.path.join(__file__, '../../../../ui/build'))
 
   return args

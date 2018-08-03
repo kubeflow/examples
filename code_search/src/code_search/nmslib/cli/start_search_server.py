@@ -58,7 +58,7 @@ def start_search_server(argv=None):
   embedding_fn = functools.partial(embed_query, query_encoder, args.serving_url)
 
   search_engine = CodeSearchEngine(tmp_index_file, lookup_data, embedding_fn)
-  search_server = CodeSearchServer(search_engine, host=args.host, port=args.port)
+  search_server = CodeSearchServer(search_engine, args.ui_dir, host=args.host, port=args.port)
   search_server.run()
 
 

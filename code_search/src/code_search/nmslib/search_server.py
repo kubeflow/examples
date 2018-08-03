@@ -1,23 +1,23 @@
-import os
-from flask import Flask, request, abort, jsonify, make_response
+from flask import Flask, request, abort, jsonify, make_response, redirect
 
 
 class CodeSearchServer:
   """Flask server wrapping the Search Engine.
 
   This utility class simply wraps the search engine
-  into an HTTP server based on Flask.
+  into an HTTP server based on Flask. The root path
+  is redirected to `index.html` as Flask does not
+  do that automatically.
 
   Args:
     engine: An instance of CodeSearchEngine.
+    ui_dir: Path to directory containing index.html and
+            other static assets for the web application.
     host: A string host in IPv4 format.
     port: An integer for port binding.
   """
-  def __init__(self, engine, host='0.0.0.0', port=8008):
-    self.app = Flask(__name__,
-                     static_folder=os.path.abspath(os.path.join(__file__,
-                                                                '../../ui/build')),
-                     static_url_path='')
+  def __init__(self, engine, ui_dir, host='0.0.0.0', port=8008):
+    self.app = Flask(__name__, static_folder=ui_dir, static_url_path='')
     self.host = host
     self.port = port
     self.engine = engine
@@ -26,6 +26,10 @@ class CodeSearchServer:
 
   def init_routes(self):
     # pylint: disable=unused-variable
+
+    @self.app.route('/')
+    def index():
+      return redirect('/index.html', code=302)
 
     @self.app.route('/ping')
     def ping():
