@@ -57,10 +57,4 @@ setup(name='code-search',
       cmdclass={
           'build': Build,
           'CustomCommands': CustomCommands,
-      },
-      entry_points={
-        'console_scripts': [
-          'nmslib-serve=code_search.nmslib.cli:server',
-          'nmslib-create=code_search.nmslib.cli:creator',
-        ]
       })
