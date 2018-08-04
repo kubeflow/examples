@@ -26,6 +26,7 @@ local baseParams = std.extVar("__ksonnet/params").components["nmslib"];
           }
         },
         spec: {
+          restartPolicy: "Never",
           containers: [
             {
               name: params.name,
@@ -36,7 +37,27 @@ local baseParams = std.extVar("__ksonnet/params").components["nmslib"];
                   containerPort: 8008,
                 }
               ],
+              env: [
+                {
+                  name: "GOOGLE_APPLICATION_CREDENTIALS",
+                  value: "/secret/gcp-credentials/user-gcp-sa.json",
+                }
+              ],
+              volumeMounts: [
+                {
+                  mountPath: "/secret/gcp-credentials",
+                  name: "gcp-credentials",
+                },
+              ],
             }
+          ],
+          volumes: [
+            {
+              name: "gcp-credentials",
+              secret: {
+                secretName: "user-gcp-sa",
+              },
+            },
           ],
         },
       },
@@ -87,9 +108,11 @@ local baseParams = std.extVar("__ksonnet/params").components["nmslib"];
     creator:: {
       local creatorParams = params + {
         args: [
-          "nmslib-create",
-          "--data-file=" + params.dataFile,
-          "--index-file=" + params.indexFile,
+          "-m",
+          "code_search.nmslib.cli.create_search_index",
+          "--data_dir=" + params.dataDir,
+          "--lookup_file=" + params.lookupFile,
+          "--index_file=" + params.indexFile,
         ],
       },
 
@@ -101,12 +124,13 @@ local baseParams = std.extVar("__ksonnet/params").components["nmslib"];
     server:: {
       local serverParams = params + {
         args: [
-          "nmslib-serve",
-          "--data-file=" + params.dataFile,
-          "--index-file=" + params.indexFile,
+          "-m",
+          "code_search.nmslib.cli.start_search_server",
           "--problem=" + params.problem,
-          "--data-dir=" + params.dataDir,
-          "--serving-url=" + params.servingUrl,
+          "--data_dir=" + params.dataDir,
+          "--lookup_file=" + params.lookupFile,
+          "--index_file=" + params.indexFile,
+          "--serving_url=" + params.servingUrl,
         ],
       },
 
