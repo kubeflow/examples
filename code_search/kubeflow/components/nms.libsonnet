@@ -2,7 +2,49 @@ local baseParams = std.extVar("__ksonnet/params").components["nmslib"];
 
 {
 
-  nmsContainer(params, env):: {
+  indexCreator(params, env):: {
+    apiVersion: "v1",
+    kind: "Pod",
+    metadata: {
+      name: params.name + "-pod",
+      namespace: env.namespace,
+      labels: {
+        app: params.name,
+      }
+    },
+    spec: {
+      restartPolicy: "OnFailure",
+      containers: [
+        {
+          name: params.name,
+          image: params.image,
+          args: params.args,
+          env: [
+            {
+              name: "GOOGLE_APPLICATION_CREDENTIALS",
+              value: "/secret/gcp-credentials/user-gcp-sa.json",
+            }
+          ],
+          volumeMounts: [
+            {
+              mountPath: "/secret/gcp-credentials",
+              name: "gcp-credentials",
+            },
+          ],
+        }
+      ],
+      volumes: [
+        {
+          name: "gcp-credentials",
+          secret: {
+            secretName: "user-gcp-sa",
+          },
+        },
+      ],
+    },
+  },
+
+  searchServer(params, env):: {
     apiVersion: "extensions/v1beta1",
     kind: "Deployment",
     metadata: {
@@ -26,7 +68,6 @@ local baseParams = std.extVar("__ksonnet/params").components["nmslib"];
           }
         },
         spec: {
-          restartPolicy: "Never",
           containers: [
             {
               name: params.name,
@@ -117,7 +158,7 @@ local baseParams = std.extVar("__ksonnet/params").components["nmslib"];
       },
 
       all: [
-        $.nmsContainer(creatorParams, env),
+        $.indexCreator(creatorParams, env),
       ],
     }.all,
 
@@ -136,7 +177,7 @@ local baseParams = std.extVar("__ksonnet/params").components["nmslib"];
 
       all: [
         $.service(serverParams, env),
-        $.nmsContainer(serverParams, env),
+        $.searchServer(serverParams, env),
       ],
     }.all,
   }
