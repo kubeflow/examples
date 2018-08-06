@@ -1,3 +1,4 @@
+import os
 from flask import Flask, request, abort, jsonify, make_response, redirect
 
 
@@ -29,7 +30,8 @@ class CodeSearchServer:
 
     @self.app.route('/')
     def index():
-      return redirect('/index.html', code=302)
+      redirect_path = os.environ.get('PUBLIC_URL', '') + '/index.html'
+      return redirect(redirect_path, code=302)
 
     @self.app.route('/ping')
     def ping():
