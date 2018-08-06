@@ -11,7 +11,11 @@ public TensorFlow notebook, with the following additional components installed:
 
 To build this image, run:
 ```
-docker build --pull -t kubeflow-codelab-notebook:latest .
+make build
+```
+then
+```
+make push
 ```
 
 This image is published at `gcr.io/kubeflow-images-public/kubeflow-codelab-notebook`.
