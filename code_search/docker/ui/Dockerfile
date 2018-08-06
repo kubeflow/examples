@@ -16,6 +16,10 @@ ADD src/ /src
 
 WORKDIR /src
 
+ARG PUBLIC_URL
+
+ENV PUBLIC_URL=$PUBLIC_URL
+
 RUN cd ui && npm i && npm run build && cd ..
 
 EXPOSE 8008

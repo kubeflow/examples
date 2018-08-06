@@ -73,7 +73,7 @@
 
     "nmslib": {
       replicas: 1,
-      image: "gcr.io/kubeflow-dev/code-search-ui:v20180803-156710e",
+      image: "gcr.io/kubeflow-dev/code-search-ui:v20180806-7b0fcaa",
 
       problem: "null",
       dataDir: "null",
