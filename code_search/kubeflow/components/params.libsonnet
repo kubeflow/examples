@@ -97,7 +97,7 @@
       dataDir: $.global.t2tWorkingDir + "/data",
       lookupFile: $.global.t2tWorkingDir + "/code_search_index.csv",
       indexFile: $.global.t2tWorkingDir + "/code_search_index.nmslib",
-      servingUrl: "http://localhost:8601",
+      servingUrl: "http://t2t-code-search.kubeflow:8000/v1/models/t2t-code-search:predict",
     },
   },
 }
