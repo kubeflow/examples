@@ -1,54 +1,11 @@
 local baseParams = std.extVar("__ksonnet/params").components["nmslib"];
 
 {
-
-  indexCreator(params, env):: {
-    apiVersion: "v1",
-    kind: "Pod",
+  spec(params, env, apiVersion="extensions/v1beta1", kind="Deployment"):: {
+    apiVersion: apiVersion,
+    kind: kind,
     metadata: {
-      name: params.name + "-pod",
-      namespace: env.namespace,
-      labels: {
-        app: params.name,
-      }
-    },
-    spec: {
-      restartPolicy: "OnFailure",
-      containers: [
-        {
-          name: params.name,
-          image: params.image,
-          args: params.args,
-          env: [
-            {
-              name: "GOOGLE_APPLICATION_CREDENTIALS",
-              value: "/secret/gcp-credentials/user-gcp-sa.json",
-            }
-          ],
-          volumeMounts: [
-            {
-              mountPath: "/secret/gcp-credentials",
-              name: "gcp-credentials",
-            },
-          ],
-        }
-      ],
-      volumes: [
-        {
-          name: "gcp-credentials",
-          secret: {
-            secretName: "user-gcp-sa",
-          },
-        },
-      ],
-    },
-  },
-
-  searchServer(params, env):: {
-    apiVersion: "extensions/v1beta1",
-    kind: "Deployment",
-    metadata: {
-      name: params.name + "-deployment",
+      name: params.name,
       namespace: env.namespace,
       labels: {
         app: params.name,
@@ -56,7 +13,7 @@ local baseParams = std.extVar("__ksonnet/params").components["nmslib"];
     },
     spec: {
       replicas: params.replicas,
-      selector: {
+      [if kind == "Deployment" then "selector"]: {
         matchLabels: {
           app: params.name,
         },
@@ -68,6 +25,7 @@ local baseParams = std.extVar("__ksonnet/params").components["nmslib"];
           }
         },
         spec: {
+          [if kind == "Job" then "restartPolicy"]: "OnFailure",
           containers: [
             {
               name: params.name,
@@ -158,7 +116,7 @@ local baseParams = std.extVar("__ksonnet/params").components["nmslib"];
       },
 
       all: [
-        $.indexCreator(creatorParams, env),
+        $.spec(creatorParams, env, apiVersion="batch/v1", kind="Job"),
       ],
     }.all,
 
@@ -177,7 +135,7 @@ local baseParams = std.extVar("__ksonnet/params").components["nmslib"];
 
       all: [
         $.service(serverParams, env),
-        $.searchServer(serverParams, env),
+        $.spec(serverParams, env),
       ],
     }.all,
   }
