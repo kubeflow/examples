@@ -13,9 +13,14 @@
 
 set -ex
 
+PROJECT=${PROJECT:-}
 BUILD_IMAGE_UUID=$(python3 -c 'import uuid; print(uuid.uuid4().hex[:7]);')
 BUILD_IMAGE_TAG="code-search-ui:v$(date +%Y%m%d)-${BUILD_IMAGE_UUID}"
 PUBLIC_URL=${PUBLIC_URL:-"/code-search"}
+
+if [[ ! -z "${PROJECT}" ]]; then
+  BUILD_IMAGE_TAG="gcr.io/${PROJECT}/${BUILD_IMAGE_TAG}"
+fi
 
 # Directory of this script used for path references
 _SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -27,11 +32,9 @@ docker build -f "${_SCRIPT_DIR}/Dockerfile" \
              --build-arg PUBLIC_URL=${PUBLIC_URL} \
              "${_SCRIPT_DIR}/../.."
 
-# Push image to GCR PROJECT available
-PROJECT=${PROJECT:-}
+# Push images to GCR Project if available
 if [[ ! -z "${PROJECT}" ]]; then
-  docker tag ${BUILD_IMAGE_TAG} gcr.io/${PROJECT}/${BUILD_IMAGE_TAG}
-  docker push gcr.io/${PROJECT}/${BUILD_IMAGE_TAG}
+  docker push ${BUILD_IMAGE_TAG}
 fi
 
 popd
