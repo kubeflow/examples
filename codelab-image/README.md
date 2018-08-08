@@ -2,7 +2,7 @@
 
 This is a Jupyter notebook image intended for Kubeflow codelabs. It is based off the
 public TensorFlow notebook, with the following additional components installed:
-* ksonnet (version 0.12.0-rc1)
+* ksonnet (version 0.12.0)
 * annoy
 * ktext
 * nltk
