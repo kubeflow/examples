@@ -1,9 +1,9 @@
 local baseParams = std.extVar("__ksonnet/params").components["nmslib"];
 
 {
-  spec(params, env, apiVersion="extensions/v1beta1", kind="Deployment"):: {
-    apiVersion: apiVersion,
-    kind: kind,
+  deploymentSpec(params, env, containers):: {
+    apiVersion: "extensions/v1beta1",
+    kind: "Deployment",
     metadata: {
       name: params.name,
       namespace: env.namespace,
@@ -13,7 +13,7 @@ local baseParams = std.extVar("__ksonnet/params").components["nmslib"];
     },
     spec: {
       replicas: params.replicas,
-      [if kind == "Deployment" then "selector"]: {
+      selector: {
         matchLabels: {
           app: params.name,
         },
@@ -25,31 +25,7 @@ local baseParams = std.extVar("__ksonnet/params").components["nmslib"];
           }
         },
         spec: {
-          [if kind == "Job" then "restartPolicy"]: "OnFailure",
-          containers: [
-            {
-              name: params.name,
-              image: params.image,
-              args: params.args,
-              ports: [
-                {
-                  containerPort: 8008,
-                }
-              ],
-              env: [
-                {
-                  name: "GOOGLE_APPLICATION_CREDENTIALS",
-                  value: "/secret/gcp-credentials/user-gcp-sa.json",
-                }
-              ],
-              volumeMounts: [
-                {
-                  mountPath: "/secret/gcp-credentials",
-                  name: "gcp-credentials",
-                },
-              ],
-            }
-          ],
+          containers: containers,
           volumes: [
             {
               name: "gcp-credentials",
@@ -61,6 +37,63 @@ local baseParams = std.extVar("__ksonnet/params").components["nmslib"];
         },
       },
     },
+  },
+
+  jobSpec(params, env, containers):: {
+    apiVersion: "batch/v1",
+    kind: "Job",
+    metadata: {
+      name: params.name,
+      namespace: env.namespace,
+      labels: {
+        app: params.name,
+      }
+    },
+    spec: {
+      replicas: params.replicas,
+      template: {
+        metadata: {
+          labels: {
+            app: params.name,
+          }
+        },
+        spec: {
+          "restartPolicy": "OnFailure",
+          containers: containers,
+          volumes: [
+            {
+              name: "gcp-credentials",
+              secret: {
+                secretName: "user-gcp-sa",
+              },
+            },
+          ],
+        },
+      },
+    },
+  },
+
+  containerSpec(params):: {
+    name: params.name,
+    image: params.image,
+    args: params.args,
+    ports: [
+      {
+        containerPort: 8008,
+      }
+    ],
+    env: [
+      {
+        name: "GOOGLE_APPLICATION_CREDENTIALS",
+        value: "/secret/gcp-credentials/user-gcp-sa.json",
+      }
+    ],
+    volumeMounts: [
+      {
+        mountPath: "/secret/gcp-credentials",
+        name: "gcp-credentials",
+      },
+    ],
   },
 
   service(params, env):: {
@@ -116,7 +149,7 @@ local baseParams = std.extVar("__ksonnet/params").components["nmslib"];
       },
 
       all: [
-        $.spec(creatorParams, env, apiVersion="batch/v1", kind="Job"),
+        $.jobSpec(creatorParams, env, [ $.containerSpec(creatorParams) ]),
       ],
     }.all,
 
@@ -135,7 +168,7 @@ local baseParams = std.extVar("__ksonnet/params").components["nmslib"];
 
       all: [
         $.service(serverParams, env),
-        $.spec(serverParams, env),
+        $.deploymentSpec(serverParams, env, [ $.containerSpec(serverParams) ]),
       ],
     }.all,
   }
