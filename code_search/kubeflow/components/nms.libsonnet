@@ -1,12 +1,11 @@
 local baseParams = std.extVar("__ksonnet/params").components["nmslib"];
 
 {
-
-  nmsContainer(params, env):: {
+  deploymentSpec(params, env, containers, volumes=[]):: {
     apiVersion: "extensions/v1beta1",
     kind: "Deployment",
     metadata: {
-      name: params.name + "-deployment",
+      name: params.name,
       namespace: env.namespace,
       labels: {
         app: params.name,
@@ -26,21 +25,47 @@ local baseParams = std.extVar("__ksonnet/params").components["nmslib"];
           }
         },
         spec: {
-          containers: [
-            {
-              name: params.name,
-              image: params.image,
-              args: params.args,
-              ports: [
-                {
-                  containerPort: 8008,
-                }
-              ],
-            }
-          ],
+          containers: containers,
+          volumes: volumes,
         },
       },
     },
+  },
+
+  jobSpec(params, env, containers, volumes=[]):: {
+    apiVersion: "batch/v1",
+    kind: "Job",
+    metadata: {
+      name: params.name,
+      namespace: env.namespace,
+      labels: {
+        app: params.name,
+      }
+    },
+    spec: {
+      replicas: params.replicas,
+      template: {
+        metadata: {
+          labels: {
+            app: params.name,
+          }
+        },
+        spec: {
+          "restartPolicy": "OnFailure",
+          containers: containers,
+          volumes: volumes,
+        },
+      },
+    },
+  },
+
+  containerSpec(params, env=[], volumeMounts=[], ports=[]):: {
+    name: params.name,
+    image: params.image,
+    args: params.args,
+    ports: ports,
+    env: env,
+    volumeMounts: volumeMounts,
   },
 
   service(params, env):: {
@@ -84,35 +109,78 @@ local baseParams = std.extVar("__ksonnet/params").components["nmslib"];
   parts(newParams, env):: {
     local params = baseParams + newParams,
 
+    local volumes = [
+      {
+        name: "gcp-credentials",
+        secret: {
+          secretName: "user-gcp-sa",
+        },
+      },
+    ],
+
+    local containerEnv = [
+      {
+        name: "GOOGLE_APPLICATION_CREDENTIALS",
+        value: "/secret/gcp-credentials/user-gcp-sa.json",
+      }
+    ],
+
+    local containerVolumeMounts = [
+      {
+        mountPath: "/secret/gcp-credentials",
+        name: "gcp-credentials",
+      },
+    ],
+
     creator:: {
       local creatorParams = params + {
         args: [
-          "nmslib-create",
-          "--data-file=" + params.dataFile,
-          "--index-file=" + params.indexFile,
+          "-m",
+          "code_search.nmslib.cli.create_search_index",
+          "--data_dir=" + params.dataDir,
+          "--lookup_file=" + params.lookupFile,
+          "--index_file=" + params.indexFile,
         ],
       },
 
       all: [
-        $.nmsContainer(creatorParams, env),
+        $.jobSpec(creatorParams, env,
+                  [
+                    $.containerSpec(creatorParams, env=containerEnv,
+                                    volumeMounts=containerVolumeMounts)
+                  ],
+                  volumes=volumes),
       ],
     }.all,
 
     server:: {
       local serverParams = params + {
         args: [
-          "nmslib-serve",
-          "--data-file=" + params.dataFile,
-          "--index-file=" + params.indexFile,
+          "-m",
+          "code_search.nmslib.cli.start_search_server",
           "--problem=" + params.problem,
-          "--data-dir=" + params.dataDir,
-          "--serving-url=" + params.servingUrl,
+          "--data_dir=" + params.dataDir,
+          "--lookup_file=" + params.lookupFile,
+          "--index_file=" + params.indexFile,
+          "--serving_url=" + params.servingUrl,
         ],
       },
 
+      local containerPorts = [
+        {
+          containerPort: 8008,
+        }
+      ],
+
       all: [
         $.service(serverParams, env),
-        $.nmsContainer(serverParams, env),
+        $.deploymentSpec(serverParams, env,
+                        [
+                          $.containerSpec(serverParams, env=containerEnv,
+                                          volumeMounts=containerVolumeMounts,
+                                          ports=containerPorts)
+                        ],
+                        volumes=volumes),
       ],
     }.all,
   }

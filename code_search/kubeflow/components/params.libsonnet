@@ -68,27 +68,36 @@
       modelPath: $.global.t2tWorkingDir + "/output/export/Servo",
       modelServerImage: "gcr.io/kubeflow-images-public/tensorflow-serving-1.8:latest",
       cloud: "gcp",
-      gcpCredentialSecretName: "gcp-credentials",
+      gcpCredentialSecretName: "user-gcp-sa",
     },
 
     "nmslib": {
-      name: null,
       replicas: 1,
-      image: "gcr.io/kubeflow-dev/code-search:v20180621-266e689",
+      image: "gcr.io/kubeflow-dev/code-search-ui:v20180806-7b0fcaa",
 
-      dataFile: null,
-      indexFile: null,
-      problem: null,
-      dataDir: null,
-      servingUrl: null,
+      problem: "null",
+      dataDir: "null",
+      lookupFile: "null",
+      indexFile: "null",
+      servingUrl: "null",
     },
 
-    "nms-creator": {
-      name: "nms-creator",
+    "search-index-creator": {
+      name: "search-index-creator",
+
+      dataDir: $.global.t2tWorkingDir + "/data",
+      lookupFile: $.global.t2tWorkingDir + "/code_search_index.csv",
+      indexFile: $.global.t2tWorkingDir + "/code_search_index.nmslib",
     },
 
-    "nms-server": {
-      name: "nms-server",
+    "search-index-server": {
+      name: "search-index-server",
+
+      problem: "github_function_docstring",
+      dataDir: $.global.t2tWorkingDir + "/data",
+      lookupFile: $.global.t2tWorkingDir + "/code_search_index.csv",
+      indexFile: $.global.t2tWorkingDir + "/code_search_index.nmslib",
+      servingUrl: "http://t2t-code-search.kubeflow:8000/v1/models/t2t-code-search:predict",
     },
   },
 }
