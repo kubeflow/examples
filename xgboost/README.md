@@ -13,7 +13,6 @@ Kubernetes Engine](https://cloud.google.com/kubernetes-engine/). In addition to 
  * [Kubeflow Setup](#kubeflow-setup)
  * [Data Preparation](#data-preparation)
  * [Dockerfile](#dockerfile)
- * [Model Training Locally](#model-training-locally)
  * [Model Training on GKE](#model-training-on-gke)
  * [Model Export](#model-export)
  * [Model Serving Locally](#model-serving-locally)
@@ -62,24 +61,6 @@ docker push gcr.io/${PROJECT_ID}/${IMAGE_NAME}:${VERSION}
 
 One public copy is available at `gcr.io/kubeflow-examples/ames-housing:v1`.
 
-## Model Training Locally
-
-Once you have performed `docker build` you should be able to see the images by running `docker images`. Run the training by issuing the following command 
-
-```
-IMAGE=gcr.io/${PROJECT_ID}/${IMAGE_NAME}:${VERSION}
-docker run -v /tmp/ames/:/model/ames -it $IMAGE --train-input examples/xgboost/ames_dataset/train.csv \
-                                                --model-file /model/ames/housing.dat \
-                                                --learning-rate 0.1 \
-                                                --n-estimators 30000 \
-                                                --early-stopping-rounds 50
-```
-
-In the above command we have mounted the container filesystem `/model/ames` to the host filesystem `/tmp/ames` so that the model is available on localhost. Check the local host filesystem for the trained XGBoost model
-
-```
-ls -lh /tmp/ames/housing.dat
-```
 
 ## Model training on GKE
 In this section we will run the above docker container on a [Google Kubernetes Engine](gke). There are two steps to perform the training
