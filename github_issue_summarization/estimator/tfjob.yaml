@@ -12,7 +12,46 @@ spec:
     - ReadWriteMany
   resources:
     requests:
-      storage: 100Gi
+      storage: 10Gi
+
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: data
+spec:
+  storageClassName: "nfs"
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: download
+spec:
+  template:
+    spec:
+      containers:
+      - name: tensorflow
+        image: inc0/issues
+        command: ["/issues/download.sh"]
+        volumeMounts:
+        - name: data
+          mountPath: "/data"
+        - name: models
+          mountPath: "/model"
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: data
+        - name: models
+          persistentVolumeClaim:
+            claimName: models
+      restartPolicy: Never
+  backoffLimit: 4
 
 ---
 apiVersion: "kubeflow.org/v1alpha2"
@@ -25,6 +64,7 @@ spec:
       replicas: 1
       template:
         spec:
+
           containers:
           - name: tensorflow
             image: inc0/issues
@@ -36,13 +76,13 @@ spec:
               mountPath: "/model"
           volumes:
             - name: data
-              hostPath:
-                path: "/opt/data"
+              persistentVolumeClaim:
+                claimName: data
             - name: models
               persistentVolumeClaim:
                 claimName: models
     Worker:
-      replicas: 20
+      replicas: 5
       template:
         spec:
           containers:
@@ -56,8 +96,8 @@ spec:
               mountPath: "/model"
           volumes:
             - name: data
-              hostPath:
-                path: "/opt/data"
+              persistentVolumeClaim:
+                claimName: data
             - name: models
               persistentVolumeClaim:
                 claimName: models
@@ -78,8 +118,8 @@ spec:
             - containerPort: 6006
           volumes:
             - name: data
-              hostPath:
-                path: "/opt/data"
+              persistentVolumeClaim:
+                claimName: data
             - name: models
               persistentVolumeClaim:
                 claimName: models

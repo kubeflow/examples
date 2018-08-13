@@ -45,6 +45,11 @@ if job_name == "ps":
 
 
 if job_name == "master":
+  while True:
+    if os.path.isfile(data_file):
+      break
+    print("Waiting for dataset")
+    time.sleep(2)
   if use_sample_data:
     training_data_size = 2000
     traindf, testdf = train_test_split(pd.read_csv(data_file).sample(n=training_data_size),
