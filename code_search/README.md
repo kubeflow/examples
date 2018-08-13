@@ -7,7 +7,7 @@ This demo implements End-to-End Code Search on Kubeflow.
 **NOTE**: If using the JupyterHub Spawner on a Kubeflow cluster, use the Docker image 
 `gcr.io/kubeflow-images-public/kubeflow-codelab-notebook` which has baked all the pre-prequisites.
 
-* `Kubeflow v0.2.2`
+* `Kubeflow Latest`
   This notebook assumes a Kubeflow cluster is already deployed. See
   [Getting Started with Kubeflow](https://www.kubeflow.org/docs/started/getting-started/).
 
@@ -23,12 +23,32 @@ This demo implements End-to-End Code Search on Kubeflow.
 * `Ksonnet 0.12`
   We use [Ksonnet](https://ksonnet.io/) to write Kubernetes jobs in a declarative manner to be run
   on top of Kubeflow.
+
+# Getting Started
+
+To get started, follow the instructions below.
+
+**NOTE**: We will assume that the Kubeflow cluster is available at `kubeflow.example.com`. Make sure
+you replace this with the true FQDN of your Kubeflow cluster in any subsequent instructions.
+
+* Spawn a new JupyterLab instance inside the Kubeflow cluster by pointing your browser to
+  **https://kubeflow.example.com/hub** and clicking "**Start My Server**".
+
+* In the **Image** text field, enter `gcr.io/kubeflow-images-public/kubeflow-codelab-notebook:v20180808-v0.2-22-gcfdcb12`.
+  This image contains all the pre-requisites needed for the demo.
   
-# Usage
-
-Follow along [this Jupyter Notebook](./code_search.ipynb) to execute various steps in the pipeline.
-
-**NOTE**: This notebook can be run from the JupyterHub Spawner inside a Kubeflow cluster. 
+* Once spawned, you should be redirected to the notebooks UI. We intend to go to the JupyterLab home
+  page which is available at the URL - **https://kubeflow.example.com/user/<ACCOUNT_NAME>/lab**.
+  **TIP**: Simply point the browser to **/lab** instead of the **/tree** path in the URL.
+  
+* Spawn a new Terminal and run
+  ```
+  $ git clone --branch=master --depth=1 https://github.com/kubeflow/examples
+  ```
+  This will create an examples folder. It is safe to close the terminal now.
+  
+* Refresh the File Explorer (typically to the left) and navigate to `examples/code_search`. Open
+  the Jupyter notebook `code-search.ipynb` and follow it along.
 
 # Acknowledgements
 
