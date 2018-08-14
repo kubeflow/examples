@@ -10,6 +10,7 @@ with open('requirements.txt', 'r') as f:
 
 CUSTOM_COMMANDS = [
   ['python', '-m', 'spacy', 'download', 'en'],
+  # TODO(sanyamkapoor): This isn't ideal but no other way for a seamless install right now.
   ['pip', 'install', 'https://github.com/kubeflow/batch-predict/tarball/master']
 ]
 
