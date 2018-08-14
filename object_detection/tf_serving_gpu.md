@@ -37,13 +37,14 @@ ks pkg install kubeflow/tf-serving  # If you haven't done it
 ks generate tf-serving model1 --name=coco
 ks param set model1 modelPath gs://YOUR_BUCKET/YOUR_MODEL/
 ks param set model1 numGpus 1
+ks param set model1 deployHttpProxy true
 ks apply $ENV -c model1
 ```
 
 ## Send prediction
 ```
 cd serving_script
-python predict.py --url=YOUR_KF_HOST/models/coco
+python predict.py --url=YOUR_KF_HOST:8000/model/coco:predict
 ```
 
 The script takes an input image (by default image1.jpg) and should save the result as `output.jpg`.
