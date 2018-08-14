@@ -1,6 +1,7 @@
 from tensor2tensor.utils import registry
 from .function_docstring import GithubFunctionDocstring
 
+
 @registry.register_problem
 class GithubFunctionDocstringExtended(GithubFunctionDocstring):
   """Function Docstring problem with extended semantics.
@@ -17,7 +18,7 @@ class GithubFunctionDocstringExtended(GithubFunctionDocstring):
   elsewhere (more particularly at `self.DATA_PATH_PREFIX`).
   """
 
-  def get_csv_files(self, data_dir, tmp_dir, dataset_split):
-    self.DATA_PATH_PREFIX = data_dir
+  def get_csv_files(self, _data_dir, tmp_dir, _dataset_split):
+    self.DATA_PATH_PREFIX = _data_dir
     return super(GithubFunctionDocstringExtended,
-                 self).get_csv_files(data_dir, tmp_dir, dataset_split)
+                 self).get_csv_files(_data_dir, tmp_dir, _dataset_split)
