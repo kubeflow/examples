@@ -44,8 +44,11 @@ ks apply $ENV -c model1
 ## Send prediction
 ```
 cd serving_script
-python predict.py --url=YOUR_KF_HOST/model/coco:predict
+python predict.py --url=YOUR_KF_HOST/models/coco
 ```
+
+If you expose the TF Serving service as a LoadBalancer, change the url to
+`EXTERNAL_IP:8000/models/coco:predict`
 
 The script takes an input image (by default image1.jpg) and should save the result as `output.jpg`.
 The output image has the bounding boxes for detected objects.
