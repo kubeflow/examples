@@ -1,6 +1,6 @@
 import apache_beam as beam
-import kubeflow_batch_predict.dataflow.batch_prediction as batch_prediction
 
+import code_search.dataflow.do_fns.prediction_do_fn as pred
 import code_search.dataflow.do_fns.function_embeddings as func_embeddings
 import code_search.dataflow.transforms.github_bigquery as github_bigquery
 
@@ -27,7 +27,7 @@ class FunctionEmbeddings(beam.PTransform):
     batch_predict = (input_or_inputs
       | "Encoded Function Tokens" >> beam.ParDo(func_embeddings.EncodeFunctionTokens(
         self.problem, self.data_dir))
-      | "Compute Function Embeddings" >> beam.ParDo(batch_prediction.PredictionDoFn(),
+      | "Compute Function Embeddings" >> beam.ParDo(pred.PredictionDoFn(),
                                                     self.saved_model_dir).with_outputs('err',
                                                                                        main='main')
     )
