@@ -12,7 +12,8 @@ class YelpSentiment(imdb.SentimentIMDB):
 
   # Use the below file to generate the full dataset of 17,746,271 records.
   #YELP_DATASET_URL = "https://storage.googleapis.com/kubeflow-examples/datasets/yelp-dataset.zip"
-  YELP_DATASET_URL = "https://storage.googleapis.com/kubeflow-examples/datasets/yelp_review_1000000.zip"
+  YELP_DATASET_URL = \
+    "https://storage.googleapis.com/kubeflow-examples/datasets/yelp_review_1000000.zip"
 
   @property
   def is_generate_per_split(self):
@@ -40,14 +41,14 @@ class YelpSentiment(imdb.SentimentIMDB):
   def approx_vocab_size(self):
     return 40000
 
-  def class_labels(self, data_dir):
+  @staticmethod
+  def class_labels(data_dir):
     del data_dir
     return ["pos", "neg"]
 
-  def generate_samples(self, data_dir, tmp_dir, dataset_split):
+  def generate_samples(self, data_dir, tmp_dir, dataset_split): #pylint: disable=unused-argument
     compressed_filename = os.path.basename(self.YELP_DATASET_URL)
-    download_path = generator_utils.maybe_download(tmp_dir, compressed_filename,
-                                                   self.YELP_DATASET_URL)
+    generator_utils.maybe_download(tmp_dir, compressed_filename, self.YELP_DATASET_URL)
     zip_ref = zipfile.ZipFile(os.path.join(tmp_dir, compressed_filename), 'r')
     zip_ref.extractall(tmp_dir)
     zip_ref.close()

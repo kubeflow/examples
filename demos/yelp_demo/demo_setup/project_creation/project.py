@@ -13,11 +13,10 @@
 # limitations under the License.
 """Creates a single project with specified service accounts and APIs enabled."""
 
-import copy
 import sys
 from apis import ApiResourceName
 
-def GenerateConfig(context):
+def GenerateConfig(context): #pylint: disable=too-many-branches,too-many-statements
   """Generates config."""
 
   project_id = context.env['name']
@@ -111,7 +110,7 @@ def GenerateConfig(context):
         if svc_acct not in policies_to_add[idx]['members']:
           policies_to_add[idx]['members'].append(svc_acct)
 
-    get_iam_policy_dependencies = [ project_id ]
+    get_iam_policy_dependencies = [project_id]
     for api in context.properties['apis']:
       get_iam_policy_dependencies.append(ApiResourceName(project_id, api))
 
@@ -174,7 +173,7 @@ def GenerateConfig(context):
         }
     })
   if context.properties.get('shared_vpc_host'):
-     resources.append({
+    resources.append({
         'name': project_id + '-xpn-host',
         'type': 'compute.beta.xpnHost',
         'properties': {
@@ -190,7 +189,7 @@ def GenerateConfig(context):
         }
      })
   if context.properties.get('shared_vpc_service_of'):
-      resources.append({
+    resources.append({
         'name': project_id + '-xpn-service-' +
             context.properties['shared_vpc_service_of'],
         'type': 'compute.beta.xpnResource',

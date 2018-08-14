@@ -4,15 +4,10 @@ Simple app that parses predictions from a trained model and displays them.
 
 import argparse
 import base64
-import os
-import random
-import re
 import logging
-import pandas as pd
 import requests
 import tensorflow as tf
-from yelp_sentiment import yelp_problem
-from flask import Flask, g, json, jsonify, render_template, request
+from flask import Flask, json, jsonify, render_template, request
 from tensor2tensor.data_generators import text_encoder
 from tensor2tensor.utils import registry
 
@@ -51,7 +46,7 @@ def predict():
     encoded_review_text = str(encode_input(review_text))
     headers = {'content-type': 'application/json'}
     json_data = {"instances": [{"input": {"b64": encoded_review_text}}]}
-    request_data=json.dumps(json_data)
+    request_data = json.dumps(json_data)
     response = requests.post(
       url=args.model_url, headers=headers, data=request_data)
     return jsonify({"sentiment": json.loads(response.text)["predictions"][0]["outputs"][0][0][0]})

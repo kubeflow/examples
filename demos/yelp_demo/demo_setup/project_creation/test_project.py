@@ -57,7 +57,7 @@ class ProjectTestCase(unittest.TestCase):
     project_resource = [
         resource for resource in resources
         if resource.get('type') == 'cloudresourcemanager.v1.project']
-    self.assertEquals(
+    self.assertEqual(
         expected_project_parent, project_resource[0]['properties']['parent'])
 
     properties['parent-folder-id'] = "1234"
@@ -71,7 +71,7 @@ class ProjectTestCase(unittest.TestCase):
     project_resource = [
         resource for resource in resources
         if resource.get('type') == 'cloudresourcemanager.v1.project']
-    self.assertEquals(
+    self.assertEqual(
         expected_project_parent, project_resource[0]['properties']['parent'])
 
   def test_patch_iam_policy_with_owner(self):
@@ -94,7 +94,7 @@ class ProjectTestCase(unittest.TestCase):
     patch_action = [
         resource for resource in resources
         if resource['name'] == 'patch-iam-policy-my-project']
-    self.assertEquals(
+    self.assertEqual(
         expected_patch, patch_action[0]['properties']['gcpIamPolicyPatch'])
 
     del properties['set-dm-service-account-as-owner']
@@ -103,7 +103,7 @@ class ProjectTestCase(unittest.TestCase):
     patch_action = [
         resource for resource in resources
         if resource['name'] == 'set-dm-service-account-as-owner']
-    self.assertEquals([], patch_action)
+    self.assertEqual([], patch_action)
 
   def test_patch_iam_policy_with_default_dm_and_adding_owner(self):
     """Test IAM patching correctly adds and removes service accounts and merges
@@ -135,7 +135,7 @@ class ProjectTestCase(unittest.TestCase):
     patch_action = [
         resource for resource in resources
         if resource['name'] == 'patch-iam-policy-my-project']
-    self.assertEquals(
+    self.assertEqual(
         expected_patch, patch_action[0]['properties']['gcpIamPolicyPatch'])
 
   def test_patch_iam_policy_containing_default_dm_as_owner_already(self):
@@ -168,7 +168,7 @@ class ProjectTestCase(unittest.TestCase):
     patch_action = [
         resource for resource in resources
         if resource['name'] == 'patch-iam-policy-my-project']
-    self.assertEquals(
+    self.assertEqual(
         expected_patch, patch_action[0]['properties']['gcpIamPolicyPatch'])
 
   def test_patch_iam_policy_with_default_dm(self):
@@ -205,7 +205,7 @@ class ProjectTestCase(unittest.TestCase):
     patch_action = [
         resource for resource in resources
         if resource['name'] == 'patch-iam-policy-my-project']
-    self.assertEquals(
+    self.assertEqual(
         expected_patch, patch_action[0]['properties']['gcpIamPolicyPatch'])
 
   def test_patch_iam_policy_without_default_dm(self):
@@ -247,7 +247,7 @@ class ProjectTestCase(unittest.TestCase):
     patch_action = [
         resource for resource in resources
         if resource['name'] == 'patch-iam-policy-my-project']
-    self.assertEquals(
+    self.assertEqual(
         expected_patch, patch_action[0]['properties']['gcpIamPolicyPatch'])
 
   def test_generateconfig_fails_if_both_folder_and_org_present(self):
