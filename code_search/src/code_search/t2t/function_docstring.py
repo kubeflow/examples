@@ -18,6 +18,9 @@ class GithubFunctionDocstring(text_problems.Text2TextProblem):
   the docstring tokens and function tokens. The delimiter is
   ",".
   """
+
+  DATA_PATH_PREFIX = "gs://kubeflow-examples/t2t-code-search/raw_data"
+
   @property
   def pair_files_list(self):
     """Return URL and file names.
@@ -45,11 +48,9 @@ class GithubFunctionDocstring(text_problems.Text2TextProblem):
       In this case, the tuple is of size 1 because the URL points
       to a file itself.
     """
-    base_url = "gs://kubeflow-examples/t2t-code-search/raw_data"
-
     return [
         [
-            "{}/func-doc-pairs-000{:02}-of-00100.csv".format(base_url, i),
+            "{}/func-doc-pairs-000{:02}-of-00100.csv".format(self.DATA_PATH_PREFIX, i),
             ("func-doc-pairs-000{:02}-of-00100.csv".format(i),)
         ]
         for i in range(100)
@@ -68,7 +69,13 @@ class GithubFunctionDocstring(text_problems.Text2TextProblem):
     # FIXME(sanyamkapoor): This exists to handle memory explosion.
     return int(3.5e5)
 
-  def generate_samples(self, _data_dir, tmp_dir, _dataset_split):
+  def get_csv_files(self, _data_dir, tmp_dir, _dataset_split):
+    return [
+      generator_utils.maybe_download(tmp_dir, file_list[0], uri)
+      for uri, file_list in self.pair_files_list
+    ]
+
+  def generate_samples(self, data_dir, tmp_dir, dataset_split):
     """A generator to return data samples.Returns the data generator to return.
 
 
@@ -82,14 +89,11 @@ class GithubFunctionDocstring(text_problems.Text2TextProblem):
       Each element yielded is of a Python dict of the form
         {"inputs": "STRING", "targets": "STRING"}
     """
-    csv_files = [
-        generator_utils.maybe_download(tmp_dir, file_list[0], uri)
-        for uri, file_list in self.pair_files_list
-    ]
+    csv_files = self.get_csv_files(data_dir, tmp_dir, dataset_split)
 
     for pairs_file in csv_files:
       tf.logging.debug("Reading {}".format(pairs_file))
-      with open(pairs_file, "r") as csv_file:
+      with tf.gfile.Open(pairs_file) as csv_file:
         for line in csv_file:
           reader = csv.reader(StringIO(line))
           for docstring_tokens, function_tokens in reader:
