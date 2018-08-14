@@ -31,7 +31,6 @@ RUN git clone --recursive https://github.com/dmlc/xgboost && \
 RUN cd .. && \
     git clone https://github.com/kubeflow/examples.git && \
     cd examples && \
-    git checkout xgboost_zillow && \
     cd xgboost && \
     pip install -r seldon_serve/requirements.txt
 
