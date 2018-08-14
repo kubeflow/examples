@@ -44,7 +44,7 @@ ks apply $ENV -c model1
 ## Send prediction
 ```
 cd serving_script
-python predict.py --url=YOUR_KF_HOST:8000/model/coco:predict
+python predict.py --url=YOUR_KF_HOST/model/coco:predict
 ```
 
 The script takes an input image (by default image1.jpg) and should save the result as `output.jpg`.
