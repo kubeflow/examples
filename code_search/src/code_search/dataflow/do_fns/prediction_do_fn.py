@@ -1,10 +1,9 @@
+# pylint: skip-file
+
 """A cherry-pick of PredictionDoFn from Kubeflow Batch Predict.
 
-DONOT submit revisions to this file. See kubeflow/batch-predict#10
-for design reasons. This file should ideally be retired once the upstream
-is fixed.
+TODO: This file should be retired once kubeflow/batch-predict#10 is resolved.
 """
-# pylint: skip-file
 
 import datetime
 import json
