@@ -4,6 +4,7 @@ DONOT submit revisions to this file. See kubeflow/batch-predict#10
 for design reasons. This file should ideally be retired once the upstream
 is fixed.
 """
+# pylint: skip-file
 
 import datetime
 import json
