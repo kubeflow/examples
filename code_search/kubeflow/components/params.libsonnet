@@ -18,6 +18,7 @@
       hparams_set: 'null',
     },
     "t2t-code-search": {
+      name: 't2t-code-search',
       workingDir: 'gs://example/prefix',
       problem: 'github_function_docstring_extended',
       model: 'similarity_transformer',
