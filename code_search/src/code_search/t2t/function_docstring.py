@@ -65,7 +65,7 @@ class GithubFunctionDocstring(text_problems.Text2TextProblem):
   @property
   def max_samples_for_vocab(self):
     # FIXME(sanyamkapoor): This exists to handle memory explosion.
-    return int(3.5e5)
+    return int(2e5)
 
   def get_csv_files(self, _data_dir, tmp_dir, _dataset_split):
     return [

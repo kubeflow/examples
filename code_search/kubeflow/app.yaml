@@ -2,8 +2,8 @@ apiVersion: 0.2.0
 environments:
   default:
     destination:
-      namespace: kubeflow-latest
-      server: https://35.237.84.167
+      namespace: kubeflow
+      server: https://35.237.202.148
     k8sVersion: v1.9.7
     path: default
 kind: ksonnet.io/app
