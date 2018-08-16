@@ -4,11 +4,9 @@ from six import StringIO
 from tensor2tensor.data_generators import generator_utils
 from tensor2tensor.data_generators import text_problems
 from tensor2tensor.utils import metrics
-from tensor2tensor.utils import registry
 import tensorflow as tf
 
 
-@registry.register_problem
 class GithubFunctionDocstring(text_problems.Text2TextProblem):
   """Function and Docstring similarity Problem.
 
