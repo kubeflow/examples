@@ -15,6 +15,4 @@ ENV PYTHONIOENCODING=utf-8 T2T_USR_DIR=/app/code_search/t2t
 
 VOLUME ["/data", "/output"]
 
-EXPOSE 8008
-
 ENTRYPOINT ["bash"]
