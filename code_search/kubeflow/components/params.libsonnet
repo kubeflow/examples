@@ -20,8 +20,8 @@
     "t2t-code-search": {
       name: 't2t-code-search',
       workingDir: 'gs://example/prefix',
-      problem: 'github_function_docstring_extended',
-      model: 'similarity_transformer',
+      problem: 'cs_github_function_docstring',
+      model: 'cs_similarity_transformer',
       hparams_set: 'transformer_tiny',
     },
     "t2t-code-search-datagen": {

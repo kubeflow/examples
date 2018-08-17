@@ -2,7 +2,7 @@ from tensor2tensor.utils import registry
 from .function_docstring import GithubFunctionDocstring
 
 
-@registry.register_problem
+@registry.register_problem('cs_github_function_docstring')
 class GithubFunctionDocstringExtended(GithubFunctionDocstring):
   """Function Docstring problem with extended semantics.
 
