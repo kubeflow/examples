@@ -88,6 +88,11 @@ if job_name == "master":
 else:
   time.sleep(120)
 
+while True:
+  if os.path.isfile(data_dir + 'train_body_vecs.npy'):
+    break
+  print("Waiting for dataset")
+  time.sleep(2)
 encoder_input_data, doc_length = load_encoder_inputs(data_dir + 'train_body_vecs.npy')
 decoder_input_data, decoder_target_data = load_decoder_inputs(data_dir + 'train_title_vecs.npy')
 
