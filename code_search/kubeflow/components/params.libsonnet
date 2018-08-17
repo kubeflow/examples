@@ -77,7 +77,7 @@
       dataDir: $.components['t2t-code-search'].workingDir + '/data',
       lookupFile: $.components['t2t-code-search'].workingDir + '/code_search_index.csv',
       indexFile: $.components['t2t-code-search'].workingDir + '/code_search_index.nmslib',
-      servingUrl: 'http://t2t-code-search.kubeflow:8000/v1/models/t2t-code-search:predict',
+      servingUrl: 'http://t2t-code-search.kubeflow:9001/v1/models/t2t-code-search:predict',
     },
   },
 }

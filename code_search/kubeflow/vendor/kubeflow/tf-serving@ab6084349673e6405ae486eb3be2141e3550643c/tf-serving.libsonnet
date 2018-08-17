@@ -117,12 +117,16 @@
       args: [
         "/usr/bin/tensorflow_model_server",
         "--port=9000",
+        "--rest_api_port=9001",
         "--model_name=" + $.params.modelName,
         "--model_base_path=" + $.params.modelPath,
       ],
       ports: [
         {
           containerPort: 9000,
+        },
+        {
+          containerPort: 9001,
         },
       ],
       // TODO(jlewi): We should add readiness and liveness probes. I think the blocker is that
@@ -269,6 +273,11 @@
             targetPort: 9000,
           },
           {
+            name: "rest-tf-serving",
+            port: 9001,
+            targetPort: 9001,
+          },
+          {
             name: "http-tf-serving-proxy",
             port: 8000,
             targetPort: 8000,
@@ -337,7 +346,7 @@
   gcpParts:: $.parts {
     gcpEnv:: [
       if $.gcpParams.gcpCredentialSecretName != "" then
-        { name: "GOOGLE_APPLICATION_CREDENTIALS", value: "/secret/gcp-credentials/key.json" },
+        { name: "GOOGLE_APPLICATION_CREDENTIALS", value: "/secret/gcp-credentials/user-gcp-sa.json" },
     ],
 
     tfServingContainer: $.parts.tfServingContainer {
