@@ -15,12 +15,12 @@ After completing the steps in the kubeflow getting started guide you will have t
 - The following pods in your kubernetes cluster in the `kubeflow` namespace:
 ```
 kubectl -n kubeflow get pods
-NAME                              READY     STATUS    RESTARTS   AGE
-ambassador-7987df44b9-4pht8       2/2       Running   0          1m
-ambassador-7987df44b9-dh5h6       2/2       Running   0          1m
-ambassador-7987df44b9-qrgsm       2/2       Running   0          1m
-tf-hub-0                          1/1       Running   0          1m
-tf-job-operator-78757955b-qkg7s   1/1       Running   0          1m
+NAME                                      READY     STATUS    RESTARTS   AGE
+ambassador-7987df44b9-4pht8               2/2       Running   0          1m
+ambassador-7987df44b9-dh5h6               2/2       Running   0          1m
+ambassador-7987df44b9-qrgsm               2/2       Running   0          1m
+tf-hub-0                                  1/1       Running   0          1m
+tf-job-operator-v1alpha2-b76bfbdb-lgbjw   1/1       Running   0          1m
 ```
 
 ## Overview
@@ -47,7 +47,7 @@ cd ks-app
 ## Preparing the training data
 
 **Note:** TensorFlow works with many file systems like HDFS and S3, you can use
-them to push the dataset and other configurations there and skip the Download and Decompress steps in this turorial.
+them to push the dataset and other configurations there and skip the Download and Decompress steps in this tutorial.
 
 First let's create a PVC to store the data. This step assumes that your K8s cluster has [Dynamic Volume Provisioning](https://kubernetes.io/docs/concepts/storage/dynamic-provisioning/) enabled.
 
@@ -131,7 +131,7 @@ we need to create the TF pet records. For that, we wil configure and apply the `
 
 ```
 OBJ_DETECTION_IMAGE="lcastell/pets_object_detection"
-DATA_DIR_PATH="${MOUNT_PATH}/images"
+DATA_DIR_PATH="${MOUNT_PATH}"
 OUTPUT_DIR_PATH="${MOUNT_PATH}"
 
 ks param set create-pet-record-job image ${OBJ_DETECTION_IMAGE}

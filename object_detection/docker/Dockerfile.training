@@ -1,3 +1,17 @@
+# Copyright 2018 Intel Corporation.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 FROM ubuntu:16.04
 
 LABEL maintainer="Soila Kavulya <soila.p.kavulya@intel.com>"
@@ -10,7 +24,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libpng12-dev \
         libzmq3-dev \
         pkg-config \
-        protobuf-compiler \
         python \
         python-dev \
         python-pil \
@@ -20,6 +33,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         git \
         software-properties-common \
         unzip \
+        wget \
         && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
@@ -29,31 +43,30 @@ RUN curl -O https://bootstrap.pypa.io/get-pip.py && \
     rm get-pip.py
 
 RUN pip --no-cache-dir install \
+        tensorflow
+
+RUN pip --no-cache-dir install \
         Cython \
-        glob2 \
-        h5py \
-        ipykernel \
+        contextlib2 \
         jupyter \
-        matplotlib \
-        numpy \
-        pandas \
-        scipy \
-        sklearn \
-        six \
-        tensorflow \
-        tensorflow-serving-api \
-        && \
-    python -m ipykernel.kernelspec
+        matplotlib
 
 # Setup Universal Object Detection
 ENV MODELS_HOME "/models"
-RUN git clone https://github.com/tensorflow/models.git $MODELS_HOME && cd $MODELS_HOME && git checkout r1.5
-#COPY models $MODELS_HOME
-RUN cd $MODELS_HOME/research \
-        && protoc object_detection/protos/*.proto --python_out=.
+RUN git clone https://github.com/tensorflow/models.git $MODELS_HOME
+
+RUN cd $MODELS_HOME/research && \
+    wget -O protobuf.zip https://github.com/google/protobuf/releases/download/v3.0.0/protoc-3.0.0-linux-x86_64.zip && \
+    unzip protobuf.zip && \
+    ./bin/protoc object_detection/protos/*.proto --python_out=.
+
+RUN git clone https://github.com/cocodataset/cocoapi.git && \
+    cd cocoapi/PythonAPI && \
+    make && \
+    cp -r pycocotools $MODELS_HOME/research
 
 ENV PYTHONPATH "$MODELS_HOME/research:$MODELS_HOME/research/slim:$PYTHONPATH"
-COPY scripts /scripts
+
 # TensorBoard
 EXPOSE 6006
 
@@ -63,4 +76,4 @@ WORKDIR $MODELS_HOME
 ARG pipeline_config_path
 ARG train_dir
 
-CMD ["python", "$MODELS_HOME/research/object_detection/train.py", "--logtostderr", "--pipeline_config_path=$pipeline_config_path"  "--train_dir=$train_dir"]
+CMD ["python", "$MODELS_HOME/research/object_detection/model_main.py", "--pipeline_config_path=$pipeline_config_path"  "--model_dir=$train_dir"]
