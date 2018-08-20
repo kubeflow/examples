@@ -59,11 +59,11 @@ gcloud auth configure-docker
 docker push gcr.io/${PROJECT_ID}/${IMAGE_NAME}:${VERSION}
 ```
 
-One public copy is available at `gcr.io/kubeflow-examples/ames-housing:v1`.
+A public copy is available at `gcr.io/kubeflow-examples/ames-housing:v1`.
 
 
 ## Model training on GKE
-In this section we will run the above docker container on a [Google Kubernetes Engine](gke). There are two steps to perform the training
+In this section we will run the above docker container on a [Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine/). There are two steps to perform the training
 
  * Create a GKE cluster
    Follow the [instructions](https://www.kubeflow.org/docs/started/getting-started-gke/) to create a GKE cluster
