@@ -1,6 +1,7 @@
 # Distributed training using Estimator
 
 Requires Tensorflow 1.9 or later.
+Requires [StorageClass](https://kubernetes.io/docs/concepts/storage/storage-classes/) capable of creating ReadWriteMany persistent volumes.
 
 Estimator and Keras are both part of Tensorflow. These high level APIs are designed
 to make building models easier. In our distributed training example we will show how both
