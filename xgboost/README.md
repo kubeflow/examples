@@ -163,7 +163,7 @@ tf-hub-0                                  1/1       Running   0          16m
 tf-job-dashboard-7b57c549c8-bfpp8         1/1       Running   0          16m
 tf-job-operator-594d8c7ddd-lqn8r          1/1       Running   0          16m
 ```
-Depoloy the XGBoost model
+Deploy the XGBoost model
 
 ```
 ks generate seldon-serve-simple xgboost-ames   \
@@ -176,7 +176,7 @@ ks apply ${KF_ENV} -c xgboost-ames
 ```
 
 ## Sample request and response
-Seldon Core uses ambassador to route it's requests. To send requests to the model, you can port-forward the ambassador container locally:
+Seldon Core uses ambassador to route its requests. To send requests to the model, you can port-forward the ambassador container locally:
 
 ```
 kubectl port-forward $(kubectl get pods -n ${NAMESPACE} -l service=ambassador -o jsonpath='{.items[0].metadata.name}') -n ${NAMESPACE} 8080:80
