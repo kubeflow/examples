@@ -10,7 +10,7 @@ distributed manner.
 
 ## Keras and Estimators
 
-Code required to run this example can be found in [distributed](https://github.com/kubeflow/examples/tree/master/github_issue_summarization/notebooks) directory.
+Code required to run this example can be found in [distributed](https://github.com/kubeflow/examples/tree/master/github_issue_summarization/distributed) directory.
 
 You can read more about Estimators [here](https://www.tensorflow.org/guide/estimators).
 In our example we will leverage `model_to_estimator` function that allows to turn existing tf.keras model to estimator, and therefore allow it to
