@@ -30,7 +30,7 @@ By the end of this tutorial, you should learn how to:
     methods using Jupyter Notebook or using TFJob:
     -  [Training the model using a Jupyter Notebook](02_training_the_model.md)
     -  [Training the model using TFJob](02_training_the_model_tfjob.md)
-    -  [Distributed Training using tensor2tensor and TFJob](02_tensor2tensor_training.md)
+    -  [Distributed Training using estimator and TFJob](02_distributed_training.md)
 1.  [Serving the model](03_serving_the_model.md)
 1.  [Querying the model](04_querying_the_model.md)
 1.  [Teardown](05_teardown.md)

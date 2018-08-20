@@ -26,7 +26,6 @@ data_file = '/data/github_issues.csv'
 use_sample_data = True
 
 tf_config = os.environ.get('TF_CONFIG', '{}')
-
 tf_config_json = json.loads(tf_config)
 
 cluster = tf_config_json.get('cluster')
@@ -44,7 +43,7 @@ if job_name == "ps":
   sys.exit(0)
 
 
-if job_name == "master":
+if tf_config and job_name == "master":
   while True:
     if os.path.isfile(data_file):
       break
@@ -172,7 +171,6 @@ input_fn = tf.estimator.inputs.numpy_input_fn(
              y=expanded,
              shuffle=False)
 
-# FIXME(inc0): bug - after raising number of steps at some point code throws error about shapes
 train_spec = tf.estimator.TrainSpec(input_fn=input_fn, max_steps=30)
 eval_spec = tf.estimator.EvalSpec(input_fn=input_fn, throttle_secs=10, steps=10)
 

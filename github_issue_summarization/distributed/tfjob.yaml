@@ -62,7 +62,6 @@ spec:
       replicas: 1
       template:
         spec:
-
           containers:
           - name: tensorflow
             image: inc0/issues
@@ -100,7 +99,7 @@ spec:
               persistentVolumeClaim:
                 claimName: models
     PS:
-      replicas: 1
+      replicas: 2
       template:
         spec:
           containers:
