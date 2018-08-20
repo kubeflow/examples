@@ -7,7 +7,7 @@ walk-through of how to implement, train and serve the model. You will be able to
 
 As a part of running this setup on Google Cloud Platform, make sure you have enabled the [Google
 Kubernetes Engine](https://cloud.google.com/kubernetes-engine/). In addition to that you will need to install
-[Docker](https://docs.docker.com/install/) and [gcloud](https://cloud.google.com/sdk/downloads). Note that this setup can run on-prem and on any cloud provider, but here we will demonstrate GCP cloud option. 
+[Docker](https://docs.docker.com/install/) and [gcloud](https://cloud.google.com/sdk/downloads). Note that this setup can run on-prem and on any cloud provider, but here we will demonstrate GCP cloud option. Finally, follow the [instructions](https://www.kubeflow.org/docs/started/getting-started-gke/) to create a GKE cluster. 
 
 # Steps
  * [Kubeflow Setup](#kubeflow-setup)
@@ -66,8 +66,6 @@ A public copy is available at `gcr.io/kubeflow-examples/ames-housing:v1`.
 In this section we will run the above docker container on a [Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine/). There are two steps to perform the training
 
  * Create a GKE cluster
-   * Follow the [instructions](https://www.kubeflow.org/docs/started/getting-started-gke/) to create a GKE cluster
-  
    
  * Create a Persistent Volume
    * Follow the instructions [here](https://kubernetes.io/docs/tasks/configure-pod-container/configure-persistent-volume-storage/). You will need to run the following `kubectl create` commands in order to get the `claim` attached to the `pod`.
@@ -149,7 +147,7 @@ curl -H "Content-Type: application/x-www-form-urlencoded" -d 'json={"data":{"ten
 ```
 
 ## Model serving on GKE
-One of the amazing features of Kubernetes is that you can run it anywhere i.e., local, on-prem and cloud. We will show you how to run your code on Google Kubernetes Engine. Start a GKE cluster by following the instructions [here](https://www.kubeflow.org/docs/started/getting-started-gke/). 
+One of the amazing features of Kubernetes is that you can run it anywhere i.e., local, on-prem and cloud. We will show you how to run your code on Google Kubernetes Engine. First off, start a GKE cluster. 
 
 Deploy Seldon core to your minikube Kubernetes cluster by following the instructions [here](https://github.com/kubeflow/examples/blob/fb2fb26f710f7c03996f08d81607f5ebf7d5af09/github_issue_summarization/serving_the_model.md#deploy-seldon-core). Once everything is successful you can verify it using `kubectl get pods -n${NAMESPACE}`.
 
