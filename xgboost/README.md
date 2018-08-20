@@ -72,10 +72,10 @@ In this section we will run the above docker container on a [Google Kubernetes E
  * Create a Persistent Volume
    * Follow the instructions [here](https://kubernetes.io/docs/tasks/configure-pod-container/configure-persistent-volume-storage/). You will need to run the following `kubectl create` commands in order to get the `claim` attached to the `pod`.
  
- ```
- kubectl create -f py-volume.yaml
- kubectl create -f py-claim.yaml
- ```
+   ```
+   kubectl create -f py-volume.yaml
+   kubectl create -f py-claim.yaml
+   ```
 
  
  * Run docker container on GKE
