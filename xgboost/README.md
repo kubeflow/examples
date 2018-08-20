@@ -66,7 +66,7 @@ A public copy is available at `gcr.io/kubeflow-examples/ames-housing:v1`.
 In this section we will run the above docker container on a [Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine/). There are two steps to perform the training
 
  * Create a GKE cluster
-   Follow the [instructions](https://www.kubeflow.org/docs/started/getting-started-gke/) to create a GKE cluster
+    Follow the [instructions](https://www.kubeflow.org/docs/started/getting-started-gke/) to create a GKE cluster
   
    
  * Create a Persistent Volume by following the instructions [here](https://kubernetes.io/docs/tasks/configure-pod-container/configure-persistent-volume-storage/). You will need to run the following `kubectl create` commands in order to get the `claim` attached to the `pod`.
