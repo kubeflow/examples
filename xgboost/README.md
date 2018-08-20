@@ -51,7 +51,7 @@ docker build -t gcr.io/$PROJECT_ID/${IMAGE_NAME}:${VERSION} .
 ```
 
 Once the above command is successful you should be able to see the docker
-images on your local machine `docker images`. Next we will upload the image to
+images on your local machine by running `docker images`. Next we will upload the image to
 [Google Container Registry](https://cloud.google.com/container-registry/)
 
 ```
