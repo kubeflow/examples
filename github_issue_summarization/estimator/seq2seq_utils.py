@@ -1,7 +1,7 @@
 import logging
-import dill as dpickle
 import numpy as np
 from matplotlib import pyplot as plt
+import dill as dpickle
 import tensorflow as tf
 from IPython.display import SVG, display
 from keras import backend as K
@@ -430,4 +430,3 @@ class Seq2Seq_Inference(object):
     # erroneous results.
     bleu = corpus_bleu([[a] for a in actual], predicted)
     return bleu
-

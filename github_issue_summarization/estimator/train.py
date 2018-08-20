@@ -4,9 +4,9 @@ import os
 import sys
 import time
 
+import numpy as np
 import dill as dpickle
 import pandas as pd
-import numpy as np
 import tensorflow as tf
 
 from ktext.preprocess import processor
