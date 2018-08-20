@@ -18,12 +18,7 @@
     deployIstio: false,
 
     deployHttpProxy: false,
-    defaultHttpProxyImage: "gcr.io/kubeflow-images-public/tf-model-server-http-proxy:v20180606-9dfda4f2",
-    httpProxyImage: "",
-    httpProxyImageToUse: if $.params.httpProxyImage == "" then
-      $.params.defaultHttpProxyImage
-    else
-      $.params.httpProxyImage,
+    httpProxyImage: "gcr.io/kubeflow-images-public/tf-model-server-http-proxy:v20180606-9dfda4f2",
 
     serviceType: "ClusterIP",
 
@@ -57,10 +52,10 @@
     //  Name of the k8s secrets containing S3 credentials
     s3SecretName: "",
     // Name of the key in the k8s secret containing AWS_ACCESS_KEY_ID.
-    s3SecretAccesskeyidKeyName: "",
+    s3SecretAccesskeyidKeyName: "AWS_ACCESS_KEY_ID",
 
     // Name of the key in the k8s secret containing AWS_SECRET_ACCESS_KEY.
-    s3SecretSecretaccesskeyKeyName: "",
+    s3SecretSecretaccesskeyKeyName: "AWS_SECRET_ACCESS_KEY",
 
     // S3 region
     s3AwsRegion: "us-west-1",
@@ -122,13 +117,16 @@
       args: [
         "/usr/bin/tensorflow_model_server",
         "--port=9000",
-        "--rest_api_port=8000",
+        "--rest_api_port=9001",
         "--model_name=" + $.params.modelName,
         "--model_base_path=" + $.params.modelPath,
       ],
       ports: [
         {
           containerPort: 9000,
+        },
+        {
+          containerPort: 9001,
         },
       ],
       // TODO(jlewi): We should add readiness and liveness probes. I think the blocker is that
@@ -176,7 +174,7 @@
 
     httpProxyContainer:: {
       name: $.params.name + "-http-proxy",
-      image: $.params.httpProxyImageToUse,
+      image: $.params.httpProxyImage,
       imagePullPolicy: "IfNotPresent",
       command: [
         "python",
@@ -193,12 +191,12 @@
       ],
       resources: {
         requests: {
-          memory: "1Gi",
-          cpu: "1",
+          memory: "500Mi",
+          cpu: "0.5",
         },
         limits: {
-          memory: "4Gi",
-          cpu: "4",
+          memory: "1Gi",
+          cpu: "1",
         },
       },
       securityContext: {
@@ -273,6 +271,11 @@
             name: "grpc-tf-serving",
             port: 9000,
             targetPort: 9000,
+          },
+          {
+            name: "rest-tf-serving",
+            port: 9001,
+            targetPort: 9001,
           },
           {
             name: "http-tf-serving-proxy",

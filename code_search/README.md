@@ -37,17 +37,15 @@ you replace this with the true FQDN of your Kubeflow cluster in any subsequent i
 * In the **Image** text field, enter `gcr.io/kubeflow-images-public/kubeflow-codelab-notebook:v20180808-v0.2-22-gcfdcb12`.
   This image contains all the pre-requisites needed for the demo.
   
-* Once spawned, you should be redirected to the notebooks UI. We intend to go to the JupyterLab home
-  page which is available at the URL - **https://kubeflow.example.com/user/<ACCOUNT_NAME>/lab**.
-  **TIP**: Simply point the browser to **/lab** instead of the **/tree** path in the URL.
-  
+* Once spawned, you should be redirected to the Jupyter Notebooks UI.
+
 * Spawn a new Terminal and run
   ```
   $ git clone --branch=master --depth=1 https://github.com/kubeflow/examples
   ```
   This will create an examples folder. It is safe to close the terminal now.
   
-* Refresh the File Explorer (typically to the left) and navigate to `examples/code_search`. Open
+* Navigate back to the Jupyter Notebooks UI and navigate to `examples/code_search`. Open
   the Jupyter notebook `code-search.ipynb` and follow it along.
 
 # Acknowledgements

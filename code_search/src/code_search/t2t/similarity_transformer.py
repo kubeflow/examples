@@ -7,7 +7,7 @@ from tensor2tensor.utils import t2t_model
 import tensorflow as tf
 
 
-@registry.register_model
+@registry.register_model('cs_similarity_transformer')
 class SimilarityTransformer(t2t_model.T2TModel):
   """Transformer Model for Similarity between two strings.
 

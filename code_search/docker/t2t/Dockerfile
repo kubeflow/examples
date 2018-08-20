@@ -2,7 +2,7 @@ ARG BASE_IMAGE_TAG=1.8.0
 
 FROM tensorflow/tensorflow:$BASE_IMAGE_TAG
 
-RUN pip --no-cache-dir install tensor2tensor~=1.6.0 oauth2client~=4.1.0 &&\
+RUN pip --no-cache-dir install tensor2tensor~=1.7.0 oauth2client~=4.1.0 &&\
     apt-get update && apt-get install -y jq &&\
     rm -rf /var/lib/apt/lists/*
 
@@ -14,7 +14,5 @@ WORKDIR /app
 ENV PYTHONIOENCODING=utf-8 T2T_USR_DIR=/app/code_search/t2t
 
 VOLUME ["/data", "/output"]
-
-EXPOSE 8008
 
 ENTRYPOINT ["bash"]

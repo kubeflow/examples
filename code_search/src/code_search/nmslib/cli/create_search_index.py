@@ -33,7 +33,7 @@ def create_search_index(argv=None):
   with open(tmp_lookup_file, 'w') as lookup_file:
     lookup_writer = csv.writer(lookup_file)
 
-    for csv_file_path in tf.gfile.Glob('{}/*.csv'.format(args.data_dir)):
+    for csv_file_path in tf.gfile.Glob('{}/*index*.csv'.format(args.data_dir)):
       tf.logging.debug('Reading {}'.format(csv_file_path))
 
       with tf.gfile.Open(csv_file_path) as csv_file:
