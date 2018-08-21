@@ -26,7 +26,7 @@
       pvc: 'pets-pvc',
     },
     "create-pet-record-job": {
-      dataDirPath: '/pets_data/images',
+      dataDirPath: '/pets_data',
       image: 'lcastell/pets_object_detection',
       mountPath: '/pets_data',
       name: 'create-pet-record-job',

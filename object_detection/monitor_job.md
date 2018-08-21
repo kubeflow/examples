@@ -8,14 +8,14 @@ kubectl -n kubeflow describe tfjobs tf-training-job
 ### View logs of individual pods
 ```
 kubectl -n kubeflow get pods
-kubectl -n kubeflow logs <name_of_master_pod>
+kubectl -n kubeflow logs <name_of_chief_pod>
 ```
 **NOTE:** When the job finishes, the pods will be automatically terminated. To see, run the `get pods` command with the `-a` flag:
 ```
 kubectl -n kubeflow get pods -a
 ```
 
-While the job is running, you should see something like this in your master pod logs:
+While the job is running, you should see something like this in your chief pod logs:
 ```
 INFO:tensorflow:Saving checkpoint to path /pets_data/train/model.ckpt
 INFO:tensorflow:Recording summary at step 819.
@@ -28,7 +28,7 @@ INFO:tensorflow:global step 834: loss = 0.2307 (16.493 sec/step)
 INFO:tensorflow:Recording summary at step 839
 ```
 
-When the job finishes, you should see something like this in your completed/terminated master pod logs:
+When the job finishes, you should see something like this in your completed/terminated chief pod logs:
 ```
 INFO:tensorflow:Starting Session.
 INFO:tensorflow:Saving checkpoint to path /pets_data/train/model.ckpt
