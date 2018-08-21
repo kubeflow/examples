@@ -21,14 +21,55 @@ local tfJobCpu = {
                 workingDir: "/models",
                 command: [
                   "python",
-                  "research/object_detection/train.py",
+                  "research/object_detection/model_main.py",
                 ],
                 args:[
-                  "--logstostderr",
+                  "--alsologtostderr",
                   "--pipeline_config_path=" + params.pipelineConfigPath,
-                  "--train_dir=" + params.trainDir,
+                  "--model_dir=" + params.trainDir,
                 ],
                 image: params.image,
+                imagePullPolicy: "Always",
+                name: "tensorflow",
+                [if params.numGpu > 0 then "resources"] : {
+                  limits:{
+                    "nvidia.com/gpu": params.numGpu,
+                  },
+                },
+                volumeMounts: [{
+                  mountPath: params.mountPath,
+                  name: "pets-data",
+                },],
+              },
+            ],
+            volumes: [{
+                name: "pets-data",
+                persistentVolumeClaim: {
+                  claimName: params.pvc,
+                },
+            },],
+            restartPolicy: "OnFailure",
+          },
+        },
+      },
+      Chief: {
+        replicas: 1,
+        template: {
+          spec: {
+            containers: [
+              {
+                workingDir: "/models",
+                command: [
+                  "python",
+                  "research/object_detection/model_main.py",
+                ],
+                args:[
+                  "--alsologtostderr",
+                  "--pipeline_config_path=" + params.pipelineConfigPath,
+                  "--model_dir=" + params.trainDir,
+                ],
+                image: params.image,
+                imagePullPolicy: "Always",
                 name: "tensorflow",
                 [if params.numGpu > 0 then "resources"] : {
                   limits:{
@@ -60,14 +101,15 @@ local tfJobCpu = {
                 workingDir: "/models",
                 command: [
                   "python",
-                  "research/object_detection/train.py",
+                  "research/object_detection/model_main.py",
                 ],
                 args:[
-                  "--logstostderr",
+                  "--alsologtostderr",
                   "--pipeline_config_path=" + params.pipelineConfigPath,
-                  "--train_dir=" + params.trainDir,
+                  "--model_dir=" + params.trainDir,
                 ],
                 image: params.image,
+                imagePullPolicy: "Always",
                 name: "tensorflow",
                 [if params.numGpu > 0 then "resources"] : {
                   limits:{
