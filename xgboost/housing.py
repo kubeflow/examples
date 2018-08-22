@@ -31,7 +31,7 @@ def read_input(file_name, test_size=0.25):
   train_X, test_X, train_y, test_y = train_test_split(X.values,
                                                       y.values,
                                                       test_size=test_size)
-    
+
   imputer = Imputer()
   train_X = imputer.fit_transform(train_X)
   test_X = imputer.transform(test_X)
@@ -61,7 +61,6 @@ def train_model(train_X,
 def eval_model(model, test_X, test_y):
   """Evaluate the model performance."""
   predictions = model.predict(test_X)
-  print
   print("MAE on test: {:.2f}".format(mean_absolute_error(predictions, test_y)))
 
 def save_model(model, model_file):
@@ -116,5 +115,5 @@ if __name__ == '__main__':
           default=50
           )
 
-  args = parser.parse_args()
-  main(args)
+  main_args = parser.parse_args()
+  main(main_args)
