@@ -81,7 +81,7 @@ def main(args):
     eval_model(model, test_X, test_y)
     save_model(model, args.model_file)
 
-if __name__=='__main__':
+if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument(
             '--train-input',
