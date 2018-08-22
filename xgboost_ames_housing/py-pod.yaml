@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Pod
+
+metadata:
+  name: xgboost
+  labels:
+    team: platform
+
+spec:
+  containers:
+  - name: xgboost
+    image: gcr.io/cloudmlplat/ames-housing:v1
+    volumeMounts:
+    - mountPath: "/mnt/xgboost"
+      name: datadir
+    args:
+      - --train-input
+      - /mnt/xgboost/ames_dataset/train.csv
+      - --model-file
+      - /mnt/xgboost/housing.dat
+      - --learning-rate
+      - "0.1"
+      - --n-estimators
+      - "30000"
+      - --early-stopping-rounds
+      - "50"
+  volumes:
+  - name: datadir
+    persistentVolumeClaim:
+      claimName: claim
