@@ -25,7 +25,7 @@ class HousingServe(object):
         prediction = self.model.predict(data=X)
 
         # added this temporarily to keep seldon happy
-        # TODO: Fix https://github.com/SeldonIO/seldon-core/blob/master/wrappers/python/model_microservice.py#L55
+        # TODO: http://bit.ly/2Pvexmb
         return [[prediction.item(0), prediction.item(0)]]
 
     def sample_test(self):
