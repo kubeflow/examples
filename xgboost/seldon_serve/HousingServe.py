@@ -32,6 +32,6 @@ class HousingServe(object):
         """Generate a random sample feature."""
         return np.ndarray([1, 37])
 
-if __name__=='__main__':
+if __name__ == '__main__':
     serve = HousingServe()
     print(serve.predict(serve.sample_test(), None))
