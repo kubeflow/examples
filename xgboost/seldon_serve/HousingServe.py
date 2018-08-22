@@ -16,19 +16,20 @@ import joblib
 import numpy as np
 
 class HousingServe(object):
-    def __init__(self, model_file='housing.dat'):
-        """Load the housing model using joblib."""
-        self.model = joblib.load(model_file)
+  def __init__(self, model_file='housing.dat'):
+    """Load the housing model using joblib."""
+    self.model = joblib.load(model_file)
 
-    def predict(self, X, feature_names):
-        """Predict using the model for given ndarray."""
-        prediction = self.model.predict(data=X)
+  def predict(self, X, feature_names):
+    """Predict using the model for given ndarray."""
+    prediction = self.model.predict(data=X)
+    print(feature_names)
 
-        # added this temporarily to keep seldon happy
-        # TODO: http://bit.ly/2Pvexmb
-        return [[prediction.item(0), prediction.item(0)]]
+    # added this temporarily to keep seldon happy
+    # TODO: http://bit.ly/2Pvexmb
+    return [[prediction.item(0), prediction.item(0)]]
 
 
 if __name__ == '__main__':
-    serve = HousingServe()
-    print(serve.predict(np.ndarray([1, 37]), None))
+  serve = HousingServe()
+  print(serve.predict(np.ndarray([1, 37]), None))
