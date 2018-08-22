@@ -15,10 +15,10 @@
 import argparse
 import joblib
 import pandas as pd
-from sklearn.preprocessing import Imputer
-from sklearn.model_selection import train_test_split
-from xgboost import XGBRegressor
 from sklearn.metrics import mean_absolute_error
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import Imputer
+from xgboost import XGBRegressor
 
 def read_input(file_name, test_size=0.25):
     """Read input data and split it into train and test."""
