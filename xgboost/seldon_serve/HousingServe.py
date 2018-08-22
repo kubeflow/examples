@@ -28,10 +28,7 @@ class HousingServe(object):
         # TODO: http://bit.ly/2Pvexmb
         return [[prediction.item(0), prediction.item(0)]]
 
-    def sample_test(self):
-        """Generate a random sample feature."""
-        return np.ndarray([1, 37])
 
 if __name__ == '__main__':
     serve = HousingServe()
-    print(serve.predict(serve.sample_test(), None))
+    print(serve.predict(np.ndarray([1, 37]), None))
