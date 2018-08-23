@@ -24,6 +24,14 @@ Assuming you have already setup your Kubeflow cluster, all you need to do to try
 kubectl create -f distributed/tfjob.yaml
 ```
 
+## Building image
+
+To build image run:
+
+```
+docker build . -f distributed/Dockerfile
+```
+
 ## What just happened?
 
 With command above we have created Custom Resource that has been defined during Kubeflow

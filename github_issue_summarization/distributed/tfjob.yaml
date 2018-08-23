@@ -35,7 +35,7 @@ spec:
       containers:
       - name: tensorflow
         image: inc0/issues
-        command: ["/issues/download.sh"]
+        command: ["/issues/download_data.sh", "https://storage.googleapis.com/kubeflow-examples/github-issue-summarization-data/github-issues.zip", "/data"]
         volumeMounts:
         - name: data
           mountPath: "/data"
@@ -99,7 +99,7 @@ spec:
               persistentVolumeClaim:
                 claimName: models
     PS:
-      replicas: 2
+      replicas: 3
       template:
         spec:
           containers:

@@ -6,8 +6,10 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install unzip
 RUN mkdir /issues
 WORKDIR /issues
-COPY . /issues
-RUN chmod +x /issues/download.sh
+COPY distributed /issues
+COPY notebooks/seq2seq_utils.py /issues
+COPY ks-kubeflow/components/download_data.sh /issues
+RUN chmod +x /issues/download_data.sh
 RUN mkdir /model
 RUN mkdir /data
 
