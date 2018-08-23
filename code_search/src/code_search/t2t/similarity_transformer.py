@@ -30,8 +30,7 @@ class SimilarityTransformer(t2t_model.T2TModel):
         code_embedding = self.encode(features, 'targets')
       return code_embedding
 
-    if 'embed_code' not in features:
-      features['embed_code'] = tf.constant(False, dtype=tf.bool)
+    predicate = tf.cast(features.get('embed_code'), dtype=tf.bool)[0][0]
 
     if self.trainable:
       string_embedding = embed_string()
@@ -55,12 +54,11 @@ class SimilarityTransformer(t2t_model.T2TModel):
       loss = tf.nn.sigmoid_cross_entropy_with_logits(labels=labels,
                                                      logits=logits)
 
-      result = tf.cond(features.get('embed_code'),
+      result = tf.cond(predicate,
                        lambda: code_embedding, lambda: string_embedding)
       return result, {'training': loss}
 
-    result = tf.cond(features.get('embed_code'),
-                     embed_code, embed_string)
+    result = tf.cond(predicate, embed_code, embed_string)
     return result
 
   def encode(self, features, input_key):
@@ -85,5 +83,9 @@ class SimilarityTransformer(t2t_model.T2TModel):
 
   def infer(self, features=None, **kwargs):
     del kwargs
+
+    if 'targets' not in features:
+      features['targets'] = tf.placeholder(tf.int64, shape=(None, None, 1, 1))
+
     predictions, _ = self(features)
     return predictions
