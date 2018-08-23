@@ -14,7 +14,7 @@ def get_encoder(problem_name, data_dir):
   return problem.feature_info["inputs"].encoder
 
 
-def encode_query(encoder, query_str):
+def encode_query(encoder, query_str, embed_code=False):
   """Encode the input query string using encoder. This
   might vary by problem but keeping generic as a reference.
   Note that in T2T problems, the 'targets' key is needed
@@ -22,8 +22,11 @@ def encode_query(encoder, query_str):
   See tensorflow/tensor2tensor#868"""
 
   encoded_str = encoder.encode(query_str) + [text_encoder.EOS_ID]
-  features = {"inputs": tf.train.Feature(int64_list=tf.train.Int64List(value=encoded_str)),
-              "targets": tf.train.Feature(int64_list=tf.train.Int64List(value=[0]))}
+  features = {
+      "inputs": tf.train.Feature(int64_list=tf.train.Int64List(value=encoded_str)),
+      "targets": tf.train.Feature(int64_list=tf.train.Int64List(value=[0])),
+      "embed_code": tf.constant(embed_code, dtype=tf.bool)
+  }
   example = tf.train.Example(features=tf.train.Features(feature=features))
   return base64.b64encode(example.SerializeToString()).decode('utf-8')
 

@@ -18,16 +18,24 @@ class SimilarityTransformer(t2t_model.T2TModel):
   string embeddings.
   """
 
-  def top(self, body_output, _):  # pylint: disable=no-self-use
-    return body_output
-
   def body(self, features):
-    with tf.variable_scope('string_embedding'):
-      string_embedding = self.encode(features, 'inputs')
 
-    if 'targets' in features:
+    def embed_string():
+      with tf.variable_scope('string_embedding'):
+        string_embedding = self.encode(features, 'inputs')
+      return string_embedding
+
+    def embed_code():
       with tf.variable_scope('code_embedding'):
         code_embedding = self.encode(features, 'targets')
+      return code_embedding
+
+    if 'embed_code' not in features:
+      features['embed_code'] = tf.constant(False, dtype=tf.bool)
+
+    if self.trainable:
+      string_embedding = embed_string()
+      code_embedding = embed_code()
 
       string_embedding_norm = tf.nn.l2_normalize(string_embedding, axis=1)
       code_embedding_norm = tf.nn.l2_normalize(code_embedding, axis=1)
@@ -47,9 +55,13 @@ class SimilarityTransformer(t2t_model.T2TModel):
       loss = tf.nn.sigmoid_cross_entropy_with_logits(labels=labels,
                                                      logits=logits)
 
-      return string_embedding, {'training': loss}
+      result = tf.cond(features.get('embed_code'),
+                       lambda: code_embedding, lambda: string_embedding)
+      return result, {'training': loss}
 
-    return string_embedding
+    result = tf.cond(features.get('embed_code'),
+                     embed_code, embed_string)
+    return result
 
   def encode(self, features, input_key):
     hparams = self._hparams
