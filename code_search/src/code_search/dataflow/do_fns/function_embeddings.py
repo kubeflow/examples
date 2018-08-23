@@ -72,7 +72,8 @@ class EncodeFunctionTokens(beam.DoFn):
         }
     """
     encoder = get_encoder(self.problem, self.data_dir)
-    encoded_function = encode_query(encoder, element.get(self.function_tokens_key))
+    encoded_function = encode_query(encoder, element.get(self.function_tokens_key),
+                                    embed_code=True)
 
     element[self.instances_key] = [{'input': {'b64': encoded_function}}]
     yield element

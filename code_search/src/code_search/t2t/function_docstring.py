@@ -4,9 +4,16 @@ from six import StringIO
 from tensor2tensor.data_generators import generator_utils
 from tensor2tensor.data_generators import text_problems
 from tensor2tensor.utils import metrics
+from tensor2tensor.utils import registry
 import tensorflow as tf
 
-
+# There is a copy of the problem in the Tensor2Tensor library.
+# # https://github.com/tensorflow/tensor2tensor/blob/a4f958a887f4f4466644dd0602bdd33985d61dd7/tensor2tensor/data_generators/function_docstring.py
+#
+# We want to register this problem with a different name to make sure
+# we don't end up using that problem.
+# So we register it with the name kf
+@registry.register_problem("kf_github_function_docstring")
 class GithubFunctionDocstring(text_problems.Text2TextProblem):
   """Function and Docstring similarity Problem.
 
@@ -48,10 +55,11 @@ class GithubFunctionDocstring(text_problems.Text2TextProblem):
     """
     return [
         [
-            "{}/func-doc-pairs-000{:02}-of-00100.csv".format(self.DATA_PATH_PREFIX, i),
+            "{}/func-doc-pairs-000{:02}-of-00100.csv".format(
+                self.DATA_PATH_PREFIX, i),
             ("func-doc-pairs-000{:02}-of-00100.csv".format(i),)
         ]
-        for i in range(100)
+        for i in range(1)
     ]
 
   @property
@@ -69,8 +77,8 @@ class GithubFunctionDocstring(text_problems.Text2TextProblem):
 
   def get_csv_files(self, _data_dir, tmp_dir, _dataset_split):
     return [
-      generator_utils.maybe_download(tmp_dir, file_list[0], uri)
-      for uri, file_list in self.pair_files_list
+        generator_utils.maybe_download(tmp_dir, file_list[0], uri)
+        for uri, file_list in self.pair_files_list
     ]
 
   def generate_samples(self, data_dir, tmp_dir, dataset_split):
@@ -85,7 +93,7 @@ class GithubFunctionDocstring(text_problems.Text2TextProblem):
 
     Yields:
       Each element yielded is of a Python dict of the form
-        {"inputs": "STRING", "targets": "STRING"}
+        {"inputs": "STRING", "targets": "STRING", "embed_code": [0]}
     """
     csv_files = self.get_csv_files(data_dir, tmp_dir, dataset_split)
 
@@ -95,7 +103,17 @@ class GithubFunctionDocstring(text_problems.Text2TextProblem):
         for line in csv_file:
           reader = csv.reader(StringIO(line))
           for docstring_tokens, function_tokens in reader:
-            yield {"inputs": docstring_tokens, "targets": function_tokens}
+            yield {
+                "inputs": docstring_tokens,
+                "targets": function_tokens,
+                "embed_code": [0],
+            }
+
+  def example_reading_spec(self):
+    data_fields, data_items_to_decoders = super(GithubFunctionDocstring,
+                                                self).example_reading_spec()
+    data_fields["embed_code"] = tf.FixedLenFeature([1], dtype=tf.int64)
+    return data_fields, data_items_to_decoders
 
   def eval_metrics(self):  # pylint: disable=no-self-use
     return [
