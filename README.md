@@ -46,7 +46,15 @@ This example covers the following concepts:
 
 ## Component-focused
 
-1.
+### [XGBoost - Ames housing price prediction](./xgboost_ames_housing)
+Author: [Puneith Kaul](https://github.com/puneith)
+
+This example covers the following concepts:
+1. Training an XGBoost model
+1. Shared persistent storage
+1. GCS and GKE
+1. Serving with Seldon Core
+
 
 ## Application-specific
 
