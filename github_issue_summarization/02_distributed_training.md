@@ -3,6 +3,8 @@
 Requires Tensorflow 1.9 or later.
 Requires [StorageClass](https://kubernetes.io/docs/concepts/storage/storage-classes/) capable of creating ReadWriteMany persistent volumes.
 
+On GKE you can follow [GCFS documentation](https://master.kubeflow.org/docs/started/getting-started-gke/#using-gcfs-with-kubeflow) to enable it.
+
 Estimator and Keras are both part of Tensorflow. These high level APIs are designed
 to make building models easier. In our distributed training example we will show how both
 APIs work together to help build models that will be trainable in both single node and
@@ -18,7 +20,13 @@ seamlessly be trained distributed and integrate with `TF_CONFIG` variable which 
 
 ## How to run it
 
-Assuming you have already setup your Kubeflow cluster, all you need to do to try it out:
+First, create PVC and download data. It would be good at this point to ensure that PVC use correct StorageClass etc.
+
+```
+kubectl create -f distributed/storage.yaml
+```
+
+Once download job finishes, you can run training by:
 
 ```
 kubectl create -f distributed/tfjob.yaml
@@ -49,7 +57,7 @@ Each TFJob will run 3 types of Pods.
 
 Master should always have 1 replica. This is main worker which will show us status of overall job.
 
-PS, or Parameter server, is Pod that will hold all weights. It can have any number of replicas, recommended to have more than 1 for high availability.
+PS, or Parameter server, is Pod that will hold all weights. It can have any number of replicas, recommended to have more than 1 - every replica will spread load, which would increase performance for io-bound training.
 
 Worker is Pod which will run training. It can have any number of replicas.
 
@@ -61,7 +69,7 @@ This variable is then consumed by Estimator and used to orchestrate distributed 
 
 There are few things required for this approach to work.
 
-First we need to parse clustering variable. This is required to run different logic per node role
+First we need to parse TF_CONFIG variable. This is required to run different logic per node role
 
 1. If node is PS - run server.join()
 2. If node is Master - run feature preparation and parse input dataset

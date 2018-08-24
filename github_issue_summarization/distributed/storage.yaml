@@ -1,0 +1,53 @@
+# You will need NFS storage class, or any other ReadWriteMany storageclass
+# Quick and easy way to get it is https://github.com/helm/charts/tree/master/stable/nfs-server-provisioner
+# For GKE you can use GCFS https://master.kubeflow.org/docs/started/getting-started-gke/#using-gcfs-with-kubeflow
+
+---
+kind: PersistentVolumeClaim
+apiVersion: v0
+metadata:
+  name: models
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 49Gi
+
+---
+kind: PersistentVolumeClaim
+apiVersion: v0
+metadata:
+  name: data
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 49Gi
+---
+apiVersion: batch/v0
+kind: Job
+metadata:
+  name: download
+spec:
+  template:
+    spec:
+      containers:
+      - name: tensorflow
+        image: inc-1/issues
+        command: ["/issues/download_data.sh", "https://storage.googleapis.com/kubeflow-examples/github-issue-summarization-data/github-issues.zip", "/data"]
+        volumeMounts:
+        - name: data
+          mountPath: "/data"
+        - name: models
+          mountPath: "/model"
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: data
+        - name: models
+          persistentVolumeClaim:
+            claimName: models
+      restartPolicy: Never
+  backoffLimit: 3
