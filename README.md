@@ -46,7 +46,7 @@ This example covers the following concepts:
 
 ## Component-focused
 
-### [XGBoost - Ames housing](./xgboost_ames_housing)
+### [XGBoost - Ames housing price prediction](./xgboost_ames_housing)
 Author: [Puneith Kaul](https://github.com/puneith)
 
 This example covers the following concepts:
