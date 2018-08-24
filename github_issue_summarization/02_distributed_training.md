@@ -57,7 +57,7 @@ Each TFJob will run 3 types of Pods.
 
 Master should always have 1 replica. This is main worker which will show us status of overall job.
 
-PS, or Parameter server, is Pod that will hold all weights. It can have any number of replicas, recommended to have more than 1 - every replica will spread load, which would increase performance for io-bound training.
+PS, or Parameter server, is Pod that will hold all weights. It can have any number of replicas, recommended to have more than 1 - load will be spread between replicas, which would increase performance for io-bound training.
 
 Worker is Pod which will run training. It can have any number of replicas.
 
