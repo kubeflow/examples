@@ -52,7 +52,7 @@ Author: [Puneith Kaul](https://github.com/puneith)
 This example covers the following concepts:
 1. Training an XGBoost model
 1. Shared persistent storage
-2. GCS and GKE
+1. GCS and GKE
 1. Serving with Seldon Core
 
 
