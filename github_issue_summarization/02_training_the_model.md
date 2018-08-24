@@ -45,7 +45,7 @@ kubectl --namespace=${NAMESPACE} cp ${PODNAME}:/home/jovyan/examples/github_issu
 ```
 
 For information on:
-- [Training the model using TFJob](02_training_model_tfjob.md)
+- [Training the model using TFJob](02_training_the_model_tfjob.md)
 - [Distributed training using tensor2tensor](02_tensor2tensor_training.md)
 
 *Next*: [Serving the model](03_serving_the_model.md)
