@@ -1,0 +1,69 @@
+---
+apiVersion: "kubeflow.org/v1alpha2"
+kind: TFJob
+metadata:
+  name: github
+spec:
+  tfReplicaSpecs:
+    Master:
+      replicas: 1
+      template:
+        spec:
+          containers:
+          - name: tensorflow
+            image: inc0/issues
+            command: ["python", "/issues/train.py"]
+            volumeMounts:
+            - name: data
+              mountPath: "/data"
+            - name: models
+              mountPath: "/model"
+          volumes:
+            - name: data
+              persistentVolumeClaim:
+                claimName: data
+            - name: models
+              persistentVolumeClaim:
+                claimName: models
+    Worker:
+      replicas: 5
+      template:
+        spec:
+          containers:
+          - name: tensorflow
+            image: inc0/issues
+            command: ["python", "/issues/train.py"]
+            volumeMounts:
+            - name: data
+              mountPath: "/data"
+            - name: models
+              mountPath: "/model"
+          volumes:
+            - name: data
+              persistentVolumeClaim:
+                claimName: data
+            - name: models
+              persistentVolumeClaim:
+                claimName: models
+    PS:
+      replicas: 3
+      template:
+        spec:
+          containers:
+          - name: tensorflow
+            image: inc0/issues
+            command: ["python", "/issues/train.py"]
+            volumeMounts:
+            - name: data
+              mountPath: "/data"
+            - name: models
+              mountPath: "/model"
+            ports:
+            - containerPort: 6006
+          volumes:
+            - name: data
+              persistentVolumeClaim:
+                claimName: data
+            - name: models
+              persistentVolumeClaim:
+                claimName: models
