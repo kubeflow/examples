@@ -15,13 +15,13 @@
 // @optionalParam jupyterHubServiceType string ClusterIP The service type for Jupyterhub.
 // @optionalParam jupyterHubImage string gcr.io/kubeflow/jupyterhub-k8s:v20180531-3bb991b1 The image to use for JupyterHub.
 // @optionalParam jupyterHubAuthenticator string null The authenticator to use
-// @optionalParam jupyterNotebookPVCMount string null Mount path for PVC. Set empty to disable PVC
+// @optionalParam jupyterNotebookPVCMount string /home/jovyan Mount path for PVC. Set empty to disable PVC
 // @optionalParam jupyterNotebookRegistry string gcr.io The docker image registry for JupyterNotebook.
 // @optionalParam jupyterNotebookRepoName string kubeflow-images-public The repoistory name for JupyterNotebook.
 // @optionalParam reportUsage string false Whether or not to report Kubeflow usage to kubeflow.org.
 // @optionalParam usageId string unknown_cluster Optional id to use when reporting usage to kubeflow.org
 // @optionalParam tfJobVersion string v1alpha2 which version of the TFJob operator to use
-// @optionalParam centralUiImage string gcr.io/kubeflow-images-public/centraldashboard:v20180618-v0.2.0-rc.0-5-g715aafc8-e3b0c4 Image to use for Central UI.
+// @optionalParam centralUiImage string gcr.io/kubeflow-images-public/centraldashboard:v0.2.1 Image to use for Central UI.
 
 local k = import "k.libsonnet";
 local all = import "kubeflow/core/all.libsonnet";
