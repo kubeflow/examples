@@ -447,7 +447,7 @@ Follow the instructions
 GKE cluster for use with TPUs:
 
 ```
-gcloud beta container clusters create demo-chasm \
+gcloud beta container clusters create ${CLUSTER} \
   --project ${DEMO_PROJECT} \
   --zone ${ZONE} \
   --cluster-version=1.10.6-gke.2 \
