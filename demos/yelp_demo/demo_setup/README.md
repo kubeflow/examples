@@ -281,6 +281,28 @@ Suggested quota usages:
 
 Usually the resource grants are auto-approved pretty quickly.
 
+### Setup GKE service account permissions
+
+```
+SERVICE_ACCOUNT=${CLUSTER}@${DEMO_PROJECT}.iam.gserviceaccount.com
+gcloud iam service-accounts create ${CLUSTER} --display-name=${CLUSTER}
+```
+
+Issue permissions to the service account:
+
+```
+gcloud projects add-iam-policy-binding ${DEMO_PROJECT} \
+  --member=serviceAccount:${SERVICE_ACCOUNT} \
+  --role=roles/storage.admin
+```
+
+Create a private key for the service account:
+
+```
+gcloud iam service-accounts keys create ${HOME}/.ssh/${CLUSTER}_key.json \
+  --iam-account=${SERVICE_ACCOUNT}
+```
+
 ### Setup minikube service account permissions
 
 To run from a cluster outside of GKE such as minikube or Docker EE, kubeflow
@@ -433,6 +455,24 @@ kubectl create -f https://raw.githubusercontent.com/GoogleCloudPlatform/containe
 kubectl create namespace ${NAMESPACE}
 ```
 
+### Create k8s secrets
+
+Since our project is private, we need to provide access to resources via the use
+of service accounts. We need two different types of secrets for storing these
+credentials. One of type `docker-registry` for pulling images from GCR and one
+one of type `generic` for accessing private assets.
+
+```
+kubectl -n $NAMESPACE create secret docker-registry gcp-registry-credentials \
+  --docker-server=gcr.io \
+  --docker-username=_json_key \
+  --docker-password="$(cat $HOME/.ssh/${CLUSTER}_key.json)" \
+  --docker-email=${CLUSTER}@${DEMO_PROJECT}.iam.gserviceaccount.com
+
+kubectl -n $NAMESPACE create secret generic gcp-credentials \
+  --from-file=key.json="${HOME}/.ssh/${CLUSTER}_key.json"
+```
+
 #### Create the ksonnet environment
 
 The ksonnet app can be found in the [demo](../demo) directory of this repo. Add an
@@ -485,6 +525,24 @@ kubectl create clusterrolebinding cluster-admin-binding-${USER} \
 
 ```
 kubectl create namespace ${NAMESPACE}
+```
+
+### Create k8s secrets
+
+Since our project is private, we need to provide access to resources via the use
+of service accounts. We need two different types of secrets for storing these
+credentials. One of type `docker-registry` for pulling images from GCR and one
+one of type `generic` for accessing private assets.
+
+```
+kubectl -n $NAMESPACE create secret docker-registry gcp-registry-credentials \
+  --docker-server=gcr.io \
+  --docker-username=_json_key \
+  --docker-password="$(cat $HOME/.ssh/${CLUSTER}_key.json)" \
+  --docker-email=${CLUSTER}@${DEMO_PROJECT}.iam.gserviceaccount.com
+
+kubectl -n $NAMESPACE create secret generic gcp-credentials \
+  --from-file=key.json="${HOME}/.ssh/${CLUSTER}_key.json"
 ```
 
 #### Create the ksonnet environment

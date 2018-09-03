@@ -133,7 +133,7 @@ local tfjob = {
                 containers: [
                   {
                     command: masterCommand,
-                    env: if cloud != "gke" then baseEnv else nonGkeEnv,
+                    env: if cloud != "gke" then nonGkeEnv else baseEnv,
                     image: if updatedParams.workerGpu > 0 then updatedParams.gpuImage else updatedParams.cpuImage,
                     name: "tensorflow",
                     [if updatedParams.workerGpu > 0 then "resources"]: gpuResources,
@@ -154,7 +154,7 @@ local tfjob = {
                 containers: [
                   {
                     command: workerCommand,
-                    env: if cloud != "gke" then baseEnv else nonGkeEnv,
+                    env: if cloud != "gke" then nonGkeEnv else baseEnv,
                     image: if updatedParams.workerGpu > 0 then updatedParams.gpuImage else updatedParams.cpuImage,
                     name: "tensorflow",
                     [if updatedParams.workerGpu > 0 then "resources"]: gpuResources,
@@ -174,7 +174,7 @@ local tfjob = {
                 containers: [
                   {
                     command: psCommand,
-                    env: if cloud != "gke" then baseEnv else nonGkeEnv,
+                    env: if cloud != "gke" then nonGkeEnv else baseEnv,
                     image: updatedParams.cpuImage,
                     name: "tensorflow",
                     [if cloud != "gke" then "volumeMounts"]: nonGkeVolumeMounts,
