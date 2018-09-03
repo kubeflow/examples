@@ -11,15 +11,15 @@ libraries:
   core:
     name: core
     registry: kubeflow
-    version: 20bdb46ee436b56fb9e3690d2a383b2afc8989f4
+    version: 3be196cfa1d68d9a33e0674c133ffbbcc3e57d46
   tf-job:
     name: tf-job
     registry: kubeflow
-    version: 20bdb46ee436b56fb9e3690d2a383b2afc8989f4
+    version: 3be196cfa1d68d9a33e0674c133ffbbcc3e57d46
   tf-serving:
     name: tf-serving
     registry: kubeflow
-    version: 20bdb46ee436b56fb9e3690d2a383b2afc8989f4
+    version: 3be196cfa1d68d9a33e0674c133ffbbcc3e57d46
 name: demo
 registries:
   incubator:
@@ -27,5 +27,5 @@ registries:
     uri: github.com/ksonnet/parts/tree/master/incubator
   kubeflow:
     protocol: github
-    uri: github.com/kubeflow/kubeflow/tree/v0.1.0/kubeflow
+    uri: github.com/kubeflow/kubeflow/tree/v0.2.0-rc.1/kubeflow
 version: 0.0.1

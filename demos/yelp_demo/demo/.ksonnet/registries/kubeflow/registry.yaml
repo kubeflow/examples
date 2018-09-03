@@ -1,0 +1,37 @@
+apiVersion: 0.2.0
+kind: ksonnet.io/registry
+libraries:
+  argo:
+    path: argo
+    version: 3be196cfa1d68d9a33e0674c133ffbbcc3e57d46
+  automation:
+    path: automation
+    version: 3be196cfa1d68d9a33e0674c133ffbbcc3e57d46
+  core:
+    path: core
+    version: 3be196cfa1d68d9a33e0674c133ffbbcc3e57d46
+  katib:
+    path: katib
+    version: 3be196cfa1d68d9a33e0674c133ffbbcc3e57d46
+  mpi-job:
+    path: mpi-job
+    version: 3be196cfa1d68d9a33e0674c133ffbbcc3e57d46
+  new-package-stub:
+    path: new-package-stub
+    version: 3be196cfa1d68d9a33e0674c133ffbbcc3e57d46
+  openmpi:
+    path: openmpi
+    version: 3be196cfa1d68d9a33e0674c133ffbbcc3e57d46
+  pachyderm:
+    path: pachyderm
+    version: 3be196cfa1d68d9a33e0674c133ffbbcc3e57d46
+  pytorch-job:
+    path: pytorch-job
+    version: 3be196cfa1d68d9a33e0674c133ffbbcc3e57d46
+  tf-job:
+    path: tf-job
+    version: 3be196cfa1d68d9a33e0674c133ffbbcc3e57d46
+  tf-serving:
+    path: tf-serving
+    version: 3be196cfa1d68d9a33e0674c133ffbbcc3e57d46
+version: 3be196cfa1d68d9a33e0674c133ffbbcc3e57d46
