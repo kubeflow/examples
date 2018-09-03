@@ -69,44 +69,19 @@ local tfjob = {
                 command: [
                   "t2t-trainer",
                 ],
-                [if cloud != "gke" then "env"]: [
-                  {
-                    name: "GOOGLE_APPLICATION_CREDENTIALS",
-                    value: "/secret/gcp-credentials/key.json"
-                  },
-                ],
                 image: updatedParams.cpuImage,
                 name: "tensorflow",
                 resources: {
-                  [if cloud == "gke" then "limits"]: {
+                  "limits": {
                     "cloud-tpus.google.com/v2": updatedParams.tpus,
                   },
                   requests: {
                     memory: "1Gi",
                   },
                 },
-                [if cloud != "gke" then "volumeMounts"]: [
-                  {
-                    mountPath: "/secret/gcp-credentials",
-                    name: "gcp-credentials",
-                  },
-                ],
-              },
-            ],
-            [if cloud != "gke" then "imagePullSecrets"]: [
-              {
-                name: "gcp-registry-credentials",
               },
             ],
             restartPolicy: "OnFailure",
-            [if cloud != "gke" then "volumes"]: [
-              {
-                name: "gcp-credentials",
-                secret: {
-                  secretName: "gcp-credentials",
-                },
-              },
-            ],
           }, // spec
         }, // template
       }, // Master

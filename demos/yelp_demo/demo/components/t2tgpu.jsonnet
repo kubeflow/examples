@@ -36,13 +36,6 @@ local updatedParams = {
   jobName: "t2tgpu",
 } + params;
 
-local containerEnv = [
-  {
-    name: "PYTHONPATH",
-    value: "/home/jovyan",
-  },
-];
-
 local baseCommand = [
   "bash",
   "/home/jovyan/yelp_sentiment/worker_launcher.sh",
@@ -79,7 +72,49 @@ local masterCommand = workerBaseCommand + [
   "--worker_job=/job:master",
 ];
 
+local gpuResources = {
+  limits: {
+    "nvidia.com/gpu": updatedParams.workerGpu,
+  },
+};
+
 local cloud = std.toString(updatedParams.cloud);
+
+local baseEnv = [
+  {
+    name: "PYTHONPATH",
+    value: "/home/jovyan",
+  },
+];
+
+local nonGkeEnv = baseEnv + [
+  {
+    name: "GOOGLE_APPLICATION_CREDENTIALS",
+    value: "/secret/gcp-credentials/key.json"
+  },
+];
+
+local nonGkeVolumes = [
+  {
+    name: "gcp-credentials",
+    secret: {
+      secretName: "gcp-credentials",
+    },
+  },
+];
+
+local nonGkeImagePullSecrets = [
+  {
+    name: "gcp-registry-credentials",
+  },
+];
+
+local nonGkeVolumeMounts = [
+  {
+    mountPath: "/secret/gcp-credentials",
+    name: "gcp-credentials",
+  },
+];
 
 local tfjob = {
   apiVersion: "kubeflow.org/v1alpha2",
@@ -97,17 +132,16 @@ local tfjob = {
                 containers: [
                   {
                     command: masterCommand,
+                    env: if cloud != "gke" then baseEnv else nonGkeEnv,
                     image: if updatedParams.workerGpu > 0 then updatedParams.gpuImage else updatedParams.cpuImage,
                     name: "tensorflow",
-                    env: containerEnv,
-                    [if updatedParams.workerGpu > 0 then "resources"]: {
-                      limits: {
-                        "nvidia.com/gpu": updatedParams.workerGpu,
-                      },
-                    },
+                    [if updatedParams.workerGpu > 0 then "resources"]: gpuResources,
+                    [if cloud != "gke" then "volumeMounts"]: nonGkeVolumeMounts,
                   },
                 ],
+                [if cloud != "gke" then "imagePullSecrets"]: nonGkeImagePullSecrets,
                 restartPolicy: "OnFailure",
+                [if cloud != "gke" then "volumes"]: nonGkeVolumes,
               },
             },
       }, // Master
@@ -119,17 +153,16 @@ local tfjob = {
                 containers: [
                   {
                     command: workerCommand,
+                    env: if cloud != "gke" then baseEnv else nonGkeEnv,
                     image: if updatedParams.workerGpu > 0 then updatedParams.gpuImage else updatedParams.cpuImage,
                     name: "tensorflow",
-                    env: containerEnv,
-                    [if updatedParams.workerGpu > 0 then "resources"]: {
-                      limits: {
-                        "nvidia.com/gpu": updatedParams.workerGpu,
-                      },
-                    },
+                    [if updatedParams.workerGpu > 0 then "resources"]: gpuResources,
+                    [if cloud != "gke" then "volumeMounts"]: nonGkeVolumeMounts,
                   },
                 ],
+                [if cloud != "gke" then "imagePullSecrets"]: nonGkeImagePullSecrets,
                 restartPolicy: "OnFailure",
+                [if cloud != "gke" then "volumes"]: nonGkeVolumes,
               },
             },
       }, // Worker
@@ -140,12 +173,15 @@ local tfjob = {
                 containers: [
                   {
                     command: psCommand,
+                    env: if cloud != "gke" then baseEnv else nonGkeEnv,
                     image: updatedParams.cpuImage,
                     name: "tensorflow",
-                    env: containerEnv,
+                    [if cloud != "gke" then "volumeMounts"]: nonGkeVolumeMounts,
                   },
                 ],
+                [if cloud != "gke" then "imagePullSecrets"]: nonGkeImagePullSecrets,
                 restartPolicy: "OnFailure",
+                [if cloud != "gke" then "volumes"]: nonGkeVolumes,
               },
             }, 
     }, // Ps    

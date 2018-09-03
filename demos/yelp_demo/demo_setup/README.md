@@ -311,7 +311,11 @@ gcloud iam service-accounts keys create ${HOME}/.ssh/minikube_key.json \
 
 To start a minikube instance:
 ```
-minikube start --cpus 4 --memory 8096 --disk-size=40g
+minikube start \
+  --cpus 4 \
+  --memory 8096 \
+  --disk-size=40g \
+  --kubernetes-version v1.10.6
 ```
 
 RBAC permissions allow your user to install kubeflow components on the cluster.
