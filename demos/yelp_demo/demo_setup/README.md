@@ -15,11 +15,11 @@ required. These steps should only need to be completed once.
 ## 1. Install tools locally
 
 Ensure that you have at least the below versions of these tools (latest as of
-2018-05-26). If so, skip to the [next step](#2-set-environment-variables).
+2018-09-02). If so, skip to the [next step](#2-set-environment-variables).
 
 * [docker](#install-docker) v18.03.1-ce
 * [gcloud](#install-gcloud) v202.0.0
-* [ksonnet](#install-ksonnet) v0.11.0
+* [ksonnet](#install-ksonnet) v0.12.0
 * [kubectl](#install-kubectl) v1.10.3
 * [miniconda](#install-miniconda) v4.4.10
 * [minikube](#install-minikube) v0.27.0
@@ -40,13 +40,13 @@ The Google Cloud SDK can be found
 ### Install ksonnet
 
 Download the correct binary based on your OS distro. The latest release can be found
-[here](https://github.com/ksonnet/ksonnet/releases/tag/v0.11.0).
+[here](https://github.com/ksonnet/ksonnet/releases/tag/v0.12.0).
 
 ```
-#export KS_VER=ks_0.11.0_linux_amd64
+#export KS_VER=ks_0.12.0_linux_amd64
 # MacOS
-export KS_VER=ks_0.11.0_darwin_amd64
-wget -O /tmp/$KS_VER.tar.gz https://github.com/ksonnet/ksonnet/releases/download/v0.11.0/$KS_VER.tar.gz
+export KS_VER=ks_0.12.0_darwin_amd64
+wget -O /tmp/$KS_VER.tar.gz https://github.com/ksonnet/ksonnet/releases/download/v0.12.0/$KS_VER.tar.gz
 mkdir -p ${HOME}/bin
 tar -xvf /tmp/$KS_VER.tar.gz -C ${HOME}/bin
 export PATH=$PATH:${HOME}/bin/$KS_VER

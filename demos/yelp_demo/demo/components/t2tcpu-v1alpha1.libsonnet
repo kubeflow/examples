@@ -29,7 +29,7 @@
       masters: 1,
       ps: 1,
 
-      jobName: "t2tcpu",
+      jobName: "t2tcpu-v1alpha1",
     } + params,
 
     local baseCommand = [
