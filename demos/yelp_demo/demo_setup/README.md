@@ -440,6 +440,56 @@ cd ../demo
 ks env add ${ENV} --namespace=${NAMESPACE}
 ```
 
+### Create a TPU cluster
+
+Follow the instructions
+[here](https://cloud.google.com/tpu/docs/kubernetes-engine-setup) to create a
+GKE cluster for use with TPUs:
+
+```
+gcloud beta container clusters create demo-chasm \
+  --project ${DEMO_PROJECT} \
+  --zone ${ZONE} \
+  --cluster-version=1.10.6-gke.2 \
+  --enable-ip-alias \
+  --enable-tpu \
+  --machine-type n1-standard-4 \
+  --scopes=cloud-platform,compute-rw,storage-rw \
+  --verbosity=error
+```
+
+#### Setup kubectl access
+
+```
+gcloud container clusters get-credentials ${CLUSTER} \
+  --project=${DEMO_PROJECT} \
+  --zone=${ZONE}
+./create_context.sh tpu ${NAMESPACE}
+```
+
+#### Add RBAC permissions
+
+This allows your user to install kubeflow components on the cluster.
+
+```
+kubectl create clusterrolebinding cluster-admin-binding-${USER} \
+  --clusterrole cluster-admin \
+  --user $(gcloud config get-value account)
+```
+
+#### Create the kubeflow namespace
+
+```
+kubectl create namespace ${NAMESPACE}
+```
+
+#### Create the ksonnet environment
+
+```
+cd ../demo
+ks env add tpu --namespace=${NAMESPACE}
+```
+
 ## 6. Prepare the ksonnet app
 
 The ksonnet app can be found in the [demo](../demo) directory of this repo. Add an
