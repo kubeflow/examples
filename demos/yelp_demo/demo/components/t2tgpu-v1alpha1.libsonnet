@@ -2,6 +2,7 @@
   parts(params, env):: {
     // Define some defaults.
     local updatedParams = {
+      cloud: "gke",
       sync: "0",
 
       dataDir: "gs://kubeflow-demo-base/featurization/yelp-data",
@@ -27,7 +28,7 @@
       masters: 1,
       ps: 1,
 
-      jobName: "t2tgpu",
+      jobName: "t2tgpu-v1alpha1",
     } + params,
 
     local baseCommand = [

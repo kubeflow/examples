@@ -22,7 +22,7 @@
 
       tpus: 8,
 
-      jobName: "t2ttpu",
+      jobName: "t2ttpu-v1alpha1",
 
       tpuEndpoint: "$(KUBE_GOOGLE_CLOUD_TPU_ENDPOINTS)"
     } + params,

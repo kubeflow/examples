@@ -42,12 +42,25 @@
       gpuImage: "gcr.io/kubeflow-demo-base/kubeflow-yelp-demo-gpu:latest",
       outputGCSPath: "gs://kubeflow-demo-base/kubeflow-demo-base-demo/CPU/training/yelp-model",
     },
+    "t2tgpu-v1alpha1": {
+      workerGpu: 1,
+      cpuImage: "gcr.io/kubeflow-demo-base/kubeflow-yelp-demo-cpu:latest",
+      dataDir: "gs://kubeflow-demo-base/featurization/yelp-data",
+      gpuImage: "gcr.io/kubeflow-demo-base/kubeflow-yelp-demo-gpu:latest",
+      outputGCSPath: "gs://kubeflow-demo-base/kubeflow-demo-base-demo/GPU/training/yelp-model",
+    },
     "t2tgpu": {
       workerGpu: 1,
       cpuImage: "gcr.io/kubeflow-demo-base/kubeflow-yelp-demo-cpu:latest",
       dataDir: "gs://kubeflow-demo-base/featurization/yelp-data",
       gpuImage: "gcr.io/kubeflow-demo-base/kubeflow-yelp-demo-gpu:latest",
       outputGCSPath: "gs://kubeflow-demo-base/kubeflow-demo-base-demo/GPU/training/yelp-model",
+    },
+    "t2ttpu-v1alpha1": {
+      cpuImage: "gcr.io/kubeflow-demo-base/kubeflow-yelp-demo-cpu:latest",
+      dataDir: "gs://kubeflow-demo-base/featurization/yelp-data",
+      gpuImage: "gcr.io/kubeflow-demo-base/kubeflow-yelp-demo-gpu:latest",
+      outputGCSPath: "gs://kubeflow-demo-base/kubeflow-demo-base-demo/TPU/training/yelp-model",
     },
     "t2ttpu": {
       cpuImage: "gcr.io/kubeflow-demo-base/kubeflow-yelp-demo-cpu:latest",
