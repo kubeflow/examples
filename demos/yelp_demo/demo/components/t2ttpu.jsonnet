@@ -48,7 +48,7 @@ local tfjob = {
         template: {
           metadata: {
             annotations: {
-              "tf-version.cloud-tpus.google.com": "1.7",
+              "tf-version.cloud-tpus.google.com": "1.9",
             },
           },
           spec: {
