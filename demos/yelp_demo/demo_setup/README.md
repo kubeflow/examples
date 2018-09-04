@@ -401,9 +401,33 @@ ks param set --env minikube serving modelPath ${GCS_TRAINING_OUTPUT_DIR_LOCAL}/e
 
 ## 5. Create a GKE cluster
 
-### Setup a CPU/GPU cluster
+### Setup a CPU/GPU/TPU cluster
 
-#### Create the cluster
+Choose one of two ways to create a GKE cluster:
+
+1. gcloud command line OR
+1. Deployment Manager (no TPU support)
+
+#### Create the cluster with gcloud
+
+Follow the instructions
+[here](https://cloud.google.com/tpu/docs/kubernetes-engine-setup) to create a
+GKE cluster for use with TPUs and GPUs:
+
+```
+gcloud beta container clusters create ${CLUSTER} \
+  --project ${DEMO_PROJECT} \
+  --zone ${ZONE} \
+  --accelerator=type=nvidia-tesla-k80,count=2 \
+  --cluster-version=1.10.6-gke.2 \
+  --enable-ip-alias \
+  --enable-tpu \
+  --machine-type=n1-highmem-8 \
+  --scopes=cloud-platform,compute-rw,storage-rw \
+  --verbosity=error
+```
+
+#### OPTIONAL: Create the cluster with Deployment Manager instead (no TPUs)
 
 Create a config file:
 
@@ -446,7 +470,7 @@ kubectl create clusterrolebinding cluster-admin-binding-${USER} \
 #### Install GPU device drivers
 
 ```
-kubectl create -f https://raw.githubusercontent.com/GoogleCloudPlatform/container-engine-accelerators/k8s-1.9/nvidia-driver-installer/cos/daemonset-preloaded.yaml
+kubectl create -f https://raw.githubusercontent.com/GoogleCloudPlatform/container-engine-accelerators/k8s-1.10/nvidia-driver-installer/cos/daemonset-preloaded.yaml
 ```
 
 #### Create the kubeflow namespace
@@ -482,74 +506,6 @@ component.
 ```
 cd ../demo
 ks env add ${ENV} --namespace=${NAMESPACE}
-```
-
-### Create a TPU cluster
-
-Follow the instructions
-[here](https://cloud.google.com/tpu/docs/kubernetes-engine-setup) to create a
-GKE cluster for use with TPUs:
-
-```
-gcloud beta container clusters create ${CLUSTER} \
-  --project ${DEMO_PROJECT} \
-  --zone ${ZONE} \
-  --cluster-version=1.10.6-gke.2 \
-  --enable-ip-alias \
-  --enable-tpu \
-  --machine-type n1-standard-4 \
-  --scopes=cloud-platform,compute-rw,storage-rw \
-  --verbosity=error
-```
-
-#### Setup kubectl access
-
-```
-gcloud container clusters get-credentials ${CLUSTER} \
-  --project=${DEMO_PROJECT} \
-  --zone=${ZONE}
-./create_context.sh tpu ${NAMESPACE}
-```
-
-#### Add RBAC permissions
-
-This allows your user to install kubeflow components on the cluster.
-
-```
-kubectl create clusterrolebinding cluster-admin-binding-${USER} \
-  --clusterrole cluster-admin \
-  --user $(gcloud config get-value account)
-```
-
-#### Create the kubeflow namespace
-
-```
-kubectl create namespace ${NAMESPACE}
-```
-
-### Create k8s secrets
-
-Since our project is private, we need to provide access to resources via the use
-of service accounts. We need two different types of secrets for storing these
-credentials. One of type `docker-registry` for pulling images from GCR and one
-one of type `generic` for accessing private assets.
-
-```
-kubectl -n $NAMESPACE create secret docker-registry gcp-registry-credentials \
-  --docker-server=gcr.io \
-  --docker-username=_json_key \
-  --docker-password="$(cat $HOME/.ssh/${CLUSTER}_key.json)" \
-  --docker-email=${CLUSTER}@${DEMO_PROJECT}.iam.gserviceaccount.com
-
-kubectl -n $NAMESPACE create secret generic gcp-credentials \
-  --from-file=key.json="${HOME}/.ssh/${CLUSTER}_key.json"
-```
-
-#### Create the ksonnet environment
-
-```
-cd ../demo
-ks env add tpu --namespace=${NAMESPACE}
 ```
 
 ## 6. Prepare the ksonnet app
