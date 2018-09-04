@@ -336,7 +336,7 @@ To start a minikube instance:
 minikube start \
   --cpus 4 \
   --memory 8096 \
-  --disk-size=40g \
+  --disk-size=50g \
   --kubernetes-version v1.10.6
 ```
 
@@ -418,13 +418,13 @@ GKE cluster for use with TPUs and GPUs:
 gcloud beta container clusters create ${CLUSTER} \
   --project ${DEMO_PROJECT} \
   --zone ${ZONE} \
-  --accelerator=type=nvidia-tesla-k80,count=2 \
-  --cluster-version=1.10.6-gke.2 \
+  --accelerator type=nvidia-tesla-k80,count=2 \
+  --cluster-version 1.10.6-gke.2 \
   --enable-ip-alias \
   --enable-tpu \
-  --machine-type=n1-highmem-8 \
-  --scopes=cloud-platform,compute-rw,storage-rw \
-  --verbosity=error
+  --machine-type n1-highmem-8 \
+  --scopes cloud-platform,compute-rw,storage-rw \
+  --verbosity error
 ```
 
 #### OPTIONAL: Create the cluster with Deployment Manager instead (no TPUs)

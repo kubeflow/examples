@@ -31,25 +31,25 @@
     "t2tcpu": {
       workerGpu: 0,
       cpuImage: "gcr.io/kubeflow-demo-base/kubeflow-yelp-demo-cpu:latest",
-      dataDir: "gs://kubeflow-demo-base/featurization/yelp-data",
+      dataDir: "gs://kubeflow-demo-base/featurization/yelp-data-1000000",
       gpuImage: "gcr.io/kubeflow-demo-base/kubeflow-yelp-demo-gpu:latest",
-      outputGCSPath: "gs://kubeflow-demo-base/kubeflow-demo-base-demo/CPU/training/yelp-model",
+      outputGCSPath: "gs://kubeflow-demo-base/gke/local/training/yelp-model-1000000",
     },
     "t2tgpu": {
       workerGpu: 1,
       cpuImage: "gcr.io/kubeflow-demo-base/kubeflow-yelp-demo-cpu:latest",
-      dataDir: "gs://kubeflow-demo-base/featurization/yelp-data",
+      dataDir: "gs://kubeflow-demo-base/featurization/yelp-data-1000000",
       gpuImage: "gcr.io/kubeflow-demo-base/kubeflow-yelp-demo-gpu:latest",
-      outputGCSPath: "gs://kubeflow-demo-base/kubeflow-demo-base-demo/GPU/training/yelp-model",
+      outputGCSPath: "gs://kubeflow-demo-base/gke/local/training/yelp-model-1000000",
     },
     "t2ttpu": {
       cpuImage: "gcr.io/kubeflow-demo-base/kubeflow-yelp-demo-cpu:latest",
-      dataDir: "gs://kubeflow-demo-base/featurization/yelp-data",
+      dataDir: "gs://kubeflow-demo-base/featurization/yelp-data-1000000",
       gpuImage: "gcr.io/kubeflow-demo-base/kubeflow-yelp-demo-gpu:latest",
-      outputGCSPath: "gs://kubeflow-demo-base/kubeflow-demo-base-demo/TPU/training/yelp-model",
+      outputGCSPath: "gs://kubeflow-demo-base/gke/local/training/yelp-model-1000000",
     },
     "serving": {
-      modelPath: "gs://kubeflow-demo-base/kubeflow-demo-base-demo/TPU/training/yelp-model/export/Servo",
+      modelPath: "gs://kubeflow-demo-base/kubeflow-demo-base-demo/TPU/training/yelp-model-1000000-live/export/Servo",
       deployHttpProxy: true,
       modelServerImage: "gcr.io/kubeflow-images-public/tf-model-server-cpu:v20180523-2a68f293",
       name: "serving"
