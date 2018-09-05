@@ -15,11 +15,11 @@ required. These steps should only need to be completed once.
 ## 1. Install tools locally
 
 Ensure that you have at least the below versions of these tools (latest as of
-2018-05-26). If so, skip to the [next step](#2-set-environment-variables).
+2018-09-02). If so, skip to the [next step](#2-set-environment-variables).
 
 * [docker](#install-docker) v18.03.1-ce
 * [gcloud](#install-gcloud) v202.0.0
-* [ksonnet](#install-ksonnet) v0.11.0
+* [ksonnet](#install-ksonnet) v0.12.0
 * [kubectl](#install-kubectl) v1.10.3
 * [miniconda](#install-miniconda) v4.4.10
 * [minikube](#install-minikube) v0.27.0
@@ -40,13 +40,13 @@ The Google Cloud SDK can be found
 ### Install ksonnet
 
 Download the correct binary based on your OS distro. The latest release can be found
-[here](https://github.com/ksonnet/ksonnet/releases/tag/v0.11.0).
+[here](https://github.com/ksonnet/ksonnet/releases/tag/v0.12.0).
 
 ```
-#export KS_VER=ks_0.11.0_linux_amd64
+#export KS_VER=ks_0.12.0_linux_amd64
 # MacOS
-export KS_VER=ks_0.11.0_darwin_amd64
-wget -O /tmp/$KS_VER.tar.gz https://github.com/ksonnet/ksonnet/releases/download/v0.11.0/$KS_VER.tar.gz
+export KS_VER=ks_0.12.0_darwin_amd64
+wget -O /tmp/$KS_VER.tar.gz https://github.com/ksonnet/ksonnet/releases/download/v0.12.0/$KS_VER.tar.gz
 mkdir -p ${HOME}/bin
 tar -xvf /tmp/$KS_VER.tar.gz -C ${HOME}/bin
 export PATH=$PATH:${HOME}/bin/$KS_VER
@@ -281,6 +281,28 @@ Suggested quota usages:
 
 Usually the resource grants are auto-approved pretty quickly.
 
+### Setup GKE service account permissions
+
+```
+SERVICE_ACCOUNT=${CLUSTER}@${DEMO_PROJECT}.iam.gserviceaccount.com
+gcloud iam service-accounts create ${CLUSTER} --display-name=${CLUSTER}
+```
+
+Issue permissions to the service account:
+
+```
+gcloud projects add-iam-policy-binding ${DEMO_PROJECT} \
+  --member=serviceAccount:${SERVICE_ACCOUNT} \
+  --role=roles/storage.admin
+```
+
+Create a private key for the service account:
+
+```
+gcloud iam service-accounts keys create ${HOME}/.ssh/${CLUSTER}_key.json \
+  --iam-account=${SERVICE_ACCOUNT}
+```
+
 ### Setup minikube service account permissions
 
 To run from a cluster outside of GKE such as minikube or Docker EE, kubeflow
@@ -311,7 +333,11 @@ gcloud iam service-accounts keys create ${HOME}/.ssh/minikube_key.json \
 
 To start a minikube instance:
 ```
-minikube start --cpus 4 --memory 8096 --disk-size=40g
+minikube start \
+  --cpus 4 \
+  --memory 8096 \
+  --disk-size=50g \
+  --kubernetes-version v1.10.6
 ```
 
 RBAC permissions allow your user to install kubeflow components on the cluster.
@@ -375,9 +401,33 @@ ks param set --env minikube serving modelPath ${GCS_TRAINING_OUTPUT_DIR_LOCAL}/e
 
 ## 5. Create a GKE cluster
 
-### Setup a CPU/GPU cluster
+### Setup a CPU/GPU/TPU cluster
 
-#### Create the cluster
+Choose one of two ways to create a GKE cluster:
+
+1. gcloud command line OR
+1. Deployment Manager (no TPU support)
+
+#### Create the cluster with gcloud
+
+Follow the instructions
+[here](https://cloud.google.com/tpu/docs/kubernetes-engine-setup) to create a
+GKE cluster for use with TPUs and GPUs:
+
+```
+gcloud beta container clusters create ${CLUSTER} \
+  --project ${DEMO_PROJECT} \
+  --zone ${ZONE} \
+  --accelerator type=nvidia-tesla-k80,count=2 \
+  --cluster-version 1.10.6-gke.2 \
+  --enable-ip-alias \
+  --enable-tpu \
+  --machine-type n1-highmem-8 \
+  --scopes cloud-platform,compute-rw,storage-rw \
+  --verbosity error
+```
+
+#### OPTIONAL: Create the cluster with Deployment Manager instead (no TPUs)
 
 Create a config file:
 
@@ -420,13 +470,31 @@ kubectl create clusterrolebinding cluster-admin-binding-${USER} \
 #### Install GPU device drivers
 
 ```
-kubectl create -f https://raw.githubusercontent.com/GoogleCloudPlatform/container-engine-accelerators/k8s-1.9/nvidia-driver-installer/cos/daemonset-preloaded.yaml
+kubectl create -f https://raw.githubusercontent.com/GoogleCloudPlatform/container-engine-accelerators/k8s-1.10/nvidia-driver-installer/cos/daemonset-preloaded.yaml
 ```
 
 #### Create the kubeflow namespace
 
 ```
 kubectl create namespace ${NAMESPACE}
+```
+
+### Create k8s secrets
+
+Since our project is private, we need to provide access to resources via the use
+of service accounts. We need two different types of secrets for storing these
+credentials. One of type `docker-registry` for pulling images from GCR and one
+one of type `generic` for accessing private assets.
+
+```
+kubectl -n $NAMESPACE create secret docker-registry gcp-registry-credentials \
+  --docker-server=gcr.io \
+  --docker-username=_json_key \
+  --docker-password="$(cat $HOME/.ssh/${CLUSTER}_key.json)" \
+  --docker-email=${CLUSTER}@${DEMO_PROJECT}.iam.gserviceaccount.com
+
+kubectl -n $NAMESPACE create secret generic gcp-credentials \
+  --from-file=key.json="${HOME}/.ssh/${CLUSTER}_key.json"
 ```
 
 #### Create the ksonnet environment

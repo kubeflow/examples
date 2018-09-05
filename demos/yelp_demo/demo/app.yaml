@@ -1,4 +1,4 @@
-apiVersion: 0.1.0
+apiVersion: 0.2.0
 environments:
   default:
     destination:
@@ -6,38 +6,28 @@ environments:
       server: https://35.188.86.227
     k8sVersion: v1.7.0
     path: default
+  gke:
+    destination:
+      namespace: kubeflow
+      server: https://35.227.190.159
+    k8sVersion: v1.10.6
+    path: gke
 kind: ksonnet.io/app
 libraries:
   core:
-    gitVersion:
-      commitSha: 20bdb46ee436b56fb9e3690d2a383b2afc8989f4
-      refSpec: v0.1.0
     name: core
     registry: kubeflow
-  tf-job:
-    gitVersion:
-      commitSha: 20bdb46ee436b56fb9e3690d2a383b2afc8989f4
-      refSpec: v0.1.0
-    name: tf-job
-    registry: kubeflow
+    version: 457cf677ba14ceb2a9519e87580ad9aaad697d4c
   tf-serving:
-    gitVersion:
-      commitSha: 20bdb46ee436b56fb9e3690d2a383b2afc8989f4
-      refSpec: v0.1.0
     name: tf-serving
     registry: kubeflow
+    version: 457cf677ba14ceb2a9519e87580ad9aaad697d4c
 name: demo
 registries:
   incubator:
-    gitVersion:
-      commitSha: 40285d8a14f1ac5787e405e1023cf0c07f6aa28c
-      refSpec: master
     protocol: github
     uri: github.com/ksonnet/parts/tree/master/incubator
   kubeflow:
-    gitVersion:
-      commitSha: 20bdb46ee436b56fb9e3690d2a383b2afc8989f4
-      refSpec: v0.1.0
     protocol: github
-    uri: github.com/kubeflow/kubeflow/tree/v0.1.0/kubeflow
+    uri: github.com/kubeflow/kubeflow/tree/v0.2.4/kubeflow
 version: 0.0.1
