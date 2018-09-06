@@ -120,7 +120,6 @@ spec:
           name: {{workflow.parameters.job-name}}
           namespace: {{workflow.parameters.namespace}}
         spec:
-          cleanPodPolicy: All
           tfReplicaSpecs:
             Master:
               replicas: 1
@@ -210,7 +209,6 @@ spec:
                   restartPolicy: OnFailure
             Ps:
               replicas: {{workflow.parameters.tf-ps}}
-              tfReplicaType: "PS"
               template:
                 spec:
                   containers:
