@@ -103,7 +103,7 @@ APP_NAME=my-kubeflow
 ks init ${APP_NAME}
 cd ${APP_NAME}
 
-ks registry add kubeflow github.com/kubeflow/kubeflow/tree/master/kubeflow
+ks registry add kubeflow github.com/kubeflow/kubeflow/tree/v0.2.4/kubeflow
 
 ks pkg install kubeflow/core@v0.2.4
 ks pkg install kubeflow/argo
