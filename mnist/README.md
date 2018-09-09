@@ -103,15 +103,15 @@ APP_NAME=my-kubeflow
 ks init ${APP_NAME}
 cd ${APP_NAME}
 
-ks registry add kubeflow github.com/kubeflow/kubeflow/tree/master/kubeflow
+ks registry add kubeflow github.com/kubeflow/kubeflow/tree/v0.2.4/kubeflow
 
-ks pkg install kubeflow/core@v0.1.2
+ks pkg install kubeflow/core@v0.2.4
 ks pkg install kubeflow/argo
 
 # Deploy TF Operator and Argo
 kubectl create namespace ${NAMESPACE}
 ks generate core kubeflow-core --name=kubeflow-core --namespace=${NAMESPACE}
-ks generate argo kubeflow-argo --name=kubeflow-argo --namespace=${NAMESPACE} --imageTag=v2.1.0
+ks generate argo kubeflow-argo --name=kubeflow-argo --namespace=${NAMESPACE}
 
 ks apply default -c kubeflow-core
 ks apply default -c kubeflow-argo
