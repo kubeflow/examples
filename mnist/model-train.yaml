@@ -112,147 +112,143 @@ spec:
     resource:
       action: apply
       # NOTE: need to detect master node complete
-      successCondition: status.state == Succeeded
+      successCondition: status.tfReplicaStatuses.Master.succeeded == 1
       manifest: |
-        apiVersion: "kubeflow.org/v1alpha1"
+        apiVersion: "kubeflow.org/v1alpha2"
         kind: "TFJob"
         metadata:
           name: {{workflow.parameters.job-name}}
           namespace: {{workflow.parameters.namespace}}
         spec:
-          replicaSpecs:
-          - replicas: 1
-            tfReplicaType: MASTER
-            template:
-              spec:
-                serviceAccountName: tf-job-operator
-                containers:
-                  - image: {{workflow.parameters.tf-model-image}}
-                    name: tensorflow
-                    imagePullPolicy: Always
-                    env:
-                    - name: TF_MODEL_DIR
-                      value: {{inputs.parameters.s3-model-url}}
-                    - name: TF_EXPORT_DIR
-                      value: {{workflow.parameters.model-name}}
-                    - name: TF_TRAIN_STEPS
-                      value: "{{workflow.parameters.model-train-steps}}"
-                    - name: TF_TF_BATCH_SIZE
-                      value: "{{workflow.parameters.model-batch-size}}"
-                    - name: TF_LEARNING_RATE
-                      value: "{{workflow.parameters.model-learning-rate}}"
-                    - name: AWS_ACCESS_KEY_ID
-                      valueFrom:
-                        secretKeyRef:
-                          name: {{workflow.parameters.aws-secret}}
-                          key: awsAccessKeyID
-                    - name: AWS_SECRET_ACCESS_KEY
-                      valueFrom:
-                        secretKeyRef:
-                          name: {{workflow.parameters.aws-secret}}
-                          key: awsSecretAccessKey
-                    - name: AWS_DEFAULT_REGION
-                      value: {{workflow.parameters.aws-region}}
-                    - name: AWS_REGION
-                      value: {{workflow.parameters.aws-region}}
-                    - name: S3_REGION
-                      value: {{workflow.parameters.aws-region}}
-                    - name: S3_USE_HTTPS
-                      value: "{{workflow.parameters.s3-use-https}}"
-                    - name: S3_VERIFY_SSL
-                      value: "{{workflow.parameters.s3-verify-ssl}}"
-                    - name: S3_ENDPOINT
-                      value: {{workflow.parameters.s3-endpoint}}
-                restartPolicy: OnFailure
-          - replicas: {{workflow.parameters.tf-worker}}
-            tfReplicaType: WORKER
-            template:
-              spec:
-                serviceAccountName: tf-job-operator
-                containers:
-                  - image: {{workflow.parameters.tf-model-image}}
-                    name: tensorflow
-                    imagePullPolicy: Always
-                    env:
-                    - name: TF_MODEL_DIR
-                      value: {{inputs.parameters.s3-model-url}}
-                    - name: TF_EXPORT_DIR
-                      value: {{workflow.parameters.model-name}}
-                    - name: TF_TRAIN_STEPS
-                      value: "{{workflow.parameters.model-train-steps}}"
-                    - name: TF_TF_BATCH_SIZE
-                      value: "{{workflow.parameters.model-batch-size}}"
-                    - name: TF_LEARNING_RATE
-                      value: "{{workflow.parameters.model-learning-rate}}"
-                    - name: AWS_ACCESS_KEY_ID
-                      valueFrom:
-                        secretKeyRef:
-                          name: {{workflow.parameters.aws-secret}}
-                          key: awsAccessKeyID
-                    - name: AWS_SECRET_ACCESS_KEY
-                      valueFrom:
-                        secretKeyRef:
-                          name: {{workflow.parameters.aws-secret}}
-                          key: awsSecretAccessKey
-                    - name: AWS_DEFAULT_REGION
-                      value: {{workflow.parameters.aws-region}}
-                    - name: AWS_REGION
-                      value: {{workflow.parameters.aws-region}}
-                    - name: S3_REGION
-                      value: {{workflow.parameters.aws-region}}
-                    - name: S3_USE_HTTPS
-                      value: "{{workflow.parameters.s3-use-https}}"
-                    - name: S3_VERIFY_SSL
-                      value: "{{workflow.parameters.s3-verify-ssl}}"
-                    - name: S3_ENDPOINT
-                      value: {{workflow.parameters.s3-endpoint}}
-                restartPolicy: OnFailure
-          - replicas: {{workflow.parameters.tf-ps}}
-            tfReplicaType: PS
-            template:
-              spec:
-                containers:
-                  - image: {{workflow.parameters.tf-model-image}}
-                    name: tensorflow
-                    imagePullPolicy: Always
-                    env:
-                    - name: TF_MODEL_DIR
-                      value: {{inputs.parameters.s3-model-url}}
-                    - name: TF_EXPORT_DIR
-                      value: {{workflow.parameters.model-name}}
-                    - name: TF_TRAIN_STEPS
-                      value: "{{workflow.parameters.model-train-steps}}"
-                    - name: TF_TF_BATCH_SIZE
-                      value: "{{workflow.parameters.model-batch-size}}"
-                    - name: TF_LEARNING_RATE
-                      value: "{{workflow.parameters.model-learning-rate}}"
-                    - name: AWS_ACCESS_KEY_ID
-                      valueFrom:
-                        secretKeyRef:
-                          name: {{workflow.parameters.aws-secret}}
-                          key: awsAccessKeyID
-                    - name: AWS_SECRET_ACCESS_KEY
-                      valueFrom:
-                        secretKeyRef:
-                          name: {{workflow.parameters.aws-secret}}
-                          key: awsSecretAccessKey
-                    - name: AWS_DEFAULT_REGION
-                      value: {{workflow.parameters.aws-region}}
-                    - name: AWS_REGION
-                      value: {{workflow.parameters.aws-region}}
-                    - name: S3_REGION
-                      value: {{workflow.parameters.aws-region}}
-                    - name: S3_USE_HTTPS
-                      value: "{{workflow.parameters.s3-use-https}}"
-                    - name: S3_VERIFY_SSL
-                      value: "{{workflow.parameters.s3-verify-ssl}}"
-                    - name: S3_ENDPOINT
-                      value: {{workflow.parameters.s3-endpoint}}
-                restartPolicy: OnFailure
-          terminationPolicy:
-            chief:
-              replicaIndex: 0
-              replicaName: MASTER
+          tfReplicaSpecs:
+            Master:
+              replicas: 1
+              template:
+                spec:
+                  serviceAccountName: tf-job-operator
+                  containers:
+                    - image: {{workflow.parameters.tf-model-image}}
+                      name: tensorflow
+                      imagePullPolicy: Always
+                      env:
+                      - name: TF_MODEL_DIR
+                        value: {{inputs.parameters.s3-model-url}}
+                      - name: TF_EXPORT_DIR
+                        value: {{workflow.parameters.model-name}}
+                      - name: TF_TRAIN_STEPS
+                        value: "{{workflow.parameters.model-train-steps}}"
+                      - name: TF_BATCH_SIZE
+                        value: "{{workflow.parameters.model-batch-size}}"
+                      - name: TF_LEARNING_RATE
+                        value: "{{workflow.parameters.model-learning-rate}}"
+                      - name: AWS_ACCESS_KEY_ID
+                        valueFrom:
+                          secretKeyRef:
+                            name: {{workflow.parameters.aws-secret}}
+                            key: awsAccessKeyID
+                      - name: AWS_SECRET_ACCESS_KEY
+                        valueFrom:
+                          secretKeyRef:
+                            name: {{workflow.parameters.aws-secret}}
+                            key: awsSecretAccessKey
+                      - name: AWS_DEFAULT_REGION
+                        value: {{workflow.parameters.aws-region}}
+                      - name: AWS_REGION
+                        value: {{workflow.parameters.aws-region}}
+                      - name: S3_REGION
+                        value: {{workflow.parameters.aws-region}}
+                      - name: S3_USE_HTTPS
+                        value: "{{workflow.parameters.s3-use-https}}"
+                      - name: S3_VERIFY_SSL
+                        value: "{{workflow.parameters.s3-verify-ssl}}"
+                      - name: S3_ENDPOINT
+                        value: {{workflow.parameters.s3-endpoint}}
+                  restartPolicy: OnFailure
+            Worker:
+              replicas: {{workflow.parameters.tf-worker}}
+              template:
+                spec:
+                  serviceAccountName: tf-job-operator
+                  containers:
+                    - image: {{workflow.parameters.tf-model-image}}
+                      name: tensorflow
+                      imagePullPolicy: Always
+                      env:
+                      - name: TF_MODEL_DIR
+                        value: {{inputs.parameters.s3-model-url}}
+                      - name: TF_EXPORT_DIR
+                        value: {{workflow.parameters.model-name}}
+                      - name: TF_TRAIN_STEPS
+                        value: "{{workflow.parameters.model-train-steps}}"
+                      - name: TF_BATCH_SIZE
+                        value: "{{workflow.parameters.model-batch-size}}"
+                      - name: TF_LEARNING_RATE
+                        value: "{{workflow.parameters.model-learning-rate}}"
+                      - name: AWS_ACCESS_KEY_ID
+                        valueFrom:
+                          secretKeyRef:
+                            name: {{workflow.parameters.aws-secret}}
+                            key: awsAccessKeyID
+                      - name: AWS_SECRET_ACCESS_KEY
+                        valueFrom:
+                          secretKeyRef:
+                            name: {{workflow.parameters.aws-secret}}
+                            key: awsSecretAccessKey
+                      - name: AWS_DEFAULT_REGION
+                        value: {{workflow.parameters.aws-region}}
+                      - name: AWS_REGION
+                        value: {{workflow.parameters.aws-region}}
+                      - name: S3_REGION
+                        value: {{workflow.parameters.aws-region}}
+                      - name: S3_USE_HTTPS
+                        value: "{{workflow.parameters.s3-use-https}}"
+                      - name: S3_VERIFY_SSL
+                        value: "{{workflow.parameters.s3-verify-ssl}}"
+                      - name: S3_ENDPOINT
+                        value: {{workflow.parameters.s3-endpoint}}
+                  restartPolicy: OnFailure
+            Ps:
+              replicas: {{workflow.parameters.tf-ps}}
+              template:
+                spec:
+                  containers:
+                    - image: {{workflow.parameters.tf-model-image}}
+                      name: tensorflow
+                      imagePullPolicy: Always
+                      env:
+                      - name: TF_MODEL_DIR
+                        value: {{inputs.parameters.s3-model-url}}
+                      - name: TF_EXPORT_DIR
+                        value: {{workflow.parameters.model-name}}
+                      - name: TF_TRAIN_STEPS
+                        value: "{{workflow.parameters.model-train-steps}}"
+                      - name: TF_BATCH_SIZE
+                        value: "{{workflow.parameters.model-batch-size}}"
+                      - name: TF_LEARNING_RATE
+                        value: "{{workflow.parameters.model-learning-rate}}"
+                      - name: AWS_ACCESS_KEY_ID
+                        valueFrom:
+                          secretKeyRef:
+                            name: {{workflow.parameters.aws-secret}}
+                            key: awsAccessKeyID
+                      - name: AWS_SECRET_ACCESS_KEY
+                        valueFrom:
+                          secretKeyRef:
+                            name: {{workflow.parameters.aws-secret}}
+                            key: awsSecretAccessKey
+                      - name: AWS_DEFAULT_REGION
+                        value: {{workflow.parameters.aws-region}}
+                      - name: AWS_REGION
+                        value: {{workflow.parameters.aws-region}}
+                      - name: S3_REGION
+                        value: {{workflow.parameters.aws-region}}
+                      - name: S3_USE_HTTPS
+                        value: "{{workflow.parameters.s3-use-https}}"
+                      - name: S3_VERIFY_SSL
+                        value: "{{workflow.parameters.s3-verify-ssl}}"
+                      - name: S3_ENDPOINT
+                        value: {{workflow.parameters.s3-endpoint}}
+                  restartPolicy: OnFailure
   - name: tf-tensorboard
     inputs:
       parameters:
