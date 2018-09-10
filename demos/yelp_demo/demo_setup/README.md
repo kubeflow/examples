@@ -340,20 +340,6 @@ minikube start \
   --kubernetes-version v1.10.6
 ```
 
-RBAC permissions allow your user to install kubeflow components on the cluster.
-
-```
-kubectl create clusterrolebinding cluster-admin-binding-${USER} \
-  --clusterrole cluster-admin \
-  --user $(gcloud config get-value account)
-./create_context.sh minikube ${NAMESPACE}
-```
-
-Create a namespace:
-```
-kubectl create namespace ${NAMESPACE}
-```
-
 ### Create k8s secrets
 
 Since our project is private, we need to provide access to resources via the use
