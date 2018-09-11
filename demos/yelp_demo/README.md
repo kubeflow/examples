@@ -21,6 +21,41 @@ to prepare for demonstrating Kubeflow:
 * [Create a minikube cluster](https://github.com/kubeflow/examples/blob/master/demos/yelp_demo/demo_setup/README.md#4-create-a-minikube-cluster)
 * [Create a GKE cluster](https://github.com/kubeflow/examples/blob/master/demos/yelp_demo/demo_setup/README.md#5-create-a-gke-cluster)
 
+## 1. Create clusters
+
+[Setup your environment](https://github.com/kubeflow/examples/tree/master/demos/yelp_demo/demo_setup#2-set-environment-variables)
+or source the base file:
+
+```
+cd demo_setup
+source kubeflow-demo-base.env
+```
+
+Create a minikube cluster:
+
+```
+minikube start \
+  --cpus 4 \
+  --memory 8096 \
+  --disk-size=50g \
+  --kubernetes-version v1.10.6
+```
+
+Create a GKE cluster with access to GPUs and TPUs:
+
+```
+gcloud beta container clusters create ${CLUSTER} \
+  --project ${DEMO_PROJECT} \
+  --zone ${ZONE} \
+  --accelerator type=nvidia-tesla-k80,count=2 \
+  --cluster-version 1.10.6-gke.2 \
+  --enable-ip-alias \
+  --enable-tpu \
+  --machine-type n1-highmem-8 \
+  --scopes cloud-platform,compute-rw,storage-rw \
+  --verbosity error
+```
+
 ## 1. Install kubeflow locally
 
 Run the following script to create a ksonnet app for Kubeflow and deploy it:
@@ -61,6 +96,18 @@ Generate manifests and apply to cluster:
 ks apply default -c t2tcpu
 ```
 
+View the new training pod and wait until it has a `Running` status:
+
+```
+kubectl get pod
+```
+
+View the logs to watch training commence:
+
+```
+kubectl logs -f t2tcpu-master-0 | grep INFO:tensorflow
+```
+
 ## 3. Install kubeflow on GKE
 
 Switch to a GKE cluster:
@@ -81,6 +128,12 @@ Install kubeflow on the cluster:
 ks apply gke -c kubeflow-core
 ```
 
+View the installed components:
+
+```
+kubectl get pod
+```
+
 ## 4. Run training on GKE
 
 ### Distributed CPU training
@@ -99,6 +152,18 @@ above 1000.
 ks apply gke -c t2tcpu
 ```
 
+View the new training pod and wait until it has a `Running` status:
+
+```
+kubectl get pod
+```
+
+View the logs to watch training commence:
+
+```
+kubectl logs -f t2tcpu-master-0 | grep INFO:tensorflow
+```
+
 ### Distributed TPU training
 
 Set parameter values for training:
@@ -113,6 +178,20 @@ above 1000.
 
 ```
 ks apply gke -c t2ttpu
+```
+
+Verify that a TPU is being provisioned by viewing pod status. It should remain
+in Pending state for 3-4 minutes with the message
+`Creating Cloud TPUs for pod default/t2ttpu-master-0`.
+
+```
+kubectl describe pod t2ttpu-master-0
+```
+
+Once it has `Running` status, view the logs to watch training commence:
+
+```
+kubectl logs -f t2ttpu-master-0 | grep INFO:tensorflow
 ```
 
 ## 5. Create the serving and UI components
@@ -140,8 +219,8 @@ UI_POD=$(kubectl get po -l app=kubeflow-demo-ui | \
 kubectl port-forward ${UI_POD} 8080:80
 ```
 
-Optional: Setup an SSH tunnel from your local laptop into the GCE instance connecting to
-GKE:
+Optional: If necessary, setup an SSH tunnel from your local laptop into the
+compute instance connecting to GKE:
 
 ```
 ssh $HOST -L 8080:localhost:8080
