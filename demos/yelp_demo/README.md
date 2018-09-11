@@ -6,75 +6,77 @@ presentation to public audiences.
 The base demo includes the following steps:
 
 1. [Install kubeflow locally](#1-install-kubeflow-locally)
-1. [Bring up a notebook](#2-bring-up-a-notebook)
-1. [Run training locally](#3-run-training-locally)
-1. [Install kubeflow on GKE](#4-install-kubeflow-on-gke)
-1. [Run training on GKE](#5-run-training-on-gke)
-1. [Create the serving and UI components](#6-create-the-serving-and-ui-components)
+1. [Run training locally](#2-run-training-locally)
+1. [Install kubeflow on GKE](#3-install-kubeflow-on-gke)
+1. [Run training on GKE](#4-run-training-on-gke)
+1. [Create the serving and UI components](#5-create-the-serving-and-ui-components)
+1. [Bring up a notebook](#6-bring-up-a-notebook)
 
 ## Important! Pre-work
 
-Before completing any of the below steps, follow the instructions in [./demo_setup](./demo_setup/README.md) to prepare for demonstrating Kubeflow.
+Before completing any of the below steps, follow the instructions in
+[./demo_setup](https://github.com/kubeflow/examples/blob/master/demos/yelp_demo/demo_setup/README.md)
+to prepare for demonstrating Kubeflow:
+
+* [Create a minikube cluster](https://github.com/kubeflow/examples/blob/master/demos/yelp_demo/demo_setup/README.md#4-create-a-minikube-cluster)
+* [Create a GKE cluster](https://github.com/kubeflow/examples/blob/master/demos/yelp_demo/demo_setup/README.md#5-create-a-gke-cluster)
+
+## 1. Create clusters
+
+[Setup your environment](https://github.com/kubeflow/examples/tree/master/demos/yelp_demo/demo_setup#2-set-environment-variables)
+or source the base file:
+
+```
+cd demo_setup
+source kubeflow-demo-base.env
+```
+
+Create a minikube cluster:
+
+```
+minikube start \
+  --cpus 4 \
+  --memory 8096 \
+  --disk-size=50g \
+  --kubernetes-version v1.10.6
+```
+
+Create a GKE cluster with access to GPUs and TPUs:
+
+```
+gcloud beta container clusters create ${CLUSTER} \
+  --project ${DEMO_PROJECT} \
+  --zone ${ZONE} \
+  --accelerator type=nvidia-tesla-k80,count=2 \
+  --cluster-version 1.10.6-gke.2 \
+  --enable-ip-alias \
+  --enable-tpu \
+  --machine-type n1-highmem-8 \
+  --scopes cloud-platform,compute-rw,storage-rw \
+  --verbosity error
+```
 
 ## 1. Install kubeflow locally
 
-Initialize a ksonnet app:
+Run the following script to create a ksonnet app for Kubeflow and deploy it:
 
 ```
-ks init kubeflow
-cd kubeflow
+export KUBEFLOW_VERSION=0.2.5
+curl https://raw.githubusercontent.com/kubeflow/kubeflow/v${KUBEFLOW_VERSION}/scripts/deploy.sh | bash
 ```
 
-Install packages and generate core components:
+View the installed components:
 
 ```
-ks registry add kubeflow github.com/kubeflow/kubeflow/tree/${VERSION}/kubeflow
-ks pkg install kubeflow/core@${VERSION}
-ks pkg install kubeflow/tf-serving@${VERSION}
-ks pkg install kubeflow/tf-job@${VERSION}
-ks generate core kubeflow-core --name=kubeflow-core
+kubectl get pod
 ```
 
-Create the minikube environment and set the cloud parameter:
-
-```
-ks env add minikube --namespace=${NAMESPACE}
-ks param set --env minikube kubeflow-core \
-  cloud "minikube"
-```
-
-Apply kubeflow to the cluster:
-
-```
-ks apply minikube -c kubeflow-core
-```
-
-## 2. Bring up a notebook
-
-Connect to Jupyterhub by forwarding a port and opening a browser to
-[localhost:8000](localhost:8000):
-
-```
-kubectl port-forward tf-hub-0 8000:8000
-```
-
-Spawn a new pod with this image:
-
-```
-gcr.io/kubeflow-dev/issue-summarization-notebook-cpu:latest
-```
-
-Once the notebook environment is
-available, open a new terminal and upload this [Simple ML Model
-notebook](notebooks/simple_ml_model.ipynb).
-
-Execute the notebook to show that it works.
-
-## 3. Run training locally
+## 2. Run training locally
 
 Retrieve the following files for the t2tcpu & t2ttpu jobs:
 
 ```
+cd kubeflow_ks_app
 cp ${REPO_PATH}/demo/components/t2t[ct]pu.* components
 cp ${REPO_PATH}/demo/components/params.* components
 ```
@@ -82,43 +84,42 @@ cp ${REPO_PATH}/demo/components/params.* components
 Set parameter values for training:
 
 ```
-ks param set --env minikube t2tcpu \
+ks param set --env default t2tcpu \
   cloud "minikube"
-ks param set --env minikube t2tcpu \
-  dataDir ${GCS_TRAINING_DATA_DIR}
-ks param set --env minikube t2tcpu \
-  outputGCSPath ${GCS_TRAINING_OUTPUT_DIR_LOCAL}
-ks param set --env minikube t2tcpu \
-  cpuImage gcr.io/${DEMO_PROJECT}/kubeflow-yelp-demo-cpu:latest
-ks param set --env minikube t2tcpu \
+ks param set --env default t2tcpu \
   workers 2
 ```
 
 Generate manifests and apply to cluster:
 
 ```
-ks apply minikube -c t2tcpu
+ks apply default -c t2tcpu
 ```
 
-## 4. Install kubeflow on GKE
+View the new training pod and wait until it has a `Running` status:
+
+```
+kubectl get pod
+```
+
+View the logs to watch training commence:
+
+```
+kubectl logs -f t2tcpu-master-0 | grep INFO:tensorflow
+```
+
+## 3. Install kubeflow on GKE
 
 Switch to a GKE cluster:
 
 ```
-kubectl config use-context gke
+kubectl config use gke
 ```
 
 Create an environment:
 
 ```
-ks env add gke --namespace=${NAMESPACE}
-```
-
-Set parameter values for kubeflow-core:
-
-```
-ks param set --env gke kubeflow-core \
-  cloud "gke"
+ks env add gke
 ```
 
 Install kubeflow on the cluster:
@@ -127,15 +128,19 @@ Install kubeflow on the cluster:
 ks apply gke -c kubeflow-core
 ```
 
-## 5. Run training on GKE
+View the installed components:
+
+```
+kubectl get pod
+```
+
+## 4. Run training on GKE
 
 ### Distributed CPU training
 
 Set parameter values for training:
 
 ```
-ks param set --env gke t2tcpu \
-  dataDir ${GCS_TRAINING_DATA_DIR}
 ks param set --env gke t2tcpu \
   outputGCSPath ${GCS_TRAINING_OUTPUT_DIR_CPU}
 ```
@@ -147,19 +152,16 @@ above 1000.
 ks apply gke -c t2tcpu
 ```
 
-#### Export the trained model
-
-This will export the model to an `export/` directory in output_dir.
+View the new training pod and wait until it has a `Running` status:
 
 ```
-cd ../yelp
-t2t-exporter \
-  --t2t_usr_dir=${USR_DIR} \
-  --model=${MODEL} \
-  --hparams_set=${HPARAMS_SET} \
-  --problem=${PROBLEM} \
-  --data_dir=${GCS_TRAINING_DATA_DIR} \
-  --output_dir=${GCS_TRAINING_OUTPUT_DIR_CPU}
+kubectl get pod
+```
+
+View the logs to watch training commence:
+
+```
+kubectl logs -f t2tcpu-master-0 | grep INFO:tensorflow
 ```
 
 ### Distributed TPU training
@@ -167,8 +169,6 @@ t2t-exporter \
 Set parameter values for training:
 
 ```
-ks param set --env gke t2ttpu \
-  dataDir ${GCS_TRAINING_DATA_DIR}
 ks param set --env gke t2ttpu \
   outputGCSPath ${GCS_TRAINING_OUTPUT_DIR_TPU}
 ```
@@ -180,36 +180,27 @@ above 1000.
 ks apply gke -c t2ttpu
 ```
 
-#### Export the trained model
-
-This will export the model to an `export/` directory in output_dir.
+Verify that a TPU is being provisioned by viewing pod status. It should remain
+in Pending state for 3-4 minutes with the message
+`Creating Cloud TPUs for pod default/t2ttpu-master-0`.
 
 ```
-cd ../yelp
-t2t-exporter \
-  --t2t_usr_dir=${USR_DIR} \
-  --model=${MODEL} \
-  --hparams_set=${HPARAMS_SET} \
-  --problem=${PROBLEM} \
-  --data_dir=${GCS_TRAINING_DATA_DIR} \
-  --output_dir=${GCS_TRAINING_OUTPUT_DIR_TPU}
+kubectl describe pod t2ttpu-master-0
 ```
 
-## 6. Create the serving and UI components
+Once it has `Running` status, view the logs to watch training commence:
+
+```
+kubectl logs -f t2ttpu-master-0 | grep INFO:tensorflow
+```
+
+## 5. Create the serving and UI components
 
 Retrieve the following files for the serving & UI components:
 
 ```
 cp ${REPO_PATH}/demo/components/serving.* components
 cp ${REPO_PATH}/demo/components/ui.* components
-```
-
-
-Set parameter values for serving:
-
-```
-ks param set --env gke serving \
-  modelPath ${GCS_TRAINING_OUTPUT_DIR_TPU}/export/Servo
 ```
 
 Create the serving and UI components:
@@ -228,8 +219,8 @@ UI_POD=$(kubectl get po -l app=kubeflow-demo-ui | \
 kubectl port-forward ${UI_POD} 8080:80
 ```
 
-Optional: Setup an SSH tunnel from your local laptop into the GCE instance connecting to
-GKE:
+Optional: If necessary, setup an SSH tunnel from your local laptop into the
+compute instance connecting to GKE:
 
 ```
 ssh $HOST -L 8080:localhost:8080
@@ -240,4 +231,35 @@ To show the naive version, navigate to [localhost:8080](localhost:8080) from a b
 To show the ML version, navigate to
 [localhost:8080/kubeflow](localhost:8080/kubeflow) from a browser.
 
+## 6. Bring up a notebook
+
+Connect to the Central Dashboard by forwarding a port to one of the ambassador
+pods:
+
+```
+AMBASSADOR_POD=$(kubectl get po -l service=ambassador | \
+  grep ambassador | \
+  head -n 1 | \
+  cut -d " " -f 1 \
+)
+kubectl port-forward ${AMBASSADOR_POD} 8081:80
+```
+
+Open a browser and connect to [localhost:8081](localhost:8081).
+Show the TF-job dashboard, then click on Jupyterhub.
+Log in with any username and password combination and wait until the page
+refreshes. Spawn a new pod with these resource requirements:
+
+| Resource              | Value                                                                |
+| --------------------- | -------------------------------------------------------------------- |
+| Image                 | `gcr.io/kubeflow-images-public/tensorflow-1.7.0-notebook-gpu:v0.2.1` |
+| CPU                   | 2                                                                    |
+| Memory                | 48G                                                                  |
+| Extra Resource Limits | `{"nvidia.com/gpu":2}`                                               |
+
+Once the notebook environment is
+available, open a new terminal and upload this
+[Yelp notebook](notebooks/yelp.ipynb).
+
+Execute the notebook to show that it works.
 
