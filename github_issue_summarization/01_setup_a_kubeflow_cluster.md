@@ -5,11 +5,24 @@ In this part, you will setup kubeflow on an existing kubernetes cluster.
 ## Requirements
 
 *   A kubernetes cluster
+    * To create a managed cluster run 
+        ```commandline
+        gcloud container clusters create kubeflow-examples-cluster
+        ```
+        or use kubeadm: [docs](https://kubernetes.io/docs/setup/independent/create-cluster-kubeadm/)
 *   `kubectl` CLI (command line interface) pointing to the kubernetes cluster
     *   Make sure that you can run `kubectl get nodes` from your terminal
         successfully
 *   The ksonnet CLI, v0.9.2 or higher: [ks](https://ksonnet.io/#get-started)
-
+    * In case you want to install a particular version of ksonnet, you can run
+    
+        ```commandline
+        export KS_VER=ks_0.11.0_linux_amd64
+        wget -O /tmp/$KS_VER.tar.gz https://github.com/ksonnet/ksonnet/releases/download/v0.11.0/$KS_VER.tar.gz
+        mkdir -p ${HOME}/bin
+        tar -xvf /tmp/$KS_VER.tar.gz -C ${HOME}/bin
+        export PATH=$PATH:${HOME}/bin/$KS_VER
+        ```
 ## Kubeflow setup
 
 Refer to the [user
@@ -68,5 +81,6 @@ tf-job-operator-77776c8446-lpprm       1/1       Running             0          
 *   We deployed the kubeflow-core component to our kubernetes cluster
 *   We created a disk for storing our training data
 *   We connected to JupyterHub and spawned a new Jupyter notebook
+*   For additional details and playground visit [katacoda](https://www.katacoda.com/kubeflow/scenarios/deploying-github-issue-summarization)
 
 *Next*: [Training the model](02_training_the_model.md)
