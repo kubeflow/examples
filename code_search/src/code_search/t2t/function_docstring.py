@@ -52,7 +52,7 @@ class GithubFunctionDocstring(text_problems.Text2TextProblem):
                 self.DATA_PATH_PREFIX, i),
             ("func-doc-pairs-000{:02}-of-00100.csv".format(i),)
         ]
-        for i in range(100)
+        for i in range(1)
     ]
 
   @property
@@ -106,6 +106,12 @@ class GithubFunctionDocstring(text_problems.Text2TextProblem):
     data_fields, data_items_to_decoders = super(GithubFunctionDocstring,
                                                 self).example_reading_spec()
     data_fields["embed_code"] = tf.FixedLenFeature([1], dtype=tf.int64)
+
+    data_items_to_decoders = {
+      "inputs": tf.contrib.slim.tfexample_decoder.Tensor(tensor_key="inputs"),
+      "targets": tf.contrib.slim.tfexample_decoder.Tensor(tensor_key="targets"),
+      "embed_code": tf.contrib.slim.tfexample_decoder.Tensor(tensor_key="embed_code")
+    }
     return data_fields, data_items_to_decoders
 
   def eval_metrics(self):  # pylint: disable=no-self-use
