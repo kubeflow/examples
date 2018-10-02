@@ -81,8 +81,8 @@
     },
     tensorboard: {
       image: "tensorflow/tensorflow:1.8.0",
-      logDir: "gs://cloud-ml-dev_jlewi_cs/mode/2018_0825/",
+      logDir: "gs://example/to/model/logdir",
       name: "tensorboard",
-    }, 
+    },
   },
 }
