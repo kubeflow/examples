@@ -1,12 +1,8 @@
 Using Kubeflow for Financial Time Series
 ====================
 
-This repository is linked to a series of blogposts.
-The first blogpost can be found on: https://blog.ml6.eu/using-kubeflow-for-financial-time-series-18580ef5df0b
-
-The open-source project [Kubeflow](https://www.kubeflow.org/) is dedicated to making deployments of machine learning (ML) workflows on Kubernetes simple, portable and scalable.
-This repository walks through the exploration, training and serving of a machine learning model by leveraging Kubeflow's main components. 
-As an example, we will use the [Machine Learning with Financial Time Series Data](https://cloud.google.com/solutions/machine-learning-with-financial-time-series-data) use case
+In this example, we will walk through the exploration, training and serving of a machine learning model by leveraging Kubeflow's main components. 
+we will use the [Machine Learning with Financial Time Series Data](https://cloud.google.com/solutions/machine-learning-with-financial-time-series-data) use case.
 
 ### Pre-requisites
 **Note** You will need a Linux or Mac environment with Python 3.6.x and install the following requirements
@@ -16,7 +12,7 @@ As an example, we will use the [Machine Learning with Financial Time Series Data
  * Install [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
  * Access to Google Cloud Project and its GKE resources
 
-### Installing kubeflow on GKE
+### Installing Kubeflow on GKE
 We will first create a cluster named 'kubeflow' on google kubernetes engine.
 ```
 gcloud container clusters create kubeflow --zone [ZONE]  --machine-type n1-standard-2 --scopes=https://www.googleapis.com/auth/cloud-platform
@@ -25,18 +21,21 @@ kubectl create clusterrolebinding default-admin  --clusterrole=cluster-admin --u
 ```
 
 The set of commands above creates a cluster, connects our local environment to the cluster and changes the permissions on the cluster to allow kubeflow to run properly.
-Note that we had to define the scopes specifically since Kubernetes v1.10. If we would drop the scopes argument, the machines in the cluster have a lot of restrictions to use google cloud APIs to connect to other google cloud services such as Google Cloud Storage, BigQuery etc.
-Our cluster is now up and running and properly set up in order to install kubeflow.
+Note that we had to define the scopes specifically since Kubernetes v1.10.
+If we would drop the scopes argument, the machines in the cluster have a lot of restrictions to use Google Cloud APIs to connect to other Google Cloud services such as Google Cloud Storage, BigQuery etc.
+Our cluster is now up and running and properly set up in order to install Kubeflow.
+
+You can either follow the 'Kubeflow quick start' instructions from the [central Kubeflow setup](https://www.kubeflow.org/docs/started/getting-started/) or use the command below.
 ```
 export KUBEFLOW_VERSION=0.2.2
 curl https://raw.githubusercontent.com/kubeflow/kubeflow/v${KUBEFLOW_VERSION}/scripts/deploy.sh | bash
 ```
 Note that it requires only a single command to deploy Kubeflow to an existing cluster.
-Once the script is finished, you should two new folders in your directory
+Once the script is finished, you should two new folders in your directory.
 ```
 $ tree
 .
-├── kubeflo_ks_app
+├── kubeflow_ks_app
 └── kubeflow_repo
 ```
 Next, we can easily verify the status of the pods by running ```kubectl get pods```:
@@ -71,27 +70,27 @@ In order to launch a terminal, click 'new' > 'terminal' and subsequently install
 pip3 install google-cloud-bigquery==1.5.0 --user
 ```
 
-Our Jupyter Notebook instance should be ready to run the code from the slightly adjusted notebook which is available on the github repository ```Machine Learning with Financial Time Series Data.ipynb```.
+Our Jupyter Notebook instance should be ready to run the code from the slightly adjusted notebook ```Machine Learning with Financial Time Series Data.ipynb```, which is available on this repository.
 You can simply upload the notebook and walk through it step by step to better understand the problem and suggested solution(s).
-In this blogpost, the goal is not focus on the notebook itself but rather on how this notebook is being translated in more scalable training jobs and later on serving.
+In this example, the goal is not focus on the notebook itself but rather on how this notebook is being translated in more scalable training jobs and later on serving.
 
 ### Training at scale with tf-jobs
-The next step is to 're-factor' the notebook code into python scripts which can then be containerized onto a docker image.
-In the folder ```tensorflow-model``` on the github repository you can find these scripts together with a ```Dockerfile```.
-Subsequently we will build a docker image on google cloud by running following command:
+The next step is to 're-factor' the notebook code into Python scripts which can then be containerized onto a Docker image.
+In the folder ```tensorflow-model``` you can find these scripts together with a ```Dockerfile```.
+Subsequently we will build a docker image on Google Cloud by running following command:
 
 ```
 cd tensorflow-model/
 gcloud builds submit --tag gcr.io/<project-name>/<image-name>/cpu:v1 .
 ```
 
-Now that we have an image ready on google cloud container registry, it's time we start launching a training job.
+Now that we have an image ready on Google Cloud Container Registry, it's time we start launching a training job.
 
 ```
 cd kubeflow_ks_app/
 ks generate tf-job-simple train
 ```
-This ksonnet protoytype needs to be slightly modified to our needs, you can simply copy an updated version of this prototype by copying the updated version from the repository
+This Ksonnet protoytype needs to be slightly modified to our needs, you can simply copy an updated version of this prototype by copying the updated version from the repository.
 ```
 cp ../tensorflow-model/CPU/train.jsonnet ./components/train.jsonnet
 ```
@@ -203,7 +202,7 @@ python request.py
 The response returns the updated version number '2' and  predicts the correct output 1, which means the S&P index closes negative, hurray!
 
 ### Expose
-In the previous section we used a prediction service on our kubeflow cluster which is by default only available from within the cluster.
+In the previous section we used a prediction service on our Kubeflow cluster which is by default only available from within the cluster.
 It's also possible to expose the service so it can be accessed from outside the cluster.
 The following command will expose the prediction service on a fixed external IP address and create a loadbalancer to orchestrate the traffic.
 
