@@ -79,5 +79,10 @@
       indexFile: $.components['t2t-code-search'].workingDir + '/code_search_index.nmslib',
       servingUrl: 'http://t2t-code-search.kubeflow:9001/v1/models/t2t-code-search:predict',
     },
+    tensorboard: {
+      image: "tensorflow/tensorflow:1.8.0",
+      logDir: "gs://example/to/model/logdir",
+      name: "tensorboard",
+    },
   },
 }

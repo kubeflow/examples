@@ -1,13 +1,10 @@
 apiVersion: 0.2.0
-environments:
-  default:
-    destination:
-      namespace: kubeflow
-      server: https://35.237.202.148
-    k8sVersion: v1.9.7
-    path: default
 kind: ksonnet.io/app
 libraries:
+  examples:
+    name: examples
+    registry: kubeflow
+    version: defc235463799d5600001ee0ed6ef68f7af24a17
   tf-serving:
     name: tf-serving
     registry: kubeflow
