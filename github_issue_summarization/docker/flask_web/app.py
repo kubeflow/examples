@@ -7,6 +7,7 @@ import logging
 import os
 import re
 import random
+import sys
 
 import requests
 import pandas as pd
@@ -85,5 +86,9 @@ if __name__ == '__main__':
     default=80,
     type=int)
   args = parser.parse_args()
-  logger.info("Serving the web app")
+  # Use print not logging because logging buffers the output and there's
+  # no way to force a flush.
+  print("Serving the web app")
+  print("Using model_url {0}".format(args.model_url))
+  sys.stdout.flush()
   APP.run(debug=True, host='0.0.0.0', port=args.port)
