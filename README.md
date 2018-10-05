@@ -44,6 +44,19 @@ This example covers the following concepts:
 1. Using Kubeflow tf-job and tf-operator to launch a distributed object training job
 1. Serving the model through Kubeflow's tf-serving
 
+### [Financial Time Series](./financial_time_series)
+
+Author: [Sven Degroote](https://github.com/Svendegroote91)
+
+This example covers the following concepts:
+1. Deploying Kubeflow to a GKE cluster
+2. Exploration via JupyterHub (prospect data, preprocess data, develop ML model)
+3. Training several tensorflow models at scale with TF-jobs
+4. Deploy and serve with TF-serving
+5. Iterate training and serving
+6. Training on GPU
+
+
 ## Component-focused
 
 ### [XGBoost - Ames housing price prediction](./xgboost_ames_housing)

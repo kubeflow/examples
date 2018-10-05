@@ -25,13 +25,14 @@ Make sure to replace the placeholder parameters between ```<>``` with proper val
 ```
 git clone https://github.com/Svendegroote91/examples.git
 cd examples/financial_time_series
-gcloud container clusters create kubeflow --zone <your-zone>  --machine-type n1-standard-2 --scopes=https://www.googleapis.com/auth/cloud-platform
+gcloud container clusters create kubeflow --zone <your-zone>  --machine-type n1-standard-4 --scopes=https://www.googleapis.com/auth/cloud-platform
 gcloud container clusters get-credentials kubeflow --zone <your-zone> --project <your-project-name>
 kubectl create clusterrolebinding default-admin  --clusterrole=cluster-admin --user=<your-email-address>
 ```
 
 Note that we had to define the scopes specifically since Kubernetes v1.10.
 If we would drop the scopes argument, the machines in the cluster have a lot of restrictions to use Google Cloud APIs to connect to other Google Cloud services such as Google Cloud Storage, BigQuery etc.
+Note that for this last command you will need to have ```container.clusterRoleBindings.create permission```, which you automatically have as a project owner.
 Our cluster is now up and running and properly set up in order to install Kubeflow.
 Note that it requires only a single command to deploy Kubeflow to an existing cluster.
 
@@ -84,7 +85,7 @@ In order to launch a terminal, click 'new' > 'terminal' and subsequently install
 pip3 install google-cloud-bigquery==1.5.0 --user
 ```
 
-Once the package is installed, navigate back to the JupyterHub home screen. Our JupyterHub instance should be ready to run the code from the slightly adjusted notebook ```Machine Learning with Financial Time Series Data.ipynb```, which is available on this repository.
+Once the package is installed, navigate back to the JupyterHub home screen. Our JupyterHub instance should be ready to run the code from the slightly adjusted notebook ```Machine Learning with Financial Time Series Data.ipynb```, which is available [here](https://github.com/Svendegroote91/examples/blob/finance_example/financial_time_series/Financial%20Time%20Series%20with%20Finance%20Data.ipynb).
 You can simply upload the notebook and walk through it step by step to better understand the problem and suggested solution(s).
 In this example, the goal is not focus on the notebook itself but rather on how this notebook is being translated in more scalable training jobs and later on serving.
 
@@ -95,13 +96,14 @@ Subsequently we will build a docker image on Google Cloud by running following c
 
 ```
 cd tensorflow-model/
-gcloud builds submit --tag gcr.io/<project-name>/<image-name>/cpu:v1 .
+export TRAIN_PATH=gcr.io/<project>/<image-name>/cpu:v1
+gcloud builds submit --tag $TRAIN_PATH .
 ```
 
 Now that we have an image ready on Google Cloud Container Registry, it's time we start launching a training job.
 
 ```
-cd kubeflow_ks_app/
+cd ../kubeflow_ks_app
 ks generate tf-job-simple train
 ```
 This Ksonnet protoytype needs to be slightly modified to our needs, you can simply copy an updated version of this prototype by copying the updated version from the repository.
@@ -123,7 +125,7 @@ ks param set train namespace "default"
 export TRAIN_PATH=gcr.io/<project-name>/<image-name>/cpu:v1
 ks param set train image $TRAIN_PATH
 ks param set train workingDir "opt/workdir"
-ks param set train args -- python,run_train.py,--model=FlatModel,--bucket=$BUCKET_NAME,--epochs=50000,--version=1
+ks param set train args -- python,run_train.py,--model=FlatModel,--epochs=30001,--bucket=$BUCKET_NAME,--version=1
 ```
 
 You can verify the parameter settings in the params.libsonnet in the directorykubeflow_ks_app/components.
@@ -139,7 +141,7 @@ POD_NAME=$(kubectl get pods --selector=tf_job_key=$TRAINING_NAME,tf-replica-type
 kubectl logs -f $POD_NAME
 ```
 
-In the logs you can see that the trained model is being exported to google cloud storage. This saved model will be used later on for serving requests. With these parameters, the accuracy is approximating 67%. 
+In the logs you can see that the trained model is being exported to google cloud storage. This saved model will be used later on for serving requests. With these parameters, the accuracy on the test set is approximating about 60%. 
 Alternatively, you can also port-forward the ambassador and check the progress on ```localhost:8080```.
 The ambassador functions as the central point of the Kubeflow deployment and monitors the different components. From the ambassador, you can see the Jupyter Notebooks, tf-jobs and kubernetes resources.
 
@@ -153,13 +155,12 @@ Once the model is trained, the next step will be to deploy it and serve requests
 Kubeflow comes with a tf-serving module which you can use to deploy your model with only a few commands.
 ```
 ks generate tf-serving serve --name=tf-serving
-BUCKET_NAME=saved-models
 ks param set serve modelPath gs://$BUCKET_NAME/
 ks apply cloud -c serve
 ```
 
 After running these commands, a deployment and service will be launched on Kubernetes that will enable you to easily send requests to get predictions from your module.
-We will do a local test via grpc to illustrate how to get results from this serving component. Once the pod is up we can set up port-forwarding to our localhost.
+We will do a local test via GRPC to illustrate how to get results from this serving component. Once the pod is up we can set up port-forwarding to our localhost.
 ```
 POD=`kubectl get pods --selector=app=tf-serving | awk '{print $1}' | tail -1`
 kubectl port-forward $POD 9000:9000 2>&1 >/dev/null &
@@ -169,18 +170,18 @@ Now the only thing we need to do is send a request to ```localhost:9000``` with 
 The saved model expects a time series from closing stocks and spits out the prediction as a 0 (S&P closes positive) or 1 (S&P closes negative) together with the version of the saved model which was memorized upon saving the model.
 Let's start with a script that populates a request with random numbers to test the service.
 ```
-cd ../tensorflow-model
+cd ..
 pip3 install numpy tensorflow-serving-api
-python request.py
+python3 -m tensorflow_model.serving_requests.request_random
 ```
 
 The output should return an integer, 0 or 1 as explained above, and a string that represents the version.
 There is another script available that builds a more practical request, with time series data of closing stocks for a certain date.
-In this script, the same date is used as the one used at the end of the notebook ```Machine Learning with Financial Time Series Data.ipynb``` for comparison reasons.
+In the following script, the same date is used as the one used at the end of the notebook ```Machine Learning with Financial Time Series Data.ipynb``` for comparison reasons.
 
 ```
 pip3 install pandas
-python request.py
+python3 -m tensorflow_model.serving_requests.request
 ```
 
 The response should indicate that S&P index is expected to close positive but from the actual data (which is prospected in the notebook mentioned above) we can see that it actually closed negative that day.
@@ -192,10 +193,10 @@ Submitting another training job with Kubeflow is very easy.
 By simply adjusting the parameters we can instantiate another component from the ```train.jsonnet```prototype.
 This time, we will train a more complex neural network with several hidden layers.
 ```
-cd ../kubeflow_ks_app
+cd kubeflow_ks_app
 export TRAINING_NAME=trainingjob2
 ks param set train name $TRAINING_NAME
-ks param set train args -- python,run_train.py,--model=DeepModel,--epochs=50000,--version=2
+ks param set train args -- python,run_train.py,--model=DeepModel,--epochs=30001,--bucket=$BUCKET_NAME,--version=2
 ks apply cloud -c train
 ```
 
@@ -206,15 +207,15 @@ POD_NAME=$(kubectl get pods --selector=tf_job_key=$TRAINING_NAME,tf-replica-type
 kubectl logs -f $POD_NAME
 ```
 
-You should notice that the training now takes a few minutes instead of less than one minute, however the accuracy is now close to 77%.
+You should notice that the training now takes a few minutes instead of less than one minute, however the accuracy on the test set is now 72%.
 Our training job uploads the trained model to the serving directory of our running tf-serving component.
 The tf-serving component watches this serving directory and automatically loads the model of the folder with the highest version (as integer).
 Since the newer version has a higher number than the previous one, our tf-serving should have switched to this new model.
 Let's see if we get a response from the new version and if the new model gets it right this time.
 
 ```
-cd ../tensorflow-model
-python request.py
+cd ..
+python3 -m tensorflow_model.serving_requests.request
 ```
 
 The response returns the updated version number '2' and  predicts the correct output 1, which means the S&P index closes negative, hurray!
@@ -235,9 +236,10 @@ Imagine the training job does not just take a few minutes but rather hours or da
 We will need another image that installs ```tensorflow-gpu``` and has the necessary drivers.
 
 ```
+cd tensorflow_model
 cp GPU/Dockerfile ./Dockerfile
-gcloud builds submit --tag gcr.io/<project-name>/<image-name>/gpu:v1 .
 export TRAIN_PATH_GPU=gcr.io/<project-name>/<image-name>/gpu:v1
+gcloud builds submit --tag $TRAIN_PATH_GPU .
 ```
 
 Also the train.jsonnet will need to be slightly adjusted to make it flexible to also run on GPUs.
@@ -274,7 +276,7 @@ Once the pod is up, you can check the logs and verify that the training time is 
 ```
 POD_NAME=$(kubectl get pods --selector=tf_job_key=$TRAINING_NAME,tf-replica-type=worker \
       --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}')
-kubectl logs -f $POD_NAME`
+kubectl logs -f $POD_NAME
 ```
 
 ### Clean up

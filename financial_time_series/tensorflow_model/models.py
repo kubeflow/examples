@@ -1,11 +1,22 @@
-"""
-Module that contains tensorflow models
-"""
+#  Copyright 2016 The TensorFlow Authors. All Rights Reserved.
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+"""Module that contains tensorflow models. """
 import tensorflow as tf
 
 
 class FlatModel():
-  """ Model that contains only single layer"""
+  """Neural network model that contains only single layer."""
 
   def __init__(self, nr_predictors, nr_classes):
     """
@@ -19,22 +30,22 @@ class FlatModel():
 
   @property
   def nr_predictors(self):
-    """ amount of predictors property """
+    """Amount of predictors property """
     return self._nr_predictors
 
   @property
   def nr_classes(self):
-    """ amount of classes property """
+    """Amount of classes property """
     return self._nr_classes
 
   def build_model(self, feature_data):
-    """
+    """Builds the tensorflow model.
 
     Args:
         feature_data (tf. tensors): feature tensors
 
     Returns:
-        model: tensorflow model
+        model: tensorflow graph
 
     """
     weights = tf.Variable(tf.truncated_normal([self._nr_predictors, self._nr_classes],
@@ -47,7 +58,7 @@ class FlatModel():
 
 
 class DeepModel():
-  """ Model that contains several layers """
+  """Neural network model that contains two hidden layers."""
 
   def __init__(self, nr_predictors, nr_classes, dim_hidden1=50, dim_hidden2=25):
     """
@@ -65,22 +76,22 @@ class DeepModel():
 
   @property
   def nr_predictors(self):
-    """ amount of predictors property """
+    """Amount of predictors property """
     return self._nr_predictors
 
   @property
   def nr_classes(self):
-    """ amount of classes property """
+    """Amount of classes property """
     return self._nr_classes
 
   def build_model(self, feature_data):
-    """
+    """Builds the tensorflow model.
 
     Args:
         feature_data (tf. tensors): feature tensors
 
     Returns:
-        model: tensorflow model
+        model: tensorflow graph
 
     """
     weights1 = tf.Variable(tf.truncated_normal([self._nr_predictors, self.dim_hidden1],
