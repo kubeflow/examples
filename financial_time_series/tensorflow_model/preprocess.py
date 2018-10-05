@@ -7,7 +7,7 @@ import pandas as pd
 
 
 def load_data(tickers):
-  """
+  """Load stock market data (close values for each day) for given tickers
 
   Args:
       tickers (list): list of tickers
