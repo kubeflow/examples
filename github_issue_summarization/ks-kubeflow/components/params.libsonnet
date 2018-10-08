@@ -24,32 +24,12 @@
       namespace: "null",
       replicas: 2,
     },
-    tensor2tensor: {
-      cpuImage: "gcr.io/kubeflow-examples/issue-summarization-t2t-trainer-cpu:v20180428-9da5cb7-dirty-4e1f35",
-      namespace: "null",
-    },
     tensorboard: {
       image: "tensorflow/tensorflow:1.7.0",
       // logDir needs to be overwritten based on where the data is
       // actually stored.
       logDir: "",
       name: "gh",
-    },
-    tfjob: {
-      image: "gcr.io/kubeflow-dev/tf-job-issue-summarization:v20180425-e79f888",
-      input_data_gcs_bucket: "kubeflow-examples",
-      input_data_gcs_path: "github-issue-summarization-data/github-issues.zip",
-      namespace: "null",
-      output_model_gcs_bucket: "kubeflow-examples",
-      output_model_gcs_path: "github-issue-summarization-data/output_model.h5",
-      sample_size: "100000",
-    },
-    "tfjob-pvc": {
-      image: "gcr.io/kubeflow-dev/tf-job-issue-summarization:v20180425-e79f888",
-      input_data: "/data/github_issues.csv",
-      namespace: "null",
-      output_model: "/data/model.h5",
-      sample_size: "2000000",
     },
     ui: {
       namespace: "null",
