@@ -1,12 +1,19 @@
+# TODO(jlewi): Can we merge with Dockerfile?
+# This Dockerfile is used for training with TF.Estimator.
+# We can probably use the same notebook Docker image if
+# we just upgrade the notebook version.
 FROM python:3.6
 
+# TODO(jlewi): We should probably pin version of TF and other libraries.
 RUN pip install --upgrade ktext annoy sklearn nltk tensorflow
 RUN pip install --upgrade matplotlib ipdb
+RUN pip install --upgrade google-cloud google-cloud-storage
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install unzip
 RUN mkdir /issues
 WORKDIR /issues
-COPY distributed /issues
+COPY notebooks/train.py /issues
+COPY notebooks/trainer.py /issues
 COPY notebooks/seq2seq_utils.py /issues
 COPY ks-kubeflow/components/download_data.sh /issues
 RUN chmod +x /issues/download_data.sh

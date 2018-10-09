@@ -3,8 +3,7 @@
   components: {
     // Component-level parameters, defined initially from 'ks prototype use ...'
     // Each object below should correspond to a component in the components/ directory
-    "data-pvc": {
-    },
+    "data-pvc": {},
     seldon: {
       apifeImage: "seldonio/apife:0.1.5",
       apifeServiceType: "NodePort",
@@ -77,5 +76,7 @@
       name: "tfjob-pvc-v1alpha2",
     },
     "hp-tune": {},
+    // Run tensorboard with pvc.
+    // This is intended for use with tfjob-estimator
   },
 }
