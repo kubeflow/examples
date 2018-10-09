@@ -1,3 +1,4 @@
+import argparse
 import json
 import logging
 import os
@@ -14,164 +15,208 @@ from sklearn.model_selection import train_test_split
 
 from seq2seq_utils import load_decoder_inputs, load_encoder_inputs, load_text_processor
 
-data_dir = "/model/"
-model_dir = "/model/"
+def main():
+  logging.basicConfig(
+    level=logging.INFO,
+    format=('%(levelname)s|%(asctime)s'
+            '|%(pathname)s|%(lineno)d| %(message)s'),
+    datefmt='%Y-%m-%dT%H:%M:%S',
+  )
+  logger = logging.getLogger()
+  logger.setLevel(logging.INFO)
 
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+  parser = argparse.ArgumentParser()
 
-logger.warning("starting")
+  parser.add_argument(
+    "--data_file",
+    type=str,
+    default="",
+    help="The path for the data file. Should be  .csv file")
 
-data_file = '/data/github_issues.csv'
-use_sample_data = True
+  parser.add_argument(
+    "--data_dir",
+    type=str,
+    default="",
+    help="The directory for the data. "
+         "This directory is used to store the preprocessors. "
+         "It needs to be a shared directory among all the workers.")
 
-tf_config = os.environ.get('TF_CONFIG', '{}')
-tf_config_json = json.loads(tf_config)
+  parser.add_argument(
+    "--model_dir",
+    type=str,
+    default="Location to save the model.")
 
-cluster = tf_config_json.get('cluster')
-job_name = tf_config_json.get('task', {}).get('type')
-task_index = tf_config_json.get('task', {}).get('index')
+  parser.add_argument("--max_steps", type=int, default=2000000)
+  parser.add_argument("--eval_steps", type=int, default=1000)
 
-if job_name:
-  cluster_spec = tf.train.ClusterSpec(cluster)
-if job_name == "ps":
-  server = tf.train.Server(cluster_spec,
-             job_name=job_name,
-             task_index=task_index)
+  args = parser.parse_args()
+  data_dir = args.data_dir
+  model_dir = args.model_dir
 
-  server.join()
-  sys.exit(0)
+  logger.info("starting")
+
+  if not args.data_dir:
+    raise ValueError("--data_dir must be set.")
+
+  if not args.model_dir:
+    raise ValueError("--model_dir must be set.")
+
+  data_file = args.data_file
+  use_sample_data = True
+
+  tf_config = os.environ.get('TF_CONFIG', '{}')
+  tf_config_json = json.loads(tf_config)
+
+  cluster = tf_config_json.get('cluster')
+  job_name = tf_config_json.get('task', {}).get('type')
+  task_index = tf_config_json.get('task', {}).get('index')
+
+  if job_name:
+    cluster_spec = tf.train.ClusterSpec(cluster)
+  if job_name == "ps":
+    server = tf.train.Server(cluster_spec,
+               job_name=job_name,
+               task_index=task_index)
+
+    server.join()
+    sys.exit(0)
 
 
-if tf_config and job_name == "master":
+  if tf_config and job_name == "master":
+    # TODO(jlewi): The test data isn't being used for anything. How can
+    # we configure evaluation?
+    if use_sample_data:
+      training_data_size = 2000
+      traindf, _ = train_test_split(pd.read_csv(data_file).sample(n=training_data_size),
+      test_size=.10)
+    else:
+      traindf, _ = train_test_split(pd.read_csv(data_file), test_size=.10)
+
+    train_body_raw = traindf.body.tolist()
+    train_title_raw = traindf.issue_title.tolist()
+
+    body_pp = processor(keep_n=8000, padding_maxlen=70)
+    train_body_vecs = body_pp.fit_transform(train_body_raw)
+
+    print('\noriginal string:\n', train_body_raw[0], '\n')
+    print('after pre-processing:\n', train_body_vecs[0], '\n')
+
+    title_pp = processor(append_indicators=True, keep_n=4500,
+      padding_maxlen=12, padding='post')
+
+    # process the title data
+    train_title_vecs = title_pp.fit_transform(train_title_raw)
+
+    print('\noriginal string:\n', train_title_raw[0])
+    print('after pre-processing:\n', train_title_vecs[0])
+
+    # Save the preprocessor
+    with open(data_dir + 'body_pp.dpkl', 'wb') as f:
+      dpickle.dump(body_pp, f)
+
+    with open(data_dir + 'title_pp.dpkl', 'wb') as f:
+      dpickle.dump(title_pp, f)
+
+    # Save the processed data
+    np.save(data_dir + 'train_title_vecs.npy', train_title_vecs)
+    np.save(data_dir + 'train_body_vecs.npy', train_body_vecs)
+  else:
+    time.sleep(120)
+
+  # TODO(jlewi): Why do we need to block waiting for the file?
+  # I think this is because only the master produces the npy
+  # files so the other workers need to wait for the files to arrive.
+  # It might be better to make preprocessing a separate job.
   while True:
-    if os.path.isfile(data_file):
+    if os.path.isfile(data_dir + 'train_body_vecs.npy'):
       break
     print("Waiting for dataset")
     time.sleep(2)
-  if use_sample_data:
-    training_data_size = 2000
-    traindf, testdf = train_test_split(pd.read_csv(data_file).sample(n=training_data_size),
-    test_size=.10)
-  else:
-    itraindf, testdf = train_test_split(pd.read_csv(data_file), test_size=.10)
+  encoder_input_data, doc_length = load_encoder_inputs(data_dir + 'train_body_vecs.npy')
+  decoder_input_data, decoder_target_data = load_decoder_inputs(data_dir + 'train_title_vecs.npy')
 
-  train_body_raw = traindf.body.tolist()
-  train_title_raw = traindf.issue_title.tolist()
+  num_encoder_tokens, body_pp = load_text_processor(data_dir + 'body_pp.dpkl')
+  num_decoder_tokens, title_pp = load_text_processor(data_dir + 'title_pp.dpkl')
 
-  body_pp = processor(keep_n=8000, padding_maxlen=70)
-  train_body_vecs = body_pp.fit_transform(train_body_raw)
+  #arbitrarly set latent dimension for embedding and hidden units
+  latent_dim = 300
 
-  print('\noriginal string:\n', train_body_raw[0], '\n')
-  print('after pre-processing:\n', train_body_vecs[0], '\n')
+  ##### Define Model Architecture ######
 
-  title_pp = processor(append_indicators=True, keep_n=4500,
-    padding_maxlen=12, padding='post')
+  ########################
+  #### Encoder Model ####
+  encoder_inputs = tf.keras.layers.Input(shape=(doc_length,), name='Encoder-Input')
 
-  # process the title data
-  train_title_vecs = title_pp.fit_transform(train_title_raw)
+  # Word embeding for encoder (ex: Issue Body)
+  x = tf.keras.layers.Embedding(
+        num_encoder_tokens, latent_dim, name='Body-Word-Embedding', mask_zero=False)(encoder_inputs)
+  x = tf.keras.layers.BatchNormalization(name='Encoder-Batchnorm-1')(x)
 
-  print('\noriginal string:\n', train_title_raw[0])
-  print('after pre-processing:\n', train_title_vecs[0])
+  # Intermediate GRU layer (optional)
+  #x = GRU(latent_dim, name='Encoder-Intermediate-GRU', return_sequences=True)(x)
+  #x = BatchNormalization(name='Encoder-Batchnorm-2')(x)
 
-  # Save the preprocessor
-  with open(data_dir + 'body_pp.dpkl', 'wb') as f:
-    dpickle.dump(body_pp, f)
+  # We do not need the `encoder_output` just the hidden state.
+  _, state_h = tf.keras.layers.GRU(latent_dim, return_state=True, name='Encoder-Last-GRU')(x)
 
-  with open(data_dir + 'title_pp.dpkl', 'wb') as f:
-    dpickle.dump(title_pp, f)
+  # Encapsulate the encoder as a separate entity so we can just
+  #  encode without decoding if we want to.
 
-  # Save the processed data
-  np.save(data_dir + 'train_title_vecs.npy', train_title_vecs)
-  np.save(data_dir + 'train_body_vecs.npy', train_body_vecs)
-else:
-  time.sleep(120)
+  # TODO(jlewi): I commented out the following two lines
+  # encoder_model = tf.keras.Model(inputs=encoder_inputs, outputs=state_h, name='Encoder-Model')
+  # seq2seq_encoder_out = encoder_model(encoder_inputs)
 
-while True:
-  if os.path.isfile(data_dir + 'train_body_vecs.npy'):
-    break
-  print("Waiting for dataset")
-  time.sleep(2)
-encoder_input_data, doc_length = load_encoder_inputs(data_dir + 'train_body_vecs.npy')
-decoder_input_data, decoder_target_data = load_decoder_inputs(data_dir + 'train_title_vecs.npy')
+  ########################
+  #### Decoder Model ####
+  decoder_inputs = tf.keras.layers.Input(shape=(None,), name='Decoder-Input')  # for teacher forcing
 
-num_encoder_tokens, body_pp = load_text_processor(data_dir + 'body_pp.dpkl')
-num_decoder_tokens, title_pp = load_text_processor(data_dir + 'title_pp.dpkl')
+  # Word Embedding For Decoder (ex: Issue Titles)
+  dec_emb = tf.keras.layers.Embedding(
+              num_decoder_tokens,
+              latent_dim, name='Decoder-Word-Embedding',
+              mask_zero=False)(decoder_inputs)
+  dec_bn = tf.keras.layers.BatchNormalization(name='Decoder-Batchnorm-1')(dec_emb)
 
-#arbitrarly set latent dimension for embedding and hidden units
-latent_dim = 300
+  # Set up the decoder, using `decoder_state_input` as _state.
+  decoder_gru = tf.keras.layers.GRU(
+                  latent_dim, return_state=True, return_sequences=True, name='Decoder-GRU')
 
-##### Define Model Architecture ######
+  # FIXME: seems to be running into this https://github.com/keras-team/keras/issues/9761
+  decoder_gru_output, _ = decoder_gru(dec_bn)  # , initial_state=seq2seq_encoder_out)
+  x = tf.keras.layers.BatchNormalization(name='Decoder-Batchnorm-2')(decoder_gru_output)
 
-########################
-#### Encoder Model ####
-encoder_inputs = tf.keras.layers.Input(shape=(doc_length,), name='Encoder-Input')
+  # Dense layer for prediction
+  decoder_dense = tf.keras.layers.Dense(
+                    num_decoder_tokens, activation='softmax', name='Final-Output-Dense')
+  decoder_outputs = decoder_dense(x)
 
-# Word embeding for encoder (ex: Issue Body)
-x = tf.keras.layers.Embedding(
-      num_encoder_tokens, latent_dim, name='Body-Word-Embedding', mask_zero=False)(encoder_inputs)
-x = tf.keras.layers.BatchNormalization(name='Encoder-Batchnorm-1')(x)
+  ########################
+  #### Seq2Seq Model ####
 
-# Intermediate GRU layer (optional)
-#x = GRU(latent_dim, name='Encoder-Intermediate-GRU', return_sequences=True)(x)
-#x = BatchNormalization(name='Encoder-Batchnorm-2')(x)
+  seq2seq_Model = tf.keras.Model([encoder_inputs, decoder_inputs], decoder_outputs)
 
-# We do not need the `encoder_output` just the hidden state.
-_, state_h = tf.keras.layers.GRU(latent_dim, return_state=True, name='Encoder-Last-GRU')(x)
+  seq2seq_Model.compile(
+    optimizer=tf.keras.optimizers.Nadam(lr=0.001),
+    loss='sparse_categorical_crossentropy',
+    metrics=['accuracy'])
 
-# Encapsulate the encoder as a separate entity so we can just
-#  encode without decoding if we want to.
-encoder_model = tf.keras.Model(inputs=encoder_inputs, outputs=state_h, name='Encoder-Model')
+  cfg = tf.estimator.RunConfig(session_config=tf.ConfigProto(log_device_placement=False))
 
-seq2seq_encoder_out = encoder_model(encoder_inputs)
+  estimator = tf.keras.estimator.model_to_estimator(
+                keras_model=seq2seq_Model, model_dir=model_dir, config=cfg)
 
-########################
-#### Decoder Model ####
-decoder_inputs = tf.keras.layers.Input(shape=(None,), name='Decoder-Input')  # for teacher forcing
+  expanded = np.expand_dims(decoder_target_data, -1)
+  input_fn = tf.estimator.inputs.numpy_input_fn(
+               x={'Encoder-Input': encoder_input_data, 'Decoder-Input': decoder_input_data},
+               y=expanded,
+               shuffle=False)
 
-# Word Embedding For Decoder (ex: Issue Titles)
-dec_emb = tf.keras.layers.Embedding(
-            num_decoder_tokens,
-            latent_dim, name='Decoder-Word-Embedding',
-            mask_zero=False)(decoder_inputs)
-dec_bn = tf.keras.layers.BatchNormalization(name='Decoder-Batchnorm-1')(dec_emb)
+  train_spec = tf.estimator.TrainSpec(input_fn=input_fn,
+                                      max_steps=args.max_steps)
+  eval_spec = tf.estimator.EvalSpec(input_fn=input_fn, throttle_secs=10,
+                                    steps=args.eval_steps)
 
-# Set up the decoder, using `decoder_state_input` as _state.
-decoder_gru = tf.keras.layers.GRU(
-                latent_dim, return_state=True, return_sequences=True, name='Decoder-GRU')
+  tf.estimator.train_and_evaluate(estimator, train_spec, eval_spec)
 
-# FIXME: seems to be running into this https://github.com/keras-team/keras/issues/9761
-decoder_gru_output, _ = decoder_gru(dec_bn)  # , initial_state=seq2seq_encoder_out)
-x = tf.keras.layers.BatchNormalization(name='Decoder-Batchnorm-2')(decoder_gru_output)
-
-# Dense layer for prediction
-decoder_dense = tf.keras.layers.Dense(
-                  num_decoder_tokens, activation='softmax', name='Final-Output-Dense')
-decoder_outputs = decoder_dense(x)
-
-########################
-#### Seq2Seq Model ####
-
-start_time = time.time()
-seq2seq_Model = tf.keras.Model([encoder_inputs, decoder_inputs], decoder_outputs)
-
-seq2seq_Model.compile(
-  optimizer=tf.keras.optimizers.Nadam(lr=0.001),
-  loss='sparse_categorical_crossentropy',
-  metrics=['accuracy'])
-
-cfg = tf.estimator.RunConfig(session_config=tf.ConfigProto(log_device_placement=False))
-
-estimator = tf.keras.estimator.model_to_estimator(
-              keras_model=seq2seq_Model, model_dir=model_dir, config=cfg)
-
-expanded = np.expand_dims(decoder_target_data, -1)
-input_fn = tf.estimator.inputs.numpy_input_fn(
-             x={'Encoder-Input': encoder_input_data, 'Decoder-Input': decoder_input_data},
-             y=expanded,
-             shuffle=False)
-
-train_spec = tf.estimator.TrainSpec(input_fn=input_fn, max_steps=30)
-eval_spec = tf.estimator.EvalSpec(input_fn=input_fn, throttle_secs=10, steps=10)
-
-result = tf.estimator.train_and_evaluate(estimator, train_spec, eval_spec)
+if __name__ == '__main__':
+  main()
