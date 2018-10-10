@@ -1,5 +1,6 @@
-"""
-Module that preprocesses the data needed for the machine learning model
+"""Module that preprocesses the data needed for the machine learning model.
+
+Downloads and preprocesses stock data obtained from Public Google BigQuery tables.
 """
 from google.cloud import bigquery #pylint: disable=no-name-in-module
 import numpy as np
@@ -7,13 +8,13 @@ import pandas as pd
 
 
 def load_data(tickers):
-  """Load stock market data (close values for each day) for given tickers
+  """Load stock market data (close values for each day) for given tickers.
 
   Args:
-      tickers (list): list of tickers
+    tickers (list): list of tickers
 
   Returns:
-      pandas.dataframe: dataframe with close values of tickers
+    pandas.dataframe: dataframe with close values of tickers
 
   """
   # instantiate bigquery client
@@ -39,13 +40,13 @@ def load_data(tickers):
 
 
 def preprocess_data(closing_data):
-  """
+  """Preprocesses data into time series.
 
   Args:
-      closing_data (pandas.dataframe):  dataframe with close values of tickers
+    closing_data (pandas.dataframe):  dataframe with close values of tickers
 
   Returns:
-      pandas.dataframe: dataframe with time series
+    pandas.dataframe: dataframe with time series
 
   """
   # transform into log return
@@ -109,14 +110,14 @@ def preprocess_data(closing_data):
 
 
 def train_test_split(training_test_data, train_test_ratio=0.8):
-  """
+  """Splits the data into a training and test set according to the provided ratio.
 
   Args:
-      training_test_data (pandas.dataframe): dict with time series
-      train_test_ratio (float): ratio of train test split
+    training_test_data (pandas.dataframe): dict with time series
+    train_test_ratio (float): ratio of train test split
 
   Returns:
-      tensors: predictors and classes tensors for training and respectively test set
+    tensors: predictors and classes tensors for training and respectively test set
 
   """
   predictors_tf = training_test_data[training_test_data.columns[2:]]

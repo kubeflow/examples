@@ -1,5 +1,6 @@
-"""
-Module that sends a practical request to the tf-server
+""" Module that sends a practical request to the tf-server.
+
+Obtains the prediction for a given date in the test.
 """
 import numpy as np
 
@@ -8,12 +9,10 @@ from .. import preprocess    #pylint: disable=relative-beyond-top-level
 
 
 def send_pratical_request(date="2014-08-12"):
-  """ function that gets the prediction for a certain date in the test set
+  """Obtain the prediction for a certain date in the test set.
 
   Args:
-      date:
-
-  Returns:
+    date (str): request date to obtain prediction
 
   """
   # create input from request date

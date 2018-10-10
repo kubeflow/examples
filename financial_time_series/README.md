@@ -18,12 +18,17 @@ In that case you will need a Linux or Mac environment with Python 3.6.x and inst
 Independent of the machine that you are using, you will need access to a Google Cloud Project and its GKE resources.
 
 ### Deploying Kubeflow on GKE
+The full deployment script for Kubeflow on GKE will create a cluster for you with machines that already have all the appropiate permissions.
+In the steps below we will actually use the deployment script for minikube but deployed on infrastructure in the cloud instead of your local machine.
+The reason for this is that we want to focus on the abilities of Kubeflow in this example rather than making sure it is set up securely for a production-like environment.
+If interested, instructions on how to deploy Kubeflow to GKE with authentification can be found on Kubeflow's [getting-started-GKE](https://v0-2.kubeflow.org/docs/started/getting-started-gke/) page.
+
 We will first create a cluster named 'kubeflow' on google kubernetes engine.
 The following set of commands clones the repository, creates a cluster, connects our local environment to the cluster and changes the permissions on the cluster to allow Kubeflow to run properly.
 Make sure to replace the placeholder parameters between ```<>``` with proper values in the commands.
 
 ```
-git clone https://github.com/Svendegroote91/examples.git
+git clone https://github.com/kubeflow/examples.git
 cd examples/financial_time_series
 gcloud container clusters create kubeflow --zone <your-zone>  --machine-type n1-standard-4 --scopes=https://www.googleapis.com/auth/cloud-platform
 gcloud container clusters get-credentials kubeflow --zone <your-zone> --project <your-project-name>
@@ -42,9 +47,7 @@ export KUBEFLOW_VERSION=0.2.2
 curl https://raw.githubusercontent.com/kubeflow/kubeflow/v${KUBEFLOW_VERSION}/scripts/deploy.sh | bash
 ```
 
-The script above is actually  the deployment script for minikube but deployed on infrastructure in the cloud instead of your local machine.
-The reason for this is that we want to focus on the abilities of Kubeflow in this blogpost rather than making sure it is set up securely for a production-like environment.
-If interested, instructions on how to deploy Kubeflow to GKE with authentification can be found on Kubeflow's [getting-started-GKE](https://master.kubeflow.org/docs/started/getting-started-gke/) page.
+As said before, the script above is  the deployment script for minikube but deployed on infrastructure in the cloud instead of your local machine.
 
 Once the script is finished, you should two new folders in your directory.
 ```
@@ -85,7 +88,7 @@ In order to launch a terminal, click 'new' > 'terminal' and subsequently install
 pip3 install google-cloud-bigquery==1.5.0 --user
 ```
 
-Once the package is installed, navigate back to the JupyterHub home screen. Our JupyterHub instance should be ready to run the code from the slightly adjusted notebook ```Machine Learning with Financial Time Series Data.ipynb```, which is available [here](https://github.com/Svendegroote91/examples/blob/finance_example/financial_time_series/Financial%20Time%20Series%20with%20Finance%20Data.ipynb).
+Once the package is installed, navigate back to the JupyterHub home screen. Our JupyterHub instance should be ready to run the code from the slightly adjusted notebook ```Machine Learning with Financial Time Series Data.ipynb```, which is available [here](https://github.com/kubeflow/examples/blob/finance_example/financial_time_series/Financial%20Time%20Series%20with%20Finance%20Data.ipynb).
 You can simply upload the notebook and walk through it step by step to better understand the problem and suggested solution(s).
 In this example, the goal is not focus on the notebook itself but rather on how this notebook is being translated in more scalable training jobs and later on serving.
 
@@ -128,7 +131,7 @@ ks param set train workingDir "opt/workdir"
 ks param set train args -- python,run_train.py,--model=FlatModel,--epochs=30001,--bucket=$BUCKET_NAME,--version=1
 ```
 
-You can verify the parameter settings in the params.libsonnet in the directorykubeflow_ks_app/components.
+You can verify the parameter settings in the params.libsonnet in the directory kubeflow_ks_app/components.
 This file keeps track of all the parameters used to instantiate components from prototypes.
 In order to submit our tf-job, we need to add our cloud cluster as an environment.
 Next we can launch the tf-job to our cloud environment and follow the progress via the logs of the pod.
@@ -219,15 +222,6 @@ python3 -m tensorflow_model.serving_requests.request
 ```
 
 The response returns the updated version number '2' and  predicts the correct output 1, which means the S&P index closes negative, hurray!
-
-### Expose
-In the previous section we used a prediction service on our Kubeflow cluster which is by default only available from within the cluster.
-It's also possible to expose the service so it can be accessed from outside the cluster.
-The following command will expose the prediction service on a fixed external IP address and create a loadbalancer to orchestrate the traffic.
-
-```
-kubectl expose deployment tf-serving --type=LoadBalancer --port=9000
-```
 
 ### Running tf-job on a GPU
 

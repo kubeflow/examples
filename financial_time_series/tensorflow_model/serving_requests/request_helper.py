@@ -1,5 +1,6 @@
-"""
-Module that builds the request
+""" Module that builds the request and processes the response from the tf-server.
+
+Uses GRPC protocol to send a request to the tf-server and processes it.
 """
 
 from grpc.beta import implementations
@@ -9,12 +10,14 @@ from tensorflow_serving.apis import prediction_service_pb2_grpc
 
 
 def send_request(input_tensor):
-  """
+  """Send a request to the TF-server to obtain a prediction.
 
   Args:
-      input_tensor: input tensor for which we want a prediction
+    input_tensor (np.ndarray): input tensor for which we want a prediction
 
   Returns:
+    int: prediction
+    str: version of the ML model
 
   """
 

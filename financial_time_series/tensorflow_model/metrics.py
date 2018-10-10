@@ -1,17 +1,18 @@
-"""
-Module that defines metrics that are evaluated when training the model
+"""Module that defines metrics that are evaluated when training the model.
+
+Uses tensor operations to construct the confusion matrix for validation of predictions.
 """
 import tensorflow as tf
 
-def tf_calc_confusion_matrix(actuals, predictions):
-  """
+def tf_calc_confusion_matrix_ops(actuals, predictions):
+  """Constructs the Tensorflow operations for obtaining the confusion matrix operators.
 
   Args:
-      actuals (tf.tensor): tensor that contain actuals
-      predictions (tf.tensor): tensor that contains predictions
+    actuals (tf.tensor): tensor that contain actuals
+    predictions (tf.tensor): tensor that contains predictions
 
   Returns:
-      tensors: true_postive, true_negative, false_positive, false_negative
+    tensors: true_postive, true_negative, false_positive, false_negative
 
   """
 
@@ -64,16 +65,16 @@ def tf_calc_confusion_matrix(actuals, predictions):
 
 
 def tf_calc_confusion_metrics(true_pos, true_neg, false_pos, false_neg):
-  """
+  """Construct the Tensorflow operations for obtaining the confusion matrix.
 
   Args:
-      true_pos (tf.tensor): tensor with true positives
-      true_neg (tf.tensor): tensor with true negatives
-      false_pos (tf.tensor): tensor with false positives
-      false_neg (tf.tensor): tensor with false negatives
+    true_pos (tf.tensor): tensor with true positives
+    true_neg (tf.tensor): tensor with true negatives
+    false_pos (tf.tensor): tensor with false positives
+    false_neg (tf.tensor): tensor with false negatives
 
   Returns:
-      tensor calculations: precision, recall, f1_score and accuracy
+    tensor calculations: precision, recall, f1_score and accuracy
 
   """
   tpfn = float(true_pos) + float(false_neg)
@@ -94,22 +95,21 @@ def tf_calc_confusion_metrics(true_pos, true_neg, false_pos, false_neg):
   print('Accuracy = ', accuracy)
 
 
-def tf_confusion_metrics(model, actual_classes, session, feed_dict):
-  """ calculates confusion metrics when training
+def tf_confusion_matrix(model, actual_classes, session, feed_dict):
+  """Calculates confusion matrix when training.
 
   Args:
-      model (object): instance of the model class Object
-      actual_classes (tf.tensor): tensor that contains the actual classes
-      session (tf.session): tensorflow session in which the tensors are evaluated
-      feed_dict (dict): dictionary with features and actual classes
+    model (object): instance of the model class Object
+    actual_classes (tf.tensor): tensor that contains the actual classes
+    session (tf.session): tensorflow session in which the tensors are evaluated
+    feed_dict (dict): dictionary with features and actual classes
 
-  Returns:
 
   """
 
   predictions = tf.argmax(model, 1)
   actuals = tf.argmax(actual_classes, 1)
-  tp_op, tn_op, fp_op, fn_op = tf_calc_confusion_matrix(actuals, predictions)
+  tp_op, tn_op, fp_op, fn_op = tf_calc_confusion_matrix_ops(actuals, predictions)
   true_pos, true_neg, false_pos, false_neg = \
       session.run(
           [tp_op, tn_op, fp_op, fn_op],

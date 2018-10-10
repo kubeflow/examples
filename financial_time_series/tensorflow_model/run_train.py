@@ -1,5 +1,6 @@
-"""
-Module for running the training of the machine learning model
+"""Module for running the training of the machine learning model.
+
+Scripts that performs all the steps to train the ML model.
 """
 import logging
 import os
@@ -14,7 +15,7 @@ import metrics
 
 
 def get_preprocessed_data():
-  """ function to get the preprocessed data"""
+  """Obtain the preprocessed data."""
   tickers = ['snp', 'nyse', 'djia', 'nikkei', 'hangseng', 'ftse', 'dax', 'aord']
   closing_data = preprocess.load_data(tickers)
   time_series = preprocess.preprocess_data(closing_data)
@@ -23,11 +24,11 @@ def get_preprocessed_data():
 
 
 def upload_to_storage(bucket, export_path):
-  """
+  """Upload files from export path to Google Cloud Storage.
 
   Args:
-      bucket (str): Google Cloud Storage bucket
-      export_path (str): export path
+    bucket (str): Google Cloud Storage bucket
+    export_path (str): export path
 
   Returns:
 
@@ -43,10 +44,10 @@ def upload_to_storage(bucket, export_path):
 
 
 def run_training(args):
-  """
+  """Runs the ML model training script.
 
   Args:
-      args: args that are passed when submitting the training
+    args: args that are passed when submitting the training
 
   Returns:
 
@@ -106,7 +107,7 @@ def run_training(args):
       actual_classes: training_test_data['test_classes_tf'].values.reshape(
           len(training_test_data['test_classes_tf'].values), 2)
   }
-  metrics.tf_confusion_metrics(model, actual_classes, sess, feed_dict)
+  metrics.tf_confusion_matrix(model, actual_classes, sess, feed_dict)
 
   # create signature for TensorFlow Serving
   logging.info('Exporting model for tensorflow-serving...')
@@ -126,7 +127,6 @@ def run_training(args):
 
 
 def main():
-  """ main """
   parser = argparse.ArgumentParser(description='Training')
 
   parser.add_argument('--model',
