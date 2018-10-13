@@ -21,46 +21,33 @@ class SimilarityTransformer(t2t_model.T2TModel):
     return body_output
 
   def body(self, features):
+    with tf.variable_scope('string_embedding'):
+      string_embedding = self.encode(features, 'inputs')
 
-    def embed_string():
-      with tf.variable_scope('string_embedding'):
-        string_embedding = self.encode(features, 'inputs')
-      return string_embedding
+    with tf.variable_scope('code_embedding'):
+      code_embedding = self.encode(features, 'targets')
 
-    def embed_code():
-      with tf.variable_scope('code_embedding'):
-        code_embedding = self.encode(features, 'targets')
-      return code_embedding
+    result = tf.concat([string_embedding, code_embedding], 1)
 
-    predicate = tf.cast(features.get('embed_code'), dtype=tf.bool)[0][0]
+    if self.hparams.mode != tf.estimator.ModeKeys.PREDICT:
+      # string_embedding_norm = tf.nn.l2_normalize(string_embedding, axis=1)
+      # code_embedding_norm = tf.nn.l2_normalize(code_embedding, axis=1)
 
-    if self.trainable:
-      string_embedding = embed_string()
-      code_embedding = embed_code()
+      p = tf.nn.sigmoid(tf.matmul(string_embedding, code_embedding,
+                                         transpose_b=True))
 
-      string_embedding_norm = tf.nn.l2_normalize(string_embedding, axis=1)
-      code_embedding_norm = tf.nn.l2_normalize(code_embedding, axis=1)
+      labels = tf.eye(tf.shape(p)[0], dtype=tf.int32)
+      labels = tf.reshape(labels, [-1])
 
-      # All-vs-All cosine distance matrix, reshaped as row-major.
-      cosine_dist = 1.0 - tf.matmul(string_embedding_norm, code_embedding_norm,
-                                    transpose_b=True)
-      cosine_dist_flat = tf.reshape(cosine_dist, [-1, 1])
-
-      # Positive samples on the diagonal, reshaped as row-major.
-      label_matrix = tf.eye(tf.shape(cosine_dist)[0], dtype=tf.int32)
-      label_matrix_flat = tf.reshape(label_matrix, [-1])
-
-      logits = tf.concat([1.0 - cosine_dist_flat, cosine_dist_flat], axis=1)
-      labels = tf.one_hot(label_matrix_flat, 2)
+      p = tf.reshape(p, [-1, 1])
+      logits = tf.concat([1.0 - p, p], axis=1)
+      labels = tf.one_hot(labels, 2)
 
       loss = tf.nn.sigmoid_cross_entropy_with_logits(labels=labels,
                                                      logits=logits)
 
-      result = tf.cond(predicate,
-                       lambda: code_embedding, lambda: string_embedding)
       return result, {'training': loss}
 
-    result = tf.cond(predicate, embed_code, embed_string)
     return result
 
   def encode(self, features, input_key):
