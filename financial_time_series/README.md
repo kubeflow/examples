@@ -7,6 +7,7 @@ We will use the [Machine Learning with Financial Time Series Data](https://cloud
 ### Pre-requisites
 You can use a Google Cloud Shell to follow the steps outlined below.
 In that case you can skip the requirements below as these depencies are pre-installed with the exception that you might still need to install ksonnet via these [instructions](https://www.kubeflow.org/docs/guides/components/ksonnet/).
+You might also need to install ```uuid-runtime``` via ```sudo apt-get install uuid-runtime```.
 
 Alternatively, you can work from your local environment.
 In that case you will need a Linux or Mac environment with Python 3.6.x and install the following requirements
@@ -82,17 +83,20 @@ You should now be able to access the TF-hub via ```localhost:8000```.
 After filling in a dummy username and password you are prompted to select parameters to spawn a JupyterHub.
 In this case, we will just set the ```image``` to ```gcr.io/kubeflow-images-public/tensorflow-1.8.0-notebook-cpu:v0.2.1``` and hit spawn.
 
+The following steps for configuring and running the Jupyter Notebook work better on a local machine kernel as the Google Cloud Shell is not meant to stand up a web socket service and is not configured for that.
+Note that this is not a compulsory step in order to be able to follow the next sections, so if you are working on a Google Cloud Shell you can simply investigate the notebook via the link below.
+
 Once the JupyterHub instance is ready, we will launch a terminal on the instance to install the required packages that our code uses.
 In order to launch a terminal, click 'new' > 'terminal' and subsequently install the required packages.
 ```
-pip3 install google-cloud-bigquery==1.5.0 --user
+pip3 install google-cloud-bigquery==1.6.0 --user
 ```
 
-Once the package is installed, navigate back to the JupyterHub home screen. Our JupyterHub instance should be ready to run the code from the slightly adjusted notebook ```Machine Learning with Financial Time Series Data.ipynb```, which is available [here](https://github.com/kubeflow/examples/blob/finance_example/financial_time_series/Financial%20Time%20Series%20with%20Finance%20Data.ipynb).
+Once the package is installed, navigate back to the JupyterHub home screen. Our JupyterHub instance should be ready to run the code from the slightly adjusted notebook ```Machine Learning with Financial Time Series Data.ipynb```, which is available [here](https://github.com/kubeflow/examples/blob/master/financial_time_series/Financial%20Time%20Series%20with%20Finance%20Data.ipynb).
 You can simply upload the notebook and walk through it step by step to better understand the problem and suggested solution(s).
 In this example, the goal is not focus on the notebook itself but rather on how this notebook is being translated in more scalable training jobs and later on serving.
 
-### Training at scale with tf-jobs
+### Training at scale with TF-jobs
 The next step is to 're-factor' the notebook code into Python scripts which can then be containerized onto a Docker image.
 In the folder ```tensorflow-model``` you can find these scripts together with a ```Dockerfile```.
 Subsequently we will build a docker image on Google Cloud by running following command:
@@ -153,9 +157,9 @@ POD=`kubectl get pods --selector=service=ambassador | awk '{print $1}' | tail -1
 kubectl port-forward $POD 8080:80 2>&1 >/dev/null &
 ```
 
-### Deploy and serve with tf-serving
+### Deploy and serve with TF-serving
 Once the model is trained, the next step will be to deploy it and serve requests.
-Kubeflow comes with a tf-serving module which you can use to deploy your model with only a few commands.
+Kubeflow comes with a TF-serving module which you can use to deploy your model with only a few commands.
 ```
 ks generate tf-serving serve --name=tf-serving
 ks param set serve modelPath gs://$BUCKET_NAME/
@@ -223,7 +227,7 @@ python3 -m tensorflow_model.serving_requests.request
 
 The response returns the updated version number '2' and  predicts the correct output 1, which means the S&P index closes negative, hurray!
 
-### Running tf-job on a GPU
+### Running TF-job on a GPU
 
 Can we also run the tf-job on a GPU?
 Imagine the training job does not just take a few minutes but rather hours or days.
