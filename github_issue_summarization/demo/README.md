@@ -36,8 +36,6 @@ Here are the instructions for setting up the demo.
 
 1. Follow the [instructions](https://www.kubeflow.org/docs/guides/gke/cloud-filestore/) to Setup an NFS share
 
-1. Follow the [instructions](https://www.kubeflow.org/docs/guides/components/seldon/) to setup Seldon
-
 1. Create static IP for serving **gh-demo.kubeflow.org**
 
    ```
@@ -65,9 +63,13 @@ Here are the instructions for setting up the demo.
 
 1. Create a secret with a GitHub token
 
-   ```
-   kubectl -n gh-public create secret generic github-token --from-literal=github-token=${GITHUB_TOKEN}
-   ```
+   * Follow [GitHub's instructions](https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/) to create a token
+
+   * Then run the following command to create the secret
+   
+     ```
+     kubectl -n gh-public create secret generic github-token --from-literal=github-token=${GITHUB_TOKEN}
+     ```
 
 1. Deploy the public UI and model
 
