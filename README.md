@@ -24,7 +24,7 @@ This example covers the following concepts:
 1. Serving with Seldon Core
 1. Flask front-end
 
-### [Pytorch MNIST](./pytorch|_mnist)
+### [Pytorch MNIST](./pytorch_mnist)
 Author: [David Sabater](https://github.com/dsdinter)
 
 This example covers the following concepts:
