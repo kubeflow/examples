@@ -21,7 +21,7 @@ apiVersion: "batch/v1",
           image: params.image,
           imagePullPolicy: "IfNotPresent",
           command: ["python", "/models/research/object_detection/dataset_tools/create_pet_tf_record.py"],
-          args: ["--label_map_path=models/research/object_detection/data/pet_label_map.pbtxt",
+          args: ["--label_map_path=/models/research/object_detection/data/pet_label_map.pbtxt",
                  "--data_dir=" + params.dataDirPath,
                  "--output_dir=" + params.outputDirPath],
           volumeMounts: [{
