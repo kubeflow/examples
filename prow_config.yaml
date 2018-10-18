@@ -4,4 +4,13 @@ workflows:
   - app_dir: kubeflow/examples/test/workflows
     component: workflows
     name: examples-e2e
-
+    job_types:
+    - presubmit
+  # The postsubmit run publishes the docker images to gcr.io/kubeflow-examples
+  - app_dir: kubeflow/examples/test/workflows
+    component: workflows
+    name: examples-e2e-release
+    job_types:
+    - postsubmit
+    params:
+        registry: "gcr.io/kubeflow-examples"
