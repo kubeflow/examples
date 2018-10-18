@@ -20,13 +20,13 @@ from __future__ import print_function
 import grpc
 import numpy as np
 from PIL import Image
+from tensorflow.examples.tutorials.mnist import input_data
 from proto import prediction_pb2
 from proto import prediction_pb2_grpc
-from tensorflow.examples.tutorials.mnist import input_data
 
 
 def get_prediction(image, server_host='127.0.0.1', server_port=8080,
-                   deployment_name="server", timeout=10.0):
+                   deployment_name="server"):
   """
   Retrieve a prediction from a TensorFlow model server
 
@@ -58,7 +58,7 @@ def get_prediction(image, server_host='127.0.0.1', server_port=8080,
     stub = prediction_pb2_grpc.SeldonStub(channel)
     metadata = [('seldon', deployment_name)]
     response = stub.Predict(request=request, metadata=metadata)
-  except Exception as e:
+  except IOError as e:
     # server connection failed
     print("Could Not Connect to Server: " + str(e))
   return response.data.tensor.values
@@ -87,6 +87,6 @@ def random_mnist(save_path=None):
       img = Image.fromarray(data, 'L')
       img.save(save_path)
       saved = True
-    except:
+    except IOError:
       pass
   return batch_x, np.argmax(batch_y), saved

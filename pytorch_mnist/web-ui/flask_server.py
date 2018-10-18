@@ -53,7 +53,7 @@ def main():
       scores_dict += [{"index": str(i), "val": pred[i]}]
     output = {"truth": y,
               "img_path": img_path, "scores": scores_dict}
-  except Exception as e:
+  except IOError as e:
     # server connection failed
     connection["text"] = "Could Not Connect to Server: " + str(e)
   # after 10 seconds, delete cached image file from server
