@@ -42,7 +42,7 @@ class DistributedDataParallel(Module):
     self.first_call = True
 
     def allreduce_params():
-      if (self.needs_reduction):
+      if self.needs_reduction:
         self.needs_reduction = False
         buckets = {}
         for param in self.module.parameters():
@@ -61,7 +61,7 @@ class DistributedDataParallel(Module):
             buf.copy_(synced)
 
     for param in list(self.module.parameters()):
-      def allreduce_hook(*unused):
+      def allreduce_hook():
         Variable._execution_engine.queue_callback(allreduce_params)
 
       if param.requires_grad:
@@ -77,7 +77,7 @@ class DistributedDataParallel(Module):
       self.weight_broadcast()
       self.first_call = False
       print("first broadcast done")
-    self.needs_reduction = True
+      self.needs_reduction = True
     return self.module(*inputs, **kwargs)
 
 
