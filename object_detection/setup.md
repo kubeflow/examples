@@ -107,7 +107,7 @@ Now we will configure and apply the `decompress-data-job` component:
 ```
 ANNOTATIONS_PATH="${MOUNT_PATH}/annotations.tar.gz"
 DATASET_PATH="${MOUNT_PATH}/images.tar.gz"
-PRE_TRAINED_MODEL_PATH = "${MOUNT_PATH}/faster_rcnn_resnet101_coco_2018_01_28.tar.gz"
+PRE_TRAINED_MODEL_PATH="${MOUNT_PATH}/faster_rcnn_resnet101_coco_2018_01_28.tar.gz"
 
 ks param set decompress-data-job mountPath ${MOUNT_PATH}
 ks param set decompress-data-job pvc ${PVC}
