@@ -15,45 +15,11 @@ from sklearn.model_selection import train_test_split
 
 from seq2seq_utils import load_decoder_inputs, load_encoder_inputs, load_text_processor
 
-def main():
-  logging.basicConfig(
-    level=logging.INFO,
-    format=('%(levelname)s|%(asctime)s'
-            '|%(pathname)s|%(lineno)d| %(message)s'),
-    datefmt='%Y-%m-%dT%H:%M:%S',
-  )
-  logger = logging.getLogger()
-  logger.setLevel(logging.INFO)
-
-  parser = argparse.ArgumentParser()
-
-  parser.add_argument(
-    "--data_file",
-    type=str,
-    default="",
-    help="The path for the data file. Should be  .csv file")
-
-  parser.add_argument(
-    "--data_dir",
-    type=str,
-    default="",
-    help="The directory for the data. "
-         "This directory is used to store the preprocessors. "
-         "It needs to be a shared directory among all the workers.")
-
-  parser.add_argument(
-    "--model_dir",
-    type=str,
-    default="Location to save the model.")
-
-  parser.add_argument("--max_steps", type=int, default=2000000)
-  parser.add_argument("--eval_steps", type=int, default=1000)
-
-  args = parser.parse_args()
+def train_model(args):
   data_dir = args.data_dir
   model_dir = args.model_dir
 
-  logger.info("starting")
+  logging.info("starting")
 
   if not args.data_dir:
     raise ValueError("--data_dir must be set.")
@@ -81,8 +47,9 @@ def main():
     server.join()
     sys.exit(0)
 
-
-  if tf_config and job_name == "master":
+  # We preprocess the data if we are the master or chief.
+  # Or if we aren't running distributed.
+  if not job_name or job_name.lower() in ["master", "chief"]:
     # TODO(jlewi): The test data isn't being used for anything. How can
     # we configure evaluation?
     if use_sample_data:
@@ -120,8 +87,6 @@ def main():
     # Save the processed data
     np.save(data_dir + 'train_title_vecs.npy', train_title_vecs)
     np.save(data_dir + 'train_body_vecs.npy', train_body_vecs)
-  else:
-    time.sleep(120)
 
   # TODO(jlewi): Why do we need to block waiting for the file?
   # I think this is because only the master produces the npy
@@ -130,7 +95,7 @@ def main():
   while True:
     if os.path.isfile(data_dir + 'train_body_vecs.npy'):
       break
-    print("Waiting for dataset")
+    logging.info("Waiting for dataset")
     time.sleep(2)
   encoder_input_data, doc_length = load_encoder_inputs(data_dir + 'train_body_vecs.npy')
   decoder_input_data, decoder_target_data = load_decoder_inputs(data_dir + 'train_title_vecs.npy')
@@ -212,6 +177,44 @@ def main():
                                     steps=args.eval_steps)
 
   tf.estimator.train_and_evaluate(estimator, train_spec, eval_spec)
+
+def main(args):
+  logging.basicConfig(
+    level=logging.INFO,
+    format=('%(levelname)s|%(asctime)s'
+            '|%(pathname)s|%(lineno)d| %(message)s'),
+    datefmt='%Y-%m-%dT%H:%M:%S',
+  )
+  logger = logging.getLogger()
+  logger.setLevel(logging.INFO)
+
+  parser = argparse.ArgumentParser()
+
+  parser.add_argument(
+    "--data_file",
+    type=str,
+    default="",
+    help="The path for the data file. Should be  .csv file")
+
+  parser.add_argument(
+    "--data_dir",
+    type=str,
+    default="",
+    help="The directory for the data. "
+         "This directory is used to store the preprocessors. "
+         "It needs to be a shared directory among all the workers.")
+
+  parser.add_argument(
+    "--model_dir",
+    type=str,
+    default="Location to save the model.")
+
+  parser.add_argument("--max_steps", type=int, default=2000000)
+  parser.add_argument("--eval_steps", type=int, default=1000)
+
+  args = parser.parse_args()
+
+  train_model(args)
 
 if __name__ == '__main__':
   main()
