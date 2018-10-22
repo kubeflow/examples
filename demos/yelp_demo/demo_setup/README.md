@@ -377,7 +377,7 @@ kubectl -n ${NAMESPACE} create secret generic gcp-credentials \
 
 ### Setup context to include namespace
 
-This allows the use of `kubectl` with specifying `-n ${NAMESPACE}`
+This allows the use of `kubectl` without needing to specify `-n ${NAMESPACE}`
 
 ```
 ./create_context.sh minikube ${NAMESPACE}
