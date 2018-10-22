@@ -152,19 +152,14 @@ def main():
         num_encoder_tokens, latent_dim, name='Body-Word-Embedding', mask_zero=False)(encoder_inputs)
   x = tf.keras.layers.BatchNormalization(name='Encoder-Batchnorm-1')(x)
 
-  # Intermediate GRU layer (optional)
-  #x = GRU(latent_dim, name='Encoder-Intermediate-GRU', return_sequences=True)(x)
-  #x = BatchNormalization(name='Encoder-Batchnorm-2')(x)
-
   # We do not need the `encoder_output` just the hidden state.
   _, state_h = tf.keras.layers.GRU(latent_dim, return_state=True, name='Encoder-Last-GRU')(x)
 
   # Encapsulate the encoder as a separate entity so we can just
   #  encode without decoding if we want to.
 
-  # TODO(jlewi): I commented out the following two lines
-  # encoder_model = tf.keras.Model(inputs=encoder_inputs, outputs=state_h, name='Encoder-Model')
-  # seq2seq_encoder_out = encoder_model(encoder_inputs)
+  encoder_model = tf.keras.Model(inputs=encoder_inputs, outputs=state_h, name='Encoder-Model')
+  seq2seq_encoder_out = encoder_model(encoder_inputs)
 
   ########################
   #### Decoder Model ####
@@ -181,8 +176,8 @@ def main():
   decoder_gru = tf.keras.layers.GRU(
                   latent_dim, return_state=True, return_sequences=True, name='Decoder-GRU')
 
-  # FIXME: seems to be running into this https://github.com/keras-team/keras/issues/9761
-  decoder_gru_output, _ = decoder_gru(dec_bn)  # , initial_state=seq2seq_encoder_out)
+  # TODO: seems to be running into this https://github.com/keras-team/keras/issues/9761
+  decoder_gru_output, _ = decoder_gru(dec_bn, initial_state=seq2seq_encoder_out)
   x = tf.keras.layers.BatchNormalization(name='Decoder-Batchnorm-2')(decoder_gru_output)
 
   # Dense layer for prediction
