@@ -3,8 +3,7 @@
   components: {
     // Component-level parameters, defined initially from 'ks prototype use ...'
     // Each object below should correspond to a component in the components/ directory
-    "data-pvc": {
-    },
+    "data-pvc": {},
     seldon: {
       apifeImage: "seldonio/apife:0.1.5",
       apifeServiceType: "NodePort",
@@ -78,32 +77,32 @@
     },
     "hp-tune": {},
     "tfjob-estimator": {
-      name: "tfjob-estimator",
-      image: "gcr.io/kubeflow-examples/issue-summarization/trainer-estimator:v20181008-v0.2-57-g111b3e6-dirty-a190d1",
-      // The name of the PVC to use as a shared volume.
+      dataDir: "/mnt/shared/gh-demo/data/",
+      dataFile: "/mnt/shared/gh-demo/data/github_issues.csv",
+      gcpSecretFile: "user-gcp-sa.json",
+      gcpSecretName: "user-gcp-sa",
+      image: "gcr.io/kubeflow-examples/issue-summarization/trainer-estimator:v20181022-v0.2-59-g6a782eb",
+      modelDir: "/mnt/shared/gh-demo/model-1008/",
+      mountPath: "/mnt/shared",
+      name: "tfjob-estimator-1022-001",
+      pvc: "kubeflow-gcfs",
+      numWorkers: 0,
+      numPs: 0,
+    },
+    // Run tensorboard with pvc.
+    // This is intended for use with tfjob-estimator
+    "tensorboard-pvc": {
+      image: "tensorflow/tensorflow:1.9.0",
+      // logDir needs to be overwritten based on where the data is
+      // actually stored.
+      name: "tensorboard-pvc",
       pvc: "kubeflow-gcfs",
       // The location where the mount path should be mounted.
       mountPath: "/mnt/shared",
       dataDir: "/mnt/shared/gh-demo/data/",
-      modelDir: "/mnt/shared/gh-demo/model-1008/",
-      dataFile: "/mnt/shared/gh-demo/data/github_issues.csv",
+      logDir: "/mnt/shared/gh-demo/model-1008/",
       gcpSecretName: "user-gcp-sa",
       gcpSecretFile: "user-gcp-sa.json",
     },
-    // Run tensorboard with pvc. 
-    // This is intended for use with tfjob-estimator
-    "tensorboard-pvc": {
-        image: "tensorflow/tensorflow:1.9.0",
-        // logDir needs to be overwritten based on where the data is
-        // actually stored.      
-        name: "tensorboard-pvc",
-        pvc: "kubeflow-gcfs",
-        // The location where the mount path should be mounted.
-        mountPath: "/mnt/shared",
-        dataDir: "/mnt/shared/gh-demo/data/",
-        logDir: "/mnt/shared/gh-demo/model-1008/",
-        gcpSecretName: "user-gcp-sa",
-        gcpSecretFile: "user-gcp-sa.json",
-    },
-  }, // components  
+  },
 }

@@ -2,7 +2,7 @@
   parts(params, env): {
     local name = params.name,
     local namespace = env.namespace,
-    
+
     service:: {
       apiVersion: "v1",
       kind: "Service",
@@ -77,7 +77,7 @@
                 //    },
                 //    "initialDelaySeconds": 15,
                 //    "periodSeconds": 3
-                //  }            
+                //  }
                 volumeMounts: [
                   {
                     name: "gcp-credentials",
@@ -88,7 +88,7 @@
                     name: "shared-fs",
                     mountPath: params.mountPath,
                   },
-                ]
+                ],
               },
             ],
             volumes: [
@@ -104,11 +104,10 @@
                   claimName: params.pvc,
                 },
               },
-            ], //volumes
+            ],  //volumes
           },
         },
       },
-    }
+    },
   },
 }
-

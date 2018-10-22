@@ -60,6 +60,25 @@ local podSpec = {
   restartPolicy: "OnFailure",
 };  // spec
 
+local workerSpec = if params.numWorkers > 0 then
+  { Worker:
+    {
+      replicas: 5,
+      template: {
+        spec: podSpec,  // spec
+      },  // template
+    } }
+else {};
+
+
+local psSpec = if params.numPs > 0 then
+  { Ps: {
+    replicas: 3,
+    template: {
+      spec: podSpec,  // spec
+    },  // template
+  } } else {};  //  ps
+
 local tfjob = {
   apiVersion: "kubeflow.org/v1alpha2",
   kind: "TFJob",
@@ -75,19 +94,8 @@ local tfjob = {
           spec: podSpec,  // spec
         },  // template
       },  // master
-      Worker: {
-        replicas: 5,
-        template: {
-          spec: podSpec,  // spec
-        },  // template
-      },  // master
-      Ps: {
-        replicas: 3,
-        template: {
-          spec: podSpec,  // spec
-        },  // template
-      },  // master
-    },  // tfReplicaSpecs
+    } + workerSpec + psSpec,
+    // tfReplicaSpecs
   },  // spec
 };
 

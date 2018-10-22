@@ -1,5 +1,6 @@
 FROM python:3.6
 
+# TODO(jlewi): We should probably pin version of TF and other libraries.
 RUN pip install --upgrade ktext annoy sklearn nltk tensorflow
 RUN pip install --upgrade matplotlib ipdb
 ENV DEBIAN_FRONTEND=noninteractive
