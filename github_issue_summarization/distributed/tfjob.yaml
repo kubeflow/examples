@@ -11,7 +11,7 @@ spec:
         spec:
           containers:
           - name: tensorflow
-            image: inc0/issues
+            image: gcr.io/kubeflow-examples/issue-summarization/trainer-estimator:v20181022-v0.2-59-g6a782eb
             command: ["python", "/issues/train.py"]
             volumeMounts:
             - name: data
@@ -31,7 +31,7 @@ spec:
         spec:
           containers:
           - name: tensorflow
-            image: inc0/issues
+            image: gcr.io/kubeflow-examples/issue-summarization/trainer-estimator:v20181022-v0.2-59-g6a782eb
             command: ["python", "/issues/train.py"]
             volumeMounts:
             - name: data
@@ -51,7 +51,7 @@ spec:
         spec:
           containers:
           - name: tensorflow
-            image: inc0/issues
+            image: gcr.io/kubeflow-examples/issue-summarization/trainer-estimator:v20181022-v0.2-59-g6a782eb
             command: ["python", "/issues/train.py"]
             volumeMounts:
             - name: data
