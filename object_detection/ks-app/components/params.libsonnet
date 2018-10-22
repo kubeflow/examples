@@ -35,7 +35,7 @@
     },
     "tf-training-job": {
       image: 'lcastell/pets_object_detection',
-      mountPath: '/pets-data',
+      mountPath: '/pets_data',
       name: 'tf-training-job',
       numGpu: 0,
       numPs: 1,
