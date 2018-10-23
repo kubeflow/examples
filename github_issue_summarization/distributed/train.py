@@ -10,6 +10,7 @@ import dill as dpickle
 import pandas as pd
 import tensorflow as tf
 
+import recurrent
 from ktext.preprocess import processor
 from sklearn.model_selection import train_test_split
 
@@ -138,15 +139,17 @@ def train_model(args):
   dec_bn = tf.keras.layers.BatchNormalization(name='Decoder-Batchnorm-1')(dec_emb)
 
   # Set up the decoder, using `decoder_state_input` as _state.
-  decoder_gru = tf.keras.layers.GRU(
+  # TODO(jlewi): Once https://github.com/keras-team/keras/issues/9761 is
+  # fixed remove this hack.
+  # decoder_gru = tf.keras.layers.GRU(
+  #                latent_dim, return_state=True, return_sequences=True, name='Decoder-GRU')
+  decoder_gru = recurrent.GRU(
                   latent_dim, return_state=True, return_sequences=True, name='Decoder-GRU')
-
   # TODO: seems to be running into this https://github.com/keras-team/keras/issues/9761
   # TODO: jlewi@ changed the function call to match the new syntax in the issue
   # This is now giving error:
   # ValueError: An `initial_state` was passed that is not compatible with `cell.state_size`. Received `state_spec`=[InputSpec(shape=(None, 300), ndim=2), InputSpec(shape=(None, 300), ndim=2)]; however `cell.state_size` is [300]
-  decoder_gru_output, _ = decoder_gru([dec_bn, seq2seq_encoder_out,
-                                       seq2seq_encoder_out])
+  decoder_gru_output, _ = decoder_gru(dec_bn, initial_state=seq2seq_encoder_out)
   x = tf.keras.layers.BatchNormalization(name='Decoder-Batchnorm-2')(decoder_gru_output)
 
   # Dense layer for prediction
