@@ -153,10 +153,13 @@ class Trainer(object):
     # Set up the decoder, using `decoder_state_input` as _state.
     # TODO(jlewi): Once https://github.com/keras-team/keras/issues/9761 is
     # fixed remove this hack.
-    decoder_gru = tf.keras.layers.GRU(
-      latent_dim, return_state=True, return_sequences=True, name='Decoder-GRU')
-    # decoder_gru = recurrent.GRU(
-    #                latent_dim, return_state=True, return_sequences=True, name='Decoder-GRU')
+    if True:
+      decoder_gru = tf.keras.layers.GRU(
+        latent_dim, return_state=True, return_sequences=True, name='Decoder-GRU')
+    else:
+      decoder_gru = recurrent.GRU(
+        latent_dim, return_state=True, return_sequences=True, name='Decoder-GRU')
+
     # TODO: seems to be running into this https://github.com/keras-team/keras/issues/9761
     # TODO: jlewi@ changed the function call to match the new syntax in the issue
     # This is now giving error:
@@ -179,7 +182,7 @@ class Trainer(object):
       loss='sparse_categorical_crossentropy',
       metrics=['accuracy'])
 
-  def train_keras(self, batch_size=1200, epochs=7):
+  def train_keras(self, base_name='tutorial_seq2seq',batch_size=1200, epochs=7):
     """Train using Keras.
 
     This is an alternative to using the TF.Estimator API.
@@ -188,11 +191,11 @@ class Trainer(object):
     was to debug whether we were hitting issue:
     https://github.com/keras-team/keras/issues/9761 only with TF.Estimator.
     """
-    script_name_base = 'tutorial_seq2seq'
-    csv_logger = CSVLogger('{:}.log'.format(script_name_base))
+    logging.info("Using base name: %s", base_name)
+    csv_logger = CSVLogger('{:}.log'.format(base_name))
     model_checkpoint = ModelCheckpoint(
       '{:}.epoch{{epoch:02d}}-val{{val_loss:.5f}}.hdf5'.format(
-        script_name_base), save_best_only=True)
+        base_name), save_best_only=True)
 
     history = self.seq2seq_Model.fit(
       [self.encoder_input_data, self.decoder_input_data],
