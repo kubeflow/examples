@@ -23,6 +23,6 @@ cd $CONTEXT_DIR
 
 echo "GCP Project: "$PROJECT
 
-echo "Building centraldashboard using gcloud build"
+echo "Building image using gcloud build"
 gcloud builds submit --tag=${IMAGE}:${TAG} --project=${PROJECT} .
 echo "Finished building image"
