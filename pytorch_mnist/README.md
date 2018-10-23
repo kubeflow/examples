@@ -1,7 +1,7 @@
-# End-to-End kubeflow tutorial using a Sequence-to-Sequence model
+# End-to-End kubeflow tutorial using a Pytorch model in Google Cloud
 
 This example demonstrates how you can use `kubeflow` end-to-end to train and
-serve a distributed Pytorch model on an existing kubernetes cluster. This
+serve a distributed Pytorch model on a kubernetes cluster in GCP. This
 tutorial is based upon the below projects:
 - [DDP training CPU and GPU in Pytorch-operator example](https://github.com/kubeflow/pytorch-operator/tree/master/examples/ddp/mnist)
 - [Google Codelabs - "Introduction to Kubeflow on Google Kubernetes Engine"](https://github.com/googlecodelabs/kubeflow-introduction)
@@ -15,7 +15,7 @@ There are two primary goals for this tutorial:
 
 By the end of this tutorial, you should learn how to:
 
-*   Setup a Kubeflow cluster on an existing Kubernetes deployment
+*   Setup a Kubeflow cluster on a new Kubernetes deployment
 *   Spawn up a shared-persistent storage across the cluster to store models
 *   Train a distributed model using Pytorch and GPUs on the cluster
 *   Serve the model using [Seldon Core](https://github.com/SeldonIO/seldon-core/)
@@ -24,15 +24,14 @@ By the end of this tutorial, you should learn how to:
 ## Steps:
 
 1.  [Setup a Kubeflow cluster](01_setup_a_kubeflow_cluster.md)
-1.  Training the model using PyTorchJob:
-    -  [Distributed Training using DDP and PyTorchJob](02_distributed_training.md)
+1.  [Distributed Training using DDP and PyTorchJob](02_distributed_training.md)
 1.  [Serving the model](03_serving_the_model.md)
 1.  [Querying the model](04_querying_the_model.md)
 1.  [Teardown](05_teardown.md)
 
 ## TODO
 - [ ] Argo workflow tests to push images to gcr.io/kubeflow-examples
-- [ ] 01_setup_a_kubeflow_cluster
+- [x] 01_setup_a_kubeflow_cluster
 - [ ] 02_distributed_training
 - [ ] 03_serving_the_model
 - [ ] 04_querying_the_model
