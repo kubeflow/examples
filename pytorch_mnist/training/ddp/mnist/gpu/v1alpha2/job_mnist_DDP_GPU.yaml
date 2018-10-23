@@ -33,7 +33,7 @@ spec:
             - name: pytorch
               image: gcr.io/kubeflow-examples/pytorch-mnist-ddp-gpu
               volumeMounts:
-              - mountPath: /mnt/kubeflow-fs
+              - mountPath: /mnt/kubeflow-gcfs
                 name: kubeflow-fs
               resources: 
                 limits:
@@ -41,6 +41,6 @@ spec:
           volumes:
             - name: kubeflow-fs
               persistentVolumeClaim:
-                claimName: kubeflow-fs
+                claimName: kubeflow-gcfs
                 readOnly: false
 

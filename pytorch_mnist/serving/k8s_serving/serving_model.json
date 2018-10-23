@@ -27,7 +27,7 @@
                 "name": "pytorch-model",
                 "volumeMounts": [
                   {
-                    "mountPath": "/mnt/kubeflow-fs",
+                    "mountPath": "/mnt/kubeflow-gcfs",
                     "name": "persistent-storage"
                   }
                 ]
@@ -39,7 +39,7 @@
                 "name": "persistent-storage",
                 "volumeSource" : {
                   "persistentVolumeClaim": {
-                    "claimName": "kubeflow-fs"
+                    "claimName": "kubeflow-gcfs"
                   }
                 }
               }
