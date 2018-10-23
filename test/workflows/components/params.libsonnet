@@ -19,7 +19,7 @@
       dockerfile: "Dockerfile",
       dockerfileDir: "kubeflow/examples/pytorch_mnist/web-ui",
       extra_args: "null",
-      extra_repos: "kubeflow/testing@HEAD;kubeflow/examples@HEAD",
+      extra_repos: "kubeflow/testing@HEAD,kubeflow/examples@HEAD",
       gcpCredentialsSecretName: "gcp-credentials",
       image: "pytorch-mnist-webui",
       name: "pytorch-mnist-webui-release",
