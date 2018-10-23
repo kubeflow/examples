@@ -9,7 +9,7 @@ workflows:
   # The postsubmit run publishes the docker images to gcr.io/kubeflow-examples
   - app_dir: kubeflow/examples/test/workflows
     component: pytorch-mnist-webui-release
-    name: examples-e2e-release
+    name: nmist-webui
     job_types:
     # - postsubmit
     - presubmit # testing job while PR is WIP
