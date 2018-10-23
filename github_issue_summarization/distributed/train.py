@@ -11,7 +11,7 @@ import pandas as pd
 import tensorflow as tf
 from tensorflow.keras.callbacks import CSVLogger, ModelCheckpoint
 
-#import recurrent
+import recurrent
 from ktext.preprocess import processor
 from sklearn.model_selection import train_test_split
 
@@ -153,7 +153,7 @@ class Trainer(object):
     # Set up the decoder, using `decoder_state_input` as _state.
     # TODO(jlewi): Once https://github.com/keras-team/keras/issues/9761 is
     # fixed remove this hack.
-    if True:
+    if False:
       decoder_gru = tf.keras.layers.GRU(
         latent_dim, return_state=True, return_sequences=True, name='Decoder-GRU')
     else:
