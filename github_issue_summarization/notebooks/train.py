@@ -104,7 +104,7 @@ def wait_for_preprocessing(preprocessed_file):
   # We should move this code since its only needed when using
   # TF.Estimator
   while True:
-    if os.path.isfile(preprocessed_bodies):
+    if os.path.isfile(preprocessed_file):
       break
     logging.info("Waiting for dataset")
     time.sleep(2)
@@ -177,7 +177,7 @@ def main(unparsed_args=None):  # pylint: disable=too-many-statements
   model_trainer.preprocess(csv_file, args.sample_size)
 
   if mode == "estimator":
-    wait_for_preprocessing(trainer.preprocessed_bodies)
+    wait_for_preprocessing(model_trainer.preprocessed_bodies)
 
   model_trainer.build_model(args.learning_rate)
 
