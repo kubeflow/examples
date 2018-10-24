@@ -1,4 +1,4 @@
-	# kubeflow-examples
+# kubeflow-examples
 
 A repository to share extended Kubeflow examples and tutorials to demonstrate machine learning
 concepts, data science workflows, and Kubeflow deployments. They illustrate the happy path,
