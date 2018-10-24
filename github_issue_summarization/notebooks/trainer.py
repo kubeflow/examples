@@ -1,9 +1,7 @@
-import argparse
 import json
 import logging
 import os
 import sys
-import time
 
 import numpy as np
 import dill as dpickle
@@ -52,8 +50,14 @@ class Trainer(object):
     self.preprocessed_bodies = os.path.join(self.output_dir,
                                             'train_body_vecs.npy')
 
-    # A list of output files.
-    self.output_files = []
+    self.history = None
+    self.decoder_input_data = None
+    self.seq2seq_Model = None
+    self.decoder_target_data = None
+    self.test_df = None
+    self.encoder_input_data = None
+    self.title_pp = None
+    self.body_pp = None
 
   def preprocess(self, data_file, num_samples=None):
     """Preprocess the input.
@@ -110,9 +114,6 @@ class Trainer(object):
     with open(self.title_pp_file, 'wb') as f:
       dpickle.dump(self.title_pp, f)
 
-    self.output_files.append(self.body_pp_file)
-    self.output_files.append(self.title_pp_file)
-
     # Save the processed data
     np.save(self.preprocessed_titles, train_title_vecs)
     np.save(self.preprocessed_bodies, train_body_vecs)
@@ -132,7 +133,7 @@ class Trainer(object):
 
     num_encoder_tokens, self.body_pp = load_text_processor(
       self.body_pp_file)
-    num_decoder_tokens, title_pp = load_text_processor(
+    num_decoder_tokens, self.title_pp = load_text_processor(
       self.title_pp_file)
 
     #arbitrarly set latent dimension for embedding and hidden units
@@ -215,7 +216,7 @@ class Trainer(object):
       '{:}.epoch{{epoch:02d}}-val{{val_loss:.5f}}.hdf5'.format(
         base_name), save_best_only=True)
 
-    history = self.seq2seq_Model.fit(
+    self.history = self.seq2seq_Model.fit(
       [self.encoder_input_data, self.decoder_input_data],
       np.expand_dims(self.decoder_target_data, -1),
       batch_size=batch_size,

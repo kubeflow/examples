@@ -18,16 +18,12 @@ import logging
 import os
 import re
 import shutil
+import time
 import zipfile
 
 from google.cloud import storage  # pylint: disable=no-name-in-module
-import dill as dpickle
-import numpy as np
 import pandas as pd
-from sklearn.model_selection import train_test_split
 
-from ktext.preprocess import processor
-from seq2seq_utils import load_encoder_inputs, load_text_processor
 import tempfile
 import trainer
 
@@ -46,7 +42,7 @@ def split_gcs_uri(gcs_uri):
 def is_gcs_path(gcs_uri):
   return GCS_REGEX.match(gcs_uri)
 
-def process_input_file(input_data):
+def process_input_file(remote_file):
   """Process the input file.
 
   If its a GCS file we download it to a temporary local file. We do this
@@ -55,25 +51,27 @@ def process_input_file(input_data):
   If its a zip file we unpack it.
 
   Args:
-    input_data: The input
+    remote_file: The input
 
   Returns:
     csv_file: The local csv file to process
   """
-  if is_gcs_path(input_data):
+  if is_gcs_path(remote_file):
     # Download the input to a local
     with tempfile.NamedTemporaryFile() as hf:
       input_data = hf.name
 
-    logging.info("Copying %s to %s", args.input_data, input_data)
+    logging.info("Copying %s to %s", remote_file, input_data)
     input_data_gcs_bucket, input_data_gcs_path = split_gcs_uri(
-      args.input_data)
+      remote_file)
 
     logging.info("Download bucket %s object %s.", input_data_gcs_bucket,
                  input_data_gcs_path)
     bucket = storage.Bucket(storage.Client(), input_data_gcs_bucket)
     storage.Blob(input_data_gcs_path, bucket).download_to_filename(
       input_data)
+  else:
+    input_data = remote_file
 
   ext = os.path.splitext(input_data)[-1]
   if ext.lower() == '.zip':
@@ -160,8 +158,6 @@ def main(unparsed_args=None):  # pylint: disable=too-many-statements
   mode = args.mode.lower()
   if not mode in ["estimator", "keras"]:
     raise ValueError("Unrecognized mode %s; must be keras or estimator" % mode)
-
-  learning_rate = float(args.learning_rate)
 
   pd.set_option('display.max_colwidth', 500)
 
