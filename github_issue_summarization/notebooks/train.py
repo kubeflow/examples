@@ -24,9 +24,6 @@ from google.cloud import storage  # pylint: disable=no-name-in-module
 import dill as dpickle
 import numpy as np
 import pandas as pd
-from keras import optimizers
-from keras.layers import GRU, BatchNormalization, Dense, Embedding, Input
-from keras.models import Model
 from sklearn.model_selection import train_test_split
 
 from ktext.preprocess import processor
@@ -203,10 +200,10 @@ def main(unparsed_args=None):  # pylint: disable=too-many-statements
     model_trainer.train_estimator()
 
   pairs.extend([
-    (trainer.body_pp_file, args.output_body_preprocessor_dpkl),
-    (trainer.title_pp_file, args.output_title_preprocessor_dpkl),
-    (trainer.preprocessed_titles, args.output_train_title_vecs_npy),
-    (trainer.preprocessed_bodies, args.output_train_body_vecs_npy),])
+    (model_trainer.body_pp_file, args.output_body_preprocessor_dpkl),
+    (model_trainer.title_pp_file, args.output_title_preprocessor_dpkl),
+    (model_trainer.preprocessed_titles, args.output_train_title_vecs_npy),
+    (model_trainer.preprocessed_bodies, args.output_train_body_vecs_npy),])
   # Copy outputs
   for p in pairs:
     local = p[0]

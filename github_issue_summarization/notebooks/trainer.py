@@ -9,7 +9,15 @@ import numpy as np
 import dill as dpickle
 import pandas as pd
 import tensorflow as tf
-from tensorflow.keras.callbacks import CSVLogger, ModelCheckpoint
+# TODO(https://github.com/kubeflow/examples/issues/280)
+# TODO(https://github.com/kubeflow/examples/issues/196)
+# We'd like to switch to importing keras from TensorFlow in order to support
+# TF.Estimator but using tensorflow.keras we can't train a model either using
+# Keras' fit function or using TF.Estimator.
+# from tensorflow import keras
+# from tensorflow.keras.callbacks import CSVLogger, ModelCheckpoint
+import keras
+from keras.callbacks import CSVLogger, ModelCheckpoint
 
 from ktext.preprocess import processor
 from sklearn.model_selection import train_test_split
@@ -67,7 +75,7 @@ class Trainer(object):
     if num_samples:
       traindf, self.test_df = train_test_split(pd.read_csv(data_file).sample(
         n=num_samples),
-      test_size=.10)
+                                               test_size=.10)
     else:
       traindf, self.test_df = train_test_split(pd.read_csv(data_file), test_size=.10)
 
@@ -87,7 +95,7 @@ class Trainer(object):
     logging.info('Example body after pre-processing: %s', train_body_vecs[0])
 
     self.title_pp = processor(append_indicators=True, keep_n=4500,
-      padding_maxlen=12, padding='post')
+                              padding_maxlen=12, padding='post')
 
     # process the title data
     train_title_vecs = self.title_pp.fit_transform(train_title_raw)
@@ -134,55 +142,59 @@ class Trainer(object):
 
     ########################
     #### Encoder Model ####
-    encoder_inputs = tf.keras.layers.Input(shape=(doc_length,), name='Encoder-Input')
+    encoder_inputs = keras.layers.Input(shape=(doc_length,), name='Encoder-Input')
 
     # Word embeding for encoder (ex: Issue Body)
-    x = tf.keras.layers.Embedding(
-          num_encoder_tokens, latent_dim, name='Body-Word-Embedding', mask_zero=False)(encoder_inputs)
-    x = tf.keras.layers.BatchNormalization(name='Encoder-Batchnorm-1')(x)
+    x = keras.layers.Embedding(
+      num_encoder_tokens, latent_dim, name='Body-Word-Embedding', mask_zero=False)(encoder_inputs)
+    x = keras.layers.BatchNormalization(name='Encoder-Batchnorm-1')(x)
 
     # We do not need the `encoder_output` just the hidden state.
-    _, state_h = tf.keras.layers.GRU(latent_dim, return_state=True, name='Encoder-Last-GRU')(x)
+    _, state_h = keras.layers.GRU(latent_dim, return_state=True, name='Encoder-Last-GRU')(x)
 
     # Encapsulate the encoder as a separate entity so we can just
     #  encode without decoding if we want to.
 
-    encoder_model = tf.keras.Model(inputs=encoder_inputs, outputs=state_h, name='Encoder-Model')
+    encoder_model = keras.Model(inputs=encoder_inputs, outputs=state_h, name='Encoder-Model')
     seq2seq_encoder_out = encoder_model(encoder_inputs)
 
     ########################
     #### Decoder Model ####
-    decoder_inputs = tf.keras.layers.Input(shape=(None,), name='Decoder-Input')  # for teacher forcing
+    decoder_inputs = keras.layers.Input(shape=(None,), name='Decoder-Input')  # for teacher forcing
 
     # Word Embedding For Decoder (ex: Issue Titles)
-    dec_emb = tf.keras.layers.Embedding(
-                num_decoder_tokens,
+    dec_emb = keras.layers.Embedding(
+      num_decoder_tokens,
                 latent_dim, name='Decoder-Word-Embedding',
                 mask_zero=False)(decoder_inputs)
-    dec_bn = tf.keras.layers.BatchNormalization(name='Decoder-Batchnorm-1')(dec_emb)
+    dec_bn = keras.layers.BatchNormalization(name='Decoder-Batchnorm-1')(dec_emb)
 
-    # TODO: With TF.Estiamtor we hit https://github.com/keras-team/keras/issues/9761
+    # TODO(https://github.com/kubeflow/examples/issues/196):
+    # With TF.Estimtor we hit https://github.com/keras-team/keras/issues/9761
     # and the model won't train.
-    decoder_gru = tf.keras.layers.GRU(
+    decoder_gru = keras.layers.GRU(
       latent_dim, return_state=True, return_sequences=True, name='Decoder-GRU')
 
     decoder_gru_output, _ = decoder_gru(dec_bn, initial_state=[seq2seq_encoder_out])
-    x = tf.keras.layers.BatchNormalization(name='Decoder-Batchnorm-2')(decoder_gru_output)
+    x = keras.layers.BatchNormalization(name='Decoder-Batchnorm-2')(decoder_gru_output)
 
     # Dense layer for prediction
-    decoder_dense = tf.keras.layers.Dense(
-                      num_decoder_tokens, activation='softmax', name='Final-Output-Dense')
+    decoder_dense = keras.layers.Dense(
+      num_decoder_tokens, activation='softmax', name='Final-Output-Dense')
     decoder_outputs = decoder_dense(x)
 
     ########################
     #### Seq2Seq Model ####
 
-    self.seq2seq_Model = tf.keras.Model([encoder_inputs, decoder_inputs], decoder_outputs)
+    self.seq2seq_Model = keras.Model([encoder_inputs, decoder_inputs], decoder_outputs)
 
     self.seq2seq_Model.compile(
-      optimizer=tf.keras.optimizers.Nadam(lr=learning_rate),
-      loss='sparse_categorical_crossentropy',
-      metrics=['accuracy'])
+      optimizer=keras.optimizers.Nadam(lr=learning_rate),
+      loss='sparse_categorical_crossentropy',)
+      #  TODO(jlewi): Computing accuracy causes a dimension mismatch.
+      # tensorflow.python.framework.errors_impl.InvalidArgumentError: Incompatible shapes: [869] vs. [79,11]
+      # [[{{node metrics/acc/Equal}} = Equal[T=DT_FLOAT, _device="/job:localhost/replica:0/task:0/device:CPU:0"](metrics/acc/Reshape, metrics/acc/Cast)]]
+      # metrics=['accuracy'])
 
     self.seq2seq_Model.summary()
 
@@ -206,7 +218,7 @@ class Trainer(object):
     history = self.seq2seq_Model.fit(
       [self.encoder_input_data, self.decoder_input_data],
       np.expand_dims(self.decoder_target_data, -1),
-              batch_size=batch_size,
+      batch_size=batch_size,
               epochs=epochs,
               validation_split=0.12, callbacks=[csv_logger, model_checkpoint])
 
@@ -221,8 +233,8 @@ class Trainer(object):
                                     decoder_preprocessor=self.title_pp,
                                     seq2seq_model=self.seq2seq_Model)
 
-    bleu_score = seq2seq_inf.evaluate_model(holdout_bodies=self.testdf.body.tolist(),
-                                            holdout_titles=self.testdf.issue_title.tolist(),
+    bleu_score = seq2seq_inf.evaluate_model(holdout_bodies=self.test_df.body.tolist(),
+                                            holdout_titles=self.test_df.issue_title.tolist(),
                                             max_len_title=12)
     logging.info("Bleu score: %s", bleu_score)
     return bleu_score
@@ -240,13 +252,13 @@ class Trainer(object):
 
     cfg = tf.estimator.RunConfig(session_config=tf.ConfigProto(log_device_placement=False))
 
-    estimator = tf.keras.estimator.model_to_estimator(
-                  keras_model=self.seq2seq_Model, model_dir=self.output_dir,
+    estimator = keras.estimator.model_to_estimator(
+      keras_model=self.seq2seq_Model, model_dir=self.output_dir,
                   config=cfg)
 
     expanded = np.expand_dims(self.decoder_target_data, -1)
     input_fn = tf.estimator.inputs.numpy_input_fn(
-                 x={'Encoder-Input': self.encoder_input_data,
+      x={'Encoder-Input': self.encoder_input_data,
                     'Decoder-Input': self.decoder_input_data},
                  y=expanded,
                  shuffle=False)
