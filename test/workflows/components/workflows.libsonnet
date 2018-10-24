@@ -163,10 +163,16 @@
                     name: "create-pr-symlink",
                     template: "create-pr-symlink",
                   },
-                  {
-                    name: "py-test",
-                    template: "py-test",
-                  },
+                  // test_py_checks runs all py files matching "_test.py"
+                  // This is currently commented out because the only matching test is train_test.py
+                  // for the GH issue summarization example. We need to exclude that test because
+                  // it requires a custom docker image which has dependencies like numpy.
+                  // test_py_checks doesn't have options to exclude specific directories.
+                  // Since there are no other tests we just comment it out.
+                  // {
+                  //  name: "py-test",
+                  //  template: "py-test",
+                  //},
                   {
                     name: "py-lint",
                     template: "py-lint",
@@ -202,7 +208,7 @@
                   },
                 ],
               },
-            },  // checkout
+            },  // checkout            
             $.parts(namespace, name).e2e(prow_env, bucket).buildTemplate("py-test", [
               "python",
               "-m",
