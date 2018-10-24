@@ -24,7 +24,7 @@ This example covers the following concepts:
 1. Serving with Seldon Core
 1. Flask front-end
 
-#### [GitHub issue summarization (Pachyderm and Seldon)](./github_issue_summarization/pachyderm_seldon)
+#### [GitHub issue summarization (Pachyderm and Seldon)](./github_issue_summarization/pachyderm_seldon) 
 Author: [Daniel Whitenack](https://github.com/dwhitena) & [Nick Harvey](https://github.com/Nick-Harvey)
 
 This example covers the following concepts:
