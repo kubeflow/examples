@@ -193,8 +193,8 @@ class Trainer(object): #pylint: disable=too-many-instance-attributes
       optimizer=keras.optimizers.Nadam(lr=learning_rate),
       loss='sparse_categorical_crossentropy',)
       #  TODO(jlewi): Computing accuracy causes a dimension mismatch.
-      # tensorflow.python.framework.errors_impl.InvalidArgumentError: Incompatible shapes: [869] vs. [79,11]
-      # [[{{node metrics/acc/Equal}} = Equal[T=DT_FLOAT, _device="/job:localhost/replica:0/task:0/device:CPU:0"](metrics/acc/Reshape, metrics/acc/Cast)]]
+      # tensorflow.python.framework.errors_impl.InvalidArgumentError: Incompatible shapes: [869] vs. [79,11] # pylint: disable=line-too-long
+      # [[{{node metrics/acc/Equal}} = Equal[T=DT_FLOAT, _device="/job:localhost/replica:0/task:0/device:CPU:0"](metrics/acc/Reshape, metrics/acc/Cast)]]  # pylint: disable=line-too-long
       # metrics=['accuracy'])
 
     self.seq2seq_Model.summary()
