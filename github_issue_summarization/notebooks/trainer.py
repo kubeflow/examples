@@ -19,9 +19,9 @@ from keras.callbacks import CSVLogger, ModelCheckpoint
 
 from ktext.preprocess import processor
 from sklearn.model_selection import train_test_split
-from seq2seq_utils import load_decoder_inputs, load_encoder_inputs, load_text_processor, Seq2Seq_Inference
+from seq2seq_utils import load_decoder_inputs, load_encoder_inputs, load_text_processor, Seq2Seq_Inference # # pylint: disable=line-too-long
 
-class Trainer(object):
+class Trainer(object): #pylint: disable=too-many-instance-attributes
   def __init__(self, output_dir):
     """Construct the trainer.
 
@@ -201,7 +201,7 @@ class Trainer(object):
 
   def train_keras(self,
                   output_model_h5,
-                  base_name='tutorial_seq2seq',batch_size=1200, epochs=7):
+                  base_name='tutorial_seq2seq', batch_size=1200, epochs=7):
     """Train using Keras.
 
     This is an alternative to using the TF.Estimator API.

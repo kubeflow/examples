@@ -1,7 +1,8 @@
 import os
 import tempfile
-import train
 import unittest
+
+import train
 
 class TrainTest(unittest.TestCase):
 

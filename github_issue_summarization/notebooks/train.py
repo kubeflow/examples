@@ -21,10 +21,10 @@ import shutil
 import time
 import zipfile
 
-from google.cloud import storage  # pylint: disable=no-name-in-module
-import pandas as pd
-
 import tempfile
+
+from google.cloud import storage  # pylint: disable=no-name-in-module
+
 import trainer
 
 GCS_REGEX = re.compile("gs://([^/]*)(/.*)?")
@@ -158,8 +158,6 @@ def main(unparsed_args=None):  # pylint: disable=too-many-statements
   mode = args.mode.lower()
   if not mode in ["estimator", "keras"]:
     raise ValueError("Unrecognized mode %s; must be keras or estimator" % mode)
-
-  pd.set_option('display.max_colwidth', 500)
 
   csv_file = process_input_file(args.input_data)
 
