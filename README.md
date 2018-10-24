@@ -1,4 +1,4 @@
-# kubeflow-examples
+	# kubeflow-examples
 
 A repository to share extended Kubeflow examples and tutorials to demonstrate machine learning
 concepts, data science workflows, and Kubeflow deployments. They illustrate the happy path,
@@ -11,7 +11,7 @@ This repository is home to three types of examples:
 
 ## End-to-end
 
-### [GitHub issue summarization](./github_issue_summarization)
+### [GitHub issue summarization](./github_issue_summarization/jupyter_seldon)
 Author: [Hamel Husain](https://github.com/hamelsmu)
 
 This example covers the following concepts:
@@ -23,6 +23,16 @@ This example covers the following concepts:
   1. GPU
 1. Serving with Seldon Core
 1. Flask front-end
+
+#### [GitHub issue summarization (Pachyderm and Seldon)](./github_issue_summarization/pachyderm_seldon)
+Author: [Daniel Whitenack](https://github.com/dwhitena) & [Nick Harvey](https://github.com/Nick-Harvey)
+
+This example covers the following concepts:
+1. A production pipeline for pre-processing, training, and model export
+1. CI/CD for model binaries, building and deploying a docker image for serving in Seldon
+1. Full tracking of what data produced which model, and what model is being used for inference
+1. Automatic updates of models based on changes to training data or code
+1. Training with single node Tensorflow and distributed TF-jobs
 
 ### [MNIST](./mnist)
 
