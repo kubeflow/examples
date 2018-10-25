@@ -17,3 +17,36 @@ workflows:
         registry: "gcr.io/kubeflow-examples"
     include_dirs:
     - pytorch_mnist/web-ui/*
+
+  - app_dir: kubeflow/examples/test/workflows
+    component: pytorch-mnist-cpu-release
+    name: nmist-cpu
+    job_types:
+    # - postsubmit
+    - presubmit # testing job while PR is WIP
+    params:
+        registry: "gcr.io/kubeflow-examples"
+    include_dirs:
+    - pytorch_mnist/training/ddp/mnist/cpu/*
+
+  - app_dir: kubeflow/examples/test/workflows
+    component: pytorch-mnist-gpu-release
+    name: nmist-gpu
+    job_types:
+    # - postsubmit
+    - presubmit # testing job while PR is WIP
+    params:
+        registry: "gcr.io/kubeflow-examples"
+    include_dirs:
+    - pytorch_mnist/training/ddp/mnist/gpu/*
+
+  - app_dir: kubeflow/examples/test/workflows
+    component: pytorch-mnist-serve-release
+    name: nmist-serve
+    job_types:
+    # - postsubmit
+    - presubmit # testing job while PR is WIP
+    params:
+        registry: "gcr.io/kubeflow-examples"
+    include_dirs:
+    - pytorch_mnist/serving/*
