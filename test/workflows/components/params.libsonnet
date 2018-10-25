@@ -36,7 +36,7 @@
       bucket: "kubeflow-releasing-artifacts",
       cluster: "kubeflow-releasing",
       dockerfile: "Dockerfile",
-      dockerfileDir: "kubeflow/examples/pytorch_mnist/seldon-wrapper",
+      dockerfileDir: "kubeflow/examples/pytorch_mnist/serving/seldon-wrapper",
       extra_args: "null",
       extra_repos: "kubeflow/testing@HEAD",
       gcpCredentialsSecretName: "gcp-credentials",
