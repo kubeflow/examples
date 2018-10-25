@@ -22,7 +22,7 @@
           "spec": {
             "containers": [
               {
-                "image": "gcr.io/kubeflow-examples/pytorch-mnist-serving",
+                "image": "gcr.io/kubeflow-examples/mnistddpserving",
                 "imagePullPolicy": "Always",
                 "name": "pytorch-model",
                 "volumeMounts": [
