@@ -40,7 +40,7 @@
       extra_args: "null",
       extra_repos: "kubeflow/testing@HEAD",
       gcpCredentialsSecretName: "gcp-credentials",
-      image: "gcr.io/kubeflow-examples/mnistddpserving",
+      image: "mnistddpserving",
       name: "pytorch-mnist-serve-release",
       namespace: "kubeflow-releasing",
       nfsVolumeClaim: "nfs-external",
