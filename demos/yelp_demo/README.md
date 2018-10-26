@@ -18,51 +18,27 @@ Before completing any of the below steps, follow the instructions in
 [./demo_setup](https://github.com/kubeflow/examples/blob/master/demos/yelp_demo/demo_setup/README.md)
 to prepare for demonstrating Kubeflow:
 
-* [Create a minikube cluster](https://github.com/kubeflow/examples/blob/master/demos/yelp_demo/demo_setup/README.md#4-create-a-minikube-cluster)
-* [Create a GKE cluster](https://github.com/kubeflow/examples/blob/master/demos/yelp_demo/demo_setup/README.md#5-create-a-gke-cluster)
-
-## 1. Create clusters
-
 [Setup your environment](https://github.com/kubeflow/examples/tree/master/demos/yelp_demo/demo_setup#2-set-environment-variables)
 or source the base file:
 
 ```
 cd demo_setup
 source kubeflow-demo-base.env
+cd ..
 ```
 
-Create a minikube cluster:
-
-```
-minikube start \
-  --cpus 4 \
-  --memory 8096 \
-  --disk-size=50g \
-  --kubernetes-version v1.10.6
-```
-
-Create a GKE cluster with access to GPUs and TPUs:
-
-```
-gcloud beta container clusters create ${CLUSTER} \
-  --project ${DEMO_PROJECT} \
-  --zone ${ZONE} \
-  --accelerator type=nvidia-tesla-k80,count=2 \
-  --cluster-version 1.10.6-gke.2 \
-  --enable-ip-alias \
-  --enable-tpu \
-  --machine-type n1-highmem-8 \
-  --scopes cloud-platform,compute-rw,storage-rw \
-  --verbosity error
-```
+* [Create a minikube cluster](https://github.com/kubeflow/examples/blob/master/demos/yelp_demo/demo_setup/README.md#4-create-a-minikube-cluster)
+* [Create a GKE cluster](https://github.com/kubeflow/examples/blob/master/demos/yelp_demo/demo_setup/README.md#5-create-a-gke-cluster)
 
 ## 1. Install kubeflow locally
 
 Run the following script to create a ksonnet app for Kubeflow and deploy it:
 
 ```
-export KUBEFLOW_VERSION=0.2.5
-curl https://raw.githubusercontent.com/kubeflow/kubeflow/v${KUBEFLOW_VERSION}/scripts/deploy.sh | bash
+kfctl init localapp --platform minikube
+cd localapp
+kfctl generate k8s
+kfctl apply k8s
 ```
 
 View the installed components:
@@ -76,9 +52,9 @@ kubectl get pod
 Retrieve the following files for the t2tcpu & t2ttpu jobs:
 
 ```
-cd kubeflow_ks_app
-cp ${REPO_PATH}/demo/components/t2t[ct]pu.* components
-cp ${REPO_PATH}/demo/components/params.* components
+cd ks_app
+cp ${DEMO_REPO}/demo/components/t2t[ct]pu.* components
+cp ${DEMO_REPO}/demo/components/params.* components
 ```
 
 Set parameter values for training:
@@ -119,13 +95,13 @@ kubectl config use gke
 Create an environment:
 
 ```
-ks env add gke
+ks env add gke --namespace=kubeflow
 ```
 
 Install kubeflow on the cluster:
 
 ```
-ks apply gke -c kubeflow-core
+ks apply gke -c ambassador -c centraldashboard -c jupyterhub -c spartakus -c tf-job-operator
 ```
 
 View the installed components:
@@ -199,8 +175,8 @@ kubectl logs -f t2ttpu-master-0 | grep INFO:tensorflow
 Retrieve the following files for the serving & UI components:
 
 ```
-cp ${REPO_PATH}/demo/components/serving.* components
-cp ${REPO_PATH}/demo/components/ui.* components
+cp ${DEMO_REPO}/demo/components/serving.* components
+cp ${DEMO_REPO}/demo/components/ui.* components
 ```
 
 Create the serving and UI components:
@@ -209,31 +185,7 @@ Create the serving and UI components:
 ks apply gke -c serving -c ui
 ```
 
-Forward the port for viewing from a local browser:
-```
-UI_POD=$(kubectl get po -l app=kubeflow-demo-ui | \
-  grep kubeflow-demo-ui | \
-  head -n 1 | \
-  cut -d " " -f 1 \
-)
-kubectl port-forward ${UI_POD} 8080:80
-```
-
-Optional: If necessary, setup an SSH tunnel from your local laptop into the
-compute instance connecting to GKE:
-
-```
-ssh $HOST -L 8080:localhost:8080
-```
-
-To show the naive version, navigate to [localhost:8080](localhost:8080) from a browser.
-
-To show the ML version, navigate to
-[localhost:8080/kubeflow](localhost:8080/kubeflow) from a browser.
-
-## 6. Bring up a notebook
-
-Connect to the Central Dashboard by forwarding a port to one of the ambassador
+Connect to the UI by forwarding a port to one of the ambassador
 pods:
 
 ```
@@ -242,10 +194,25 @@ AMBASSADOR_POD=$(kubectl get po -l service=ambassador | \
   head -n 1 | \
   cut -d " " -f 1 \
 )
-kubectl port-forward ${AMBASSADOR_POD} 8081:80
+kubectl port-forward ${AMBASSADOR_POD} 8080:80
 ```
 
-Open a browser and connect to [localhost:8081](localhost:8081).
+Optional: If necessary, setup an SSH tunnel from your local laptop into the
+compute instance connecting to GKE:
+
+```
+ssh ${HOST} -L 8080:localhost:8080
+```
+
+To show the naive version, navigate to
+[localhost:8080/kubeflow_demo](localhost:8080/kubeflow_demo) from a browser.
+
+To show the ML version, navigate to
+[localhost:8080/kubeflow_demo/kubeflow](localhost:8080/kubeflow_demo/kubeflow) from a browser.
+
+## 6. Bring up a notebook
+
+Open a browser and connect to the Central Dashboard at [localhost:8080/](localhost:8080/).
 Show the TF-job dashboard, then click on Jupyterhub.
 Log in with any username and password combination and wait until the page
 refreshes. Spawn a new pod with these resource requirements:
@@ -262,4 +229,13 @@ available, open a new terminal and upload this
 [Yelp notebook](notebooks/yelp.ipynb).
 
 Execute the notebook to show that it works.
+
+## 7. Cleanup
+
+```
+kubectl config use gke
+kubectl delete namespace kubeflow
+kubectl config use minikube
+kubectl delete namespace kubeflow
+```
 

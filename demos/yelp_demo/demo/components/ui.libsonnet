@@ -7,7 +7,16 @@
         name: "kubeflow-demo-ui",
         namespace: env.namespace,
         annotations: {
-          "getambassador.io/config": "---\napiVersion: ambassador/v0\nkind:  Mapping\nname:  kubeflow_demo_ui\nprefix: /kubeflow-demo/\nrewrite: /\nservice: kubeflow-demo-ui:80\n",
+          "getambassador.io/config":
+            std.join("\n", [
+              "---",
+              "apiVersion: ambassador/v0",
+              "kind: Mapping",
+              "name: kubeflow_demo_ui",
+              "prefix: /kubeflow_demo/",
+              "rewrite: /",
+              "service: kubeflow-demo-ui:80",
+            ]),
         },
       },
       spec: {
