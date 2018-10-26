@@ -19,6 +19,7 @@ Ensure that you have at least the below versions of these tools (latest as of
 
 * [docker](#install-docker) v18.03.1-ce
 * [gcloud](#install-gcloud) v202.0.0
+* [kfctl](#install-kfctl) v0.3.1
 * [ksonnet](#install-ksonnet) v0.12.0
 * [kubectl](#install-kubectl) v1.10.3
 * [miniconda](#install-miniconda) v4.4.10
@@ -36,6 +37,20 @@ The latest version for MacOS can be found
 
 The Google Cloud SDK can be found
 [here](https://cloud.google.com/sdk/downloads).
+
+### Install kfctl
+
+Clone the Kubeflow GitHub repository, create a symlink to `kfctl.sh`, and add the
+directory to your $PATH:
+
+```
+export KUBEFLOW_TAG=v0.3.1
+git clone git@github.com:kubeflow/kubeflow.git
+cd kubeflow/scripts
+git checkout ${KUBEFLOW_TAG}
+ln -s kfctl.sh kfctl
+export PATH=${PATH}:`pwd`
+```
 
 ### Install ksonnet
 
@@ -335,9 +350,9 @@ To start a minikube instance:
 ```
 minikube start \
   --cpus 4 \
-  --memory 8096 \
+  --memory 8192 \
   --disk-size=50g \
-  --kubernetes-version v1.10.6
+  --kubernetes-version v1.10.7
 ```
 
 ### Create k8s secrets
@@ -348,14 +363,24 @@ credentials. One of type `docker-registry` for pulling images from GCR and one
 one of type `generic` for accessing private assets.
 
 ```
-kubectl -n $NAMESPACE create secret docker-registry gcp-registry-credentials \
+kubectl create namespace ${NAMESPACE}
+
+kubectl -n ${NAMESPACE} create secret docker-registry gcp-registry-credentials \
   --docker-server=gcr.io \
   --docker-username=_json_key \
-  --docker-password="$(cat $HOME/.ssh/minikube_key.json)" \
+  --docker-password="$(cat ${HOME}/.ssh/minikube_key.json)" \
   --docker-email=minikube@${DEMO_PROJECT}.iam.gserviceaccount.com
 
-kubectl -n $NAMESPACE create secret generic gcp-credentials \
+kubectl -n ${NAMESPACE} create secret generic gcp-credentials \
   --from-file=key.json="${HOME}/.ssh/minikube_key.json"
+```
+
+### Setup context to include namespace
+
+This allows the use of `kubectl` without needing to specify `-n ${NAMESPACE}`
+
+```
+./create_context.sh minikube ${NAMESPACE}
 ```
 
 ### Prepare the ksonnet app
@@ -473,13 +498,13 @@ credentials. One of type `docker-registry` for pulling images from GCR and one
 one of type `generic` for accessing private assets.
 
 ```
-kubectl -n $NAMESPACE create secret docker-registry gcp-registry-credentials \
+kubectl -n ${NAMESPACE} create secret docker-registry gcp-registry-credentials \
   --docker-server=gcr.io \
   --docker-username=_json_key \
-  --docker-password="$(cat $HOME/.ssh/${CLUSTER}_key.json)" \
+  --docker-password="$(cat ${HOME}/.ssh/${CLUSTER}_key.json)" \
   --docker-email=${CLUSTER}@${DEMO_PROJECT}.iam.gserviceaccount.com
 
-kubectl -n $NAMESPACE create secret generic gcp-credentials \
+kubectl -n ${NAMESPACE} create secret generic gcp-credentials \
   --from-file=key.json="${HOME}/.ssh/${CLUSTER}_key.json"
 ```
 
