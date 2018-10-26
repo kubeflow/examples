@@ -30,9 +30,10 @@ By the end of this tutorial, you should learn how to:
 1.  [Teardown](05_teardown.md)
 
 ## TODO
-- [ ] Argo workflow tests to push images to gcr.io/kubeflow-examples
+- [x] Argo workflow tests to push images to gcr.io/kubeflow-examples
+- [ ] Grant access to service account to push images
 - [x] 01_setup_a_kubeflow_cluster
-- [ ] 02_distributed_training
-- [ ] 03_serving_the_model
+- [x] 02_distributed_training
+- [x] 03_serving_the_model
 - [ ] 04_querying_the_model
 - [ ] 05_teardown

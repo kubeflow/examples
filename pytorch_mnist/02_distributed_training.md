@@ -33,7 +33,7 @@ installation, namely `PyTorchJob`.
 
 If you look at [job_mnist_DDP_GPU.yaml](https://github.com/kubeflow/examples/blob/master/github_issue_summarization/training/ddp/mnist/cpu/v1alpha2/job_mnist_DDP_GPU.yaml) few things are worth mentioning.
 
-1. We create PVC for our PyTorchJob where models will be saved at the end
+1. We mount our shared persistent disk as /mnt/kubeflow-gcfs for our PyTorchJob, where models will be saved at the end of the epochs
 2. Allocate one GPU to our container
 2. Run our PyTorchJob
 
