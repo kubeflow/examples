@@ -36,4 +36,4 @@ By the end of this tutorial, you should learn how to:
 - [x] 02_distributed_training
 - [x] 03_serving_the_model
 - [ ] 04_querying_the_model
-- [ ] 05_teardown
+- [x] 05_teardown
