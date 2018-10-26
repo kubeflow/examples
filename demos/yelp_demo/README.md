@@ -101,11 +101,7 @@ ks env add gke --namespace=kubeflow
 Install kubeflow on the cluster:
 
 ```
-ks apply gke -c ambassador
-ks apply gke -c jupyterhub
-ks apply gke -c centraldashboard
-ks apply gke -c tf-job-operator
-ks apply gke -c spartakus
+ks apply gke -c ambassador -c centraldashboard -c jupyterhub -c spartakus -c tf-job-operator
 ```
 
 View the installed components:
