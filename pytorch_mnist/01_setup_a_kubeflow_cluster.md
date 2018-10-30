@@ -52,7 +52,7 @@ Kubeflow](https://www.kubeflow.org/docs/started/getting-started-gke/) on Google 
         ```
 After completing that, you should have the following ready:
 
-*   A ksonnet app in a directory named `ks-app`
+*   A ksonnet app in a directory named `ks_app`
 *   An output similar to this for `kubectl get pods` command
 
 ```commandline
