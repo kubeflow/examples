@@ -6,8 +6,11 @@ from tensor2tensor.utils import registry
 from tensor2tensor.utils import t2t_model
 import tensorflow as tf
 
+MODEL_NAME = 'cs_similarity_transformer'
 
-@registry.register_model('cs_similarity_transformer')
+# We don't use the default name because there is already an older version
+# included as part of the T2T library with the default name.
+@registry.register_model(MODEL_NAME)
 class SimilarityTransformer(t2t_model.T2TModel):
   """Transformer Model for Similarity between two strings.
 
