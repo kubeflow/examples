@@ -21,6 +21,9 @@ Requirements:
  requires host machine has tensorflow_model_server executable available
 """
 
+# TODO(jlewi): Starting the test seems very slow. I wonder if this is because
+# tensor2tensor is loading a bunch of models and if maybe we can skip that.
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -33,9 +36,14 @@ import subprocess
 import socket
 import shlex
 import tempfile
+import unittest
 
 import grpc
 import tensorflow as tf
+
+import datetime
+
+start = datetime.datetime.now()
 
 from tensor2tensor.utils import registry
 from tensor2tensor.serving import serving_utils
@@ -44,6 +52,11 @@ from tensor2tensor.utils import decoding
 from tensor2tensor.utils import usr_dir
 from tensor2tensor.bin import t2t_trainer
 from tensor2tensor.utils import trainer_lib
+
+# TODO(jlewi): Delete this; its just to measure how long it takes to load
+# tensor2tensor; takes ~42 seconds in wing.
+total_diff = datetime.datetime.now() - start
+print("Time to load tensor2tensor: %s" % total_diff.total_seconds())
 
 from code_search.t2t  import similarity_transformer
 
@@ -146,9 +159,9 @@ class TensorflowModelServer(object):
 
     rest_api_port = PickUnusedPort()
 
-    print('Starting test server on port: {} for model_name: '
-          '{}/model_config_file: {}'.format(port, model_name,
-                                            model_config_file))
+    logging.info('Starting test server on port: %s for model_name: '
+                 '%s/model_config_file: %s'.format(port, model_name,
+                                                   model_config_file))
     command = os.path.join(
         TensorflowModelServer.__TestSrcDirPath('model_servers'),
         'tensorflow_model_server')
@@ -163,10 +176,10 @@ class TensorflowModelServer(object):
     else:
       raise ValueError('Both model_config_file and model_path cannot be empty!')
 
-    print(command)
+    logging.info(command)
     proc = subprocess.Popen(shlex.split(command), stderr=pipe)
     atexit.register(proc.kill)
-    print('Server started')
+    logging.info('Server started')
     if wait_for_server_ready:
       WaitForServerReady(port)
 
@@ -178,11 +191,12 @@ class TensorflowModelServer(object):
 
     return hostports
 
+PROBLEM_NAME = "github_function_docstring"
 
-class TestSimilarityTransformerExport(tf.test.TestCase):
+class TestSimilarityTransformer(unittest.TestCase):
 
-  def test_e2e_export_and_query(self):
-    """Test that we can export and query the model via tf.serving."""
+  def test_train_and_export(self):
+    """Test that we can train and export the model."""
 
     test_data_dir = os.path.join(os.path.dirname(__file__), "test_data")
     # If we set t2t_usr_dir t2t_train.main will end up importing that
@@ -215,19 +229,59 @@ class TestSimilarityTransformerExport(tf.test.TestCase):
 
     export.main(None)
 
+  def test_query(self):
+    """Test that we can query the model via tf.serving.
+
+    This test assumes the model is running as an external process in TensorFlow
+    serving.
+
+    The external process can be started a variety of ways e.g. subprocess,
+    kubernetes, or docker container.
+
+    The script start_test_server.sh can be used to start TFServing in
+    docker container.
+    """
+
+    test_data_dir = os.path.join(os.path.dirname(__file__), "test_data")
+    # If we set t2t_usr_dir t2t_train.main will end up importing that
+    # directory which causes an error because the model ends up being registered
+    # twice.
+    # FLAGS.t2t_usr_dir = _get_t2t_usr_dir()
+    FLAGS.problem = PROBLEM_NAME
+    FLAGS.data_dir = test_data_dir
+    FLAGS.tmp_dir = tempfile.mkdtemp()
+    logging.info("Using data_dir %s", FLAGS.data_dir)
+    logging.info("Using tmp_dir %s", FLAGS.tmp_dir)
+
+    # Directory where the model is stored.
+
+    FLAGS.output_dir = "/tmp/tmpy_hhjhry/export/"
+    logging.info("Using output_dir %s", FLAGS.output_dir)
+
+    FLAGS.model = similarity_transformer.MODEL_NAME
+    hparams_set = "transformer_tiny"
+    hparams = registry.hparams(hparams_set)
+
+    # We need to set the data directory because we need to load the vocab.
+    hparams.data_dir = FLAGS.data_dir
+    FLAGS.train_steps = 1
+    FLAGS.schedule = "train"
+
+    timeout_secs = 10
+
     # ----
     # Start model server
 
     # Will start a tf model server on an un-used port and
     # kill process on exit.
-    _, server, _ = TensorflowModelServer().RunServer(
-        FLAGS.model,
-        FLAGS.output_dir
-    )
+    #_, server, _ = TensorflowModelServer().RunServer(
+        #FLAGS.model,
+        #FLAGS.output_dir
+    #)
 
-    # ----
-    # Query the server
-
+    ## ----
+    ## Query the server
+    server = "localhost:8500"
     doc_query = [1,2,3] # Dummy encoded doc query
     code_query = [1,2,3] # Dummy encoded code query
 
@@ -238,9 +292,16 @@ class TestSimilarityTransformerExport(tf.test.TestCase):
         server=server,
         timeout_secs=timeout_secs)
 
+    problem_object = registry.problem(PROBLEM_NAME)
+
+    # Need problem to load hp parameters.
+    problem_object.get_hparams(hparams)
+
     # Compute embeddings
     # TODO: May need to customize how these queries are fed in, potentially
     #       side-stepping serving_utils.predict.
+
+
     encoded_string = serving_utils.predict([doc_query], problem_object, request_fn)
     encoded_code = serving_utils.predict([code_query], problem_object, request_fn)
 
@@ -248,4 +309,4 @@ class TestSimilarityTransformerExport(tf.test.TestCase):
 
 if __name__ == "__main__":
   logging.getLogger().setLevel(logging.INFO)
-  tf.test.main()
+  unittest.main()
