@@ -3,4 +3,5 @@ pandas
 scikit-learn
 tensorflow
 pyyaml
-
+pytest
+tox

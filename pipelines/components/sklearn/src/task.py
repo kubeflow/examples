@@ -77,6 +77,7 @@ def train(estimator_name, training_data_path, test_data_path, output_dir, hyperp
     training_features, training_target = read_csv(training_data_path)
 
     report = {'training_samples': len(training_target), 'hyperparameters': hyperparams}
+    report['training_data_path'] = training_data_path
 
     training_start_time = time.time()
     estimator.fit(training_features, training_target)
@@ -87,6 +88,7 @@ def train(estimator_name, training_data_path, test_data_path, output_dir, hyperp
     now = time.strftime('%Y%m%d%H%M%S')
     model_name = '{}_{}.pkl'.format(estimator_name, now)
     report_name = '{}_{}_report.yaml'.format(estimator_name, now)
+    report['model_name'] = model_name
 
     write_to_file(estimator, output_dir, model_name)
 
@@ -95,12 +97,19 @@ def train(estimator_name, training_data_path, test_data_path, output_dir, hyperp
         score = estimator.score(test_features, test_target)
         report['test_samples'] = len(test_target)
         report['test_score'] = float(score)
+        report['test_data_path'] = test_data_path
 
     write_to_file(report, output_dir, report_name)
+    print('Report: {}'.format(report_name))
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        '--estimator_name',
+        help='The name of the estimator to be used.',
+        required=True)
 
     parser.add_argument(
         '--training_data_path',
@@ -110,17 +119,12 @@ if __name__ == '__main__':
 
     parser.add_argument(
         '--test_data_path',
-        help='The path where the test data is stored.\n' +
+        help='The path where the tests data is stored.\n' +
              'The expected input is a csv file with no header, and features have the same order as the training data')
 
     parser.add_argument(
         '--output_dir',
         help='The path where the training related file will be stored.',
-        required=True)
-
-    parser.add_argument(
-        '--estimator_name',
-        help='The name of the estimator to be used.',
         required=True)
 
     arguments, hp_pairs = parser.parse_known_args()

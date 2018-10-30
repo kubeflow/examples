@@ -30,11 +30,16 @@ You may use this component to train a scikit-learn classifier or regressor. Curr
 * training_data_path: path to the training csv file. The code expects the csv file to have no headers; and the target to be the first column, followed by the features.
 * test_data_path: path to the test csv file, with a format similar to the training data file.
 * output_dir: path to the output directory.
-* hyperparameters: a dictionary of hyperparameters to be passed to the estimator object.
+* You may also pass the hyperparameters just like another argument
 
-TODO: If this code is to run via command line, fix hyperparameters section
-
-###  Runtime Parameters
+#### Example:
+python src/task.py 
+    --training_data_path ./iris_train.csv 
+    --test_data_path ./iris_test.csv
+    --output_dir ./output_directory
+    --estimator_name GradientBoostingClassifier 
+    --n_estimators 100 
+    --max_depth 4 
 
 
 ### Output
