@@ -44,73 +44,12 @@ We also include some [resources](#resources) at the bottom of the tutorial, so y
 
 ## 1. Deploy KubeFlow
 
-There are many different ways to deploy KubeFlow. The quickest and easiest approach is to [leverage minikube](https://www.kubeflow.org/docs/started/getting-started-minikube/). However, the resources required can sometimes be too much for certain laptops. If this is your situation, you can leverage [GKE](https://cloud.google.com/kubernetes-engine/) and [KubeFlow has excellent GKE documentation](https://www.kubeflow.org/docs/started/getting-started-gke/) to get you up and running. 
+The best instructions for deploying KubeFlow live on [KubeFlow.org](https://www.kubeflow.org). Follow the directions listed in the [Getting Started](https://www.kubeflow.org/docs/started/getting-started/) section for the platform of your choice (minikube, microk8s, GKE, etc.).
 
-*Note - Below is how to deploy KubeFlow manually using ksonnet. However, if you are using GKE or minikube in other scenarios, KubeFlow has some convenient scripts and bootstrappers documented [here](https://www.kubeflow.org/docs/guides/components/seldon/).*
-
-First, let's create a namespace for the KubeFlow deployment:
+*Note: Before continuing on, make sure you create the following env variable:*
 
 ```
-$ NAMESPACE=kubeflow
-$ kubectl create namespace ${NAMESPACE}
-```
-
-Then we can initialize a ksonnet app and set our default namespace for the ksonnet app:
-
-```
-$ APP_NAME=my-kubeflow
-$ ks init ${APP_NAME}
-$ cd ${APP_NAME}
-$ ks env set default --namespace ${NAMESPACE}
-```
-
-We need to "install" ksonnet packages for the KubeFlow components we will be using. That requires pulling some files from GitHub. To avoid getting rate limited during the tutorial, you will need to export your GitHub API token to an environment variable. Create a new token or use an existing one from [here](https://github.com/settings/tokens), then run:
-
-```
-$ export GITHUB_TOKEN=<your-token-from-gh>
-```
-
-It's recommended to install the core Kubeflow infrastructure, which includes the ability to train models with a TFJob CRD. In addition to that, we are going to go ahead and add in the Pachyderm and Seldon components:
-
-```
-$ ks registry add kubeflow github.com/katacoda/kubeflow-ksonnet/tree/master/kubeflow
-$ ks pkg install kubeflow/core
-$ ks pkg install kubeflow/seldon
-$ ks pkg install kubeflow/pachyderm
-```
-
-Now we can deploy the core of KubeFlow:
-
-```
-$ ks generate kubeflow-core kubeflow-core --namespace=${NAMESPACE}
-INFO Writing component at '/home/pachrat/my-kubeflow/components/kubeflow-core.jsonnet'
-
-$ ks apply default -c kubeflow-core
-INFO Applying configmaps kubeflow.kubeflow-version
-INFO Creating non-existent configmaps kubeflow.kubeflow-version
-INFO Applying services kubeflow.tf-hub-0
-INFO Creating non-existent services kubeflow.tf-hub-0
-INFO Applying services kubeflow.tf-hub-lb
-INFO Creating non-existent services kubeflow.tf-hub-lb
-INFO Applying clusterrolebindings kubeflow.centraldashboard
-INFO Creating non-existent clusterrolebindings kubeflow.centraldashboard
-INFO Applying roles kubeflow.jupyter-role
-...
-...
-```
-
-You can then verify that KubeFlow was deployed successfully as follows:
-
-```
-$ kubectl -n kubeflow get svc
-NAME               TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
-ambassador         ClusterIP   10.107.0.185     <none>        80/TCP     1m
-ambassador-admin   ClusterIP   10.106.237.102   <none>        8877/TCP   1m
-centraldashboard   ClusterIP   10.105.218.24    <none>        80/TCP     1m
-k8s-dashboard      ClusterIP   10.104.55.209    <none>        443/TCP    1m
-tf-hub-0           ClusterIP   None             <none>        8000/TCP   1m
-tf-hub-lb          ClusterIP   10.100.25.109    <none>        80/TCP     1m
-tf-job-dashboard   ClusterIP   10.104.119.108   <none>        80/TCP     1m
+$ export NAMESPACE=kubeflow
 ```
 
 ## 2. Deploy Pachyderm and Seldon on top of KubeFlow
