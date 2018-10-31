@@ -9,10 +9,10 @@ workflows:
   # The postsubmit run publishes the docker images to gcr.io/kubeflow-examples
   - app_dir: kubeflow/examples/test/workflows
     component: pytorch-mnist-webui-release
-    name: nmist-webui
+    name: mnist-webui
     job_types:
-    # - postsubmit
-    - presubmit # testing job while PR is WIP
+    - postsubmit
+    # - presubmit # to test job while WIP
     params:
         registry: "gcr.io/kubeflow-examples"
     include_dirs:
@@ -20,10 +20,10 @@ workflows:
 
   - app_dir: kubeflow/examples/test/workflows
     component: pytorch-mnist-cpu-release
-    name: nmist-cpu
+    name: mnist-cpu
     job_types:
-    # - postsubmit
-    - presubmit # testing job while PR is WIP
+    - postsubmit
+    # - presubmit # to test job while WIP
     params:
         registry: "gcr.io/kubeflow-examples"
     include_dirs:
@@ -31,10 +31,10 @@ workflows:
 
   - app_dir: kubeflow/examples/test/workflows
     component: pytorch-mnist-gpu-release
-    name: nmist-gpu
+    name: mnist-gpu
     job_types:
-    # - postsubmit
-    - presubmit # testing job while PR is WIP
+    - postsubmit
+    # - presubmit # to test job while WIP
     params:
         registry: "gcr.io/kubeflow-examples"
     include_dirs:
@@ -42,10 +42,10 @@ workflows:
 
   - app_dir: kubeflow/examples/test/workflows
     component: pytorch-mnist-serve-release
-    name: nmist-serve
+    name: mnist-serve
     job_types:
-    # - postsubmit
-    - presubmit # testing job while PR is WIP
+    - postsubmit
+    # - presubmit # to test job while WIP
     params:
         registry: "gcr.io/kubeflow-examples"
     include_dirs:
