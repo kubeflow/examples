@@ -16,14 +16,13 @@
 
 from __future__ import print_function
 import sklearn.datasets
+import os, os.path
+import pytest
+import pickle
+import shutil
 import pandas as pd
 import subprocess
-import os.path
-import pytest
-import shutil
-import pickle
 import yaml
-import os
 
 
 @pytest.fixture()
@@ -33,7 +32,8 @@ def setup(request):
   n_features = 50
   train_test_ratio = 0.8
   train_size = int(n_samples * train_test_ratio)
-  features, target = sklearn.datasets.make_regression(n_samples=n_samples, n_features=n_features, noise=20)
+  features, target = sklearn.datasets.make_regression(n_samples=n_samples,
+                                                      n_features=n_features, noise=20)
   df = pd.concat([pd.DataFrame(target), pd.DataFrame(features)], axis=1)
   os.mkdir(test_directory)
   train_file = os.path.abspath(os.path.join('./test_files', 'temp_train.csv'))

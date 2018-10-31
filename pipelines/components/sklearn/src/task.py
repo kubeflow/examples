@@ -35,7 +35,7 @@ def get_value(value):
   try:
     f_value = float(value)
     return int(f_value) if int(f_value) == f_value else f_value
-  except:
+  except ValueError as e:
     pass
   return value
 
@@ -89,7 +89,7 @@ def get_estimator(estimator_name, hyperparameters):
 def train(estimator_name, training_data_path, test_data_path, output_dir, hyperparameters=None):
   """
   Train and save a classification or regression model using sklearn
-  :param estimator_name: The name of the estimator (matching the name of the corresponding sklearn class)
+  :param estimator_name: The name of the sklearn estimator class
   :param training_data_path: The full path to the local (or GCS) training file
   :param test_data_path: The full path to the local (or GCS) test file
   :param output_dir: The output directory where the trained model is stored
@@ -145,7 +145,8 @@ if __name__ == '__main__':
   parser.add_argument(
     '--test_data_path',
     help='The path where the tests data is stored.\n' +
-         'The expected input is a csv file with no header, and features have the same order as the training data')
+         'The expected input is a csv file with no header, ' +
+         'and features have the same order as the training data')
 
   parser.add_argument(
     '--output_dir',
@@ -154,10 +155,10 @@ if __name__ == '__main__':
 
   arguments, hp_pairs = parser.parse_known_args()
 
-  training_data_path = arguments.training_data_path
-  test_data_path = arguments.test_data_path
-  output_dir = arguments.output_dir
-  est_name = arguments.estimator_name
-  hyperparams = {hp_pairs[i][2:]: get_value(hp_pairs[i + 1]) for i in range(0, len(hp_pairs), 2)}
+  _training_data_path = arguments.training_data_path
+  _test_data_path = arguments.test_data_path
+  _output_dir = arguments.output_dir
+  _est_name = arguments.estimator_name
+  _hyperparams = {hp_pairs[i][2:]: get_value(hp_pairs[i + 1]) for i in range(0, len(hp_pairs), 2)}
 
-  train(est_name.lower(), training_data_path, test_data_path, output_dir, hyperparams)
+  train(_est_name.lower(), _training_data_path, _test_data_path, _output_dir, _hyperparams)
