@@ -1,3 +1,19 @@
+# ==============================================================================
+#  Copyright 2018 Google LLC. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
 import time
 import yaml
 import pickle
@@ -71,13 +87,22 @@ def get_estimator(estimator_name, hyperparameters):
 
 
 def train(estimator_name, training_data_path, test_data_path, output_dir, hyperparameters=None):
+    """
+    Train and save a classification or regression model using scikit-learn
+    :param estimator_name: The name of the estimator (matching the name of the corresponding scikit-learn class)
+    :param training_data_path: The full path to the local (or GCS) training file
+    :param test_data_path: The full path to the local (or GCS) test file
+    :param output_dir: The output directory where the trained model is stored
+    :param hyperparameters: a dictionary of hyperparameters to be passed to the estimator
+    """
     if hyperparameters is None:
         hyperparameters = {}
     estimator = get_estimator(estimator_name, hyperparameters)
     training_features, training_target = read_csv(training_data_path)
 
-    report = {'training_samples': len(training_target), 'hyperparameters': hyperparams}
-    report['training_data_path'] = training_data_path
+    report = {'training_samples': len(training_target),
+              'hyperparameters': hyperparams,
+              'training_data_path': training_data_path}
 
     training_start_time = time.time()
     estimator.fit(training_features, training_target)
