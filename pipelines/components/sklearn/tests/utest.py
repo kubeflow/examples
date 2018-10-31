@@ -33,7 +33,7 @@ def setup(request):
 
 
 @pytest.mark.usefixtures("setup")
-def test_linear_regression(setup):
+def test_end_to_end(setup):
     test_directory, train_file, test_file = setup
     assert os.path.exists(train_file)
     assert os.path.exists(test_file)

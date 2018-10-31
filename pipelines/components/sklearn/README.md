@@ -33,6 +33,7 @@ You may use this component to train a scikit-learn classifier or regressor. Curr
 * You may also pass the hyperparameters just like another argument
 
 #### Example:
+```
 python src/task.py 
     --training_data_path ./iris_train.csv 
     --test_data_path ./iris_test.csv
@@ -40,10 +41,10 @@ python src/task.py
     --estimator_name GradientBoostingClassifier 
     --n_estimators 100 
     --max_depth 4 
-
+```
 
 ### Output
 The code produces two timestamped files upon succession:
-* %ESTIMATOR_NAME%_%TIMESTAMP%.pkl: The trained model
-* %ESTIMATOR_NAME%_%TIMESTAMP%_report.yaml: The job training report file
+* `%ESTIMATOR_NAME%_%TIMESTAMP%.pkl`: The trained model
+* `%ESTIMATOR_NAME%_%TIMESTAMP%_report.yaml`: The job training report file
 
