@@ -1,0 +1,35 @@
+npy_uri:
+  default: gs://sandboxdata/cmle-pipelines/X.npy
+  type: str
+num_iterations:
+  default: 10
+  type: int
+num_clusters:
+  default: 5
+  type: int
+use_mini_batch:
+  default: false
+  type: bool
+model_dir:
+  default: null
+initial_clusters:
+  default: random
+  type: str
+distance_metric:
+  default: squared_euclidean
+  type: str
+random_seed:
+  default: 0
+  type: int
+mini_batch_steps_per_iteration:
+  default: 1
+  type: int
+kmeans_plus_plus_num_retries:
+  default: 2
+  type: int
+relative_tolerance:
+  default: null
+config:
+  default: null
+feature_columns:
+  default: null
