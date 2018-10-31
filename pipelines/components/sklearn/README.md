@@ -26,10 +26,10 @@ You may use this component to train a scikit-learn classifier or regressor. Curr
 * SVR
 
 ### Input
-* estimator_name: The name of the estimator as it appears in the list above.
-* training_data_path: path to the training csv file. The code expects the csv file to have no headers; and the target to be the first column, followed by the features.
-* test_data_path: path to the test csv file, with a format similar to the training data file.
-* output_dir: path to the output directory.
+* `estimator_name`: The name of the estimator as it appears in the list above.
+* `training_data_path`: path to the training csv file. The code expects the csv file to have no headers; and the target to be the first column, followed by the features.
+* `test_data_path`: path to the test csv file, with a format similar to the training data file.
+* `output_dir`: path to the output directory.
 * You may also pass the hyperparameters just like another argument
 
 #### Example:
