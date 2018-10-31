@@ -25,7 +25,6 @@ def encode_query(encoder, query_str, embed_code=False):
   features = {
       "inputs": tf.train.Feature(int64_list=tf.train.Int64List(value=encoded_str)),
       "targets": tf.train.Feature(int64_list=tf.train.Int64List(value=[0])),
-      "embed_code": tf.constant(embed_code, dtype=tf.bool)
   }
   example = tf.train.Example(features=tf.train.Features(feature=features))
   return base64.b64encode(example.SerializeToString()).decode('utf-8')

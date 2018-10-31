@@ -202,8 +202,9 @@ class TestEmbedQuery(unittest.TestCase):
     """
     # Directory containing the vocabulary.
     test_data_dir = os.path.abspath(
-      os.path.join(os.path.dirname(__file__), "..", "..", "test_data"))
-    server = os.getenv("TEST_SERVER", "localhost:8500")
+      os.path.join(os.path.dirname(__file__), "..", "..", "t2t", "test_data"))
+    # 8501 should be REST port
+    server = os.getenv("TEST_SERVER", "localhost:8501")
 
     # Model name matches the subdirectory in TF Serving's model Directory
     # containing models.
@@ -216,4 +217,7 @@ class TestEmbedQuery(unittest.TestCase):
 
 if __name__ == "__main__":
   logging.getLogger().setLevel(logging.INFO)
-  unittest.main()
+  # DO NOT SUBMIT; hack so that debugger will break on error
+  test = TestEmbedQuery()
+  test.test_embed()
+  # unittest.main()
