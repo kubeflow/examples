@@ -1,0 +1,6 @@
+tensorflow==1.10
+numpy==1.15.2
+pandas
+google-cloud-storage
+cloudml-hypertune
+ruamel.yaml
