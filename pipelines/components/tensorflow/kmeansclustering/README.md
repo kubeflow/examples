@@ -1,6 +1,8 @@
-# Component: `tensorflow.contrib.factorization.KMeansClustering`
+# Component: KMeansClustering
 
-[Documentation](https://www.tensorflow.org/api_docs/python/tf/['contrib', 'factorization']/KMeansClustering)
+This component is a wrapper of `tensorflow.contrib.factorization.KMeansClustering`.
+
+[Documentation](https://www.tensorflow.org/api_docs/python/tf/contrib/factorization/KMeansClustering)
 
 # Parameters:
 
