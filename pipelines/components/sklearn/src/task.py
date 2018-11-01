@@ -65,6 +65,7 @@ def get_value(value):
 
 
 def read_csv(data_path, header):
+  header = 0 if header else None
   with tf.gfile.Open(data_path, 'r') as f:
     dataframe = pd.read_csv(f, header=header)
     first_column = dataframe.columns[0]
@@ -95,6 +96,7 @@ def train(estimator_name, training_data_path, test_data_path, header, output_dir
   :param estimator_name: The name of the sklearn estimator class
   :param training_data_path: The full path to the local (or GCS) training file
   :param test_data_path: The full path to the local (or GCS) test file
+  :param header: Indicates that the train and test datasets have headers
   :param output_dir: The output directory where the trained model is stored
   :param hyperparameters: a dictionary of hyperparameters to be passed to the estimator
   """
@@ -159,7 +161,7 @@ if __name__ == '__main__':
 
   parser.add_argument('--with-header',
     help='Indicates that the train and test datasets have headers.\n' +
-    'By default, it is assumed that the input files have no headers.'
+    'By default, it is assumed that the input files have no headers.',
     dest='header',
     action='store_true')
 
@@ -169,7 +171,7 @@ if __name__ == '__main__':
   _test_data_path = arguments.test_data_path
   _output_dir = arguments.output_dir
   _est_name = arguments.estimator_name
-  _header = 0 if arguments.header else None
+  _header = arguments.header
   _hyperparams = {hp_pairs[i][2:]: get_value(hp_pairs[i + 1]) for i in range(0, len(hp_pairs), 2)}
 
   train(_est_name, _training_data_path, _test_data_path, _header, _output_dir, _hyperparams)
