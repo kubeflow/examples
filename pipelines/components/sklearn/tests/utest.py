@@ -15,14 +15,15 @@
 # ==============================================================================
 
 from __future__ import print_function
-import sklearn.datasets
-import os, os.path
+import os
+import os.path
 import pytest
 import pickle
 import shutil
+import yaml
 import pandas as pd
 import subprocess
-import yaml
+import sklearn.datasets
 
 
 @pytest.fixture()

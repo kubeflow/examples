@@ -35,7 +35,7 @@ def get_value(value):
   try:
     f_value = float(value)
     return int(f_value) if int(f_value) == f_value else f_value
-  except ValueError as e:
+  except ValueError:
     pass
   return value
 
@@ -101,7 +101,7 @@ def train(estimator_name, training_data_path, test_data_path, output_dir, hyperp
   training_features, training_target = read_csv(training_data_path)
 
   report = {'training_samples': len(training_target),
-            'hyperparameters': hyperparams,
+            'hyperparameters': hyperparameters,
             'training_data_path': training_data_path}
 
   training_start_time = time.time()
