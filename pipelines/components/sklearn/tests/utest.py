@@ -19,18 +19,18 @@ import os
 import os.path
 import pickle
 import shutil
+import subprocess
 import yaml
 import pytest
 import pandas as pd
-import subprocess
 import sklearn.datasets
 
 
 @pytest.fixture()
 def setup(request):
   test_directory = os.path.abspath('./test_files')
-  n_samples = 50000
-  n_features = 50
+  n_samples = 5000
+  n_features = 10
   train_test_ratio = 0.8
   train_size = int(n_samples * train_test_ratio)
   features, target = sklearn.datasets.make_regression(n_samples=n_samples,
@@ -54,9 +54,10 @@ def test_end_to_end(setup):
   test_directory, train_file, test_file = setup
   assert os.path.exists(train_file)
   assert os.path.exists(test_file)
+  dir_path = os.path.dirname(os.path.realpath(__file__))
   command = [
     'python',
-    '../src/task.py',
+    os.path.join(dir_path, '../src/task.py'),
     '--estimator_name',
     'Lasso',
     '--training_data_path',
@@ -70,7 +71,7 @@ def test_end_to_end(setup):
   ]
 
   output = str(subprocess.check_output(command).strip())
-  report_name = output[1:-1].split('Report:')[1].strip()
+  report_name = output[output.find(' '):].strip(" '")
   report_file = os.path.join(test_directory, report_name)
 
   assert os.path.exists(report_file)
