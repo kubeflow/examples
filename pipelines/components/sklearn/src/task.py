@@ -31,6 +31,30 @@ from sklearn import neural_network
 from sklearn import gaussian_process
 
 
+ESTIMATORS = {
+  'AdaBoostClassifier': ensemble.AdaBoostClassifier,
+  'BaggingClassifier': ensemble.BaggingClassifier,
+  'DecisionTreeClassifier': tree.DecisionTreeClassifier,
+  'ExtraTreesClassifier': ensemble.ExtraTreesClassifier,
+  'GaussianNB': naive_bayes.GaussianNB,
+  'GaussianProcessClassifier': gaussian_process.GaussianProcessClassifier,
+  'GradientBoostingClassifier': ensemble.GradientBoostingClassifier,
+  'GradientBoostingRegressor': ensemble.GradientBoostingRegressor,
+  'KDTree': neighbors.KDTree,
+  'KNeighborsClassifier': neighbors.KNeighborsClassifier,
+  'KNeighborsRegressor': neighbors.KNeighborsRegressor,
+  'Lasso': linear_model.Lasso,
+  'LinearRegression': linear_model.LinearRegression,
+  'LogisticRegression': linear_model.LogisticRegression,
+  'MLPClassifier': neural_network.MLPClassifier,
+  'RandomForestClassifier': ensemble.RandomForestClassifier,
+  'Ridge': linear_model.Ridge,
+  'SGDRegressor': linear_model.SGDRegressor,
+  'SVC': svm.SVC,
+  'SVR': svm.SVR,
+}
+
+
 def get_value(value):
   try:
     f_value = float(value)
@@ -59,30 +83,8 @@ def write_to_file(content, out_director, filename):
 
 
 def get_estimator(estimator_name, hyperparameters):
-  estimators = {
-    'adaboostclassifier': ensemble.AdaBoostClassifier,
-    'baggingclassifier': ensemble.BaggingClassifier,
-    'decisiontreeclassifier': tree.DecisionTreeClassifier,
-    'extratreesclassifier': ensemble.ExtraTreesClassifier,
-    'gaussiannb': naive_bayes.GaussianNB,
-    'gaussianprocessclassifier': gaussian_process.GaussianProcessClassifier,
-    'gradientboostingclassifier': ensemble.GradientBoostingClassifier,
-    'gradientboostingregressor': ensemble.GradientBoostingRegressor,
-    'kdtree': neighbors.KDTree,
-    'kneighborsclassifier': neighbors.KNeighborsClassifier,
-    'kneighborsregressor': neighbors.KNeighborsRegressor,
-    'lasso': linear_model.Lasso,
-    'linearregression': linear_model.LinearRegression,
-    'logisticregression': linear_model.LogisticRegression,
-    'mlpclassifier': neural_network.MLPClassifier,
-    'randomforestclassifier': ensemble.RandomForestClassifier,
-    'ridge': linear_model.Ridge,
-    'sgdregressor': linear_model.SGDRegressor,
-    'svc': svm.SVC,
-    'svr': svm.SVR,
-  }
-  if estimator_name in estimators:
-    return estimators[estimator_name](**hyperparameters)
+  if estimator_name in ESTIMATORS:
+    return ESTIMATORS[estimator_name](**hyperparameters)
   raise Exception("'{estimator_name}' is not supported".format(estimator_name=estimator_name))
 
 
@@ -130,21 +132,24 @@ def train(estimator_name, training_data_path, test_data_path, output_dir, hyperp
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
+  estimators = ', '.join(sorted(ESTIMATORS.keys()))
 
   parser.add_argument(
     '--estimator_name',
-    help='The name of the estimator to be used.',
+    help='The name of the estimator to be used. Available estimators are: {}'.format(estimators),
     required=True)
 
   parser.add_argument(
     '--training_data_path',
     help='The path where the training data is stored.\n' +
+         'It can be the path to a local file, or a file in a GCS bucket.\n' +
          'The expected input is a csv file with no header where the target is the first column',
     required=True)
 
   parser.add_argument(
     '--test_data_path',
     help='The path where the tests data is stored.\n' +
+        'It can be the path to a local file, or a file in a GCS bucket.\n' +
          'The expected input is a csv file with no header, ' +
          'and features have the same order as the training data')
 
@@ -161,4 +166,4 @@ if __name__ == '__main__':
   _est_name = arguments.estimator_name
   _hyperparams = {hp_pairs[i][2:]: get_value(hp_pairs[i + 1]) for i in range(0, len(hp_pairs), 2)}
 
-  train(_est_name.lower(), _training_data_path, _test_data_path, _output_dir, _hyperparams)
+  train(_est_name, _training_data_path, _test_data_path, _output_dir, _hyperparams)
