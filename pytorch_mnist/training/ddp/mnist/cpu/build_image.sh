@@ -24,5 +24,5 @@ cd $CONTEXT_DIR
 echo "GCP Project: "$PROJECT
 
 echo "Building image using gcloud build"
-gcloud builds submit --timeout=30m --tag=${IMAGE}:${TAG} --project=${PROJECT} .
+gcloud builds submit --timeout=2h --tag=${IMAGE}:${TAG} --project=${PROJECT} .
 echo "Finished building image"
