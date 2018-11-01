@@ -64,11 +64,12 @@ def get_value(value):
   return value
 
 
-def read_csv(data_path):
+def read_csv(data_path, header):
   with tf.gfile.Open(data_path, 'r') as f:
-    dataframe = pd.read_csv(f, header=None)
-    target = dataframe[0]
-    del dataframe[0]
+    dataframe = pd.read_csv(f, header=header)
+    first_column = dataframe.columns[0]
+    target = dataframe[first_column]
+    del dataframe[first_column]
   return dataframe, target
 
 
@@ -88,7 +89,7 @@ def get_estimator(estimator_name, hyperparameters):
   raise Exception("'{estimator_name}' is not supported".format(estimator_name=estimator_name))
 
 
-def train(estimator_name, training_data_path, test_data_path, output_dir, hyperparameters=None):
+def train(estimator_name, training_data_path, test_data_path, header, output_dir, hyperparameters):
   """
   Train and save a classification or regression model using sklearn
   :param estimator_name: The name of the sklearn estimator class
@@ -97,10 +98,8 @@ def train(estimator_name, training_data_path, test_data_path, output_dir, hyperp
   :param output_dir: The output directory where the trained model is stored
   :param hyperparameters: a dictionary of hyperparameters to be passed to the estimator
   """
-  if hyperparameters is None:
-    hyperparameters = {}
   estimator = get_estimator(estimator_name, hyperparameters)
-  training_features, training_target = read_csv(training_data_path)
+  training_features, training_target = read_csv(training_data_path, header)
 
   report = {'training_samples': len(training_target),
             'hyperparameters': hyperparameters,
@@ -120,7 +119,7 @@ def train(estimator_name, training_data_path, test_data_path, output_dir, hyperp
   write_to_file(estimator, output_dir, model_name)
 
   if test_data_path is not None:
-    test_features, test_target = read_csv(test_data_path)
+    test_features, test_target = read_csv(test_data_path, header)
     score = estimator.score(test_features, test_target)
     report['test_samples'] = len(test_target)
     report['test_score'] = float(score)
@@ -143,7 +142,7 @@ if __name__ == '__main__':
     '--training_data_path',
     help='The path where the training data is stored.\n' +
          'It can be the path to a local file, or a file in a GCS bucket.\n' +
-         'The expected input is a csv file with no header where the target is the first column',
+         'The expected input is a csv file where the target is the first column',
     required=True)
 
   parser.add_argument(
@@ -158,12 +157,19 @@ if __name__ == '__main__':
     help='The path where the training related file will be stored.',
     required=True)
 
+  parser.add_argument('--with-header',
+    help='Indicates that the train and test datasets have headers.\n' +
+    'By default, it is assumed that the input files have no headers.'
+    dest='header',
+    action='store_true')
+
   arguments, hp_pairs = parser.parse_known_args()
 
   _training_data_path = arguments.training_data_path
   _test_data_path = arguments.test_data_path
   _output_dir = arguments.output_dir
   _est_name = arguments.estimator_name
+  _header = 0 if arguments.header else None
   _hyperparams = {hp_pairs[i][2:]: get_value(hp_pairs[i + 1]) for i in range(0, len(hp_pairs), 2)}
 
-  train(_est_name, _training_data_path, _test_data_path, _output_dir, _hyperparams)
+  train(_est_name, _training_data_path, _test_data_path, _header, _output_dir, _hyperparams)
