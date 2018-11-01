@@ -17,10 +17,10 @@
 from __future__ import print_function
 import os
 import os.path
-import pytest
 import pickle
 import shutil
 import yaml
+import pytest
 import pandas as pd
 import subprocess
 import sklearn.datasets
