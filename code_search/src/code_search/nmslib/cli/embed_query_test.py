@@ -36,15 +36,7 @@ from __future__ import print_function
 
 import logging
 import os
-import shutil
-import atexit
-import subprocess
-import socket
-import shlex
-import tempfile
 import unittest
-
-import grpc
 import tensorflow as tf
 
 import datetime
@@ -60,6 +52,7 @@ PROBLEM_NAME = "kf_github_function_docstring"
 
 class TestEmbedQuery(unittest.TestCase):
 
+  @unittest.skipIf(os.getenv("PROW_JOB_ID"), "Manual test not run on prow")
   def test_embed(self):
     """Test that we can embed the search query string via tf.serving.
 
@@ -99,7 +92,7 @@ class TestEmbedQuery(unittest.TestCase):
     c_vec = c_vec/np.sqrt(np.dot(c_vec, c_vec))
 
     dist = np.dot(q_vec, c_vec)
-    self.assertNotAlmostEquals(1, dist)
+    self.assertNotAlmostEqual(1, dist)
     logging.info("Done")
 
 if __name__ == "__main__":
