@@ -3,7 +3,7 @@ kind: Workflow
 metadata:
   generateName: tf-workflow-
 spec:
-  entrypoint: deploy-model 
+  entrypoint: deploy-model
   # Parameters can be passed/overridden via the argo CLI.
   # To override the printed message, run `argo submit` with the -p option:
   # $ argo submit examples/arguments-parameters.yaml -p message="goodbye world"
@@ -24,11 +24,11 @@ spec:
               value: "{{steps.get-workflow-info.outputs.parameters.s3-model-url}}"
             - name: s3-exported-url
               value: "{{steps.get-workflow-info.outputs.parameters.s3-exported-url}}"
-            - name: aws-secret 
+            - name: aws-secret
               value: "{{steps.get-workflow-info.outputs.parameters.aws-secret}}"
             - name: namespace
               value: "{{steps.get-workflow-info.outputs.parameters.namespace}}"
-            - name: aws-region 
+            - name: aws-region
               value: "{{steps.get-workflow-info.outputs.parameters.aws-region}}"
             - name: s3-endpoint
               value: "{{steps.get-workflow-info.outputs.parameters.s3-endpoint}}"
@@ -38,21 +38,17 @@ spec:
               value: "{{steps.get-workflow-info.outputs.parameters.s3-verify-ssl}}"
             - name: job-name
               value: "{{steps.get-workflow-info.outputs.parameters.job-name}}"
-            - name: tf-serving-image 
+            - name: tf-serving-image
               value: "{{steps.get-workflow-info.outputs.parameters.tf-serving-image}}"
             - name: model-serving-servicetype
               value: "{{steps.get-workflow-info.outputs.parameters.model-serving-servicetype}}"
-            - name: model-serving-ks-url
-              value: "{{steps.get-workflow-info.outputs.parameters.model-serving-ks-url}}"
-            - name: model-serving-ks-tag
-              value: "{{steps.get-workflow-info.outputs.parameters.model-serving-ks-tag}}"
             - name: model-name
               value: "{{steps.get-workflow-info.outputs.parameters.model-name}}"
   - name: get-workflow-info
     container:
       image: nervana/circleci:master
       imagePullPolicy: Always
-      command: ["bash", "-c", "-x", 'for var in s3-model-url s3-exported-url; do kubectl get workflow {{workflow.parameters.workflow}} -o json | jq -r ".status.nodes[] | select(.name|contains(\"get-workflow-info\")) | .outputs.parameters[] | select(.name == \"${var}\") | .value" > /tmp/${var} ; done; for var in job-name namespace aws-secret aws-region s3-endpoint s3-use-https s3-verify-ssl tf-serving-image model-serving-servicetype model-serving-ks-url model-serving-ks-tag model-name; do kubectl get workflow {{workflow.parameters.workflow}} -o jsonpath="{.spec.arguments.parameters[?(.name==\"${var}\")].value}" > /tmp/${var}; done']
+      command: ["bash", "-c", "-x", 'for var in s3-model-url s3-exported-url; do kubectl get workflow {{workflow.parameters.workflow}} -o json | jq -r ".status.nodes[] | select(.name|contains(\"get-workflow-info\")) | .outputs.parameters[] | select(.name == \"${var}\") | .value" > /tmp/${var} ; done; for var in job-name namespace aws-secret aws-region s3-endpoint s3-use-https s3-verify-ssl tf-serving-image model-serving-servicetype model-name; do kubectl get workflow {{workflow.parameters.workflow}} -o jsonpath="{.spec.arguments.parameters[?(.name==\"${var}\")].value}" > /tmp/${var}; done']
     outputs:
       parameters:
       - name: s3-model-url
@@ -88,12 +84,6 @@ spec:
       - name: model-serving-servicetype
         valueFrom:
           path: /tmp/model-serving-servicetype
-      - name: model-serving-ks-url
-        valueFrom:
-          path: /tmp/model-serving-ks-url
-      - name: model-serving-ks-tag
-        valueFrom:
-          path: /tmp/model-serving-ks-tag
       - name: model-name
         valueFrom:
           path: /tmp/model-name
@@ -111,17 +101,15 @@ spec:
       - name: job-name
       - name: tf-serving-image
       - name: model-serving-servicetype
-      - name: model-serving-ks-url
-      - name: model-serving-ks-tag
       - name: model-name
     script:
-      image: elsonrodriguez/ksonnet:0.10.1
+      image: siji/ksonnet:v0.13.0
       command: ["/ksonnet-entrypoint.sh"]
       source: |
         ks init my-model-server
         cd my-model-server
-        ks registry add kubeflow {{inputs.parameters.model-serving-ks-url}}
-        ks pkg install kubeflow/tf-serving@{{inputs.parameters.model-serving-ks-tag}}
+        ks registry add kubeflow /ks-registry/kubeflow # use local registry to get rid of github api limit error
+        ks pkg install kubeflow/tf-serving
         ks env add default
         # TODO change mnist name to be specific to a job. Right now mnist name is required to serve the model.
         ks generate tf-serving {{inputs.parameters.model-name}} --name=mnist-{{inputs.parameters.job-name}} --namespace={{inputs.parameters.namespace}} --model_path={{inputs.parameters.s3-exported-url}}
