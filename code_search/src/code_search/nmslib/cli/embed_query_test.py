@@ -34,17 +34,17 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import datetime
 import logging
 import os
 import unittest
 import tensorflow as tf
 
-import datetime
 import numpy as np
 
-start = datetime.datetime.now()
-
 from code_search.nmslib.cli  import start_search_server
+
+start = datetime.datetime.now()
 
 FLAGS = tf.flags.FLAGS
 

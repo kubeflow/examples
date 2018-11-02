@@ -9,7 +9,7 @@ import tensorflow as tf
 import code_search.nmslib.cli.arguments as arguments
 import code_search.t2t.query as query
 # We need to import function_docstring to ensure the problem is registered
-from code_search.t2t import function_docstring
+from code_search.t2t import function_docstring # pylint: disable=unused-import
 from code_search.nmslib.search_engine import CodeSearchEngine
 from code_search.nmslib.search_server import CodeSearchServer
 

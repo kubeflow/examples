@@ -24,16 +24,13 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import datetime
 import logging
 import os
 import tempfile
 import unittest
 
 import tensorflow as tf
-
-import datetime
-
-start = datetime.datetime.now()
 
 from tensor2tensor.serving import export
 from tensor2tensor.bin import t2t_trainer
@@ -47,7 +44,7 @@ PROBLEM_NAME = "github_function_docstring"
 class TestSimilarityTransformer(unittest.TestCase):
 
   @unittest.skipIf(os.getenv("PROW_JOB_ID"), "Manual test not run on prow")
-  def test_train_and_export(self):
+  def test_train_and_export(self): # pylint: disable=no-self-use
     """Test that we can train and export the model."""
 
     test_data_dir = os.path.join(os.path.dirname(__file__), "test_data")

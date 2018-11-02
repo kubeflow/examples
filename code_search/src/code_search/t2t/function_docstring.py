@@ -8,7 +8,7 @@ from tensor2tensor.utils import registry
 import tensorflow as tf
 
 # There is a copy of the problem in the Tensor2Tensor library.
-# # https://github.com/tensorflow/tensor2tensor/blob/a4f958a887f4f4466644dd0602bdd33985d61dd7/tensor2tensor/data_generators/function_docstring.py
+# http://bit.ly/2Olf34u
 #
 # We want to register this problem with a different name to make sure
 # we don't end up using that problem.
