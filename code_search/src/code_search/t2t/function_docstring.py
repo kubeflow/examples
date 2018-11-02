@@ -1,5 +1,6 @@
 """Github function/text similatrity problems."""
 import csv
+import logging
 from six import StringIO
 from tensor2tensor.data_generators import generator_utils
 from tensor2tensor.data_generators import text_problems
@@ -25,6 +26,7 @@ class GithubFunctionDocstring(text_problems.Text2TextProblem):
   """
 
   DATA_PATH_PREFIX = "gs://kubeflow-examples/t2t-code-search/raw_data"
+  NUM_SHARDS = 100
 
   @property
   def pair_files_list(self):
@@ -53,13 +55,14 @@ class GithubFunctionDocstring(text_problems.Text2TextProblem):
       In this case, the tuple is of size 1 because the URL points
       to a file itself.
     """
+    logging.info("Using %s shards", self.NUM_SHARDS)
     return [
         [
-            "{}/func-doc-pairs-000{:02}-of-00100.csv".format(
-                self.DATA_PATH_PREFIX, i),
-            ("func-doc-pairs-000{:02}-of-00100.csv".format(i),)
+            "{}/func-doc-pairs-{:05}-of-{:05}.csv".format(
+                self.DATA_PATH_PREFIX, i, self.NUM_SHARDS),
+            ("func-doc-pairs-{:05}-of-{:05}.csv".format(i, self.NUM_SHARDS),)
         ]
-        for i in range(1)
+        for i in range(self.NUM_SHARDS)
     ]
 
   @property

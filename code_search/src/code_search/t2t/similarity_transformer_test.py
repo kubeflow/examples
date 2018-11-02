@@ -14,7 +14,7 @@
 """Tests of modified similarity transformer model.
 
 code_search must be a top level Python package.
-python -m code_searcch.t2t.similarity_transformer_export_test
+python -m code_search.t2t.similarity_transformer_export_test
 """
 
 # TODO(jlewi): Starting the test seems very slow. I wonder if this is because
@@ -24,7 +24,6 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import datetime
 import logging
 import os
 import tempfile
@@ -32,8 +31,10 @@ import unittest
 
 import tensorflow as tf
 
-from tensor2tensor.serving import export
 from tensor2tensor.bin import t2t_trainer
+from tensor2tensor.serving import export
+from tensor2tensor.utils import registry
+
 
 from code_search.t2t  import similarity_transformer
 
@@ -52,7 +53,8 @@ class TestSimilarityTransformer(unittest.TestCase):
     # directory which causes an error because the model ends up being registered
     # twice.
     FLAGS.problem = "kf_github_function_docstring"
-    FLAGS.data_dir = test_data_dir
+    FLAGS.data_dir = tempfile.mkdtemp()
+
     FLAGS.tmp_dir = tempfile.mkdtemp()
     logging.info("Using data_dir %s", FLAGS.data_dir)
     logging.info("Using tmp_dir %s", FLAGS.tmp_dir)
@@ -63,16 +65,26 @@ class TestSimilarityTransformer(unittest.TestCase):
     FLAGS.model = similarity_transformer.MODEL_NAME
     FLAGS.hparams_set = "transformer_tiny"
     FLAGS.train_steps = 1
+    FLAGS.eval_steps = 5
 
     # We want to trigger eval.
     FLAGS.local_eval_frequency = 1
     FLAGS.schedule = "continuous_train_and_eval"
 
-    # Calling generate data will generate data if no data exists.
-    # TODO(jlewi): We only test datageneration if the files don't exist.
-    # We should see about running it regularly. The problem I ran into
-    # was that it downloads the entire dataset which is quite large.
-    t2t_trainer.generate_data()
+    problem = registry.problem(FLAGS.problem)
+
+    # Override the data path prefix and number of shards so we use
+    # the test data rather than downloading from GCS.
+    problem.DATA_PATH_PREFIX = os.path.join(test_data_dir, "raw_data")
+    problem.NUM_SHARDS = 1
+
+    # Generating the data can be slow because it uses an iterative process
+    # to compute the vocab.
+    # During development you can reuse data_dir between runs; if the vocab
+    # and processed input files already exists in that directory it won't
+    # need to regenerate them.
+    problem.generate_data(FLAGS.data_dir, FLAGS.tmp_dir)
+
     t2t_trainer.main(None)
 
     export.main(None)
