@@ -1,4 +1,5 @@
 import csv
+import logging
 import json
 import os
 import functools
@@ -7,6 +8,8 @@ import tensorflow as tf
 
 import code_search.nmslib.cli.arguments as arguments
 import code_search.t2t.query as query
+# We need to import function_docstring to ensure the problem is registered
+from code_search.t2t import function_docstring # pylint: disable=unused-import
 from code_search.nmslib.search_engine import CodeSearchEngine
 from code_search.nmslib.search_server import CodeSearchServer
 
@@ -18,9 +21,27 @@ def embed_query(encoder, serving_url, query_str):
                            headers={'content-type': 'application/json'},
                            data=json.dumps(data))
 
+  if not response.ok:
+    logging.error("Request failed; status: %s reason %s response: %s",
+                  response.status_code,
+                  response.reason,
+                  response.content)
   result = response.json()
   return result['predictions'][0]['outputs']
 
+
+def build_query_encoder(problem, data_dir, embed_code=False):
+  """Build a query encoder.
+
+  Args:
+    problem: The name of the T2T problem to use
+    data_dir: Directory containing the data. This should include the vocabulary.
+    embed_code: Whether to compute embeddings for natural language or code.
+  """
+  encoder = query.get_encoder(problem, data_dir)
+  query_encoder = functools.partial(query.encode_query, encoder, embed_code)
+
+  return query_encoder
 
 def start_search_server(argv=None):
   """Start a Flask REST server.
@@ -53,8 +74,9 @@ def start_search_server(argv=None):
   if not os.path.isfile(tmp_index_file):
     tf.gfile.Copy(args.index_file, tmp_index_file)
 
-  encoder = query.get_encoder(args.problem, args.data_dir)
-  query_encoder = functools.partial(query.encode_query, encoder)
+  # Build an an encoder for the natural language strings.
+  query_encoder = build_query_encoder(args.problem, args.data_dir,
+                                      embed_code=False)
   embedding_fn = functools.partial(embed_query, query_encoder, args.serving_url)
 
   search_engine = CodeSearchEngine(tmp_index_file, lookup_data, embedding_fn)
