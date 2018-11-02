@@ -26,28 +26,17 @@ from __future__ import print_function
 
 import logging
 import os
-import shutil
-import atexit
-import subprocess
-import socket
-import shlex
 import tempfile
 import unittest
 
-import grpc
 import tensorflow as tf
 
 import datetime
 
 start = datetime.datetime.now()
 
-from tensor2tensor.utils import registry
-from tensor2tensor.serving import serving_utils
 from tensor2tensor.serving import export
-from tensor2tensor.utils import decoding
-from tensor2tensor.utils import usr_dir
 from tensor2tensor.bin import t2t_trainer
-from tensor2tensor.utils import trainer_lib
 
 from code_search.t2t  import similarity_transformer
 
@@ -57,6 +46,7 @@ PROBLEM_NAME = "github_function_docstring"
 
 class TestSimilarityTransformer(unittest.TestCase):
 
+  @unittest.skipIf(os.getenv("PROW_JOB_ID"), "Manual test not run on prow")
   def test_train_and_export(self):
     """Test that we can train and export the model."""
 
@@ -80,8 +70,6 @@ class TestSimilarityTransformer(unittest.TestCase):
     # We want to trigger eval.
     FLAGS.local_eval_frequency = 1
     FLAGS.schedule = "continuous_train_and_eval"
-
-    timeout_secs = 10
 
     # Calling generate data will generate data if no data exists.
     # TODO(jlewi): We only test datageneration if the files don't exist.
