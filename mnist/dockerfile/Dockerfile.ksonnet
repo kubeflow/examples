@@ -1,0 +1,18 @@
+# This container is for running ksonnet within Kubernetes
+FROM ubuntu:18.04
+
+ENV KUBECTL_VERSION v1.11.1
+ENV KSONNET_VERSION 0.13.0
+
+RUN apt update \
+    && apt -y install bash curl \
+    && rm -rf /var/lib/apt/*
+
+RUN curl -fksSL https://github.com/ksonnet/ksonnet/releases/download/v${KSONNET_VERSION}/ks_${KSONNET_VERSION}_linux_amd64.tar.gz | tar --strip-components=1 -xvz -C /usr/bin/ ks_${KSONNET_VERSION}_linux_amd64/ks
+
+RUN curl -L  https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl  -o /usr/bin/kubectl \
+    && chmod +x /usr/bin/kubectl
+
+COPY ksonnet-entrypoint.sh /ksonnet-entrypoint.sh
+
+ENTRYPOINT ["/ksonnet-entrypoint.sh"]

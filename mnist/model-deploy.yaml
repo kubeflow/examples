@@ -3,7 +3,7 @@ kind: Workflow
 metadata:
   generateName: tf-workflow-
 spec:
-  entrypoint: deploy-model 
+  entrypoint: deploy-model
   # Parameters can be passed/overridden via the argo CLI.
   # To override the printed message, run `argo submit` with the -p option:
   # $ argo submit examples/arguments-parameters.yaml -p message="goodbye world"
@@ -24,11 +24,11 @@ spec:
               value: "{{steps.get-workflow-info.outputs.parameters.s3-model-url}}"
             - name: s3-exported-url
               value: "{{steps.get-workflow-info.outputs.parameters.s3-exported-url}}"
-            - name: aws-secret 
+            - name: aws-secret
               value: "{{steps.get-workflow-info.outputs.parameters.aws-secret}}"
             - name: namespace
               value: "{{steps.get-workflow-info.outputs.parameters.namespace}}"
-            - name: aws-region 
+            - name: aws-region
               value: "{{steps.get-workflow-info.outputs.parameters.aws-region}}"
             - name: s3-endpoint
               value: "{{steps.get-workflow-info.outputs.parameters.s3-endpoint}}"
@@ -38,7 +38,7 @@ spec:
               value: "{{steps.get-workflow-info.outputs.parameters.s3-verify-ssl}}"
             - name: job-name
               value: "{{steps.get-workflow-info.outputs.parameters.job-name}}"
-            - name: tf-serving-image 
+            - name: tf-serving-image
               value: "{{steps.get-workflow-info.outputs.parameters.tf-serving-image}}"
             - name: model-serving-servicetype
               value: "{{steps.get-workflow-info.outputs.parameters.model-serving-servicetype}}"
@@ -115,7 +115,7 @@ spec:
       - name: model-serving-ks-tag
       - name: model-name
     script:
-      image: elsonrodriguez/ksonnet:0.10.1
+      image: siji/ksonnet:v0.13.0
       command: ["/ksonnet-entrypoint.sh"]
       source: |
         ks init my-model-server
