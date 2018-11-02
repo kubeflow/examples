@@ -34,19 +34,23 @@ class SimilarityTransformer(t2t_model.T2TModel):
       with tf.variable_scope('code_embedding'):
         code_embedding = self.encode(features, 'targets')
 
-      p = tf.nn.sigmoid(tf.matmul(string_embedding, code_embedding,
-                                  transpose_b=True))
+      string_embedding_norm = tf.nn.l2_normalize(string_embedding, axis=1)
+      code_embedding_norm = tf.nn.l2_normalize(code_embedding, axis=1)
 
-      labels = tf.eye(tf.shape(p)[0], dtype=tf.int32)
-      labels = tf.reshape(labels, [-1])
+      # All-vs-All cosine distance matrix, reshaped as row-major.
+      cosine_dist = 1.0 - tf.matmul(string_embedding_norm, code_embedding_norm,
+                                      transpose_b=True)
+      cosine_dist_flat = tf.reshape(cosine_dist, [-1, 1])
 
-      p = tf.reshape(p, [-1, 1])
-      logits = tf.concat([1.0 - p, p], axis=1)
-      labels = tf.one_hot(labels, 2)
+      # Positive samples on the diagonal, reshaped as row-major.
+      label_matrix = tf.eye(tf.shape(cosine_dist)[0], dtype=tf.int32)
+      label_matrix_flat = tf.reshape(label_matrix, [-1])
+
+      logits = tf.concat([1.0 - cosine_dist_flat, cosine_dist_flat], axis=1)
+      labels = tf.one_hot(label_matrix_flat, 2)
 
       loss = tf.nn.sigmoid_cross_entropy_with_logits(labels=labels,
                                                      logits=logits)
-
       result = string_embedding
       return result, {'training': loss}
 
@@ -75,6 +79,7 @@ class SimilarityTransformer(t2t_model.T2TModel):
     is_embed_code = tf.reduce_max(embed_code_feature)
     result = tf.cond(is_embed_code > 0, embed_code, embed_string)
 
+    result = tf.nn.l2_normalize(result)
     return result
 
   def encode(self, features, input_key):
@@ -99,6 +104,5 @@ class SimilarityTransformer(t2t_model.T2TModel):
 
   def infer(self, features=None, **kwargs):
     del kwargs
-
     predictions, _ = self(features)
     return predictions
