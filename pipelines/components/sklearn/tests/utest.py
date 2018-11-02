@@ -49,8 +49,8 @@ class TestSKLearnRunner(unittest.TestCase):
 
 
   def test_end_to_end(self):
-    assert os.path.exists(self.train_file)
-    assert os.path.exists(self.test_file)
+    self.assertTrue(os.path.exists(self.train_file))
+    self.assertTrue(os.path.exists(self.test_file))
     dir_path = os.path.dirname(os.path.realpath(__file__))
     command = [
       'python',
@@ -68,17 +68,27 @@ class TestSKLearnRunner(unittest.TestCase):
     ]
 
     output = str(subprocess.check_output(command).strip())
+    self.assertTrue('.yaml' in output)
     report_name = output[output.find(' '):].strip(" '")
     report_file = os.path.join(self.test_directory, report_name)
 
-    assert os.path.exists(report_file)
+    self.assertTrue(os.path.exists(report_file))
     with open(report_file, 'r') as rf:
       report = yaml.load(rf)
+      self.assertTrue('training_samples' in report)
+      self.assertTrue('hyperparameters' in report)
+      self.assertTrue('training_data_path' in report)
+      self.assertTrue('test_data_path' in report)
+      self.assertTrue('training_time' in report)
+      self.assertTrue('model_name' in report)
+      self.assertTrue('test_samples' in report)
+      self.assertTrue('test_score' in report)
+
       model_name = report['model_name']
       model_file = os.path.join(self.test_directory, model_name)
-      assert os.path.exists(model_file)
+      self.assertTrue(os.path.exists(model_file))
       with open(model_file, 'rb') as mf:
         model = pickle.load(mf)
         test_df = pd.read_csv(self.test_file, header=None)
         del test_df[0]
-        assert len(test_df) == len(model.predict(test_df))
+        self.assertEqual(len(test_df), len(model.predict(test_df)))

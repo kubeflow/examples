@@ -58,7 +58,8 @@ ESTIMATORS = {
 def get_value(value):
   try:
     f_value = float(value)
-    return int(f_value) if int(f_value) == f_value else f_value
+    i_value = int(f_value)
+    return i_value if i_value == f_value else f_value
   except ValueError:
     pass
   return value
@@ -150,7 +151,7 @@ if __name__ == '__main__':
   parser.add_argument(
     '--test_data_path',
     help='The path where the tests data is stored.\n' +
-        'It can be the path to a local file, or a file in a GCS bucket.\n' +
+         'It can be the path to a local file, or a file in a GCS bucket.\n' +
          'The expected input is a csv file with no header, ' +
          'and features have the same order as the training data')
 
@@ -159,9 +160,10 @@ if __name__ == '__main__':
     help='The path where the training related file will be stored.',
     required=True)
 
-  parser.add_argument('--with-header',
+  parser.add_argument(
+    '--with-header',
     help='Indicates that the train and test datasets have headers.\n' +
-    'By default, it is assumed that the input files have no headers.',
+         'By default, it is assumed that the input files have no headers.',
     dest='header',
     action='store_true')
 
