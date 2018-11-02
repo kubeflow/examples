@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Mnist Digit reader</title>
+  <!-- Latest Bootstrap CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="static/css/styles.css" />
+
+  <!-- fabric.js library -->
+  <script type='text/javascript' src='http://cdnjs.cloudflare.com/ajax/libs/fabric.js/1.4.0/fabric.min.js'></script>
+
+  <!-- Going to use JQuery so its good to have library locally -->
+  <script type='text/javascript' src="static/js/jquery-3.2.1.min.js"></script>
+  <script type='text/javascript'>
+      var canvas;
+      var image;
+      var bThick = 20;
+      var cColour = '#FFFFFF'; // #black
+
+      //Initialize  fabric
+      function initCanvas(){
+          canvas = new fabric.Canvas('canvasBox');
+          canvas.isDrawingMode = true;
+          canvas.freeDrawingBrush.width = bThick;
+          canvas.freeDrawingBrush.color = cColour;
+          canvas.backgroundColor = '#000000';
+      }
+
+      window.onload = function(){
+          initCanvas();
+          // submit button
+          var btnsub = document.getElementById('btnSubmit');
+          btnsub.addEventListener('click', handleImage());
+      };
+
+      //reset canvas
+      function reset() {
+          canvas.clear();
+          $('#guess').text('');
+      }
+
+      function handleImage(){
+          var imgURL = canvas.toDataURL();
+          //Send Ajax call
+          $.ajax({
+              type: 'post',
+              url: '/',
+              data: {
+                  imageBase64 : imgURL
+              },
+
+              success: function(data){
+                  $('#guess').text(data.guess);
+              }
+          });
+      }
+  </script>
+</head>
+<!--end of head -->
+<body>
+
+    <div class="container">
+      <div class="header clearfix">
+        <h3 class="text-muted">Mnist Digit Reader</h3>
+      </div>
+
+      <div class="jumbotron">
+         <div class="col-lg-6">
+             <canvas id="canvasBox"position="relative" width="250" height="250"></canvas>
+         </div>
+         <div class="col-lg-6">
+             <button id="btnSubmit" class="btn btn-primary" onclick="handleImage()">Submit</button>
+             <button class="btn btn-primary col-xs-offset-1" onclick="reset()">Reset</button>
+         </div>
+
+         <div class="col-xs-4">
+           <div>
+             <h3>The Computer Says</h3>
+             <h1 id="guess"></h1>
+           </div>
+         </div>
+
+      <div class="row marketing">
+      </div>
+
+    </div> <!-- /container -->
+</body>
+</html>

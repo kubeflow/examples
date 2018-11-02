@@ -1,0 +1,26 @@
+# This container is for running ksonnet within Kubernetes
+FROM ubuntu:18.04
+
+ENV KUBECTL_VERSION v1.11.1
+ENV KSONNET_VERSION 0.13.0
+
+RUN apt update \
+    && apt -y install bash curl unzip \
+    && rm -rf /var/lib/apt/*
+
+RUN curl -fksSL https://github.com/ksonnet/ksonnet/releases/download/v${KSONNET_VERSION}/ks_${KSONNET_VERSION}_linux_amd64.tar.gz | tar --strip-components=1 -xvz -C /usr/bin/ ks_${KSONNET_VERSION}_linux_amd64/ks
+
+RUN curl -L  https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl  -o /usr/bin/kubectl \
+    && chmod +x /usr/bin/kubectl
+
+# Pre-download the tf-serving to get rid of github api limit
+RUN curl -fksSL https://github.com/kubeflow/kubeflow/archive/1f474f304163de6bf944d18d663fd22e3b319481.zip -o kubeflow.zip \
+    && unzip kubeflow.zip \
+    && mkdir -p /ks-registry/kubeflow \
+    && mv kubeflow-1f474f304163de6bf944d18d663fd22e3b319481/kubeflow/registry.yaml /ks-registry/kubeflow/ \
+    && mv kubeflow-1f474f304163de6bf944d18d663fd22e3b319481/kubeflow/tf-serving /ks-registry/kubeflow/ \
+    && rm -rf kubeflow.zip kubeflow-1f474f304163de6bf944d18d663fd22e3b319481
+
+COPY ksonnet-entrypoint.sh /ksonnet-entrypoint.sh
+
+ENTRYPOINT ["/ksonnet-entrypoint.sh"]
