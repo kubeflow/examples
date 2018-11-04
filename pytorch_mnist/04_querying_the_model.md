@@ -6,7 +6,7 @@ In this section, you will setup a web interface that can interact with a trained
 The web UI uses a Flask server to host the HTML/CSS/JavaScript files for the web page.
 The Python program, mnist_client.py, contains a function that interacts directly with the prediction GRPC API exposed by our model server.
 
-The following steps describe how to deploy the docker image in your Kubeflow cluster., the `web-ui` directory also contains a Dockerfile to build the application into a container image.
+The following steps describe how to deploy the docker image in your Kubeflow cluster, the `web-ui` directory also contains a Dockerfile to build the application into a container image.
 
 ## Prerequisites
 
