@@ -12,11 +12,6 @@ TAG=$3
 CONTEXT_DIR=$(dirname "$DOCKERFILE")
 PROJECT="${GCP_PROJECT}"
 
-# Wait for the Docker daemon to be available.
-until docker ps
-do sleep 3
-done
-
 gcloud auth activate-service-account --key-file=${GOOGLE_APPLICATION_CREDENTIALS}
 
 cd $CONTEXT_DIR
