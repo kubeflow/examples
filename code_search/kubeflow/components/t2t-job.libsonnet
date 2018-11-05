@@ -1,14 +1,6 @@
 local baseParams = std.extVar("__ksonnet/params").components["t2t-job"];
 
-{
-  getDatagenCmd(params)::
-    [
-      "/usr/local/sbin/t2t-entrypoint",
-      "t2t-datagen",
-      "--problem=" + params.problem,
-      "--data_dir=" + params.dataDir,
-    ],
-
+{  
   getExporterCmd(params)::
     [
       "/usr/local/sbin/t2t-entrypoint",
@@ -104,7 +96,6 @@ local baseParams = std.extVar("__ksonnet/params").components["t2t-job"];
 
     local cmd = $.getTrainerCmd(params),
     local workerCmd = if params.jobType == "exporter" then $.getExporterCmd(params)
-    else if params.jobType == "datagen" then $.getDatagenCmd(params)
     else cmd.worker,
 
     job:: {
