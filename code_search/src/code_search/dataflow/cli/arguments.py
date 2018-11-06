@@ -32,6 +32,17 @@ def add_parser_arguments(parser):
   additional_args_parser.add_argument('--wait_until_finish', action='store_true',
                       help='Wait until preprocess job is finished')
 
+  additional_args_parser.add_argument('--github_files', default='',
+                    help=('If specified read the GitHub dataset '
+                          'from the specified json files. Each line of text '
+                          'should be a json record with two fields content and '
+                          'repo_path'))
+
+  additional_args_parser.add_argument('--github_table', default='',
+                      help=('If specified read the entire GitHub dataset '
+                            'specified as PROJECT:DATASET.TABLE. If not '
+                            'specified we run a query to filter the data.'))
+
   predict_args_parser = parser.add_argument_group('Batch Prediction Arguments')
   predict_args_parser.add_argument('--problem', metavar='', type=str,
                                    help='Name of the T2T problem')
