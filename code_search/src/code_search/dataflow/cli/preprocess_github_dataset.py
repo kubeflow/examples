@@ -1,10 +1,20 @@
-import apache_beam as beam
+import logging
+import json
 
+import apache_beam as beam
 import code_search.dataflow.cli.arguments as arguments
 import code_search.dataflow.transforms.github_bigquery as gh_bq
 import code_search.dataflow.transforms.github_dataset as github_dataset
 import code_search.dataflow.do_fns.dict_to_csv as dict_to_csv
 
+class JsonCoder(object):
+  """A JSON coder interpreting each line as a JSON string."""
+
+  def encode(self, x): # pylint: disable=no-self-use
+    return json.dumps(x)
+
+  def decode(self, x): # pylint: disable=no-self-use
+    return json.loads(x)
 
 def preprocess_github_dataset(argv=None):
   """Apache Beam pipeline for pre-processing Github dataset.
@@ -33,8 +43,22 @@ def preprocess_github_dataset(argv=None):
         args.project, dataset=args.target_dataset)
     )
   else:
-    token_pairs = (pipeline
-      | "Read Github Dataset" >> gh_bq.ReadGithubDataset(args.project)
+    if args.github_files:
+      logging.info("Will read the GitHub data from %s", args.github_files)
+      input_records = (pipeline
+            | "Read Github Dataset" >>  beam.io.ReadFromText(args.github_files,
+                                                             coder=JsonCoder()))
+    elif args.github_table:
+      logging.info("Will read the entire table %s", args.github_table)
+      source = beam.io.BigQuerySource(table=args.github_table)
+      input_records = (pipeline
+            | "Read Github Dataset" >> beam.io.Read(source))
+    else:
+      # Use only a query of the data.
+      logging.info("Reading data using a query.")
+      input_records = (pipeline
+        | "Read Github Dataset" >> gh_bq.ReadGithubDataset(args.project))
+    token_pairs = (input_records
       | "Transform Github Dataset" >> github_dataset.TransformGithubDataset(args.project,
                                                                             args.target_dataset)
     )
@@ -48,9 +72,17 @@ def preprocess_github_dataset(argv=None):
   )
 
   result = pipeline.run()
+  logging.info("Submitted Dataflow job: %s", result)
   if args.wait_until_finish:
     result.wait_until_finish()
 
+  return result
 
 if __name__ == '__main__':
+  logging.basicConfig(level=logging.INFO,
+                      format=('%(levelname)s|%(asctime)s'
+                              '|%(pathname)s|%(lineno)d| %(message)s'),
+                      datefmt='%Y-%m-%dT%H:%M:%S',
+                      )
+  logging.getLogger().setLevel(logging.INFO)
   preprocess_github_dataset()

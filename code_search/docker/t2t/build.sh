@@ -35,6 +35,7 @@ docker build -f "${_SCRIPT_DIR}/Dockerfile" \
 
 # Push images to GCR Project if available
 if [[ ! -z "${PROJECT}" ]]; then
+  gcloud docker --authorize-only 
   docker push ${BUILD_IMAGE_TAG}
   docker push ${BUILD_IMAGE_TAG}-gpu
 fi

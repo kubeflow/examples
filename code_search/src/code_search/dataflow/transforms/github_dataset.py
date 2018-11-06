@@ -1,3 +1,5 @@
+import logging
+
 import apache_beam as beam
 
 import code_search.dataflow.do_fns.github_dataset as gh_do_fns
@@ -42,10 +44,14 @@ class TransformGithubDataset(beam.PTransform):
 
     pairs, tokenize_errors = tokenize_result.rows, tokenize_result.err
 
-    (tokenize_errors  # pylint: disable=expression-not-assigned
-     | "Failed Tokenization" >> gh_bq.WriteFailedTokenizedData(self.project, self.target_dataset,
-                                                               self.failed_tokenize_table)
-    )
+    if self.target_dataset:
+      (tokenize_errors  # pylint: disable=expression-not-assigned
+       | "Failed Tokenization" >> gh_bq.WriteFailedTokenizedData(self.project, self.target_dataset,
+                                                                 self.failed_tokenize_table)
+      )
+    else:
+      logging.info("No bigquery dataset provided; tokenization errors will "
+                   "not be saved.")
 
     flat_rows = (pairs
       | "Flatten Rows" >> beam.FlatMap(lambda x: x)
@@ -53,9 +59,13 @@ class TransformGithubDataset(beam.PTransform):
         lambda row: len(row['docstring_tokens'].split(' ')) > self.min_docstring_tokens)
     )
 
-    (flat_rows  # pylint: disable=expression-not-assigned
-      | "Save Tokens" >> gh_bq.WriteTokenizedData(self.project, self.target_dataset,
-                                                  self.pairs_table)
-    )
-
+    if self.target_dataset:
+      logging.info("Writing results to BigQuery %s:%s.%s",
+                   self.project, self.target_dataset, self.pairs_table)
+      (flat_rows  # pylint: disable=expression-not-assigned
+        | "Save Tokens" >> gh_bq.WriteTokenizedData(self.project, self.target_dataset,
+                                                    self.pairs_table)
+      )
+    else:
+      logging.info("target_dataset not set will not write to BigQuery")
     return flat_rows
