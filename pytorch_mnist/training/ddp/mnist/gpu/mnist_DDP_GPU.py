@@ -15,6 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 '''
 import datetime
+import logging
 import os
 import sys
 from math import ceil
@@ -73,10 +74,10 @@ class DistributedDataParallel(Module):
 
   def forward(self, *inputs, **kwargs):
     if self.first_call:
-      print("first broadcast start")
+      logging.info("first broadcast start")
       self.weight_broadcast()
       self.first_call = False
-      print("first broadcast done")
+      logging.info("first broadcast done")
     self.needs_reduction = True
     return self.module(*inputs, **kwargs)
 
@@ -176,7 +177,7 @@ def run(rank, size):
   model_dir = "/mnt/kubeflow-gcfs/pytorch/model"
 
   num_batches = ceil(len(train_set.dataset) / float(bsz))
-  print("num_batches = ", num_batches)
+  logging.info("num_batches = ", num_batches)
   time_start = datetime.datetime.now()
   for epoch in range(3):
     epoch_loss = 0.0
@@ -189,7 +190,7 @@ def run(rank, size):
       loss.backward()
       average_gradients(model)
       optimizer.step()
-    print('Epoch {} Loss {:.6f} Global batch size {} on {} ranks'.format(
+    logging.info('Epoch {} Loss {:.6f} Global batch size {} on {} ranks'.format(
       epoch, epoch_loss / num_batches, gbatch_size, dist.get_world_size()))
   # Ensure only the master node saves the model
   main_proc = rank == 0
@@ -197,9 +198,9 @@ def run(rank, size):
     if not os.path.exists(model_dir):
       os.makedirs(model_dir)
     model_path = model_dir + "/model.dat"
-    print("Saving model in {}".format(model_path))
+    logging.info("Saving model in {}".format(model_path))
     torch.save(model.module.state_dict(), model_path)
-  print("GPU training time=", datetime.datetime.now() - time_start)
+  logging.info("GPU training time=", datetime.datetime.now() - time_start)
 
 
 def init_print(rank, size, debug_print=True):
@@ -228,12 +229,13 @@ def init_print(rank, size, debug_print=True):
 
 
 if __name__ == "__main__":
-  print("\n======= CUDA INFO =======")
-  print("CUDA Availibility:", torch.cuda.is_available())
+  logging.getLogger().setLevel(logging.INFO)
+  logging.info("\n======= CUDA INFO =======")
+  logging.info("CUDA Availibility:", torch.cuda.is_available())
   if (torch.cuda.is_available()):
-    print("CUDA Device Name:", torch.cuda.get_device_name(0))
-    print("CUDA Version:", torch.version.cuda)
-  print("=========================\n")
+    logging.info("CUDA Device Name:", torch.cuda.get_device_name(0))
+    logging.info("CUDA Version:", torch.version.cuda)
+  logging.info("=========================\n")
   dist.init_process_group(backend='mpi')
   size = dist.get_world_size()
   rank = dist.get_rank()

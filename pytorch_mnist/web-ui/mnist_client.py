@@ -17,6 +17,7 @@ limitations under the License.
 
 from __future__ import print_function
 
+import logging
 import grpc
 import numpy as np
 from PIL import Image
@@ -53,14 +54,14 @@ def get_prediction(image, server_host='127.0.0.1', server_port=8080,
 
     # retrieve results
     request = prediction_pb2.SeldonMessage(data=datadef)
-    print("connecting to:%s:%i" % (server_host, server_port))
+    logging.info("connecting to:%s:%i", server_host, server_port)
     channel = grpc.insecure_channel(server_host + ":" + str(server_port))
     stub = prediction_pb2_grpc.SeldonStub(channel)
     metadata = [('seldon', deployment_name)]
     response = stub.Predict(request=request, metadata=metadata)
   except IOError as e:
     # server connection failed
-    print("Could Not Connect to Server: " + str(e))
+    logging.error("Could Not Connect to Server: %s", str(e))
   return response.data.tensor.values
 
 

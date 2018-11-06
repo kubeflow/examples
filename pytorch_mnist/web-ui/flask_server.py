@@ -16,6 +16,7 @@ limitations under the License.
 
 import os
 import uuid
+import logging
 from threading import Timer
 
 from flask import Flask, render_template, request
@@ -32,7 +33,7 @@ def main():
   addr_arg = request.args.get('addr', 'localhost')
   port_arg = request.args.get('port', '8080')
   args = {"name": name_arg, "addr": addr_arg, "port": port_arg}
-  print(args)
+  logging.info(args)
 
   output = None
   connection = {"text": "", "success": False}
@@ -72,10 +73,11 @@ def remove_resource(path):
   """
   try:
     os.remove(path)
-    print("removed " + path)
+    logging.info("removed %s", path)
   except OSError:
-    print("no file at " + path)
+    logging.error("no file at %s", path)
 
 
 if __name__ == '__main__':
+  logging.getLogger().setLevel(logging.INFO)
   app.run(debug=True, host='0.0.0.0')

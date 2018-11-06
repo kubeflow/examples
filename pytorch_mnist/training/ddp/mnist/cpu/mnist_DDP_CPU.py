@@ -15,6 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 '''
 import datetime
+import logging
 import os
 import sys
 from math import ceil
@@ -73,10 +74,10 @@ class DistributedDataParallel(Module):
 
   def forward(self, *inputs, **kwargs):
     if self.first_call:
-      print("first broadcast start")
+      logging.info("first broadcast start")
       self.weight_broadcast()
       self.first_call = False
-      print("first broadcast done")
+      logging.info("first broadcast done")
       self.needs_reduction = True
     return self.module(*inputs, **kwargs)
 
@@ -172,7 +173,7 @@ def run(rank, size):
   model = DistributedDataParallel(model)
   optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.5)
   num_batches = ceil(len(train_set.dataset) / float(bsz))
-  print("num_batches = ", num_batches)
+  logging.info("num_batches = ", num_batches)
   time_start = datetime.datetime.now()
   for epoch in range(3):
     epoch_loss = 0.0
@@ -185,9 +186,9 @@ def run(rank, size):
       loss.backward()
       average_gradients(model)
       optimizer.step()
-    print('Epoch {} Loss {:.6f} Global batch size {} on {} ranks'.format(
+    logging.info('Epoch {} Loss {:.6f} Global batch size {} on {} ranks'.format(
       epoch, epoch_loss / num_batches, gbatch_size, dist.get_world_size()))
-  print("CPU training time=", datetime.datetime.now() - time_start)
+  logging.info("CPU training time=", datetime.datetime.now() - time_start)
 
 
 def init_print(rank, size, debug_print=True):
@@ -216,6 +217,7 @@ def init_print(rank, size, debug_print=True):
 
 
 if __name__ == "__main__":
+  logging.getLogger().setLevel(logging.INFO)
   dist.init_process_group(backend='mpi')
   size = dist.get_world_size()
   rank = dist.get_rank()
