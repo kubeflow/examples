@@ -3,7 +3,7 @@
 import logging
 import apache_beam as beam
 from apache_beam import pvalue
-
+import code_search.dataflow.utils as utils
 
 class SplitRepoPath(beam.DoFn):
   """Update element keys to separate repo path and file path.
@@ -110,8 +110,6 @@ class TokenizeFunctionDocstrings(beam.DoFn):
       ]
     """
     try:
-      import code_search.dataflow.utils as utils
-
       content_blob = element.pop(self.content_key)
       pairs = utils.get_function_docstring_pairs(content_blob)
 
@@ -121,6 +119,9 @@ class TokenizeFunctionDocstrings(beam.DoFn):
       ]
 
       yield result
+    # TODO(jlewi): Can we narrow down the scope covered by swallowing
+    # errors? It should really only be the AST parsing code so can
+    # we move try/catch into get_function_docstring_pairs?
     except Exception as e:  # pylint: disable=broad-except
       logging.warning('Tokenization failed, %s', e.message)
       yield pvalue.TaggedOutput('err', element)
