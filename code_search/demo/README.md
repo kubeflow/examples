@@ -24,6 +24,15 @@ jlewi@ ran experiments that produced the following results
 | Preprocessed data|  gs://code-search-demo/20181104/data/func-doc-pairs-00???-of-00100.csv |  This is the output of the Dataflow preprocessing job
 | Training data | gs://code-search-demo/20181104/data/kf_github_function_docstring-train-00???-of-00100 | TFRecord files produced by running T2T datagen
 
+## Performance
+
+| hparams | Resources | Steps/sec
+|----------|----------|---------------------
+| transformer_tiny | 1 CPU worker|  ~1.8 global step /sec
+| transformer_base_single_gpu | 1 GPU worker (K80) | ~3.22611 global step /sec
+| transformer_base | 1 chief with K80, 8 workers with 1 K80, sync training| ~ 0.0588723 global step /sec
+| transformer_base | 1 chief (no GPU), 8 workers (no GPU), sync training| ~ 0.707014 global step /sec
+
 
 
 
