@@ -1,18 +1,19 @@
+import logging
+import json
+
 import apache_beam as beam
 import code_search.dataflow.cli.arguments as arguments
 import code_search.dataflow.transforms.github_bigquery as gh_bq
 import code_search.dataflow.transforms.github_dataset as github_dataset
 import code_search.dataflow.do_fns.dict_to_csv as dict_to_csv
-import logging
-import json
 
 class JsonCoder(object):
   """A JSON coder interpreting each line as a JSON string."""
 
-  def encode(self, x):
+  def encode(self, x): # pylint: disable=no-self-use
     return json.dumps(x)
 
-  def decode(self, x):
+  def decode(self, x): # pylint: disable=no-self-use
     return json.loads(x)
 
 def preprocess_github_dataset(argv=None):

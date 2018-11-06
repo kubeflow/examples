@@ -1,8 +1,10 @@
+import sys
+
 import ast
 import astor
+import logging
 import nltk.tokenize as tokenize
 import spacy
-import sys
 
 en = spacy.load('en')
 
@@ -11,8 +13,7 @@ en = spacy.load('en')
 def _maybe_decode(s):
   if sys.version_info[0] < 3:
     return s.decode("utf-8")
-  else:
-    return s
+  return s
 
 def tokenize_docstring(text):
   """Tokenize docstrings.
@@ -89,5 +90,5 @@ def get_function_docstring_pairs(blob):
   except (AssertionError, MemoryError, SyntaxError,
           UnicodeEncodeError) as e:
     logging.error("Exception occurred parsing code: %s", e)
-    pass
+
   return pairs
