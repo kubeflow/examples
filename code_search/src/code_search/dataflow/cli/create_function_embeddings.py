@@ -45,7 +45,7 @@ def create_function_embeddings(argv=None):
   )
 
   result = pipeline.run()
-  if args.runner == 'DirectRunner':
+  if args.wait_until_finish:
     result.wait_until_finish()
 
 
