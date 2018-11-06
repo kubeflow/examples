@@ -1,8 +1,8 @@
+import logging
 import sys
 
 import ast
 import astor
-import logging
 import nltk.tokenize as tokenize
 import spacy
 
