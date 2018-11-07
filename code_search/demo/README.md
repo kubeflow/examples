@@ -20,7 +20,7 @@ We are using the following project
 jlewi@ ran experiments that produced the following results
 
 | What | location | Description
------------------------------------------
+|------|----------|-------------------------
 | Preprocessed data|  gs://code-search-demo/20181104/data/func-doc-pairs-00???-of-00100.csv |  This is the output of the Dataflow preprocessing job
 | Training data | gs://code-search-demo/20181104/data/kf_github_function_docstring-train-00???-of-00100 | TFRecord files produced by running T2T datagen
 
