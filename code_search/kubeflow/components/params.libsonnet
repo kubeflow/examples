@@ -35,6 +35,7 @@
     "t2t-code-search-datagen": {
       jobType: "datagen",
       name: "t2t-code-search-datagen",
+      image: $.components["t2t-job"].image,
       problem: $.components["t2t-code-search"].problem,
       dataDir: $.components["t2t-code-search"].workingDir + "/data",
     },
