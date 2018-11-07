@@ -15,10 +15,13 @@ We use the public model server image `gcr.io/kubeflow-examples/mnistddpserving`
 
 ## Deploying the model to your Kubeflow cluster
 
-As we have seldon core deployed from step 01, you can deploy the model once trained using the below SeldonDeployment manifest.
+As we have seldon core deployed from step 01, you can deploy the model once trained using the pre-defined ksonnet component, 
+we need to setup our own environment `${KF_ENV}`, e.g., 'default'.
 
 ```bash
-kubectl create -f serving/k8s_serving/serving_model.json
+cd ks_app
+ks env add ${KF_ENV}
+ks apply ${KF_ENV} -c web-ui
 ```
 
 ## Testing model server
