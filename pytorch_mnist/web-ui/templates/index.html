@@ -40,24 +40,6 @@ limitations under the License.
                <div class="mdl-card mdl-cell mdl-cell--12-col">
                   <div class="mdl-card__supporting-text">
                      <h4>MNIST Model Server</h4>
-                     <form action="/">
-                        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width:250px">
-                           <input class="mdl-textfield__input" type="text" id="server-name" name="name" value="{{ args.name }}">
-                           <label class="mdl-textfield__label" for="sample1">Server Name</label>
-                        </div>
-                        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width:250px">
-                           <input class="mdl-textfield__input" type="text" id="server-address" name="addr" value="{{ args.addr }}">
-                           <label class="mdl-textfield__label" for="sample1">Server Address</label>
-                        </div>
-                        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width:100px">
-                           <input class="mdl-textfield__input" type="text" name="port"
-                              pattern="^([0-9]{1,4}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$" 
-                              id="server-port" value="{{ args.port  }}">
-                           <label class="mdl-textfield__label" for="sample2">Port</label>
-                           <span class="mdl-textfield__error">Input is not a valid port</span>
-                        </div>
-                        <button class="mdl-button mdl-js-button">Connect</button>
-                     </form>
                      {% if connection.success %}
                      <h6><font color="#388E3C">✓ {{ connection.text }}</font></h6>
                      {% else %}

@@ -5,7 +5,19 @@ local params = std.extVar("__ksonnet/params").components["web-ui"];
       "apiVersion": "v1",
       "kind": "Service",
       "metadata": {
-         "name": params.name
+         "name": params.name,
+         "annotations": {
+                   "getambassador.io/config":
+                     std.join("\n", [
+                       "---",
+                       "apiVersion: ambassador/v0",
+                       "kind:  Mapping",
+                       "name: web-ui",
+                       "prefix: /pytorch-ui/",
+                       "timeout_ms: 10000",
+                       "service: web-ui",
+                     ]),
+                 },  //annotations
       },
       "spec": {
          "ports": [

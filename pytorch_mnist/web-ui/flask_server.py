@@ -30,8 +30,8 @@ app = Flask(__name__)
 def main():
   # get url parameters for HTML template
   name_arg = request.args.get('name', 'mnist-classifier')
-  addr_arg = request.args.get('addr', 'localhost')
-  port_arg = request.args.get('port', '8080')
+  addr_arg = request.args.get('addr', 'ambassador')
+  port_arg = request.args.get('port', '80')
   args = {"name": name_arg, "addr": addr_arg, "port": port_arg}
   logging.info(args)
 

@@ -15,7 +15,13 @@
       type: "ClusterIP",
     },
     serving_model: {
-
+        image: "gcr.io/kubeflow-examples/mnistddpserving",
+        name : "mnist-classifier",
+        mountPath: "/mnt/kubeflow-gcfs",
+        replicas: 1,
+        endpointType: "GRPC",
+        modelName: "pytorch-model",
+        modelType: "MODEL"
     },
   },
 }
