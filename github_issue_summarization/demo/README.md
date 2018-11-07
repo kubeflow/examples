@@ -83,7 +83,7 @@ Here are the instructions for setting up the demo.
 
 ### Training and Deploying the model.
 
-We use the ksonnet app in **github/kubeflow/examples/github_issue_summarization/ks-kubeflow**
+We use the ksonnet app in [github/kubeflow/examples/github_issue_summarization/ks-kubeflow](https://github.com/kubeflow/examples/tree/master/github_issue_summarization/ks-kubeflow)
 
 The current environment is
 

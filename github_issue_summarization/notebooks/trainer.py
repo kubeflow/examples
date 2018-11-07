@@ -12,8 +12,6 @@ import tensorflow as tf
 # We'd like to switch to importing keras from TensorFlow in order to support
 # TF.Estimator but using tensorflow.keras we can't train a model either using
 # Keras' fit function or using TF.Estimator.
-# from tensorflow import keras
-# from tensorflow.keras.callbacks import CSVLogger, ModelCheckpoint
 import keras
 from keras.callbacks import CSVLogger, ModelCheckpoint
 
@@ -33,6 +31,7 @@ class Trainer(object): #pylint: disable=too-many-instance-attributes
 
     self.output_dir = output_dir
 
+    # Pull out the information needed for TF.Estimator.
     self.tf_config = os.environ.get('TF_CONFIG', '{}')
     self.tf_config_json = json.loads(self.tf_config)
 
@@ -77,9 +76,8 @@ class Trainer(object): #pylint: disable=too-many-instance-attributes
     # TODO(jlewi): The test data isn't being used for anything. How can
     # we configure evaluation?
     if num_samples:
-      traindf, self.test_df = train_test_split(pd.read_csv(data_file).sample(
-        n=num_samples),
-                                               test_size=.10)
+      sampled = pd.read_csv(data_file).sample(n=num_samples)
+      traindf, self.test_df = train_test_split(sampled, test_size=.10)
     else:
       traindf, self.test_df = train_test_split(pd.read_csv(data_file), test_size=.10)
 
