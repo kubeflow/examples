@@ -36,6 +36,8 @@ Here are the instructions for setting up the demo.
 
 1. Follow the [instructions](https://www.kubeflow.org/docs/guides/gke/cloud-filestore/) to Setup an NFS share
 
+   * This is needed to do distributed training with the TF estimator example
+
 1. Create static IP for serving **gh-demo.kubeflow.org**
 
    ```
@@ -77,4 +79,53 @@ Here are the instructions for setting up the demo.
    cd gh-app
    ks env add gh-public --namespace=gh-public
    ks apply gh-public
+   ```
+
+### Training and Deploying the model.
+
+We use the ksonnet app in [github/kubeflow/examples/github_issue_summarization/ks-kubeflow](https://github.com/kubeflow/examples/tree/master/github_issue_summarization/ks-kubeflow)
+
+The current environment is
+
+```
+export ENV=gh-demo-1003
+```
+
+Set a bucket for the job output
+```
+DAY=$(date +%Y%m%d)
+ks param set --env=${ENV} tfjob-v1alpha2 output_model_gcs_bucket kubecon-gh-demo
+ks param set --env=${ENV} tfjob-v1alpha2 output_model_gcs_path gh-demo/${DAY}/output
+```
+
+Run the job
+
+```
+ks apply ${ENV} -c tfjob-v1alpha2
+```
+
+
+#### Using TF Estimator with Keras
+
+1. Copy the data to the GCFS mount by launching a notebook and then running the following commands
+
+   ```
+   !mkdir -p /mnt/kubeflow-gcfs/gh-demo/data
+   !gcloud auth activate-service-account --key-file=${GOOGLE_APPLICATION_CREDENTIALS}
+   !gsutil cp gs://kubeflow-examples/github-issue-summarization-data/github-issues.zip /mnt/kubeflow-gcfs/gh-demo/data
+   !unzip /mnt/kubeflow-gcfs/gh-demo/data/github-issues.zip
+   !cp github_issues.csv /mnt/kubeflow-gcfs/gh-demo/data/
+   ```
+
+   * TODO(jlewi): Can we modify the existing job that downloads data to a PVC to do this?
+
+1. Run the estimator job
+
+   ```
+   ks apply ${ENV} -c tfjob-estimator
+   ```
+1. Run TensorBoard
+
+   ```
+   ks apply ${ENV} -c tensorboard-pvc-tb
    ```

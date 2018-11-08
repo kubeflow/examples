@@ -1,5 +1,10 @@
 # Distributed training using Estimator
 
+Distributed training with keras currently doesn't work; see
+
+* kubeflow/examples#280
+* kubeflow/examples#96
+
 Requires Tensorflow 1.9 or later.
 Requires [StorageClass](https://kubernetes.io/docs/concepts/storage/storage-classes/) capable of creating ReadWriteMany persistent volumes.
 

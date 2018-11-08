@@ -394,7 +394,8 @@ class Seq2Seq_Inference(object):
   def set_recsys_annoyobj(self, annoyobj):
     self.nn = annoyobj
 
-  def evaluate_model(self, holdout_bodies, holdout_titles):
+  def evaluate_model(self, holdout_bodies, holdout_titles, max_len_title=None,
+                     use_tqdm=False):
     """
     Method for calculating BLEU Score.
 
@@ -404,6 +405,13 @@ class Seq2Seq_Inference(object):
       These are the issue bodies that we want to summarize
     holdout_titles : List[str]
       This is the ground truth we are trying to predict --> issue titles
+
+    max_len_title: int (optional)
+        The maximum length of the title the model will generate
+
+    use_tqdm: bool(False)
+      If true and running in a notebook this uses the tqdm library to
+      print a status bar.
 
     Returns
     -------
@@ -417,8 +425,13 @@ class Seq2Seq_Inference(object):
 
     logging.warning('Generating predictions.')
     # step over the whole set TODO: parallelize this
-    for i in tqdm_notebook(range(num_examples)):
-      _, yhat = self.generate_issue_title(holdout_bodies[i])
+    example_range = range(num_examples)
+    if use_tqdm:
+      example_range = tqdm_notebook(example_range)
+
+    for i in example_range:
+      _, yhat = self.generate_issue_title(holdout_bodies[i],
+                                          max_len_title=max_len_title)
 
       actual.append(self.pp_title.process_text([holdout_titles[i]])[0])
       predicted.append(self.pp_title.process_text([yhat])[0])
