@@ -111,5 +111,9 @@
       logDir: "gs://example/to/model/logdir",
       name: "tensorboard",
     },
+
+    "demo-tensorboard": {
+      image: "tensorflow/tensorflow:1.11.0",
+    },
   },
 }

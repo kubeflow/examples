@@ -24,6 +24,15 @@ jlewi@ ran experiments that produced the following results
 | Preprocessed data|  gs://code-search-demo/20181104/data/func-doc-pairs-00???-of-00100.csv |  This is the output of the Dataflow preprocessing job
 | Training data | gs://code-search-demo/20181104/data/kf_github_function_docstring-train-00???-of-00100 | TFRecord files produced by running T2T datagen
 
+
+### Models
+
+| hparams | Location 
+|---------| -------- 
+| transformer_tine | gs://code-search-demo/models/20181105-tinyparams/
+| transformer_base_single_gpu | gs://code-search-demo/models/20181105-single-gpu
+| transformer_base | gs://code-search-demo/models/20181107-dist-sync-gpu
+
 ## Performance
 
 | hparams | Resources | Steps/sec
