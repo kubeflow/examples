@@ -62,7 +62,7 @@ class DistributedDataParallel(Module):
             buf.copy_(synced)
 
     for param in list(self.module.parameters()):
-      def allreduce_hook():
+      def allreduce_hook(*unused):
         Variable._execution_engine.queue_callback(allreduce_params)
 
       if param.requires_grad:
@@ -78,7 +78,7 @@ class DistributedDataParallel(Module):
       self.weight_broadcast()
       self.first_call = False
       logging.info("first broadcast done")
-      self.needs_reduction = True
+    self.needs_reduction = True
     return self.module(*inputs, **kwargs)
 
 
@@ -160,25 +160,33 @@ def partition_dataset(rank):
 def average_gradients(model):
   """ Gradient averaging. """
   size = float(dist.get_world_size())
+  group = dist.new_group([0])
   for param in model.parameters():
-    dist.all_reduce(param.grad.data, op=dist.reduce_op.SUM, group=0)
+    dist.all_reduce(param.grad.data, op=dist.reduce_op.SUM, group=group)
     param.grad.data /= size
 
 
-def run(rank, size):
+def run(rank, size, modelpath, gpu):
   """ Distributed Synchronous SGD Example """
   torch.manual_seed(1234)
   train_set, bsz = partition_dataset(rank)
   model = Net()
+  if gpu:
+    model = model.cuda()
   model = DistributedDataParallel(model)
   optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.5)
+  model_dir = modelpath
+
   num_batches = ceil(len(train_set.dataset) / float(bsz))
   logging.info("num_batches = ", num_batches)
   time_start = datetime.datetime.now()
   for epoch in range(3):
     epoch_loss = 0.0
     for data, target in train_set:
-      data, target = Variable(data), Variable(target)
+      if gpu:
+        data, target = Variable(data).cuda(), Variable(target).cuda()
+      else:
+        data, target = Variable(data), Variable(target)
       optimizer.zero_grad()
       output = model(data)
       loss = F.nll_loss(output, target)
@@ -188,7 +196,21 @@ def run(rank, size):
       optimizer.step()
     logging.info('Epoch {} Loss {:.6f} Global batch size {} on {} ranks'.format(
       epoch, epoch_loss / num_batches, gbatch_size, dist.get_world_size()))
-  logging.info("CPU training time=", datetime.datetime.now() - time_start)
+  # Ensure only the master node saves the model
+  main_proc = rank == 0
+  if main_proc:
+    if not os.path.exists(model_dir):
+      os.makedirs(model_dir)
+    if gpu:
+      model_path = model_dir + "/model_gpu.dat"
+    else:
+      model_path = model_dir + "/model_cpu.dat"
+    logging.info("Saving model in {}".format(model_path))
+    torch.save(model.module.state_dict(), model_path)
+  if gpu:
+    logging.info("GPU training time=", datetime.datetime.now() - time_start)
+  else:
+    logging.info("CPU training time=", datetime.datetime.now() - time_start)
 
 
 def init_print(rank, size, debug_print=True):
@@ -217,9 +239,25 @@ def init_print(rank, size, debug_print=True):
 
 
 if __name__ == "__main__":
-  logging.getLogger().setLevel(logging.INFO)
+  import argparse
+
+  parser = argparse.ArgumentParser(description='Train Pytorch MNIST model using DDP')
+  parser.add_argument('--gpu', action='store_true',
+                      help='Use GPU and CUDA')
+  parser.set_defaults(gpu=False)
+  parser.add_argument('--modelpath', metavar='path', required=True,
+                      help='Path to model, e.g., /mnt/kubeflow-gcfs/pytorch/model')
+  args = parser.parse_args()
+  if args.gpu:
+    logging.getLogger().setLevel(logging.INFO)
+    logging.info("\n======= CUDA INFO =======")
+    logging.info("CUDA Availibility:", torch.cuda.is_available())
+    if (torch.cuda.is_available()):
+      logging.info("CUDA Device Name:", torch.cuda.get_device_name(0))
+      logging.info("CUDA Version:", torch.version.cuda)
+    logging.info("=========================\n")
   dist.init_process_group(backend='mpi')
   size = dist.get_world_size()
   rank = dist.get_rank()
   init_print(rank, size)
-  run(rank, size)
+  run(rank=rank, size=size, modelpath=args.modelpath, gpu=args.gpu)
