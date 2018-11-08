@@ -21,7 +21,7 @@ we need to setup our own environment `${KF_ENV}`, e.g., 'default'.
 ```bash
 cd ks_app
 ks env add ${KF_ENV}
-ks apply ${KF_ENV} -c web-ui
+ks apply ${KF_ENV} -c serving_model
 ```
 
 ## Testing model server
