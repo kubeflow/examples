@@ -1,16 +1,17 @@
-local params = import "../../components/params.libsonnet";
+local params = import '../../components/params.libsonnet';
+
 params + {
-  components +: {
+  components+: {
     // Insert component parameter overrides here. Ex:
     // guestbook +: {
-    //   name: "guestbook-dev",
-    //   replicas: params.global.replicas,
+    // name: "guestbook-dev",
+    // replicas: params.global.replicas,
     // },
-    "kubeflow-core" +: {
-      cloud: "gke",
+    "kubeflow-core"+: {
+      cloud: 'gke',
     },
-    ui +: {
-      github_token: "null",
+    ui+: {
+      github_token: 'null',
     },
   },
 }
