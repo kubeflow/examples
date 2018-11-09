@@ -18,12 +18,7 @@ cd $CONTEXT_DIR
 
 echo "GCP Project: "$PROJECT
 
-# Build CPU image
-echo "Building CPU image using gcloud build"
-gcloud builds submit --timeout=2h --machine-type=n1-highcpu-32 --tag=${IMAGE}:${TAG} --project=${PROJECT} cpu
-echo "Finished building CPU image"
-
 # Build GPU image
 echo "Building GPU image using gcloud build"
-gcloud builds submit --timeout=2h --machine-type=n1-highcpu-32 --tag=${IMAGE}:${TAG} --project=${PROJECT} gpu
+gcloud builds submit --timeout=2h --machine-type=n1-highcpu-32 --tag=${IMAGE}:${TAG} --project=${PROJECT} .
 echo "Finished building GPU image"
