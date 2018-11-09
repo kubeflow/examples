@@ -20,7 +20,7 @@
       eval_steps: 10,
       image: "gcr.io/kubeflow-examples/code-search:" + imageTag,
       imageGpu: "gcr.io/kubeflow-examples/code-search-gpu:" + imageTag,
-      dataflowImage: "gcr.io/kubeflow-examples/code-search-dataflow:v20181106-v0.2-76-g611636c-dirty-860631",
+      dataflowImage: "gcr.io/kubeflow-examples/code-search-dataflow:v20181109-dc79384",
 
       imagePullSecrets: [],
       // TODO(jlewi): dataDir doesn't seem to be used.
@@ -103,6 +103,20 @@
       workerMachineType: "n1-highcpu-32",
       // This should be the GitHub table containing the paths and contents.
       githubTable: "",
+      numWorkers: 5,
+      project: "",
+    },
+    "submit-code-embeddings-job": {
+      name: "submit-code-embeddings-job",
+      image: $.components["t2t-job"].dataflowImage,
+      // Big query table where results will be written.
+      targetDataset: "code_search",
+      workingDir: $.components["t2t-code-search"].workingDir,
+      dataDir: self.workingDir + "/data",
+      // Directory where the model is stored.
+      modelDir: "",
+      jobName: "submit-code-embeddings-job",
+      workerMachineType: "n1-highcpu-32",
       numWorkers: 5,
       project: "",
     },

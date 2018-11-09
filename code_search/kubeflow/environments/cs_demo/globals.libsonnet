@@ -5,4 +5,5 @@
   workingDir: "gs://code-search-demo/20181104",
   dataDir: "gs://code-search-demo/20181104/data",
   project: "code-search-demo",
+  experiment: "demo-trainer-11-07-dist-sync-gpu",
 }

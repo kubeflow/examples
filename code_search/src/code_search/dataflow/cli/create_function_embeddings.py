@@ -1,3 +1,6 @@
+"""Dataflow job to compute function embeddings."""
+import logging
+
 import apache_beam as beam
 
 import code_search.dataflow.cli.arguments as arguments
@@ -45,9 +48,16 @@ def create_function_embeddings(argv=None):
   )
 
   result = pipeline.run()
+  logging.info("Submitted Dataflow job: %s", result)
   if args.wait_until_finish:
     result.wait_until_finish()
 
 
 if __name__ == '__main__':
+  logging.basicConfig(level=logging.INFO,
+                      format=('%(levelname)s|%(asctime)s'
+                              '|%(pathname)s|%(lineno)d| %(message)s'),
+                      datefmt='%Y-%m-%dT%H:%M:%S',
+                      )
+  logging.getLogger().setLevel(logging.INFO)
   create_function_embeddings()
