@@ -1,9 +1,8 @@
-// A K8s job to run datagen using T2T.
+// Submit a Dataflow job to preprocess the input.
 local k = import "k.libsonnet";
-local t2tJob = import "t2t-job.libsonnet";
 
 local env = std.extVar("__ksonnet/environments");
-local params = std.extVar("__ksonnet/params").components["t2t-code-search-datagen"];
+local params = std.extVar("__ksonnet/params").components["submit-preprocess-job"];
 
 local jobSpec = {
   apiVersion: "batch/v1",
@@ -24,17 +23,26 @@ local jobSpec = {
         },
       },
       spec: {
-      	restartPolicy: "OnFailure",
+        // Don't restart because all the job should do is launch the Dataflow job.
+        restartPolicy: "Never",
         containers: [
           {
-            name: "t2t-datagen",
+            name: "dataflow",
             image: params.image,
-            command:  [
-		      "/usr/local/sbin/t2t-entrypoint",
-		      "t2t-datagen",
-		      "--problem=" + params.problem,
-		      "--data_dir=" + params.dataDir,
-			],
+            command: [
+              "python2",
+              "-m",
+              "code_search.dataflow.cli.preprocess_github_dataset",
+              "--runner=DataflowRunner",              
+              "--project=" + params.project,
+              "--target_dataset=" + params.targetDataset,
+              "--data_dir=" + params.dataDir,
+              "--job_name=" + params.jobName,
+              "--temp_location=" + params.workingDir + "/dataflow/temp",
+              "--staging_location=" + params.workingDir + "/dataflow/staging",
+              "--worker_machine_type=" + params.workerMachineType,
+              "--num_workers=" + params.numWorkers,
+            ],
             env: [
               {
                 name: "GOOGLE_APPLICATION_CREDENTIALS",

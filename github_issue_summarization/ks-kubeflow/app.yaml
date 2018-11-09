@@ -12,6 +12,12 @@ environments:
       server: https://35.188.73.10
     k8sVersion: v1.7.0
     path: default
+  gh-demo-1003:
+    destination:
+      namespace: kubeflow
+      server: https://104.196.134.59
+    k8sVersion: v1.10.7
+    path: gh-demo-1003
   jlewi:
     destination:
       namespace: kubeflow

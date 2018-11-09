@@ -1,4 +1,11 @@
 apiVersion: 0.2.0
+environments:
+  cs_demo:
+    destination:
+      namespace: kubeflow
+      server: https://35.185.115.154
+    k8sVersion: v1.10.9
+    path: cs_demo
 kind: ksonnet.io/app
 libraries:
   examples:
