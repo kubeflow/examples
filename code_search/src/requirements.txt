@@ -1,10 +1,13 @@
 astor~=0.7.0
-apache-beam[gcp]~=2.6.0
+apache-beam[gcp]~=2.8.0
 Flask~=1.0.0
 nltk~=3.3.0
-nmslib~=1.7.0
+# TODO(jlewi): nmslib builds are failing on Dataflow workers with Apache beam 2.8.0.
+# We shouldn't need nmslib in the Dataflow jobs.
+# nmslib~=1.7.0
 oauth2client~=4.1.0
 requests~=2.19.0
 spacy~=2.0.0
 tensor2tensor~=1.9.0
 tensorflow~=1.11.0
+pybind11~=2.2.4

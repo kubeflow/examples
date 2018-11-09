@@ -30,7 +30,7 @@ build-cpu:
 	@echo Built $(IMG):$(TAG)
 
 # TODO(jlewi): We could always use build.jsonnet and then just
-# Parse out the docker build command.	
+# Parse out the docker build command.
 build-gpu:
 	docker build -f "./docker/t2t/Dockerfile" \
              -t $(IMG)-gpu:$(TAG) \
@@ -49,34 +49,34 @@ build-dataflow:
 build: build-cpu build-gpu build-dataflow
 
 # Build using GCB. This is useful if we are on a slow internet connection
-# and don't want to pull 
+# and don't want to pull
 build-gcb:
 	mkdir  -p build
 	jsonnet ./docker/t2t/build.jsonnet --ext-str gitVersion=$(GIT_VERSION) --ext-str tag=$(TAG) \
-	  > ./build/build.json	
+	  > ./build/build.json
 	cp -r ./docker ./build/
-	cp -r ./src ../build/
+	cp -r ./src ./build/
 	rm -rf ./build/src/code_search/dataflow/cli/test_data
 	rm -rf ./build/src/code_search/t2t/test_data
-	gcloud builds submit --project=kubeflow-ci --config=./build/build.json ./build
+	gcloud builds submit --machine-type=n1-highcpu-32 --project=kubeflow-ci --config=./build/build.json ./build
 
 
 # Build but don't attach the latest tag. This allows manual testing/inspection of the image
 # first.
 push-cpu: build-cpu
-	gcloud docker --authorize-only 
+	gcloud docker --authorize-only
 	docker push $(IMG):$(TAG)
 	@echo Pushed $(IMG):$(TAG)
 
 push-gpu: build-gpu
-	gcloud docker --authorize-only 
+	gcloud docker --authorize-only
 	docker push $(IMG)-gpu:$(TAG)
 	@echo Pushed $(IMG)-gpu:$(TAG)
 
 push-trainer: push-cpu push-gpu
 
 push-dataflow: build-dataflow
-	gcloud docker --authorize-only 
+	gcloud docker --authorize-only
 	docker push $(IMG)-dataflow:$(TAG)
 	@echo Pushed $(IMG)-dataflow:$(TAG)
 
