@@ -6,7 +6,7 @@ from tensor2tensor.utils import registry
 from tensor2tensor.utils import t2t_model
 import tensorflow as tf
 
-MODEL_NAME = 'cs_similarity_transformer'
+MODEL_NAME = 'kf_similarity_transformer'
 
 # We don't use the default name because there is already an older version
 # included as part of the T2T library with the default name.

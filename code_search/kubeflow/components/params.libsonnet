@@ -8,16 +8,20 @@
     // are not picked up by the individual components.
     // Need to see if we can find a way to fix this.
 
+    local imageTag = "v20181107-30bab1f-dirty-1ac751",
     "t2t-job": {
       jobType: "trainer",
-      numWorker: 1,
+      numChief: 0,
+      numWorker: 1,      
       numPs: 0,
       numWorkerGpu: 0,
       numPsGpu: 0,
       train_steps: 100,
       eval_steps: 10,
-      image: "gcr.io/kubeflow-examples/code-search:v20181104-3de4f11",
-      imageGpu: "gcr.io/kubeflow-examples/code-search:v20181104-3de4f11-gpu",
+      image: "gcr.io/kubeflow-examples/code-search:" + imageTag,
+      imageGpu: "gcr.io/kubeflow-examples/code-search-gpu:" + imageTag,
+      dataflowImage: "gcr.io/kubeflow-examples/code-search-dataflow:v20181106-v0.2-76-g611636c-dirty-860631",
+
       imagePullSecrets: [],
       // TODO(jlewi): dataDir doesn't seem to be used.
       dataDir: "null",
@@ -90,7 +94,7 @@
     },
     "submit-preprocess-job": {
       name: "submit-preprocess-job",
-      image: $.components["t2t-job"].image,
+      image: $.components["t2t-job"].dataflowImage,
       targetDataset: "code_search",
       workingDir: $.components["t2t-code-search"].workingDir,
       dataDir: self.workingDir + "/data",
@@ -106,6 +110,10 @@
       image: "tensorflow/tensorflow:1.8.0",
       logDir: "gs://example/to/model/logdir",
       name: "tensorboard",
+    },
+
+    "demo-tensorboard": {
+      image: "tensorflow/tensorflow:1.11.0",
     },
   },
 }
