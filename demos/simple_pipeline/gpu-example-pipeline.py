@@ -27,7 +27,7 @@ def kubeflow_training(
   learning_rate: kfp.PipelineParam = kfp.PipelineParam(name='learningrate', value=0.1),
   num_layers: kfp.PipelineParam = kfp.PipelineParam(name='numlayers', value='2'),
   optimizer: kfp.PipelineParam = kfp.PipelineParam(name='optimizer', value='ftrl')):
-  training = training_op(learning_rate, num_layers, optimizer)
+  training = training_op(learning_rate, num_layers, optimizer) # pylint: disable=unused-variable
 
 if __name__ == '__main__':
   import kfp.compiler as compiler
