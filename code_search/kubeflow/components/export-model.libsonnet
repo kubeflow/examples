@@ -19,8 +19,7 @@
             },
           },
           spec: {
-            // Don't restart because all the job should do is launch the Dataflow job.
-            restartPolicy: "Never",
+            restartPolicy: "OnFailure",
             containers: [
               {
                 name: "exporter",
@@ -29,8 +28,8 @@
                   "t2t-exporter",
                   "--problem=" + params.problem,
                   "--data_dir=" + params.dataDir,
-                  // TODO(jlewi): If we specify checkpoint path then we can specify a particular
-                  // checkpoint. Does this then allow us to specify a different directory for outputDir?
+                  // TODO(kubeflow/examples#331): t2t-exporter should have flags --export and --export_dir
+                  // which allow us to control the location of the exported model.
                   "--output_dir=" + params.outputDir,
                   "--model=" + params.model,
                   "--hparams_set=" + params.hparams_set,
