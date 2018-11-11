@@ -17,6 +17,6 @@ RUN python -m spacy download en
 ADD src/code_search /app/code_search
 ADD src             /src
 
-WORKDIR /app
+WORKDIR /src
 
 ENV PYTHONIOENCODING=utf-8 T2T_USR_DIR=/app/code_search/t2t
