@@ -41,6 +41,7 @@
 	              "--staging_location=" + params.workingDir + "/dataflow/staging",
 	              "--worker_machine_type=" + params.workerMachineType,
 	              "--num_workers=" + params.numWorkers,
+	              "--requirements_file=requirements.dataflow.txt",
 	            ],
 	            env: [
 	              {
