@@ -13,7 +13,7 @@ local instances = {
   "demo-trainer-11-07-dist-sync-gpu": "gs://code-search-demo/models/20181107-dist-sync-gpu",
 };
 
-local parts(name, logDir) = {  
+local parts(name, logDir) = {
   service:: {
     apiVersion: "v1",
     kind: "Service",
@@ -46,7 +46,7 @@ local parts(name, logDir) = {
         "tb-job": name,
       },
     },
-  }, // service
+  },  // service
 
   deployment:: {
     apiVersion: "apps/v1beta1",
@@ -107,10 +107,10 @@ local parts(name, logDir) = {
         },
       },
     },
-  }, // deployment
+  },  // deployment
 
   items: [self.service, self.deployment],
-}; // parts
+};  // parts
 
 local tbObjects = std.flattenArrays(std.map(function(f) parts(f, instances[f]).items,
                                             std.objectFieldsAll(instances)));

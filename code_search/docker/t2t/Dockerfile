@@ -6,7 +6,7 @@ RUN pip --no-cache-dir install oauth2client~=4.1.0 &&\
     apt-get update && apt-get install -y jq git &&\
     rm -rf /var/lib/apt/lists/*
 
-RUN pip --no-cache-dir install tensor2tensor~=1.10.0
+RUN pip --no-cache-dir install tensor2tensor~=1.10.0 tensorflow-hub~=0.1.1
 
 ADD src/code_search /app/code_search
 ADD src             /src

@@ -1,19 +1,6 @@
 local baseParams = std.extVar("__ksonnet/params").components["t2t-job"];
 
 {
-  getExporterCmd(params)::
-    [
-      // TODO(jlewi): Do we need to use the T2T entrypoint wrapper for the exporter?
-      // Why would we need to parse TF_CONFIG into command line flags?
-      "/usr/local/sbin/t2t-entrypoint",
-      "t2t-exporter",
-      "--problem=" + params.problem,
-      "--data_dir=" + params.dataDir,
-      "--output_dir=" + params.outputDir,
-      "--model=" + params.model,
-      "--hparams_set=" + params.hparams_set,
-    ],
-
   getTrainerCmd(params):: {
     local trainer = [
       // t2t-entrypoint is a wrapper that parses TF_CONFIG
@@ -32,7 +19,7 @@ local baseParams = std.extVar("__ksonnet/params").components["t2t-job"];
     worker: trainer,
 
     worker_dist: trainer + [
-      "--schedule=train",      
+      "--schedule=train",
       "--ps_gpu=" + std.toString(params.numPsGpu),
       "--worker_gpu=" + std.toString(params.numWorkerGpu),
       "--worker_replicas=" + std.toString(params.numWorker),
