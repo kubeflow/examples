@@ -42,7 +42,7 @@ build-gpu:
 build-dataflow:
 	docker build -f "./docker/t2t/Dockerfile.dataflow" \
              -t $(IMG)-dataflow:$(TAG) \
-             --label=git-versions=$(GIT_VERSION)
+             --label=git-versions=$(GIT_VERSION) \
 			 .
 	@echo Built $(IMG)-dataflow:$(TAG)
 
