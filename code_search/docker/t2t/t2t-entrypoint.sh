@@ -3,7 +3,7 @@
 # T2T relies on various command line variables to be set in addition to TFCONFIG being set..
 # So this script parses TF_CONFIG and then appends appropriate command line arguments
 # to whatever command was entered.
-set -x
+set -ex
 echo environment
 env | sort
 WORKER_ID=$(echo ${TF_CONFIG} | jq ".task.index")

@@ -3,7 +3,7 @@
 # T2T doesn't respect TF_CONFIG; instead it relies on command line variables.
 # So this script parses TF_CONFIG and then appends appropriate command line arguments
 # to whatever command was entered.
-set -x
+set -ex
 env | sort
 echo running "$@"
 "$@" 
