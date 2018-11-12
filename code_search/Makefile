@@ -46,6 +46,13 @@ build-dataflow:
 			 .
 	@echo Built $(IMG)-dataflow:$(TAG)
 
+build-ks:
+	docker build -f "./docker/ks/Dockerfile" \
+             -t $(IMG)-ks:$(TAG) \
+             --label=git-versions=$(GIT_VERSION) \
+			 .
+	@echo Built $(IMG)-dataflow:$(TAG)
+
 build: build-cpu build-gpu build-dataflow
 
 # Build using GCB. This is useful if we are on a slow internet connection
