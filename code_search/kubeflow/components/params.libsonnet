@@ -8,11 +8,11 @@
     // are not picked up by the individual components.
     // Need to see if we can find a way to fix this.
 
-    local imageTag = "v20181107-30bab1f-dirty-1ac751",
+    local imageTag = "v20181108-004b5ad-dirty-eba459",
     "t2t-job": {
       jobType: "trainer",
       numChief: 0,
-      numWorker: 1,      
+      numWorker: 1,
       numPs: 0,
       numWorkerGpu: 0,
       numPsGpu: 0,
@@ -60,6 +60,7 @@
       outputDir: $.components["t2t-code-search"].workingDir + "/output",
       model: $.components["t2t-code-search"].model,
       hparams_set: $.components["t2t-code-search"].hparams_set,
+      image: $.components["t2t-job"].image,
     },
     "t2t-code-search-serving": {
       name: "t2t-code-search",
