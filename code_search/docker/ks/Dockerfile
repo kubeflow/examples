@@ -18,3 +18,5 @@ ADD docker/ks/deploy.sh /usr/local/src
 
 
 WORKDIR /usr/local/src
+
+ENTRYPOINT ["/usr/local/src/deploy.sh"]

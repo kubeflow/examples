@@ -4,7 +4,8 @@ set -ex
 
 # Default namespace to deploy the ksonnet component to
 NAMESPACE="kubeflow"
-TIMEOUT="10m"
+# Providing negative value to kubeflow wait would wait for a week
+TIMEOUT="-1s"
 
 usage()
 {
