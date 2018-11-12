@@ -1,4 +1,4 @@
-IMG = gcr.io/kubeflow-examples/code-search
+IMG = gcr.io/yang-codesearch/code-search
 
 # List any changed  files. We only include files in the notebooks directory.
 # because that is the code in the docker image.
@@ -42,11 +42,18 @@ build-gpu:
 build-dataflow:
 	docker build -f "./docker/t2t/Dockerfile.dataflow" \
              -t $(IMG)-dataflow:$(TAG) \
-             --label=git-versions=$(GIT_VERSION)
+             --label=git-versions=$(GIT_VERSION) \
 			 .
 	@echo Built $(IMG)-dataflow:$(TAG)
 
-build: build-cpu build-gpu build-dataflow
+build-ks:
+	docker build -f "./docker/ks/Dockerfile" \
+             -t $(IMG)-ks:$(TAG) \
+             --label=git-versions=$(GIT_VERSION) \
+			 .
+	@echo Built $(IMG)-ks:$(TAG)
+
+build: build-cpu build-gpu build-dataflow build-ks
 
 # Build using GCB. This is useful if we are on a slow internet connection
 # and don't want to pull 
@@ -80,4 +87,9 @@ push-dataflow: build-dataflow
 	docker push $(IMG)-dataflow:$(TAG)
 	@echo Pushed $(IMG)-dataflow:$(TAG)
 
-push: push-cpu push-gpu push-dataflow
+push-ks: build-ks
+	gcloud docker --authorize-only
+	docker push $(IMG)-ks:$(TAG)
+	@echo Pushed $(IMG)-ks:$(TAG)
+
+push: push-cpu push-gpu push-dataflow push-ks

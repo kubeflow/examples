@@ -73,7 +73,7 @@ def preprocess_github_dataset(argv=None):
 
   result = pipeline.run()
   logging.info("Submitted Dataflow job: %s", result)
-  if args.wait_until_finish:
+  if args.wait_until_finished:
     result.wait_until_finish()
 
   return result
