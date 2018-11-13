@@ -18,6 +18,14 @@ spec:
       tasks:
       - arguments:
           parameters:
+          - name: training-output
+            value: '{{tasks.training.outputs.parameters.training-output}}'
+        dependencies:
+        - training
+        name: postprocessing
+        template: postprocessing
+      - arguments:
+          parameters:
           - name: learning-rate
             value: '{{inputs.parameters.learning-rate}}'
           - name: num-layers
@@ -32,6 +40,45 @@ spec:
       - name: num-layers
       - name: optimizer
     name: pipeline-gpu-example
+  - container:
+      args:
+      - echo "{{inputs.parameters.training-output}}"
+      command:
+      - sh
+      - -c
+      image: library/bash:4.4.23
+    inputs:
+      parameters:
+      - name: training-output
+    name: postprocessing
+    outputs:
+      artifacts:
+      - name: mlpipeline-ui-metadata
+        path: /mlpipeline-ui-metadata.json
+        s3:
+          accessKeySecret:
+            key: accesskey
+            name: mlpipeline-minio-artifact
+          bucket: mlpipeline
+          endpoint: minio-service.kubeflow:9000
+          insecure: true
+          key: runs/{{workflow.uid}}/{{pod.name}}/mlpipeline-ui-metadata.tgz
+          secretKeySecret:
+            key: secretkey
+            name: mlpipeline-minio-artifact
+      - name: mlpipeline-metrics
+        path: /mlpipeline-metrics.json
+        s3:
+          accessKeySecret:
+            key: accesskey
+            name: mlpipeline-minio-artifact
+          bucket: mlpipeline
+          endpoint: minio-service.kubeflow:9000
+          insecure: true
+          key: runs/{{workflow.uid}}/{{pod.name}}/mlpipeline-metrics.tgz
+          secretKeySecret:
+            key: secretkey
+            name: mlpipeline-minio-artifact
   - container:
       args:
       - --batch-size
@@ -83,3 +130,7 @@ spec:
           secretKeySecret:
             key: secretkey
             name: mlpipeline-minio-artifact
+      parameters:
+      - name: training-output
+        valueFrom:
+          path: /etc/timezone

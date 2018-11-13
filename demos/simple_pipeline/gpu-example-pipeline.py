@@ -14,8 +14,18 @@ def training_op(learning_rate: float,
       '--batch-size', '64',
       '--lr', learning_rate,
       '--num-layers', num_layers,
-      '--optimizer', optimizer,
-    ]
+      '--optimizer', optimizer
+    ],
+    file_outputs={'output': '/etc/timezone'}
+  )
+
+def postprocessing_op(output,
+                      step_name='postprocessing'):
+  return kfp.ContainerOp(
+    name=step_name,
+    image='library/bash:4.4.23',
+    command=['sh', '-c'],
+    arguments=['echo "%s"' % output]
   )
 
 @kfp.pipeline(
@@ -27,7 +37,9 @@ def kubeflow_training(
   learning_rate: kfp.PipelineParam = kfp.PipelineParam(name='learningrate', value=0.1),
   num_layers: kfp.PipelineParam = kfp.PipelineParam(name='numlayers', value='2'),
   optimizer: kfp.PipelineParam = kfp.PipelineParam(name='optimizer', value='ftrl')):
-  training = training_op(learning_rate, num_layers, optimizer) # pylint: disable=unused-variable
+
+  training = training_op(learning_rate, num_layers, optimizer)
+  postprocessing = postprocessing_op(training.output) # pylint: disable=unused-variable
 
 if __name__ == '__main__':
   import kfp.compiler as compiler
