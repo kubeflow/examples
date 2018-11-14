@@ -60,14 +60,20 @@ uploading `gpu-example-pipeline.py.tar.gz`. Select the pipeline and click
 
 View the effects of autoscaling by watching the number of nodes.
 
-Select "Experiments" from the left-hand side, then "Runs". Click on the job to view
-the graph and watch it run.
+Select "Experiments" from the left-hand side, then "Runs". Click on the
+experiment run to view the graph and watch it execute.
 
-Notice the low accuracy.
+View the container logs for the training step and take note of the low accuracy (~0.113).
 
 ## 3. Perform hyperparameter tuning
 
-Create a study by applying an example file to the cluster:
+In order to determine parameters that result in higher accuracy, use Katib
+to execute a Study, which defines a search space for performing training with a
+range of different parameters.
+
+Create a study by applying an
+[example file](https://github.com/kubeflow/katib/blob/master/examples/gpu-example.yaml)
+to the cluster:
 
 ```
 kubectl apply -f gpu-example-katib.yaml
@@ -108,11 +114,18 @@ View the creation of new nodes:
 kubectl get nodes
 ```
 
-Determine which combination of hyperparameters results in the highest accuracy.
+In the Katib UI, interact with the various graphs to determine which
+combination of parameters results in the highest accuracy. Grouping by optimizer
+type is one way to find consistently higher accuracies. Gather a set of
+parameters to use in a new run of the pipeline.
 
 ## 4. Run a better pipeline
 
-In the pipelines UI, clone the previous job and update the arguments. Run the
-pipeline and watch for the resulting accuracy.
+In the pipelines UI, clone the previous experiment run and update the arguments
+to match the parameters for one of the runs with higher accuracies from the
+Katib UI. Execute the pipeline and watch for the resulting accuracy, which
+should be closer to 0.98.
 
+Approximately 5 minutes after the last run completes, check the cluster nodes
+to verify that GPU nodes have disappeared.
 
