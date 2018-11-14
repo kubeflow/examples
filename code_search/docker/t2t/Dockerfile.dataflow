@@ -7,8 +7,8 @@ FROM python:2.7-jessie
 # so we need to install them for Python2.
 # We do this before copying the code because we don't want to have
 # reinstall the requirements just because the code changed.
-COPY src/requirements.txt /tmp/requirements.txt
-RUN pip install -r /tmp/requirements.txt
+COPY src/requirements.dataflow.txt /tmp/requirements.dataflow.txt
+RUN pip install -r /tmp/requirements.dataflow.txt
 RUN pip install https://github.com/kubeflow/batch-predict/tarball/master
 
 # install the spacy model
