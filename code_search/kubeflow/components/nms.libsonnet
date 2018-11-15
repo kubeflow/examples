@@ -62,7 +62,7 @@ local baseParams = std.extVar("__ksonnet/params").components["nmslib"];
   containerSpec(params, env=[], volumeMounts=[], ports=[]):: {
     name: params.name,
     image: params.image,
-    args: params.args,
+    command: params.command,
     ports: ports,
     env: env,
     volumeMounts: volumeMounts,
@@ -132,30 +132,10 @@ local baseParams = std.extVar("__ksonnet/params").components["nmslib"];
       },
     ],
 
-    creator:: {
-      local creatorParams = params + {
-        args: [
-          "-m",
-          "code_search.nmslib.cli.create_search_index",
-          "--data_dir=" + params.dataDir,
-          "--lookup_file=" + params.lookupFile,
-          "--index_file=" + params.indexFile,
-        ],
-      },
-
-      all: [
-        $.jobSpec(creatorParams, env,
-                  [
-                    $.containerSpec(creatorParams, env=containerEnv,
-                                    volumeMounts=containerVolumeMounts)
-                  ],
-                  volumes=volumes),
-      ],
-    }.all,
-
     server:: {
       local serverParams = params + {
-        args: [
+        command: [
+          "python",
           "-m",
           "code_search.nmslib.cli.start_search_server",
           "--problem=" + params.problem,
