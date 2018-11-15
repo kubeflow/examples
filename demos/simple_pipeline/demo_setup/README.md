@@ -27,7 +27,7 @@ source activate kfp
 Install the Kubeflow Pipelines SDK:
 
 ```
-pip install https://storage.googleapis.com/ml-pipeline/release/0.0.26/kfp-0.0.26.tar.gz --upgrade
+pip install https://storage.googleapis.com/ml-pipeline/release/0.1.2/kfp.tar.gz --upgrade
 ```
 
 ## 2. Create a GKE cluster and install Kubeflow
