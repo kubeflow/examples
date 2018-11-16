@@ -21,7 +21,7 @@ echo "GCP Project: "$PROJECT
 
 # Build image
 echo "Building image: "$IMAGE
-docker build -f "${DOCKERFILE}" \
+docker build "${DOCKERFILE}" \
              -t "${IMAGE}:${TAG}"
 echo "Finished building image: "$IMAGE
 
