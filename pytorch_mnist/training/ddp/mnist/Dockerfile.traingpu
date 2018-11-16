@@ -47,7 +47,7 @@ RUN pip install --upgrade pip --trusted-host pypi.org --trusted-host files.pytho
 RUN pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org torchvision
 WORKDIR /workspace
 RUN chmod -R a+w /workspace
-ADD ./mnist_DDP.py /opt/pytorch_dist_mnist
+ADD ./gpu/mnist_DDP.py /opt/pytorch_dist_mnist
 
 ENTRYPOINT ["mpirun", "-n", "4", "--allow-run-as-root", "python", "-u", "/opt/pytorch_dist_mnist/mnist_DDP.py", "--gpu", "/mnt/kubeflow-gcfs/pytorch/model"]
 

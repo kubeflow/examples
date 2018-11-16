@@ -13,12 +13,19 @@ CONTEXT_DIR=$(dirname "$DOCKERFILE")
 PROJECT="${GCP_PROJECT}"
 
 gcloud auth activate-service-account --key-file=${GOOGLE_APPLICATION_CREDENTIALS}
+gcloud auth configure-docker
 
 cd $CONTEXT_DIR
 
 echo "GCP Project: "$PROJECT
 
-# Build CPU image
-echo "Building CPU image using gcloud build"
-gcloud builds submit --timeout=2h --machine-type=n1-highcpu-32 --tag=${IMAGE}:${TAG} --project=${PROJECT} .
-echo "Finished building CPU image"
+# Build image
+echo "Building image: "$IMAGE
+docker build -f "${DOCKERFILE}" \
+             -t "${IMAGE}:${TAG}"
+echo "Finished building image: "$IMAGE
+
+# Push image
+echo "Pushing image: "$IMAGE
+docker push "${IMAGE}:${TAG}"
+echo "Finished pushing image: "$IMAGE

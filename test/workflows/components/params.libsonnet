@@ -52,8 +52,8 @@
     "pytorch-mnist-cpu-release": {
       bucket: "kubeflow-ci_temp",
       cluster: "kubeflow-testing",
-      dockerfile: "Dockerfile",
-      dockerfileDir: "kubeflow/examples/pytorch_mnist/training/ddp/mnist/cpu",
+      dockerfile: "Dockerfile.traincpu",
+      dockerfileDir: "kubeflow/examples/pytorch_mnist/training/ddp/mnist",
       extra_args: "null",
       extra_repos: "kubeflow/testing@HEAD",
       gcpCredentialsSecretName: "gcp-credentials",
@@ -70,8 +70,8 @@
     "pytorch-mnist-gpu-release": {
       bucket: "kubeflow-ci_temp",
       cluster: "kubeflow-testing",
-      dockerfile: "Dockerfile",
-      dockerfileDir: "kubeflow/examples/pytorch_mnist/training/ddp/mnist/gpu",
+      dockerfile: "Dockerfile.traingpu",
+      dockerfileDir: "kubeflow/examples/pytorch_mnist/training/ddp/mnist",
       extra_args: "null",
       extra_repos: "kubeflow/testing@HEAD",
       gcpCredentialsSecretName: "gcp-credentials",
