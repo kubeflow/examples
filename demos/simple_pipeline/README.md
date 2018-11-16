@@ -2,10 +2,12 @@
 
 ## Hyperparameter tuning and autoprovisioning GPU nodes
 
-This repository contains a demonstration of Kubeflow capabilities, suitable for
+This folder contains a demonstration of Kubeflow capabilities, suitable for
 presentation to public audiences.
 
-The base demo includes the following steps:
+This demo highlights the use of pipelines and hyperparameter tuning on a GKE
+cluster with node autoprovisioning (NAP). A simple pipeline requests GPU resources, which triggers
+node pool creation. This demo includes the following steps:
 
 1. [Setup your environment](#1-setup-your-environment)
 1. [Run a simple pipeline](#2-run-a-simple-pipeline)
@@ -56,11 +58,11 @@ kubectl port-forward ${PIPELINES_POD} 8080:3000
 
 In the browser, navigate to `localhost:8080` and create a new pipeline by
 uploading `gpu-example-pipeline.py.tar.gz`. Select the pipeline and click
-"Create experiment." Use all suggested defaults.
+_Create experiment_. Use all suggested defaults.
 
-View the effects of autoscaling by watching the number of nodes.
+View the effects of autoprovisioning by observing the number of nodes increase.
 
-Select "Experiments" from the left-hand side, then "Runs". Click on the
+Select _Experiments_ from the left-hand side, then _Runs_. Click on the
 experiment run to view the graph and watch it execute.
 
 View the container logs for the training step and take note of the low accuracy (~0.113).
@@ -71,7 +73,7 @@ In order to determine parameters that result in higher accuracy, use Katib
 to execute a Study, which defines a search space for performing training with a
 range of different parameters.
 
-Create a study by applying an
+Create a Study by applying an
 [example file](https://github.com/kubeflow/katib/blob/master/examples/gpu-example.yaml)
 to the cluster:
 
@@ -79,7 +81,7 @@ to the cluster:
 kubectl apply -f gpu-example-katib.yaml
 ```
 
-This creates a studyjob object. To view it:
+This creates a Studyjob object. To view it:
 
 ```
 kubectl get studyjob
@@ -97,10 +99,10 @@ kubectl port-forward ${KATIB_POD} 8081:3000
 ```
 
 In the browser, navigate to `localhost:8081/katib` and click on the
-gpu-example project. In the Explore Visualizations section, select
+gpu-example project. In the _Explore Visualizations_ section, select
 _Optimizer_ in the _Group By_ dropdown, then click _Compare_.
 
-While you're waiting, watch autoscaling. View the pods in Pending status.
+While you're waiting, watch for autoprovisioning to occur. View the pods in Pending status.
 
 View the creation of a new GPU node pool:
 

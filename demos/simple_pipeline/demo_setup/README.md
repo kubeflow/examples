@@ -11,10 +11,18 @@ The base demo includes the following steps:
 
 ## 1. Setup your environment
 
-Set environment variables by sourcing the env file:
+Clone the [kubeflow/kubeflow](https://github.com/kubeflow/kubeflow) repo and
+checkout the
+[`v0.3.3`](https://github.com/kubeflow/kubeflow/releases/tag/v0.3.3) branch.
+Clone the [kubeflow/pipelines](https://github.com/kubeflow/pipelines) repo and
+checkout the
+[`0.1.2`](https://github.com/kubeflow/pipelines/releases/tag/0.1.2) branch.
+
+Ensure that the repo paths, project name, and other variables are set correctly.
+When all overrides are set, source the environment file:
 
 ```
-. kubeflow-demo-simple-pipeline.env
+source kubeflow-demo-simple-pipeline.env
 ```
 
 Create a clean python environment for installing Kubeflow Pipelines:
@@ -152,14 +160,6 @@ kfctl init ${CLUSTER} --platform gcp
 cd ${CLUSTER}
 kfctl generate k8s
 kfctl apply k8s
-```
-
-Patch some outdated katib artifacts:
-
-```
-cd ${DEMO_REPO}
-kubectl delete configmap worker-template
-kubectl apply -f workerConfigMap.yaml
 ```
 
 ## 3. Install pipelines on GKE
