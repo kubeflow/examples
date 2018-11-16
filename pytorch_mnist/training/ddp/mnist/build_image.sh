@@ -10,6 +10,7 @@ DOCKERFILE=$1
 IMAGE=$2
 TAG=$3
 CONTEXT_DIR=$(dirname "$DOCKERFILE")
+CONTEXT_NAME=$(basename "$DOCKERFILE")
 PROJECT="${GCP_PROJECT}"
 
 gcloud auth activate-service-account --key-file=${GOOGLE_APPLICATION_CREDENTIALS}
@@ -21,8 +22,7 @@ echo "GCP Project: "$PROJECT
 
 # Build image
 echo "Building image: "$IMAGE
-docker build "${DOCKERFILE}" \
-             -t "${IMAGE}:${TAG}"
+docker build "${CONTEXT_DIR}" -f ${CONTEXT_NAME} -t "${IMAGE}:${TAG}"
 echo "Finished building image: "$IMAGE
 
 # Push image
