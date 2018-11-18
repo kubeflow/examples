@@ -1,4 +1,4 @@
-apiVersion: 0.1.0
+apiVersion: 0.2.0
 environments:
   test:
     destination:
@@ -7,12 +7,17 @@ environments:
     k8sVersion: v1.7.0
     path: test
 kind: ksonnet.io/app
+libraries:
+  automation:
+    name: automation
+    registry: kubeflow
+    version: 8e54955b66f86bc7e5734de59a0ef4087f91bc2a
 name: test-infra
 registries:
   incubator:
-    gitVersion:
-      commitSha: 422d521c05aa905df949868143b26445f5e4eda5
-      refSpec: master
     protocol: github
     uri: github.com/ksonnet/parts/tree/master/incubator
+  kubeflow:
+    protocol: github
+    uri: github.com/kubeflow/kubeflow/tree/master/kubeflow
 version: 0.0.1

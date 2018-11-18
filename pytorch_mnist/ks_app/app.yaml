@@ -1,0 +1,8 @@
+apiVersion: 0.3.0
+kind: ksonnet.io/app
+name: ks-app
+registries:
+  incubator:
+    protocol: github
+    uri: github.com/ksonnet/parts/tree/master/incubator
+version: 0.0.1

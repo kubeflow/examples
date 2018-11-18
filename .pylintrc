@@ -13,7 +13,7 @@ ignore=third_party
 
 # Add files or directories matching the regex patterns to the blacklist. The
 # regex matches against base names, not paths.
-ignore-patterns=
+ignore-patterns=prediction_pb2.py,prediction_pb2_grpc.py,mnist_DDP.py
 
 # Pickle collected data for later comparisons.
 persistent=no
