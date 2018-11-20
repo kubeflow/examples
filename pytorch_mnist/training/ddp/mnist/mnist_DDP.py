@@ -240,6 +240,12 @@ def init_print(rank, size, debug_print=True):
 
 if __name__ == "__main__":
   import argparse
+  logging.basicConfig(level=logging.INFO,
+                      format=('%(levelname)s|%(asctime)s'
+                              '|%(pathname)s|%(lineno)d| %(message)s'),
+                      datefmt='%Y-%m-%dT%H:%M:%S',
+                      )
+  logging.getLogger().setLevel(logging.INFO)
 
   parser = argparse.ArgumentParser(description='Train Pytorch MNIST model using DDP')
   parser.add_argument('--gpu', action='store_true',
@@ -249,7 +255,6 @@ if __name__ == "__main__":
                       help='Path to model, e.g., /mnt/kubeflow-gcfs/pytorch/model')
   args = parser.parse_args()
   if args.gpu:
-    logging.getLogger().setLevel(logging.INFO)
     logging.info("\n======= CUDA INFO =======")
     logging.info("CUDA Availibility:", torch.cuda.is_available())
     if (torch.cuda.is_available()):
