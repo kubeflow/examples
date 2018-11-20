@@ -11,7 +11,7 @@ spec:
         spec:
           containers:
             - name: pytorch
-              image: gcr.io/kubeflow-examples/pytorch-mnist-ddp-cpu
+              image: gcr.io/kubeflow-ci/pytorch-mnist-ddp-cpu
     Worker:
       replicas: 3
       restartPolicy: OnFailure
@@ -19,4 +19,4 @@ spec:
         spec:
           containers:
             - name: pytorch
-              image: gcr.io/kubeflow-examples/pytorch-mnist-ddp-cpu
+              image: gcr.io/kubeflow-ci/pytorch-mnist-ddp-cpu
