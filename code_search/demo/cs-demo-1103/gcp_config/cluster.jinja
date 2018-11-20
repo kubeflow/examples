@@ -16,6 +16,7 @@ limitations under the License.
 {% set CLUSTER_NAME = NAME_PREFIX %}
 {% set CPU_POOL = NAME_PREFIX + '-cpu-pool-' + properties['pool-version'] %}
 {% set GPU_POOL = NAME_PREFIX + '-gpu-pool-' + properties['pool-version'] %}
+{% set LARGE_POOL = NAME_PREFIX + '-large-pool-' + properties['pool-version'] %}
 
 {# Type names are the names to give to deployment manager type providers
    that will be created to represent Kubernetes objects.
@@ -151,6 +152,41 @@ resources:
     dependsOn:
     # We can only create 1 node pool at a time.
     - {{ CLUSTER_NAME }}
+
+# Add a high memory pool because creating the search index requires a lot of memory.
+- name: {{ LARGE_POOL }}
+  {% if properties['gkeApiVersion'] == 'v1beta1' %}
+  type: gcp-types/container-v1beta1:projects.locations.clusters.nodePools
+  {% else %}
+  type: container.v1.nodePool
+  {% endif %}
+  properties:
+    parent: projects/{{ env['project'] }}/locations/{{ properties['zone'] }}/clusters/{{ CLUSTER_NAME }}
+    project: {{ properties['securityConfig']['project'] }}
+    zone: {{ properties['zone'] }}
+    clusterId: {{ CLUSTER_NAME }}
+    nodePool:
+      name: large-pool
+      initialNodeCount: 0
+      autoscaling:
+        enabled: true
+        minNodeCount: 1
+        maxNodeCount: 10
+      config:
+        {% if properties['securityConfig']['secureNodeMetadata'] %}
+        workloadMetadataConfig:
+          nodeMetadata: SECURE
+        {% endif %}
+        machineType: n1-standard-32
+        serviceAccount: {{ KF_VM_SA_NAME }}@{{ env['project'] }}.iam.gserviceaccount.com
+        oauthScopes: {{ VM_OAUTH_SCOPES }}
+        # Set min cpu platform to ensure AVX2 is supported.
+        minCpuPlatform: 'Intel Haswell'
+
+  metadata:
+    dependsOn:
+    # We can only create 1 node pool at a time.
+    - {{ GPU_POOL }}
 
 {# Project defaults to the project of the deployment. #}
 - name: {{ properties['ipName']  }}

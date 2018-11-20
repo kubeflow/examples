@@ -37,7 +37,7 @@ resources:
     # bump this if you want to modify the node pools.
     # This will cause existing node pools to be deleted and new ones to be created.
     # Use prefix v so it will be treated as a string.
-    pool-version: v1
+    pool-version: v2
     # Two is small enough to fit within default quota.
     cpu-pool-initialNodeCount: 2
     gpu-pool-initialNodeCount: 0
