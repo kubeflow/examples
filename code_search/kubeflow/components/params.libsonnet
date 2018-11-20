@@ -21,7 +21,6 @@
       image: "gcr.io/kubeflow-examples/code-search:" + imageTag,
       imageGpu: "gcr.io/kubeflow-examples/code-search-gpu:" + imageTag,
       dataflowImage: "gcr.io/kubeflow-examples/code-search-dataflow:" + imageTag,
-
       imagePullSecrets: [],
       // TODO(jlewi): dataDir doesn't seem to be used.
       dataDir: "null",
@@ -63,12 +62,17 @@
       image: $.components["t2t-job"].image,
     },
     "t2t-code-search-serving": {
-      name: "t2t-code-search",
-      modelName: "t2t-code-search",
-      modelPath: $.components["t2t-code-search"].workingDir + "/output/export/Servo",
-      modelServerImage: "gcr.io/kubeflow-images-public/tensorflow-serving-1.8:latest",
-      cloud: "gcp",
+      name: "tf-serving",
       gcpCredentialSecretName: "user-gcp-sa",
+      serviceType: "ClusterIP",
+      deployHttpProxy: false,
+      modelBasePath: "gs://some/model",
+      // modelName is used by the client.
+      modelName: "t2t-code-search",
+      defaultCpuImage: "tensorflow/serving:1.11.1",
+      defaultGpuImage: "tensorflow/serving:1.11.1-gpu",
+      httpProxyImage: "gcr.io/kubeflow-images-public/tf-model-server-http-proxy:v20180723",
+      numGpus: "0",
     },
     nmslib: {
       replicas: 1,
@@ -91,7 +95,10 @@
       dataDir: $.components["t2t-code-search"].workingDir + "/data",
       lookupFile: $.components["t2t-code-search"].workingDir + "/code_search_index.csv",
       indexFile: $.components["t2t-code-search"].workingDir + "/code_search_index.nmslib",
-      servingUrl: "http://t2t-code-search.kubeflow:9001/v1/models/t2t-code-search:predict",
+      servingUrl: "http://t2t-code-search.kubeflow:8500/v1/models/t2t-code-search:predict",
+      // 1 replica is convenient for debugging but we should bump after debugging.
+      replicas: 1,
+      image: "gcr.io/kubeflow-examples/code-search-ui:v20181122-dc0e646-dirty-043a63",
     },
     "submit-preprocess-job": {
       name: "submit-preprocess-job",

@@ -1,25 +1,20 @@
-local env = std.extVar("__ksonnet/environments");
-
-local baseParams = std.extVar("__ksonnet/params").components["t2t-code-search-serving"];
-
-local experiments = import "experiments.libsonnet";
+// @apiVersion 0.1
+// @name io.ksonnet.pkg.tf-serving-gcp
+// @description TensorFlow serving
+// @shortDescription A TensorFlow serving deployment
+// @param name string Name to give to each of the components
+// @optionalParam namespace string kubeflow The namespace
+// @optionalParam serviceType string ClusterIP The k8s service type for tf serving.
+// @optionalParam numGpus string 0 Number of gpus to use
+// @optionalParam deployHttpProxy string false Whether to deploy http proxy
+// @optionalParam modelBasePath string gs://kubeflow-examples-data/mnist The model path
+// @optionalParam modelName string mnist The model name
+// @optionalParam defaultCpuImage string tensorflow/serving:1.8.0 The default model server image (cpu)
+// @optionalParam defaultGpuImage string tensorflow/serving:1.10.0-gpu The default model server image (gpu)
+// @optionalParam httpProxyImage string gcr.io/kubeflow-images-public/tf-model-server-http-proxy:v20180723 Http proxy image
+// @optionalParam gcpCredentialSecretName string null If not empty, insert the secret credential
 
 local k = import "k.libsonnet";
-
-local experimentName = baseParams.experiment;
-local experimentParams= experiments[experimentName];
-local params = baseParams + experimentParams + {
-  name: "t2t-code-search",
-
-  // Keep in sync with the TF version used during training.
-  image: "tensorflow/serving:1.11.1",
-  namespace: env.namespace,
-
-  // The TF-Serving component uses the parameter modelBasePath
-  modelBasePath: experimentParams.modelBasePath,
-};
-
-
 local deployment = k.apps.v1beta1.deployment;
 local container = deployment.mixin.spec.template.spec.containersType;
 
@@ -37,7 +32,7 @@ local tfDeployment = base.tfDeployment +
                            },
                          }]
                        ) else [],
-                     )+
+                     ) +
                      deployment.mapContainers(
                        function(c) {
                          result::

@@ -1,16 +1,16 @@
-ARG BASE_IMAGE_TAG=1.8.0
+FROM python:2.7-jessie
 
-FROM tensorflow/tensorflow:$BASE_IMAGE_TAG
+RUN apt-get update && apt-get install -y curl &&\
+    rm -rf /var/lib/apt/lists/*
 
 RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - &&\
-    apt-get install -y nodejs &&\
-    pip install Flask~=1.0.0 \
-                nmslib~=1.7.0 \
-                numpy~=1.14.0 \
-                oauth2client~=4.1.0 \
-                requests~=2.18.0 \
-                tensor2tensor~=1.8.0 &&\
+    apt-get install -y nodejs && \
     rm -rf /var/lib/apt/lists/*
+
+COPY src/requirements.ui.txt /tmp/requirements.ui.txt
+COPY src/requirements.nmslib.txt /tmp/requirements.nmslib.txt
+RUN pip install -r /tmp/requirements.ui.txt
+RUN pip install -r /tmp/requirements.nmslib.txt
 
 ADD src/ /src
 

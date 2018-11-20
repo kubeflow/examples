@@ -11,11 +11,11 @@ libraries:
   examples:
     name: examples
     registry: kubeflow
-    version: defc235463799d5600001ee0ed6ef68f7af24a17
+    version: dddba26893846041b7cee25ee6121e02a04bd503
   tf-serving:
     name: tf-serving
     registry: kubeflow
-    version: ab6084349673e6405ae486eb3be2141e3550643c
+    version: dddba26893846041b7cee25ee6121e02a04bd503
 name: kubeflow
 registries:
   incubator:
@@ -23,5 +23,5 @@ registries:
     uri: github.com/ksonnet/parts/tree/master/incubator
   kubeflow:
     protocol: github
-    uri: https://github.com/kubeflow/kubeflow/tree/master/kubeflow
+    uri: github.com/kubeflow/kubeflow/tree/v0.3-branch/kubeflow
 version: 0.0.1

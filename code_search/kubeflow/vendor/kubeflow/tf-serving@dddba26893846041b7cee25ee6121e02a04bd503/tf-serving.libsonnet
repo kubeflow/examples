@@ -26,8 +26,8 @@
     // in which case the image used will still depend on whether GPUs are used or not.
     // Users can also override modelServerImage in which case the user supplied value will always be used
     // regardless of numGpus.
-    defaultCpuImage: "gcr.io/kubeflow-images-public/tensorflow-serving-1.7:v20180604-0da89b8a",
-    defaultGpuImage: "gcr.io/kubeflow-images-public/tensorflow-serving-1.6gpu:v20180604-0da89b8a",
+    defaultCpuImage: "tensorflow/serving:1.8.0",
+    defaultGpuImage: "tensorflow/serving:1.10.0-gpu",
     modelServerImage: if $.params.numGpus == 0 then
       $.params.defaultCpuImage
     else
@@ -114,19 +114,17 @@
       name: $.params.name,
       image: $.params.modelServerImage,
       imagePullPolicy: "IfNotPresent",
-      args: [
+      command: [
         "/usr/bin/tensorflow_model_server",
+      ],
+      args: [
         "--port=9000",
-        "--rest_api_port=9001",
         "--model_name=" + $.params.modelName,
         "--model_base_path=" + $.params.modelPath,
       ],
       ports: [
         {
           containerPort: 9000,
-        },
-        {
-          containerPort: 9001,
         },
       ],
       // TODO(jlewi): We should add readiness and liveness probes. I think the blocker is that
@@ -271,11 +269,6 @@
             name: "grpc-tf-serving",
             port: 9000,
             targetPort: 9000,
-          },
-          {
-            name: "rest-tf-serving",
-            port: 9001,
-            targetPort: 9001,
           },
           {
             name: "http-tf-serving-proxy",
