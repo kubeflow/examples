@@ -37,9 +37,10 @@ WORKDIR /opt/pytorch
 
 RUN git clone --recursive https://github.com/pytorch/pytorch
 
+# Checkout 1.0rc1 release as latest master seems to have MPI backend detection broken
 RUN TORCH_CUDA_ARCH_LIST="3.5 5.2 6.0 6.1 7.0+PTX" TORCH_NVCC_FLAGS="-Xfatbin -compress-all" \
-    CMAKE_PREFIX_PATH="$(dirname $(which conda))/../" \
-    cd pytorch/ && \
+    CMAKE_PREFIX_PATH="$(dirname $(which conda))/../" BUILD_ATEN_MOBILE=ON USE_OPENMP=OFF \
+    cd pytorch/ && git checkout tags/v1.0rc1 && git submodule update --init --recursive && \
     pip install -v .
 
 RUN /opt/conda/bin/conda config --set ssl_verify False
