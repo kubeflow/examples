@@ -15,14 +15,11 @@ spec:
               volumeMounts:
               - mountPath: /mnt/kubeflow-gcfs
                 name: kubeflow-gcfs
-              resources:
-                limits:
-                  nvidia.com/gpu: 1
-              volumes:
-              - name: kubeflow-gcfs
-                persistentVolumeClaim:
-                  claimName: kubeflow-gcfs
-                  readOnly: false
+          volumes:
+            - name: kubeflow-gcfs
+              persistentVolumeClaim:
+                claimName: kubeflow-gcfs
+                readOnly: false
     Worker:
       replicas: 3
       restartPolicy: OnFailure
@@ -34,11 +31,8 @@ spec:
               volumeMounts:
               - mountPath: /mnt/kubeflow-gcfs
                 name: kubeflow-gcfs
-              resources:
-                limits:
-                  nvidia.com/gpu: 1
-              volumes:
-              - name: kubeflow-gcfs
-                persistentVolumeClaim:
-                  claimName: kubeflow-gcfs
-                  readOnly: false
+          volumes:
+            - name: kubeflow-gcfs
+              persistentVolumeClaim:
+                claimName: kubeflow-gcfs
+                readOnly: false
