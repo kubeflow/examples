@@ -47,13 +47,20 @@ build-dataflow:
 	@echo Built $(IMG)-dataflow:$(TAG)
 
 build-ks:
-	docker build -f "./docker/ks/Dockerfile" \
+	docker build -f "./pipeline/ks/Dockerfile" \
              -t $(IMG)-ks:$(TAG) \
              --label=git-versions=$(GIT_VERSION) \
 			 .
 	@echo Built $(IMG)-ks:$(TAG)
 
-build: build-cpu build-gpu build-dataflow build-ks
+build-push-to-git:
+	docker build -f "./pipeline/push-to-git/Dockerfile" \
+             -t $(IMG)-push-to-git:$(TAG) \
+             --label=git-versions=$(GIT_VERSION) \
+			 .
+	@echo Built $(IMG)-push-to-git:$(TAG)
+
+build: build-cpu build-gpu build-dataflow build-ks build-push-to-git
 
 # Build using GCB. This is useful if we are on a slow internet connection
 # and don't want to pull 
@@ -91,5 +98,10 @@ push-ks: build-ks
 	gcloud docker --authorize-only
 	docker push $(IMG)-ks:$(TAG)
 	@echo Pushed $(IMG)-ks:$(TAG)
+
+push-push-to-git: build-push-to-git
+	gcloud docker --authorize-only
+	docker push $(IMG)-push-to-git:$(TAG)
+	@echo Pushed $(IMG)-push-to-git:$(TAG)
 
 push: push-cpu push-gpu push-dataflow push-ks

@@ -14,7 +14,7 @@ RUN apt-get update -q && apt-get upgrade -y && \
     chmod u+x /bin/kubectl
 
 ADD kubeflow /usr/local/src
-ADD docker/ks/deploy.sh /usr/local/src
+ADD pipeline/ks/deploy.sh /usr/local/src
 
 
 WORKDIR /usr/local/src
