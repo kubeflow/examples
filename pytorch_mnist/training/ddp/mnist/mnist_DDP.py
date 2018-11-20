@@ -178,7 +178,7 @@ def run(rank, size, modelpath, gpu):
   model_dir = modelpath
 
   num_batches = ceil(len(train_set.dataset) / float(bsz))
-  logging.info("num_batches = ", num_batches)
+  logging.info("num_batches = %s", num_batches)
   time_start = datetime.datetime.now()
   for epoch in range(3):
     epoch_loss = 0.0
@@ -208,9 +208,9 @@ def run(rank, size, modelpath, gpu):
     logging.info("Saving model in {}".format(model_path))
     torch.save(model.module.state_dict(), model_path)
   if gpu:
-    logging.info("GPU training time=", datetime.datetime.now() - time_start)
+    logging.info("GPU training time= {}".format(str(datetime.datetime.now() - time_start)))
   else:
-    logging.info("CPU training time=", datetime.datetime.now() - time_start)
+    logging.info("CPU training time= {}".format(str(datetime.datetime.now() - time_start)))
 
 
 def init_print(rank, size, debug_print=True):
