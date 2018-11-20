@@ -48,8 +48,8 @@ class mnistddpserving():
   def __init__(self):
     self.class_names = ["class:{}".format(str(i)) for i in range(10)]
     self.model = Net()
-    # TODO parametrise path to load model, defaulting to CPU
-    self.model.load_state_dict(torch.load("/mnt/kubeflow-gcfs/pytorch/model/model_cpu.dat",
+    # TODO parametrise path to load model, defaulting to GPU
+    self.model.load_state_dict(torch.load("/mnt/kubeflow-gcfs/pytorch/model/model_gpu.dat",
                                           map_location='cpu'))
     # Ensure the model is in eval/inference mode
     self.model.eval()
