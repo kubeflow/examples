@@ -54,7 +54,8 @@ class mnistddpserving():
     # Ensure the model is in eval/inference mode
     self.model.eval()
 
-  def predict(self, x):
+  def predict(self, x, feature_names):
+    feature_names = feature_names
     tensor = torch.from_numpy(x).view(-1, 28, 28)
     t = transforms.Normalize((0.1307,), (0.3081,))
     tensor_norm = t(tensor)
