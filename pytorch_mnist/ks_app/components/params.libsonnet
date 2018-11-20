@@ -8,7 +8,7 @@
     // Each object below should correspond to a component in the components/ directory
     "web-ui": {
       containerPort: 5000,
-      image: "gcr.io/kubeflow-ci/pytorch-mnist-ui",
+      image: "gcr.io/kubeflow-ci/pytorch-mnist-webui",
       name: "web-ui",
       replicas: 1,
       servicePort: 80,
