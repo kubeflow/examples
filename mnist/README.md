@@ -6,18 +6,18 @@ This example guides you through the process of taking an example model, modifyin
 
 Before we get started there a few requirements.
 
-## 1.Kubernetes Cluster Environment
+### 1. Kubernetes Cluster Environment
 
-For supported versions, please check Kubeflow document: https://www.kubeflow.org/docs/started/getting-started/
+For supported versions, please check Kubeflow document: https://v0-3.kubeflow.org/docs/started/getting-started/
 
-## 2.ksonnect cli
+### 2. ksonnect cli
 
 ```
 curl -fksSL https://github.com/ksonnet/ksonnet/releases/download/v0.13.0/ks_0.13.0_linux_amd64.tar.gz \
     | tar --strip-components=1 -xvz -C /usr/local/bin/ ks_0.13.0_linux_amd64/ks
 ```
 
-## 3.Kubeflow environment
+### 3. Kubeflow environment
 
 ```
 git clone -b v0.3.2 https://github.com/kubeflow/kubeflow
@@ -27,40 +27,45 @@ cd kf-app
 ../kubeflow/scripts/kfctl.sh apply k8s
 ```
 
-For detail info, check here: https://www.kubeflow.org/docs/started/getting-started/
+For detail info, check here: https://v0-3.kubeflow.org/docs/started/getting-started/
 
 Note: The vizier-db in Kubeflow depends on a PV, you need to create it in order to make vizier-db work. But this does not affect this example.
 
-
-## 4.Setup Minio
-
-Minio provides an S3 compatible API, we will use Minio in this example to act as S3.
-
-### Deploy Minio
-
-```
-docker run -e MINIO_ACCESS_KEY=minio -e MINIO_SECRET_KEY=minio123 \
-    --name=minio -d --net=host -v /var/lib/minio:/data minio/minio server /data
-```
-
-The Minio access key is `minio`, secret key is `minio123`. We will use them in later steps.
-
-
-### Create Minio bucket
-
-```
-mkdir /var/lib/minio/tfmnist
-```
-
-
-## 5.Download argo cli
+### 4. argo cli
 
 ```
 curl -sSL -o /usr/local/bin/argo https://github.com/argoproj/argo/releases/download/v2.2.1/argo-linux-amd64
 chmod +x /usr/local/bin/argo
 ```
 
-## 6.Create tf service account
+
+## Setup Minio[optional]
+
+Minio provides an S3 compatible API, if you don't have S3 storage, then you can setup Minio.
+
+If you use Minio, please also set `S3_USE_HTTPS=0`, `S3_VERIFY_SSL=0` and use `your-minio-ip:9000`  as `S3_ENDPOINT` and `http://your-minio-ip:9000`  as `AWS_ENDPOINT_URL` in following steps.
+
+### 1. Deploy Minio
+
+```
+docker run -e MINIO_ACCESS_KEY=minio -e MINIO_SECRET_KEY=minio123 \
+    --name=minio -d --net=host -v /var/lib/minio:/data minio/minio server /data
+```
+
+The Minio access key is `minio`, secret key is `minio123`, you can use them as `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` in following steps.
+
+### 2. Create Minio bucket
+
+```
+mkdir /var/lib/minio/tfmnist
+```
+
+The Minio bucket name is `tfmnist`, you can use it as `BUCKET_NAME` in following steps.
+
+If you want run more than one trainning and serving jobs, you can create another bucket and use it.
+
+
+## Create tf service account
 
 Due to lack of permissions in default serviceaccount, so we created a new one with the required permissions.
 
@@ -73,25 +78,23 @@ kubectl create ns ${NAMESPACE}
 kubectl -n ${NAMESPACE} apply -f tf-user.yaml
 ```
 
-## 7.Create secret for workflow
-
-NOTE: replace `192.168.100.155` with your own Minio server address that setup in step 4.
+## Create secret for workflow
 
 ```
-export S3_ENDPOINT=192.168.100.155:9000
-export AWS_ENDPOINT_URL=http://${S3_ENDPOINT}
-export AWS_ACCESS_KEY_ID=minio
-export AWS_SECRET_ACCESS_KEY=minio123
+export S3_ENDPOINT=s3.us-west-2.amazonaws.com  #replace with your s3 endpoint
+export AWS_ENDPOINT_URL=https://${S3_ENDPOINT} #use http instead of https for default minio installs
+export AWS_ACCESS_KEY_ID=xxxxx
+export AWS_SECRET_ACCESS_KEY=xxxxx
 export AWS_REGION=us-west-2
-export BUCKET_NAME=tfmnist
-export S3_USE_HTTPS=0
-export S3_VERIFY_SSL=0
+export BUCKET_NAME=mybucket
+export S3_USE_HTTPS=1 #set to 0 for default minio installs
+export S3_VERIFY_SSL=1 #set to 0 for defaul minio installs
 
 kubectl -n ${NAMESPACE} create secret generic aws-creds \
   --from-literal=awsAccessKeyID=${AWS_ACCESS_KEY_ID} --from-literal=awsSecretAccessKey=${AWS_SECRET_ACCESS_KEY}
 ```
 
-## 8.Submit training workflow
+## Submit training workflow
 
 NOTE: By default this training workflow will enable model serving, you can disable model serving by passing `-p model-serving=false` to this workflow. And follow step 9 to enable model serving.
 
@@ -150,9 +153,9 @@ $ argo -n ${NAMESPACE} get tf-workflow-h7hwh
 After the STATUS to `Succeeded`, then you can use it.
 
 
-## 9.Submit serving workflow[optional]
+## Submit serving workflow[optional]
 
-**NOTE: Please only run this when you disable model serving in step 7.**
+**NOTE: Please only run this when you disable model serving in above step**
 
 ```
 argo -n ${NAMESPACE} list # get the workflow name
@@ -160,15 +163,15 @@ WORKFLOW=<the workflow name>
 argo submit model-deploy.yaml -n ${NAMESPACE} -p workflow=${WORKFLOW} --serviceaccount=tf-user
 ```
 
-## 10.Using Tensorflow serving
+## Using Tensorflow serving
 
-### Install client requirements
+### 1. Install client requirements
 
 ```
 pip install -r requirements.txt
 ```
 
-### Submit and query result
+### 2. Submit and query result
 
 ```
 SERVICE_IP=$(kubectl -n ${NAMESPACE} get service -l app=mnist-${JOB_NAME} -o jsonpath='{.items[0].spec.clusterIP}')
@@ -250,7 +253,7 @@ Your model says the above number is... 7!
 You can also omit `TF_MNIST_IMAGE_PATH`, and the client will pick a random number from the mnist test data. Run it repeatedly and see how your model fares!
 
 
-## 11.Submitting new argo jobs
+## Submitting new argo jobs
 
 If you want to rerun your workflow from scratch, then you will need to provide a new `job-name` to the argo workflow. For example:
 
@@ -273,6 +276,6 @@ argo submit model-train.yaml -n ${NAMESPACE} --serviceaccount tf-user \
     -p namespace=${NAMESPACE}
 ```
 
-## 12.Conclusion and Next Steps
+## Conclusion and Next Steps
 
 This is an example of what your machine learning pipeline can look like. Feel free to play with the tunables and see if you can increase your model's accuracy (increasing `model-train-steps` can go a long way).
