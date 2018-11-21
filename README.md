@@ -5,10 +5,10 @@ concepts, data science workflows, and Kubeflow deployments. The examples illustr
 acting as a starting point for new users and a reference guide for experienced users.
 
 This repository is home to the following types of examples and demos:
-1. [End-to-end](#end-to-end)
-1. [Component-focused](#component-focused)
-1. [Application-specific](#application-specific)
-1. [Demos](#demos)
+* [End-to-end](#end-to-end)
+* [Component-focused](#component-focused)
+* [Application-specific](#application-specific)
+* [Demos](#demos)
 
 ## End-to-end
 
