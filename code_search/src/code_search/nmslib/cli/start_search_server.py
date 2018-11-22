@@ -2,14 +2,14 @@
 # ImportError: dlopen: cannot load any more object with static TLS.
 # We get this error when running inside a docker container. Moving the
 # import to the top of the file seems to work around this.
-import nmslib
+import nmslib # pylint: disable=unused-import
 
-import csv
-import logging
-import json
-import os
-import functools
-import requests
+import csv  # pylint: disable=wrong-import-order
+import logging  # pylint: disable=wrong-import-order
+import json  # pylint: disable=wrong-import-order
+import os  # pylint: disable=wrong-import-order
+import functools # pylint: disable=wrong-import-order
+import requests  # pylint: disable=wrong-import-order
 import tensorflow as tf
 
 import code_search.nmslib.cli.arguments as arguments
@@ -66,7 +66,7 @@ def start_search_server(argv=None):
   if not os.path.isdir(args.tmp_dir):
     os.makedirs(args.tmp_dir)
 
-  logging.info('Reading {}'.format(args.lookup_file))
+  logging.info('Reading %s', args.lookup_file)
   lookup_data = []
   with tf.gfile.Open(args.lookup_file) as lookup_file:
     reader = csv.reader(lookup_file)
@@ -75,7 +75,7 @@ def start_search_server(argv=None):
 
   tmp_index_file = os.path.join(args.tmp_dir, os.path.basename(args.index_file))
 
-  logging.info('Reading {}'.format(args.index_file))
+  logging.info('Reading %s', args.index_file)
   if not os.path.isfile(tmp_index_file):
     tf.gfile.Copy(args.index_file, tmp_index_file)
 
