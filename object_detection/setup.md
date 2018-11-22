@@ -42,6 +42,10 @@ Let's make use of the app to continue with the tutorial.
 
 ```
 cd ks-app
+ks env rm default
+ENV=default
+ks env add ${ENV} --context=`kubectl config current-context`
+ks env set ${ENV} --namespace kubeflow
 ```
 
 ## Preparing the training data

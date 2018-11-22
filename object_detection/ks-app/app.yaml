@@ -6,12 +6,6 @@ environments:
       server: https://35.193.147.35
     k8sVersion: v1.9.6
     path: default
-  kai4:
-    destination:
-      namespace: kubeflow
-      server: https://35.227.118.244
-    k8sVersion: v1.9.6
-    path: kai4
 kind: ksonnet.io/app
 libraries:
   tf-serving:
