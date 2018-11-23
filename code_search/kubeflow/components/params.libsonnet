@@ -90,11 +90,9 @@
       indexFile: $.components["t2t-code-search"].workingDir + "/code_search_index.nmslib",
     },
     "search-index-server": {
+      // Most defaults should be defined in experiments.libsonnet.
+      // Parameters will be used to override those values.
       name: "search-index-server",
-      problem: $.components["t2t-code-search"].problem,
-      dataDir: $.components["t2t-code-search"].workingDir + "/data",
-      lookupFile: $.components["t2t-code-search"].workingDir + "/code_search_index.csv",
-      indexFile: $.components["t2t-code-search"].workingDir + "/code_search_index.nmslib",
       servingUrl: "http://t2t-code-search.kubeflow:8500/v1/models/t2t-code-search:predict",
       // 1 replica is convenient for debugging but we should bump after debugging.
       replicas: 1,

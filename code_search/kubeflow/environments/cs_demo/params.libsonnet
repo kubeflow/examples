@@ -1,14 +1,15 @@
-local params = std.extVar("__ksonnet/params");
-local globals = import "globals.libsonnet";
+local params = std.extVar('__ksonnet/params');
+local globals = import 'globals.libsonnet';
 local envParams = params {
   components+: {
-    "t2t-code-search"+: {
-    },
+    "t2t-code-search"+: {},
     "t2t-code-search-datagen"+: {
-      githubTable: "",
+      githubTable: '',
     },
     "submit-preprocess-job"+: {
-      githubTable: "",
+      githubTable: '',
+    },
+    "search-index-server"+: {
     },
   },
 };
