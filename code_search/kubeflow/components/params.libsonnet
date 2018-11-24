@@ -1,5 +1,12 @@
 {
-  global: {},
+  global: {
+    workingDir: "gs://YOUR/WORKING_DIR",
+    dataDir: "gs://YOUR/DATA_DIR",
+    project: "SET_TO_YOUR_PROJECT",
+    // Experiment needs to be set to a value that exists 
+    // otherwise ksonnet will be valid.
+    experiment: "demo-trainer-11-07-dist-sync-gpu",
+  },
   components: {
 
     // TODO(jlewi): t2t-job and t2t-code-search are intended to set values
