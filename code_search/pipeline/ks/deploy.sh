@@ -2,6 +2,8 @@
 
 set -ex
 
+# The name of the cluster where the pipeline runs
+KUBECTL_CLUSTER_NAME="kubeflow"
 # Default namespace to deploy the ksonnet component to
 NAMESPACE="kubeflow"
 # Providing negative value to kubeflow wait would wait for a week
@@ -35,6 +37,10 @@ while [ "$1" != "" ]; do
         shift
         NAMESPACE=$1
         ;;
+      --cluster )
+        shift
+        KUBECTL_CLUSTER_NAME=$1
+        ;;
       -h | --help )
         usage
         exit
@@ -46,7 +52,6 @@ while [ "$1" != "" ]; do
     shift
 done
 
-KUBECTL_CLUSTER_NAME="kubeflow"
 KUBECTL_CONTEXT_NAME="kubeflow"
 # Configure kubectl to use the underlying cluster
 kubectl config set-cluster "${KUBECTL_CLUSTER_NAME}" --server=https://kubernetes.default --certificate-authority=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
