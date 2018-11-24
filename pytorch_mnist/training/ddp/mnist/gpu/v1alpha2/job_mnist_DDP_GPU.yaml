@@ -11,7 +11,7 @@ spec:
         spec:
           containers:
             - name: pytorch
-              image: gcr.io/kubeflow-examples/pytorch-mnist-ddp-gpu
+              image: gcr.io/kubeflow-ci/pytorch-mnist-ddp-gpu
               volumeMounts:
               - mountPath: /mnt/kubeflow-gcfs
                 name: kubeflow-gcfs
@@ -31,15 +31,15 @@ spec:
         spec:
           containers:
             - name: pytorch
-              image: gcr.io/kubeflow-examples/pytorch-mnist-ddp-gpu
+              image: gcr.io/kubeflow-ci/pytorch-mnist-ddp-gpu
               volumeMounts:
               - mountPath: /mnt/kubeflow-gcfs
-                name: kubeflow-fs
+                name: kubeflow-gcfs
               resources: 
                 limits:
                   nvidia.com/gpu: 1
           volumes:
-            - name: kubeflow-fs
+            - name: kubeflow-gcfs
               persistentVolumeClaim:
                 claimName: kubeflow-gcfs
                 readOnly: false

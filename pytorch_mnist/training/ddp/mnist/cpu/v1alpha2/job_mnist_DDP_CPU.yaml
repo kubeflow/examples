@@ -11,7 +11,15 @@ spec:
         spec:
           containers:
             - name: pytorch
-              image: gcr.io/kubeflow-examples/pytorch-mnist-ddp-cpu
+              image: gcr.io/kubeflow-ci/pytorch-mnist-ddp-cpu
+              volumeMounts:
+              - mountPath: /mnt/kubeflow-gcfs
+                name: kubeflow-gcfs
+          volumes:
+            - name: kubeflow-gcfs
+              persistentVolumeClaim:
+                claimName: kubeflow-gcfs
+                readOnly: false
     Worker:
       replicas: 3
       restartPolicy: OnFailure
@@ -19,4 +27,12 @@ spec:
         spec:
           containers:
             - name: pytorch
-              image: gcr.io/kubeflow-examples/pytorch-mnist-ddp-cpu
+              image: gcr.io/kubeflow-ci/pytorch-mnist-ddp-cpu
+              volumeMounts:
+              - mountPath: /mnt/kubeflow-gcfs
+                name: kubeflow-gcfs
+          volumes:
+            - name: kubeflow-gcfs
+              persistentVolumeClaim:
+                claimName: kubeflow-gcfs
+                readOnly: false

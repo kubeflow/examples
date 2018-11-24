@@ -8,14 +8,14 @@
     // Each object below should correspond to a component in the components/ directory
     "web-ui": {
       containerPort: 5000,
-      image: "gcr.io/kubeflow-examples/pytorch-mnist-ui",
+      image: "gcr.io/kubeflow-ci/pytorch-mnist-webui",
       name: "web-ui",
       replicas: 1,
       servicePort: 80,
       type: "ClusterIP",
     },
     serving_model: {
-        image: "gcr.io/kubeflow-examples/mnistddpserving",
+        image: "gcr.io/kubeflow-ci/mnistddpserving",
         name : "mnist-classifier",
         mountPath: "/mnt/kubeflow-gcfs",
         replicas: 1,

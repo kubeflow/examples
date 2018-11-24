@@ -34,7 +34,7 @@ class Net(torch.nn.Module):
     self.fc1 = torch.nn.Linear(320, 50)
     self.fc2 = torch.nn.Linear(50, 10)
 
-  def forward(self, *x):
+  def forward(self, x):
     x = f.relu(f.max_pool2d(self.conv1(x), 2))
     x = f.relu(f.max_pool2d(self.conv2_drop(self.conv2(x)), 2))
     x = x.view(-1, 320)
@@ -48,13 +48,14 @@ class mnistddpserving():
   def __init__(self):
     self.class_names = ["class:{}".format(str(i)) for i in range(10)]
     self.model = Net()
-    # TODO parametrise path to load model
-    self.model.load_state_dict(torch.load("/mnt/kubeflow-gcfs/pytorch/model/model.dat",
+    # TODO parametrise path to load model, defaulting to GPU
+    self.model.load_state_dict(torch.load("/mnt/kubeflow-gcfs/pytorch/model/model_gpu.dat",
                                           map_location='cpu'))
     # Ensure the model is in eval/inference mode
     self.model.eval()
 
-  def predict(self, x):
+  def predict(self, x, feature_names):
+    feature_names = feature_names
     tensor = torch.from_numpy(x).view(-1, 28, 28)
     t = transforms.Normalize((0.1307,), (0.3081,))
     tensor_norm = t(tensor)
