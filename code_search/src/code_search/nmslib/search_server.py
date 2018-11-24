@@ -1,3 +1,4 @@
+import logging
 import os
 from flask import Flask, request, abort, jsonify, make_response, redirect
 
@@ -40,6 +41,7 @@ class CodeSearchServer:
     @self.app.route('/query')
     def query():
       query_str = request.args.get('q')
+      logging.info("Got query: %s", query_str)
       if not query_str:
         abort(make_response(
           jsonify(status=400, error="empty query"), 400))

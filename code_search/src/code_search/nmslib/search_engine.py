@@ -1,3 +1,4 @@
+import logging
 import nmslib
 
 
@@ -24,7 +25,9 @@ class CodeSearchEngine:
     self.embedding_fn = embedding_fn
 
   def query(self, query_str, k=2):
+    logging.info("Embedding query: %s", query_str)
     embedding = self.embedding_fn(query_str)
+    logging.info("Calling knn server")
     idxs, dists = self.index.knnQuery(embedding, k=k)
 
     result = [dict(zip(self.DICT_LABELS, self.lookup_data[id])) for id in idxs]

@@ -1,9 +1,15 @@
-import csv
-import logging
-import json
-import os
-import functools
-import requests
+# TODO(jlewi): We import nmslib at the top as a hack to fix the error
+# ImportError: dlopen: cannot load any more object with static TLS.
+# We get this error when running inside a docker container. Moving the
+# import to the top of the file seems to work around this.
+import nmslib # pylint: disable=unused-import
+
+import csv  # pylint: disable=wrong-import-order
+import logging  # pylint: disable=wrong-import-order
+import json  # pylint: disable=wrong-import-order
+import os  # pylint: disable=wrong-import-order
+import functools # pylint: disable=wrong-import-order
+import requests  # pylint: disable=wrong-import-order
 import tensorflow as tf
 
 import code_search.nmslib.cli.arguments as arguments
@@ -17,6 +23,7 @@ from code_search.nmslib.search_server import CodeSearchServer
 def embed_query(encoder, serving_url, query_str):
   data = {"instances": [{"input": {"b64": encoder(query_str)}}]}
 
+  logging.info("Sending request to: %s", serving_url)
   response = requests.post(url=serving_url,
                            headers={'content-type': 'application/json'},
                            data=json.dumps(data))
@@ -54,14 +61,12 @@ def start_search_server(argv=None):
   Args:
     argv: A list of strings representing command line arguments.
   """
-  tf.logging.set_verbosity(tf.logging.INFO)
-
   args = arguments.parse_arguments(argv)
 
   if not os.path.isdir(args.tmp_dir):
     os.makedirs(args.tmp_dir)
 
-  tf.logging.debug('Reading {}'.format(args.lookup_file))
+  logging.info('Reading %s', args.lookup_file)
   lookup_data = []
   with tf.gfile.Open(args.lookup_file) as lookup_file:
     reader = csv.reader(lookup_file)
@@ -70,7 +75,7 @@ def start_search_server(argv=None):
 
   tmp_index_file = os.path.join(args.tmp_dir, os.path.basename(args.index_file))
 
-  tf.logging.debug('Reading {}'.format(args.index_file))
+  logging.info('Reading %s', args.index_file)
   if not os.path.isfile(tmp_index_file):
     tf.gfile.Copy(args.index_file, tmp_index_file)
 
