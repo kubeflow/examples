@@ -22,10 +22,6 @@ while [ "$1" != "" ]; do
         shift
         GIT_REPO=$1
         ;;
-      --user_email )
-        shift
-        USER_EMAIL=$1
-        ;;
       -h | --help )
         usage
         exit
@@ -37,7 +33,7 @@ while [ "$1" != "" ]; do
     shift
 done
 
-git config --global user.email ${USER_EMAIL}
+git config --global user.email pipeline@localhost
 git clone https://${GIT_TOKEN}@github.com/${GIT_REPO}.git repo
 cd repo && gsutil cp ${GCS_FILE} . && git add * && git commit -m "index update" && git push origin master
 
