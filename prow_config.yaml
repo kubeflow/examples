@@ -38,7 +38,7 @@ workflows:
     params:
       registry: "gcr.io/kubeflow-ci"
     include_dirs:
-    - pytorch_mnist/training/ddp/mnist/cpu/*
+    - pytorch_mnist/training/ddp/mnist/*
 # The postsubmit run publishes the docker images to gcr.io/kubeflow-images-public
   - app_dir: kubeflow/examples/test/workflows
     component: pytorch-mnist-cpu-release
@@ -48,7 +48,7 @@ workflows:
     params:
       registry: "gcr.io/kubeflow-images-public"
     include_dirs:
-    - pytorch_mnist/training/ddp/mnist/cpu/*
+    - pytorch_mnist/training/ddp/mnist/*
 
   - app_dir: kubeflow/examples/test/workflows
     component: pytorch-mnist-gpu-release
@@ -58,7 +58,7 @@ workflows:
     params:
       registry: "gcr.io/kubeflow-ci"
     include_dirs:
-    - pytorch_mnist/training/ddp/mnist/gpu/*
+    - pytorch_mnist/training/ddp/mnist/*
 # The postsubmit run publishes the docker images to gcr.io/kubeflow-images-public
   - app_dir: kubeflow/examples/test/workflows
     component: pytorch-mnist-gpu-release
@@ -68,7 +68,7 @@ workflows:
     params:
       registry: "gcr.io/kubeflow-images-public"
     include_dirs:
-    - pytorch_mnist/training/ddp/mnist/gpu/*
+    - pytorch_mnist/training/ddp/mnist/*
 
   - app_dir: kubeflow/examples/test/workflows
     component: pytorch-mnist-serve-release
