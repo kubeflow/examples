@@ -13,6 +13,21 @@ We are using the following project
 * **project**: code-search-demo
 * **[code-search-team@kubeflow.org](https://github.com/kubeflow/internal-acls/blob/master/code-search-team.members.txt)** Google group administering access
 
+
+# Deploying the services
+
+1. Deploy the TFServing server
+
+   ```
+   ks12 show  cs_demo -c t2t-code-search-serving
+   ```
+
+1. Deploy the UI and nmslib index server
+
+   ```
+   ks12 apply  cs_demo -c search-index-server
+   ```
+
 # Results
 
 ## 2018-11-05
@@ -41,12 +56,3 @@ jlewi@ ran experiments that produced the following results
 | transformer_base_single_gpu | 1 GPU worker (K80) | ~3.22611 global step /sec
 | transformer_base | 1 chief with K80, 8 workers with 1 K80, sync training| ~ 0.0588723 global step /sec
 | transformer_base | 1 chief (no GPU), 8 workers (no GPU), sync training| ~ 0.707014 global step /sec
-
-
-
-
-
-
-
-
-
