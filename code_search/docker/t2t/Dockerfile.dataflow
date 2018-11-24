@@ -1,4 +1,5 @@
-# Dockerfile suitable for submitting Dataflow jobs.
+# Dockerfile suitable for submitting Dataflow jobs and for runnin nmslib index creator.
+#
 # We don't use the Docker image used for running the training jobs
 # because we have different versioning requirements.
 FROM python:2.7-jessie
@@ -7,9 +8,13 @@ FROM python:2.7-jessie
 # so we need to install them for Python2.
 # We do this before copying the code because we don't want to have
 # reinstall the requirements just because the code changed.
-COPY src/requirements.txt /tmp/requirements.txt
-RUN pip install -r /tmp/requirements.txt
+COPY src/requirements.dataflow.txt /tmp/requirements.dataflow.txt
+RUN pip install -r /tmp/requirements.dataflow.txt
 RUN pip install https://github.com/kubeflow/batch-predict/tarball/master
+
+# Install nmslib requirements so that we can create the index
+COPY src/requirements.nmslib.txt /tmp/requirements.nmslib.txt
+RUN pip install -r /tmp/requirements.nmslib.txt
 
 # install the spacy model
 RUN python -m spacy download en

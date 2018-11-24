@@ -19,8 +19,20 @@ This example covers the following concepts:
 1. Connecting to Jupyterhub
 1. Shared persistent storage
 1. Training a Tensorflow model
-  1. CPU
-  1. GPU
+    1. CPU
+    1. GPU
+1. Serving with Seldon Core
+1. Flask front-end
+
+### [Pytorch MNIST](./pytorch_mnist)
+Author: [David Sabater](https://github.com/dsdinter)
+
+This example covers the following concepts:
+1. Distributed Data Parallel (DDP) training with Pytorch on CPU and GPU
+1. Shared persistent storage
+1. Training a Pytorch model
+    1. CPU
+    1. GPU
 1. Serving with Seldon Core
 1. Flask front-end
 

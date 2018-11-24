@@ -9,6 +9,10 @@ with open('requirements.txt', 'r') as f:
   install_requires = f.readlines()
 
 CUSTOM_COMMANDS = [
+  # TODO(jlewi): python -m is complaining that module spacy not found even
+  # though it should be installed due to requirements. Reinstalling
+  # it using a custom command appears to fix the problem.
+  ['pip', 'install', 'spacy'],
   ['python', '-m', 'spacy', 'download', 'en'],
   # TODO(sanyamkapoor): This isn't ideal but no other way for a seamless install right now.
   ['pip', 'install', 'https://github.com/kubeflow/batch-predict/tarball/master']
