@@ -9,6 +9,6 @@
 // @optionalParam uiImage string gcr.io/ml-pipeline/frontend:0.1.2 UI docker image
 
 local k = import "k.libsonnet";
-local all = import "kubeflow/pipeline/all.libsonnet";
+local all = import "kfp/pipeline/all.libsonnet";
 
 std.prune(k.core.v1.list.new(all.parts(env, params).all))

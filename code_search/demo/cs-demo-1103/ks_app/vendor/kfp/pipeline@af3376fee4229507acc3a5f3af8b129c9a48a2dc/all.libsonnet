@@ -2,12 +2,12 @@
   parts(_env, _params):: {
     local params = _env + _params,
 
-    local minio = import "kubeflow/pipeline/minio.libsonnet",
-    local mysql = import "kubeflow/pipeline/mysql.libsonnet",
-    local pipeline_apiserver = import "kubeflow/pipeline/pipeline-apiserver.libsonnet",
-    local pipeline_scheduledworkflow = import "kubeflow/pipeline/pipeline-scheduledworkflow.libsonnet",
-    local pipeline_persistenceagent = import "kubeflow/pipeline/pipeline-persistenceagent.libsonnet",
-    local pipeline_ui = import "kubeflow/pipeline/pipeline-ui.libsonnet",
+    local minio = import "kfp/pipeline/minio.libsonnet",
+    local mysql = import "kfp/pipeline/mysql.libsonnet",
+    local pipeline_apiserver = import "kfp/pipeline/pipeline-apiserver.libsonnet",
+    local pipeline_scheduledworkflow = import "kfp/pipeline/pipeline-scheduledworkflow.libsonnet",
+    local pipeline_persistenceagent = import "kfp/pipeline/pipeline-persistenceagent.libsonnet",
+    local pipeline_ui = import "kfp/pipeline/pipeline-ui.libsonnet",
 
     local name = params.name,
     local namespace = params.namespace,
