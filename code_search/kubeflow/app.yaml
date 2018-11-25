@@ -8,7 +8,7 @@ environments:
     path: cs_demo
   pipeline:
     destination:
-      namespace: default
+      namespace: kubeflow
       server: https://kubernetes.default
     k8sVersion: v1.9.7
     path: pipeline
