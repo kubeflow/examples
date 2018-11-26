@@ -53,7 +53,7 @@ build-search-index-creator:
 			 .
 	@echo Built $(IMG)-search-index-creator:$(TAG)
 
-build: build-cpu build-gpu build-dataflow build-ks build-push-to-git
+build: build-cpu build-gpu build-dataflow build-search-index-creator
 
 # Build using GCB. This is useful if we are on a slow internet connection
 # and don't want to pull
@@ -103,4 +103,4 @@ push-search-index-creator: build-search-index-creator
 	docker push $(IMG)-search-index-creator:$(TAG)
 	@echo Pushed $(IMG)-search-index-creator:$(TAG)
 
-push: push-cpu push-gpu push-dataflow push-ks
+push: push-cpu push-gpu push-dataflow push-search-index-creator
