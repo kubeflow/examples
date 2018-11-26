@@ -1,4 +1,4 @@
-IMG = gcr.io/kubeflow/examples/code-search
+IMG = gcr.io/kubeflow-examples/code-search
 
 # List any changed  files. We only include files in the notebooks directory.
 # because that is the code in the docker image.
@@ -46,14 +46,14 @@ build-dataflow:
 			 .
 	@echo Built $(IMG)-dataflow:$(TAG)
 
-build-search-index-creator:
-	docker build -f "./docker/search-index-creator/Dockerfile" \
-             -t $(IMG)-search-index-creator:$(TAG) \
+build-ks:
+	docker build -f "./docker/ks/Dockerfile" \
+             -t $(IMG)-ks:$(TAG) \
              --label=git-versions=$(GIT_VERSION) \
 			 .
-	@echo Built $(IMG)-search-index-creator:$(TAG)
+	@echo Built $(IMG)-ks:$(TAG)
 
-build: build-cpu build-gpu build-dataflow build-search-index-creator
+build: build-cpu build-gpu build-dataflow build-ks
 
 # Build using GCB. This is useful if we are on a slow internet connection
 # and don't want to pull
@@ -109,9 +109,9 @@ push-dataflow: build-dataflow
 	docker push $(IMG)-dataflow:$(TAG)
 	@echo Pushed $(IMG)-dataflow:$(TAG)
 
-push-search-index-creator: build-search-index-creator
+push-ks: build-ks
 	gcloud docker --authorize-only
-	docker push $(IMG)-search-index-creator:$(TAG)
-	@echo Pushed $(IMG)-search-index-creator:$(TAG)
+	docker push $(IMG)-ks:$(TAG)
+	@echo Pushed $(IMG)-ks:$(TAG)
 
-push: push-cpu push-gpu push-dataflow push-search-index-creator
+push: push-cpu push-gpu push-dataflow push-ks

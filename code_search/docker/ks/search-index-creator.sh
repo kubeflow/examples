@@ -14,7 +14,7 @@ ksEnvName="pipeline"
 component="search-index-creator"
 
 usage() {
-	echo "Usage: deploy.sh --workingDir=<working dir> --workflowId=<workflow id invoking the container>
+	echo "Usage: search-index-creator.sh --workingDir=<working dir> --workflowId=<workflow id invoking the container>
 	--dataDir=<data dir> --timeout=<timeout>  --namespace=<kubernetes namespace>  --cluster=<cluster to deploy job to> "
 }
 

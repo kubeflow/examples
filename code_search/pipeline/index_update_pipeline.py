@@ -89,6 +89,7 @@ def search_index_creator_op(working_dir: str, data_dir: str,workflow_id: str, cl
         # use component name as step name
         name = 'search_index_creator',
         image = 'gcr.io/kubeflow-examples/code-search-search-index-creator:v20181126-4bc3286-dirty-38bd45',
+        command=['/usr/local/src/search-index-creator.sh'],
         arguments = [
             '--workingDir=%s' % working_dir,
             '--dataDir=%s'% data_dir,
