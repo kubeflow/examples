@@ -115,7 +115,7 @@ def function_embedding_update(
         num_workers=dsl.PipelineParam(name='num-workers', value=5)):
     workflow_name = '{{workflow.name}}'
     temp_location = '%s/dataflow/%s/temp' % (working_dir, workflow_name)
-    staging_location = '%s/dataflow/%s/sstaging' % (working_dir, workflow_name)
+    staging_location = '%s/dataflow/%s/staging' % (working_dir, workflow_name)
     function_embedding = dataflow_function_embedding_op(project, runner, target_dataset,problem,data_dir,saved_model_dir,
                                         temp_location,staging_location,workflow_name,worker_machine_type,num_workers)
     index_creator = search_index_creator_op(working_dir, data_dir, 'search-index-creator', cluster_name,
