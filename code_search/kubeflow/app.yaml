@@ -6,6 +6,12 @@ environments:
       server: https://35.185.115.154
     k8sVersion: v1.10.9
     path: cs_demo
+  pipeline:
+    destination:
+      namespace: kubeflow
+      server: https://kubernetes.default
+    k8sVersion: v1.9.7
+    path: pipeline
 kind: ksonnet.io/app
 libraries:
   examples:
