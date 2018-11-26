@@ -83,11 +83,11 @@ def dataflow_function_embedding_op(project: 'GcpProject', runner: str, target_da
         ]
     )
 
-def ksonnet_op(working_dir: str, data_dir: str, component: str, cluster_name: str, workflow_id: str):
+def search_index_creator_op(working_dir: str, data_dir: str, component: str, cluster_name: str, workflow_id: str):
     return dsl.ContainerOp(
         # use component name as step name
         name = component,
-        image = 'gcr.io/yang-codesearch/code-search-ks:v20181125-300521e-dirty-b76a3b',
+        image = 'gcr.io/yang-codesearch/code-search-search-index-creator:v20181125-6402df5-dirty-283f3e',
         arguments = [
             '--working_dir', working_dir,
             '--data_dir', data_dir,
@@ -118,7 +118,7 @@ def function_embedding_update(
     staging_location = '%s/dataflow/%s/sstaging' % (working_dir, workflow_name)
     function_embedding = dataflow_function_embedding_op(project, runner, target_dataset,problem,data_dir,saved_model_dir,
                                         temp_location,staging_location,workflow_name,worker_machine_type,num_workers)
-    index_creator = ksonnet_op(working_dir, data_dir, 'search-index-creator', cluster_name,
+    index_creator = search_index_creator_op(working_dir, data_dir, 'search-index-creator', cluster_name,
                                workflow_name).after(function_embedding)
 
 
