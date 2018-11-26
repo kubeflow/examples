@@ -15,7 +15,7 @@ RUN apt-get update -q && apt-get upgrade -y && \
 
 ADD kubeflow /usr/local/src
 ADD docker/search-index-creator/deploy.sh /usr/local/src
-
+ADD docker/parse_arguments.sh /usr/local/src
 
 WORKDIR /usr/local/src
 

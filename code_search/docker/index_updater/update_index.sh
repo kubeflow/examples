@@ -14,33 +14,14 @@ set -ex
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null && pwd)"
 
-parseArgs() {
-  # Parse all command line options
-  while [[ $# -gt 0 ]]; do
-    # Parameters should be of the form
-    # --{name}=${value}
-    echo parsing "$1"
-    if [[ $1 =~ ^--(.*)=(.*)$ ]]; then
-    	name=${BASH_REMATCH[1]}
-    	value=${BASH_REMATCH[2]}
-
-    	eval ${name}="${value}"
-    elif [[ $1 =~ ^--(.*)$ ]]; then
-		name=${BASH_REMATCH[1]}
-		value=true
-		eval ${name}="${value}"
-    else
-    	echo "Argument $1 did not match the pattern --{name}={value} or --{name}"
-    fi
-    shift
-  done
-}
-
 usage() {
 	echo "Usage: update_index.sh --base=OWNER:branch --appDir=<ksonnet app dir> --env=<ksonnet environment> --indexFile=<index file> --lookupFile=<lookup file>"
 }
 
-parseArgs $*
+# List of required parameters
+names=(appDir env lookupFile indexFile base)
+
+source "../parse_arguments.sh"
 
 if [ ! -z ${help} ]; then
 	usage
@@ -50,22 +31,6 @@ if [ -z ${dryrun} ]; then
 	dryrun=false
 fi
 
-# List of required parameters
-names=(appDir env lookupFile indexFile base)
-
-
-missingParam=false
-for i in ${names[@]}; do
-	if [ -z ${!i} ]; then
-		echo "--${i} not set"
-		missingParam=true		
-	fi	
-done
-
-if ${missingParam}; then
-	usage
-	exit 1
-fi
 cd ${appDir}
 ks param set --env=${env} search-index-server indexFile ${indexFile}
 ks param set --env=${env} search-index-server lookupFile ${lookupFile}
