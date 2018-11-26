@@ -36,7 +36,6 @@ ks param set ${component} jobNameSuffix ${workflowId} --env ${ksEnvName}
 ks param set ${component} lookupFile ${workingDir}/code-embeddings-index/${workflowId}/embedding-to-info.csv --env ${ksEnvName}
 ks param set ${component} indexFile ${workingDir}/code-embeddings-index/${workflowId}/embeddings.index --env ${ksEnvName}
 
-echo "running ks apply pipeline -c ${component}"
 ks apply ${ksEnvName} -c "${component}"
 
 JOB_NAME="pipeline-create-search-index-${workflowId}"
