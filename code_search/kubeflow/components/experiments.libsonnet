@@ -28,5 +28,8 @@
     problem: "kf_github_function_docstring",
     // modelBasePath shouldn't have integer in it.
     modelBasePath: "gs://code-search-demo/models/20181107-dist-sync-gpu/export/",
+
+    lookupFile: "null",
+    indexFile: "null",
   },
 }

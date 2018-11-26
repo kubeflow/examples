@@ -92,11 +92,9 @@
     },
     "search-index-creator": {
       name: "search-index-creator",
-      jobNameSuffix: "",
+      jobNameSuffix: "null",
       image: $.components["t2t-job"].dataflowImage,
       dataDir: $.components["t2t-code-search"].workingDir + "/data",
-      lookupFile: $.components["t2t-code-search"].workingDir + "/code_search_index.csv",
-      indexFile: $.components["t2t-code-search"].workingDir + "/code_search_index.nmslib",
     },
     "search-index-server": {
       // Most defaults should be defined in experiments.libsonnet.
