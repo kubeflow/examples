@@ -7,9 +7,10 @@ local experiments = import "experiments.libsonnet";
 
 local experimentName = baseParams.experiment;
 local experimentParams = experiments[experimentName];
-local params = baseParams + experimentParams + {
-  name: "search-index-server",
-};
+
+// baseParams override experiment parameters because we want to be able to set a new
+// index and csv file by doing ks param set.
+local params = experimentParams + baseParams;
 
 local deploymentSpec = {
   apiVersion: "extensions/v1beta1",
