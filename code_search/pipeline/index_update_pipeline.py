@@ -83,17 +83,18 @@ def dataflow_function_embedding_op(project: 'GcpProject', runner: str, target_da
         ]
     )
 
-def search_index_creator_op(working_dir: str, data_dir: str, component: str, cluster_name: str, workflow_id: str):
+
+def search_index_creator_op(working_dir: str, data_dir: str,workflow_id: str, cluster_name: str, namespace: str):
     return dsl.ContainerOp(
         # use component name as step name
-        name = component,
-        image = 'gcr.io/yang-codesearch/code-search-search-index-creator:v20181126-6a63824',
+        name = 'search_index_creator',
+        image = 'gcr.io/kubeflow-examples/code-search-search-index-creator:v20181126-4bc3286-dirty-38bd45',
         arguments = [
-            '--working_dir', working_dir,
-            '--data_dir', data_dir,
-            '--component', component,
-            '--cluster', cluster_name,
-            '--workflow_id', workflow_id,
+            '--workingDir=%s' % working_dir,
+            '--dataDir=%s'% data_dir,
+            '--workflowId=%s' % workflow_id,
+            '--cluster=%s' % cluster_name,
+            '--namespace=%s' % namespace,
         ]
     )
 
@@ -108,6 +109,7 @@ def function_embedding_update(
         data_dir,
         saved_model_dir,
         cluster_name,
+        namespace,
         problem=dsl.PipelineParam(name='problem', value='kf_github_function_docstring'),
         runner=dsl.PipelineParam(name='runnder', value='DataflowRunner'),
         target_dataset=dsl.PipelineParam(name='target-dataset', value='code_search'),
@@ -118,8 +120,7 @@ def function_embedding_update(
     staging_location = '%s/dataflow/%s/staging' % (working_dir, workflow_name)
     function_embedding = dataflow_function_embedding_op(project, runner, target_dataset,problem,data_dir,saved_model_dir,
                                         temp_location,staging_location,workflow_name,worker_machine_type,num_workers)
-    index_creator = search_index_creator_op(working_dir, data_dir, 'search-index-creator', cluster_name,
-                               workflow_name).after(function_embedding)
+    index_creator = search_index_creator_op(working_dir, data_dir, workflow_name, cluster_name, namespace).after(function_embedding)
 
 
 if __name__ == '__main__':
