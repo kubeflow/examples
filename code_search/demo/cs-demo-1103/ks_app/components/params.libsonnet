@@ -105,5 +105,12 @@
       privateGKECluster: "false",
       secretName: "envoy-ingress-tls",
     },
+    pipeline: {
+      apiImage: "gcr.io/ml-pipeline/api-server:0.1.2",
+      name: "pipeline",
+      persistenceAgentImage: "gcr.io/ml-pipeline/persistenceagent:0.1.2",
+      scheduledWorkflowImage: "gcr.io/ml-pipeline/scheduledworkflow:0.1.2",
+      uiImage: "gcr.io/ml-pipeline/frontend:0.1.2",
+    },
   },
 }
