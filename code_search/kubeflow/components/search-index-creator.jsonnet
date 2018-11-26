@@ -1,13 +1,13 @@
 local k = import "k.libsonnet";
 
 local env = std.extVar("__ksonnet/environments");
-local params = std.extVar("__ksonnet/params").components["search-index-creator"];
+local baseParams = std.extVar("__ksonnet/params").components["search-index-creator"];
 local experiments = import "experiments.libsonnet";
 
-local baseParams = std.extVar("__ksonnet/params").components["submit-code-embeddings-job"];
 local experimentName = baseParams.experiment;
+local jobNameSuffix = baseParams.jobNameSuffix;
 local params = baseParams + experiments[experimentName] + {
-  name: experimentName + "-create-search-index",
+  name: experimentName + "-create-search-index-" + jobNameSuffix,
 };
 
 local jobSpec = {
