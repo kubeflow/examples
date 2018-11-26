@@ -81,9 +81,10 @@ ks param set ${COMPONENT} indexFile ${WORKING_DIR}/code-embeddings-index/${WORKF
 echo "running ks apply pipeline -c ${COMPONENT}"
 ks apply ${KS_ENV_NAME} -c "${COMPONENT}"
 
-echo "wait for ${COMPONENT} to finish"
+JOB_NAME="pipeline-create-search-index-${WORKFLOW_ID}"
+echo "wait for ${JOB_NAME} to finish"
 
-kubectl wait --timeout="${TIMEOUT}" --for=condition=complete job/pipeline-create-search-index-${WORKFLOW_ID} -n "${NAMESPACE}"
+kubectl wait --timeout="${TIMEOUT}" --for=condition=complete job/${JOB_NAME} -n "${NAMESPACE}"
 # If the wait above failed, then the script will fail fast and following command won't run.
 # TODO complete doesn't mean it's successful. Check the job succeeded.
-echo "pipeline-search-index-creator-${WORKFLOW_ID} is succeeded"
+echo "${JOB_NAME} is succeeded"

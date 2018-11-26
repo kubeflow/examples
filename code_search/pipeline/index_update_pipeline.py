@@ -87,7 +87,7 @@ def search_index_creator_op(working_dir: str, data_dir: str, component: str, clu
     return dsl.ContainerOp(
         # use component name as step name
         name = component,
-        image = 'gcr.io/yang-codesearch/code-search-search-index-creator:v20181125-6402df5-dirty-283f3e',
+        image = 'gcr.io/yang-codesearch/code-search-search-index-creator:v20181126-6a63824',
         arguments = [
             '--working_dir', working_dir,
             '--data_dir', data_dir,
