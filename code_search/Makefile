@@ -72,15 +72,16 @@ build-ui-gcb:
 	gcloud builds submit --machine-type=n1-highcpu-32 --project=kubeflow-ci --config=./build/build.ui.json \
 		--timeout=3600 ./build
 
-build-index-updater-gcb:
+build-ks-gcb:
 	mkdir  -p build
-	jsonnet ./docker/index_updater/build.jsonnet --ext-str gitVersion=$(GIT_VERSION) --ext-str tag=$(TAG) \
-	  > ./build/build.index_updater.json
+	jsonnet ./docker/ks/build.jsonnet --ext-str gitVersion=$(GIT_VERSION) --ext-str tag=$(TAG) \
+	  > ./build/build.ks.json
 	cp -r ./docker ./build/
+	cp -r ./kubeflow ./build/
 	cp -r ./src ./build/
 	rm -rf ./build/src/code_search/dataflow/cli/test_data
 	rm -rf ./build/src/code_search/t2t/test_data
-	gcloud builds submit --machine-type=n1-highcpu-32 --project=kubeflow-ci --config=./build/build.index_updater.json \
+	gcloud builds submit --machine-type=n1-highcpu-32 --project=kubeflow-ci --config=./build/build.ks.json \
 		--timeout=3600 ./build
 
 # Build but don't attach the latest tag. This allows manual testing/inspection of the image
