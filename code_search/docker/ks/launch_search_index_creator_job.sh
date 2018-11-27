@@ -29,9 +29,10 @@ source "${DIR}/initialize_kubectl.sh"
 # Apply parameters
 ks param set ${component} dataDir ${dataDir} --env ${ksEnvName}
 ks param set ${component} jobNameSuffix ${workflowId} --env ${ksEnvName}
-ks param set ${component} lookupFile ${workingDir}/code-embeddings-index/${workflowId}/embedding-to-info.csv --env ${ksEnvName}
-ks param set ${component} indexFile ${workingDir}/code-embeddings-index/${workflowId}/embeddings.index --env ${ksEnvName}
+ks param set ${component} lookupFile ${workingDir}/code-embeddings-index/embedding-to-info.csv --env ${ksEnvName}
+ks param set ${component} indexFile ${workingDir}/code-embeddings-index/embeddings.index --env ${ksEnvName}
 
+ks show ${ksEnvName} -c "${component}"
 ks apply ${ksEnvName} -c "${component}"
 
 JOB_NAME="pipeline-create-search-index-${workflowId}"

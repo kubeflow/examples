@@ -132,7 +132,7 @@
       workerMachineType: "n1-highcpu-32",
       numWorkers: 5,
       project: "",
-      waitUntilFinished: "false",
+      waitUntilFinish: "false",
     },
 
     tensorboard: {

@@ -42,7 +42,9 @@
 	              "--worker_machine_type=" + params.workerMachineType,
 	              "--num_workers=" + params.numWorkers,
 	              "--requirements_file=requirements.dataflow.txt",
-	              "--wait_until_finish=" + params.waitUntilFinished,
+                  if (params.waitUntilFinish == "true") then
+                      "--wait_until_finish " + "--wait_until_finish_duration=" + params.waitUntilFinishDuration
+                  else [],
 	            ],
 	            env: [
 	              {

@@ -6,5 +6,7 @@
   dataDir: "gs://code-search-demo/20181104/data",
   project: "code-search-demo",
   experiment: "pipeline",
-  waitUntilFinished: "true",
+  waitUntilFinish: "true",
+  // 2 hour in milliseconds
+  waitUntilFinishDuration: 7200000,
 }

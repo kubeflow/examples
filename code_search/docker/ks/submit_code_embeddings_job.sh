@@ -37,13 +37,14 @@ ks param set ${component} dataDir ${dataDir} --env ${ksEnvName}
 ks param set ${component} modelDir ${modelDir} --env ${ksEnvName}
 ks param set ${component} project ${project} --env ${ksEnvName}
 ks param set ${component} targetDataset ${targetDataset} --env ${ksEnvName}
-ks param set ${component} workingDir ${workingDir}/${workflowId} --env ${ksEnvName}
+ks param set ${component} workingDir ${workingDir} --env ${ksEnvName}
 ks param set ${component} numWorkers ${numWorkers} --env ${ksEnvName}
 ks param set ${component} workerMachineType ${workerMachineType} --env ${ksEnvName}
 
+ks show ${ksEnvName} -c "${component}"
 ks apply ${ksEnvName} -c "${component}"
 
-JOB_NAME="pipeline-create-search-index-${workflowId}"
+JOB_NAME="pipeline-embed-code-${workflowId}"
 echo "wait for ${JOB_NAME} to finish"
 
 kubectl wait --timeout="${timeout}" --for=condition=complete job/${JOB_NAME} -n "${namespace}"

@@ -105,7 +105,6 @@ def search_index_creator_op(
 def function_embedding_update(
     project,
     working_dir,
-    data_dir,
     saved_model_dir,
     cluster_name,
     namespace,
@@ -113,11 +112,13 @@ def function_embedding_update(
     worker_machine_type=dsl.PipelineParam(name='worker-machine-type', value='n1-highcpu-32'),
     num_workers=dsl.PipelineParam(name='num-workers', value=5)):
   workflow_name = '{{workflow.name}}'
+  working_dir = '%s/%s' % (working_dir, workflow_name)
+  data_dir = '%s/data' % working_dir
   function_embedding = dataflow_function_embedding_op(
                             project, cluster_name, target_dataset, data_dir,
                             saved_model_dir,
                             workflow_name, worker_machine_type, num_workers, working_dir)
-  search_index_creator_op(
+  search_index_op = search_index_creator_op(
       working_dir, data_dir, workflow_name, cluster_name, namespace).after(function_embedding)
 
 
