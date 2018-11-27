@@ -15,7 +15,8 @@
     // are not picked up by the individual components.
     // Need to see if we can find a way to fix this.
 
-    local imageTag = "v20181127-c29f95c-dirty-e8d86b",
+    local imageTag = "v20181127-47c15d0-dirty-5fde5e",
+
     "t2t-job": {
       jobType: "trainer",
       numChief: 0,
@@ -82,6 +83,8 @@
       jobNameSuffix: "null",
       image: $.components["t2t-job"].dataflowImage,
       dataDir: $.components["t2t-code-search"].workingDir + "/data",
+      lookupFile: "null",
+      indexFile: "null",
     },
     "search-index-server": {
       // Most defaults should be defined in experiments.libsonnet.
