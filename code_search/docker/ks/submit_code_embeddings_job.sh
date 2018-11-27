@@ -6,6 +6,8 @@
 
 set -ex
 
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null && pwd)"
+
 # Providing negative value to kubeflow wait would wait for a week
 timeout="-1s"
 # Ksonnet Environment name. Always use pipeline
@@ -26,8 +28,8 @@ usage() {
 # List of required parameters
 names=(dataDir modelDir targetDataset workingDir workflowId cluster)
 
-source "./parse_arguments.sh"
-source "initialize_kubectl.sh"
+source "${DIR}/parse_arguments.sh"
+source "${DIR}/initialize_kubectl.sh"
 
 # Apply parameters
 ks param set ${component} jobNameSuffix ${workflowId} --env ${ksEnvName}

@@ -1,10 +1,14 @@
-FROM debian:7
+FROM ubuntu:xenial
 
-RUN apt-get update -q && apt-get upgrade -y && \
-    apt-get install -y -qq --no-install-recommends \
-      ca-certificates \
-      wget && \
-    wget -O /opt/ks_0.12.0_linux_amd64.tar.gz \
+RUN apt-get update && apt-get install -y wget &&\
+    rm -rf /var/lib/apt/lists/*
+
+RUN wget -O /tmp/hub-linux-amd64-2.6.0.tgz https://github.com/github/hub/releases/download/v2.6.0/hub-linux-amd64-2.6.0.tgz && \
+	cd /usr/local && \
+	tar -xvf /tmp/hub-linux-amd64-2.6.0.tgz && \
+	ln -sf /usr/local/hub-linux-amd64-2.6.0/bin/hub /usr/local/bin/hub
+
+RUN wget -O /opt/ks_0.12.0_linux_amd64.tar.gz \
       https://github.com/ksonnet/ksonnet/releases/download/v0.12.0/ks_0.12.0_linux_amd64.tar.gz && \
     tar -C /opt -xzf /opt/ks_0.12.0_linux_amd64.tar.gz && \
     cp /opt/ks_0.12.0_linux_amd64/ks /bin/. && \
@@ -14,9 +18,6 @@ RUN apt-get update -q && apt-get upgrade -y && \
     chmod u+x /bin/kubectl
 
 ADD kubeflow /usr/local/src
-ADD docker/ks/search_index_creator.sh /usr/local/src
-ADD docker/ks/submit_code_embeddings_job.sh /usr/local/src
-ADD docker/ks/initialize_kubectl.sh /usr/local/src
-ADD docker/parse_arguments.sh /usr/local/src
+ADD docker/ks/*.sh /usr/local/src/
 
 WORKDIR /usr/local/src

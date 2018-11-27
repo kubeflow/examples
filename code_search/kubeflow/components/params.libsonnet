@@ -15,7 +15,7 @@
     // are not picked up by the individual components.
     // Need to see if we can find a way to fix this.
 
-    local imageTag = "v20181117-3c030ae-dirty-4d809c",
+    local imageTag = "v20181127-c29f95c-dirty-e8d86b",
     "t2t-job": {
       jobType: "trainer",
       numChief: 0,
@@ -132,6 +132,7 @@
       workerMachineType: "n1-highcpu-32",
       numWorkers: 5,
       project: "",
+      waitUntilFinished: "false",
     },
 
     tensorboard: {

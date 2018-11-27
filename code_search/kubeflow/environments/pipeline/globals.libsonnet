@@ -6,4 +6,5 @@
   dataDir: "gs://code-search-demo/20181104/data",
   project: "code-search-demo",
   experiment: "pipeline",
+  waitUntilFinished: "true",
 }

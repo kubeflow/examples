@@ -6,6 +6,8 @@
 
 set -ex
 
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null && pwd)"
+
 # Providing negative value to kubeflow wait would wait for a week
 timeout="-1s"
 # Ksonnet Environment name. Always use pipeline
@@ -14,21 +16,21 @@ ksEnvName="pipeline"
 component="search-index-creator"
 
 usage() {
-	echo "Usage: search_index_creator.sh --workingDir=<working dir> --workflowId=<workflow id invoking the container>
+	echo "Usage: launch_search_index_creator_job.sh --workingDir=<working dir> --workflowId=<workflow id invoking the container>
 	--dataDir=<data dir> --timeout=<timeout>  --namespace=<kubernetes namespace>  --cluster=<cluster to deploy job to> "
 }
 
 # List of required parameters
 names=(workingDir workflowId dataDir namespace cluster)
 
-source "./parse_arguments.sh"
-source "initialize_kubectl.sh"
+source "${DIR}/parse_arguments.sh"
+source "${DIR}/initialize_kubectl.sh"
 
 # Apply parameters
 ks param set ${component} dataDir ${dataDir} --env ${ksEnvName}
 ks param set ${component} jobNameSuffix ${workflowId} --env ${ksEnvName}
-ks param set ${component} lookupFile ${workingDir}/${workflowId}/code-embeddings-index/embedding-to-info.csv --env ${ksEnvName}
-ks param set ${component} indexFile ${workingDir}/${workflowId}/code-embeddings-index/embeddings.index --env ${ksEnvName}
+ks param set ${component} lookupFile ${workingDir}/code-embeddings-index/${workflowId}/embedding-to-info.csv --env ${ksEnvName}
+ks param set ${component} indexFile ${workingDir}/code-embeddings-index/${workflowId}/embeddings.index --env ${ksEnvName}
 
 ks apply ${ksEnvName} -c "${component}"
 

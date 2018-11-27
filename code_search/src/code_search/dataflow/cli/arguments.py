@@ -29,8 +29,8 @@ def add_parser_arguments(parser):
                       help='BigQuery dataset for output results')
   additional_args_parser.add_argument('--pre_transformed', action='store_true',
                       help='Use a pre-transformed BigQuery dataset')
-  additional_args_parser.add_argument('--wait_until_finish', action='store_true',
-                      help='Wait until preprocess job is finished')
+  # additional_args_parser.add_argument('--wait_until_finish', action='store_true',
+  #                     help='Wait until preprocess job is finished')
 
   additional_args_parser.add_argument('--github_files', default='',
                     help=('If specified read the GitHub dataset '

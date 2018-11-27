@@ -85,8 +85,8 @@ def search_index_creator_op(
   return dsl.ContainerOp(
     # use component name as step name
     name='search_index_creator',
-    image='gcr.io/kubeflow-examples/code-search-ks:v20181126-a8ba201-dirty-39a289',
-    command=['/usr/local/src/search_index_creator.sh'],
+    image='gcr.io/kubeflow-examples/code-search-ks:v20181126-e62ebca-dirty-4103da',
+    command=['/usr/local/src/launch_search_index_creator_job.sh'],
     arguments=[
       '--workingDir=%s' % working_dir,
       '--dataDir=%s' % data_dir,
