@@ -68,19 +68,6 @@
       hparams_set: $.components["t2t-code-search"].hparams_set,
       image: $.components["t2t-job"].image,
     },
-    "t2t-code-search-serving": {
-      name: "tf-serving",
-      gcpCredentialSecretName: "user-gcp-sa",
-      serviceType: "ClusterIP",
-      deployHttpProxy: false,
-      modelBasePath: "gs://some/model",
-      // modelName is used by the client.
-      modelName: "t2t-code-search",
-      defaultCpuImage: "tensorflow/serving:1.11.1",
-      defaultGpuImage: "tensorflow/serving:1.11.1-gpu",
-      httpProxyImage: "gcr.io/kubeflow-images-public/tf-model-server-http-proxy:v20180723",
-      numGpus: "0",
-    },
     nmslib: {
       replicas: 1,
       image: "gcr.io/kubeflow-dev/code-search-ui:v20180817-0d4a60d",
@@ -97,15 +84,6 @@
       dataDir: $.components["t2t-code-search"].workingDir + "/data",
       lookupFile: $.components["t2t-code-search"].workingDir + "/code_search_index.csv",
       indexFile: $.components["t2t-code-search"].workingDir + "/code_search_index.nmslib",
-    },
-    "search-index-server": {
-      // Most defaults should be defined in experiments.libsonnet.
-      // Parameters will be used to override those values.
-      name: "search-index-server",
-      servingUrl: "http://t2t-code-search.kubeflow:8500/v1/models/t2t-code-search:predict",
-      // 1 replica is convenient for debugging but we should bump after debugging.
-      replicas: 1,
-      image: "gcr.io/kubeflow-examples/code-search-ui:v20181122-dc0e646-dirty-043a63",
     },
     "submit-preprocess-job": {
       name: "submit-preprocess-job",
