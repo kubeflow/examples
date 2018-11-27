@@ -92,7 +92,7 @@
     },
     "search-index-creator": {
       name: "search-index-creator",
-      jobNameSuffix: "null",
+      jobNameSuffix: "",
       image: $.components["t2t-job"].dataflowImage,
       dataDir: $.components["t2t-code-search"].workingDir + "/data",
     },
@@ -128,6 +128,7 @@
       // Directory where the model is stored.
       modelDir: "",
       jobName: "submit-code-embeddings-job",
+      jobNameSuffix: "",
       workerMachineType: "n1-highcpu-32",
       numWorkers: 5,
       project: "",

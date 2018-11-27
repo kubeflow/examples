@@ -22,19 +22,13 @@ usage() {
 names=(workingDir workflowId dataDir namespace cluster)
 
 source "./parse_arguments.sh"
-
-# Configure kubectl to use the underlying cluster
-kubectl config set-cluster "${cluster}" --server=https://kubernetes.default --certificate-authority=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-kubectl config set-credentials pipeline --token "$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)"
-kubectl config set-context kubeflow --cluster "${cluster}" --user pipeline
-kubectl config use-context kubeflow
-ks env set "${ksEnvName}" --namespace="${namespace}"
+source "./initialize_kubectl.sh"
 
 # Apply parameters
 ks param set ${component} dataDir ${dataDir} --env ${ksEnvName}
-ks param set ${component} jobNameSuffix ${workflowId} --env ${ksEnvName}
-ks param set ${component} lookupFile ${workingDir}/code-embeddings-index/${workflowId}/embedding-to-info.csv --env ${ksEnvName}
-ks param set ${component} indexFile ${workingDir}/code-embeddings-index/${workflowId}/embeddings.index --env ${ksEnvName}
+ks param set ${component} jobNameSuffix "-"+${workflowId} --env ${ksEnvName}
+ks param set ${component} lookupFile ${workingDir}/${workflowId}/code-embeddings-index/embedding-to-info.csv --env ${ksEnvName}
+ks param set ${component} indexFile ${workingDir}/${workflowId}/code-embeddings-index/embeddings.index --env ${ksEnvName}
 
 ks apply ${ksEnvName} -c "${component}"
 
