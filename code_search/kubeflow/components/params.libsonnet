@@ -68,19 +68,6 @@
       hparams_set: $.components["t2t-code-search"].hparams_set,
       image: $.components["t2t-job"].image,
     },
-    "t2t-code-search-serving": {
-      name: "tf-serving",
-      gcpCredentialSecretName: "user-gcp-sa",
-      serviceType: "ClusterIP",
-      deployHttpProxy: false,
-      modelBasePath: "gs://some/model",
-      // modelName is used by the client.
-      modelName: "t2t-code-search",
-      defaultCpuImage: "tensorflow/serving:1.11.1",
-      defaultGpuImage: "tensorflow/serving:1.11.1-gpu",
-      httpProxyImage: "gcr.io/kubeflow-images-public/tf-model-server-http-proxy:v20180723",
-      numGpus: "0",
-    },
     nmslib: {
       replicas: 1,
       image: "gcr.io/kubeflow-dev/code-search-ui:v20180817-0d4a60d",
@@ -92,7 +79,7 @@
     },
     "search-index-creator": {
       name: "search-index-creator",
-      jobNameSuffix: "",
+      jobNameSuffix: "null",
       image: $.components["t2t-job"].dataflowImage,
       dataDir: $.components["t2t-code-search"].workingDir + "/data",
     },

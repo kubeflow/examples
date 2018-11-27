@@ -6,6 +6,7 @@ import kfp.dsl as dsl
 # disable max arg lint check
 # pylint: disable=R0913
 
+
 def default_gcp_op(name: str, image: str, command: str = None,
            arguments: str = None, file_inputs: Dict[dsl.PipelineParam, str] = None,
            file_outputs: Dict[str, str] = None, is_exit_handler=False):
@@ -56,7 +57,6 @@ def default_gcp_op(name: str, image: str, command: str = None,
       )
     )
   )
-
 
 def dataflow_function_embedding_op(
         project: 'GcpProject', cluster_name: str, target_dataset: str, data_dir: 'GcsUri',
@@ -118,7 +118,7 @@ def function_embedding_update(
                             project, cluster_name, target_dataset, data_dir,
                             saved_model_dir,
                             workflow_name, worker_machine_type, num_workers, working_dir)
-  search_index_op = search_index_creator_op(
+  search_index_creator_op(
       working_dir, data_dir, workflow_name, cluster_name, namespace).after(function_embedding)
 
 

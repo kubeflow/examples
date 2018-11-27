@@ -1,24 +1,7 @@
 local env = std.extVar("__ksonnet/environments");
 
-local baseParams = std.extVar("__ksonnet/params").components["t2t-code-search-serving"];
-
-local experiments = import "experiments.libsonnet";
-
+local params = std.extVar("__ksonnet/params").components["query-embed-server"];
 local k = import "k.libsonnet";
-
-local experimentName = baseParams.experiment;
-local experimentParams= experiments[experimentName];
-local params = baseParams + experimentParams + {
-  name: "t2t-code-search",
-
-  // Keep in sync with the TF version used during training.
-  image: "tensorflow/serving:1.11.1",
-  namespace: env.namespace,
-
-  // The TF-Serving component uses the parameter modelBasePath
-  modelBasePath: experimentParams.modelBasePath,
-};
-
 
 local deployment = k.apps.v1beta1.deployment;
 local container = deployment.mixin.spec.template.spec.containersType;
