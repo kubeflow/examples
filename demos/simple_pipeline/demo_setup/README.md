@@ -6,17 +6,13 @@ presentation to public audiences.
 The base demo includes the following steps:
 
 1. [Setup your environment](#1-setup-your-environment)
-1. [Create a GKE cluster and install Kubeflow](#2-create-a-gke-cluster-and-install-kubeflow)
-1. [Install pipelines on GKE](#3-install-pipelines-on-gke)
+1. [Create a GKE cluster and install Kubeflow with pipelines](#2-create-a-gke-cluster-and-install-kubeflow-with-pipelines)
 
 ## 1. Setup your environment
 
 Clone the [kubeflow/kubeflow](https://github.com/kubeflow/kubeflow) repo and
 checkout the
-[`v0.3.3`](https://github.com/kubeflow/kubeflow/releases/tag/v0.3.3) branch.
-Clone the [kubeflow/pipelines](https://github.com/kubeflow/pipelines) repo and
-checkout the
-[`0.1.2`](https://github.com/kubeflow/pipelines/releases/tag/0.1.2) branch.
+[`v0.3.4-rc.1`](https://github.com/kubeflow/kubeflow/releases/tag/v0.3.4-rc.1) branch.
 
 Ensure that the repo paths, project name, and other variables are set correctly.
 When all overrides are set, source the environment file:
@@ -35,15 +31,27 @@ source activate kfp
 Install the Kubeflow Pipelines SDK:
 
 ```
-pip install https://storage.googleapis.com/ml-pipeline/release/0.1.2/kfp.tar.gz --upgrade
+pip install https://storage.googleapis.com/ml-pipeline/release/0.1.3-rc.2/kfp.tar.gz --upgrade
 ```
 
-## 2. Create a GKE cluster and install Kubeflow
+If you encounter any errors, run this before repeating the previous command:
 
-Creating a cluster with click-to-deploy does not yet support the installation of
-pipelines. It is not useful for demonstrating pipelines, but is still worth showing.
+```
+pip uninstall kfp
+```
+
+## 2. Create a GKE cluster and install Kubeflow with pipelines
+
+Choose one of the following options for creating a cluster and installing
+Kubeflow with pipelines:
+
+* Click-to-deploy
+* CLI (kfctl)
 
 ### Click-to-deploy
+
+This is the recommended path if you do not require access to GKE beta features
+such as node auto-provisioning (NAP).
 
 Generate a web app Client ID and Client Secret by following the instructions
 [here](https://www.kubeflow.org/docs/started/getting-started-gke/#create-oauth-client-credentials).
@@ -58,11 +66,13 @@ In the [GCP Console](https://console.cloud.google.com/kubernetes), navigate to t
 Kubernetes Engine panel to watch the cluster creation process. This results in a
 full cluster with Kubeflow installed.
 
-### kfctl
+### CLI (kfctl)
 
-While node autoprovisioning is in beta, it must be enabled manually. To create
-a cluster with autoprovisioning, run the following commands, which will take
-around 30 minutes:
+If you require GKE beta features such as node autoprovisioning (NAP), these
+instructions describe manual cluster creation.
+
+To create a cluster with autoprovisioning, run the following commands
+(estimated: 30 minutes):
 
 ```
 gcloud container clusters create ${CLUSTER} \
@@ -160,18 +170,6 @@ kfctl init ${CLUSTER} --platform gcp
 cd ${CLUSTER}
 kfctl generate k8s
 kfctl apply k8s
-```
-
-## 3. Install pipelines on GKE
-
-```
-kubectl create clusterrolebinding sa-admin --clusterrole=cluster-admin --serviceaccount=kubeflow:pipeline-runner
-cd ks_app
-ks registry add ml-pipeline "${PIPELINES_REPO}/ml-pipeline"
-ks pkg install ml-pipeline/ml-pipeline
-ks generate ml-pipeline ml-pipeline
-ks param set ml-pipeline namespace kubeflow
-ks apply default -c ml-pipeline
 ```
 
 View the installed components in the GCP Console. In the
