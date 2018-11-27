@@ -5,7 +5,7 @@ from setuptools import setup, find_packages, Command as SetupToolsCommand
 
 VERSION = '0.1.dev0'
 
-with open('requirements.txt', 'r') as f:
+with open('requirements.dataflow.txt', 'r') as f:
   install_requires = f.readlines()
 
 CUSTOM_COMMANDS = [
