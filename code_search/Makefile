@@ -51,6 +51,7 @@ build: build-cpu build-gpu build-dataflow
 # Build using GCB. This is useful if we are on a slow internet connection
 # and don't want to pull
 build-gcb:
+	rm -rf ./build
 	mkdir  -p build
 	jsonnet ./docker/t2t/build.jsonnet --ext-str gitVersion=$(GIT_VERSION) --ext-str tag=$(TAG) \
 	  > ./build/build.json
@@ -62,6 +63,7 @@ build-gcb:
 		--timeout=3600 ./build
 
 build-ui-gcb:
+	rm -rf ./build
 	mkdir  -p build
 	jsonnet ./docker/ui/build.jsonnet --ext-str gitVersion=$(GIT_VERSION) --ext-str tag=$(TAG) \
 	  > ./build/build.ui.json
@@ -73,6 +75,7 @@ build-ui-gcb:
 		--timeout=3600 ./build
 
 build-ks-gcb:
+	rm -rf ./build
 	mkdir  -p build
 	jsonnet ./docker/ks/build.jsonnet --ext-str gitVersion=$(GIT_VERSION) --ext-str tag=$(TAG) \
 	  > ./build/build.ks.json
