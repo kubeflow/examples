@@ -21,7 +21,7 @@ usage() {
 # List of required parameters
 names=(appDir env lookupFile indexFile base)
 
-source "../parse_arguments.sh"
+source "${DIR}/parse_arguments.sh"
 
 if [ ! -z ${help} ]; then
 	usage

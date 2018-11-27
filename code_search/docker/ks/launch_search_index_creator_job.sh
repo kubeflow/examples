@@ -6,6 +6,8 @@
 
 set -ex
 
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null && pwd)"
+
 # Providing negative value to kubeflow wait would wait for a week
 timeout="-1s"
 # Ksonnet Environment name. Always use pipeline
@@ -14,14 +16,14 @@ ksEnvName="pipeline"
 component="search-index-creator"
 
 usage() {
-	echo "Usage: search-index-creator.sh --workingDir=<working dir> --workflowId=<workflow id invoking the container>
+	echo "Usage: launch_search_index_creator_job.sh --workingDir=<working dir> --workflowId=<workflow id invoking the container>
 	--dataDir=<data dir> --timeout=<timeout>  --namespace=<kubernetes namespace>  --cluster=<cluster to deploy job to> "
 }
 
 # List of required parameters
 names=(workingDir workflowId dataDir namespace cluster)
 
-source "./parse_arguments.sh"
+source "${DIR}/parse_arguments.sh"
 
 # Configure kubectl to use the underlying cluster
 kubectl config set-cluster "${cluster}" --server=https://kubernetes.default --certificate-authority=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt

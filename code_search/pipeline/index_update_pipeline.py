@@ -94,7 +94,7 @@ def search_index_creator_op(
     # use component name as step name
     name='search_index_creator',
     image='gcr.io/kubeflow-examples/code-search-ks:v20181126-e62ebca-dirty-4103da',
-    command=['/usr/local/src/search-index-creator.sh'],
+    command=['/usr/local/src/launch_search_index_creator_job.sh'],
     arguments=[
       '--workingDir=%s' % working_dir,
       '--dataDir=%s' % data_dir,
