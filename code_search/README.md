@@ -2,6 +2,11 @@
 
 This demo implements End-to-End Code Search on Kubeflow.
 
+# Warning: Running this example can be very expensive
+
+This example uses large amounts of computation and cost several hundred dollars to run E2E on Cloud.
+
+
 # Prerequisites
 
 **NOTE**: If using the JupyterHub Spawner on a Kubeflow cluster, use the Docker image 

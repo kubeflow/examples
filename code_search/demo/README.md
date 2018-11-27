@@ -13,7 +13,6 @@ We are using the following project
 * **project**: code-search-demo
 * **[code-search-team@kubeflow.org](https://github.com/kubeflow/internal-acls/blob/master/code-search-team.members.txt)** Google group administering access
 
-
 # Deploying the services
 
 1. Deploy the TFServing server
@@ -27,7 +26,21 @@ We are using the following project
    ```
    ks12 apply  cs_demo -c search-index-server
    ```
+# Install Argo CD
 
+```
+kubectl create namespace argocd
+cd cs-demo-1103/k8s_specs
+kubectl apply -f argocd.yaml
+```
+
+Create the app
+
+```
+SRC_URL=https://github.com/kubeflow/examples.git
+KS_PATH=code_search/kubeflow
+argocd app create code-search --name kubeflow --repo $SRC_URL --path ${KS_PATH} --env ${KS_ENV}
+```
 # Results
 
 ## 2018-11-05

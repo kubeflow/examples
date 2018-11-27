@@ -1,16 +1,18 @@
 local k = import "k.libsonnet";
 
 local env = std.extVar("__ksonnet/environments");
-local baseParams = std.extVar("__ksonnet/params").components["search-index-server"];
-
-local experiments = import "experiments.libsonnet";
-
-local experimentName = baseParams.experiment;
-local experimentParams = experiments[experimentName];
-
-// baseParams override experiment parameters because we want to be able to set a new
-// index and csv file by doing ks param set.
-local params = experimentParams + baseParams;
+local params = std.extVar("__ksonnet/params").components["search-index-server"];
+local oldparams = {
+  name: "test",
+  lookupFile: null,
+  indexFile: null,
+  servingUrl: "http://t2t-code-search.kubeflow:8500/v1/models/t2t-code-search:predict",
+  // 1 replica is convenient for debugging but we should bump after debugging.
+  replicas: 1,
+  image: "gcr.io/kubeflow-examples/code-search-ui:v20181122-dc0e646-dirty-043a63",
+  problem: "someproble",
+  dataDir: "datadir",
+};
 
 local deploymentSpec = {
   apiVersion: "extensions/v1beta1",
