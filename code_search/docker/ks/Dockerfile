@@ -14,7 +14,9 @@ RUN apt-get update -q && apt-get upgrade -y && \
     chmod u+x /bin/kubectl
 
 ADD kubeflow /usr/local/src
-ADD docker/ks/search-index-creator.sh /usr/local/src
+ADD docker/ks/search_index_creator.sh /usr/local/src
+ADD docker/ks/submit_code_embeddings_job.sh /usr/local/src
+ADD docker/ks/initialize_kubectl.sh /usr/local/src
 ADD docker/parse_arguments.sh /usr/local/src
 
 WORKDIR /usr/local/src

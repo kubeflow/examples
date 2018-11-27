@@ -18,21 +18,19 @@ numWorkers=5
 workerMachineType=n1-highcpu-32
 
 usage() {
-	echo "Usage: submit-code-embeddings-job.sh --workflowId=<workflow id invoking the container> --modelDir=<directory contains the model>
+	echo "Usage: submit_code_embeddings_job.sh --workflowId=<workflow id invoking the container> --modelDir=<directory contains the model>
 	--dataDir=<data dir> --numWorkers=<num of workers> --project=<project> --targetDataset=<target BQ dataset>
-	--workerMachineType=<worker machine type> --workingDir=<working dir>"
+	--workerMachineType=<worker machine type> --workingDir=<working dir> --cluster=<cluster to deploy job to>"
 }
 
 # List of required parameters
-names=(dataDir modelDir targetDataset workingDir workflowId)
+names=(dataDir modelDir targetDataset workingDir workflowId cluster)
 
 source "./parse_arguments.sh"
-source "./initialize_kubectl.sh"
-
-# get project id
+source "initialize_kubectl.sh"
 
 # Apply parameters
-ks param set ${component} jobNameSuffix "-"+${workflowId} --env ${ksEnvName}
+ks param set ${component} jobNameSuffix ${workflowId} --env ${ksEnvName}
 ks param set ${component} dataDir ${dataDir} --env ${ksEnvName}
 ks param set ${component} modelDir ${modelDir} --env ${ksEnvName}
 ks param set ${component} project ${project} --env ${ksEnvName}
@@ -43,7 +41,7 @@ ks param set ${component} workerMachineType ${workerMachineType} --env ${ksEnvNa
 
 ks apply ${ksEnvName} -c "${component}"
 
-JOB_NAME="submit-code-embeddings-job-${workflowId}"
+JOB_NAME="pipeline-create-search-index-${workflowId}"
 echo "wait for ${JOB_NAME} to finish"
 
 kubectl wait --timeout="${timeout}" --for=condition=complete job/${JOB_NAME} -n "${namespace}"

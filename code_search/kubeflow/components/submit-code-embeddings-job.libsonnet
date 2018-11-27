@@ -5,7 +5,7 @@
 	  apiVersion: "batch/v1",
 	  kind: "Job",
 	  metadata: {
-	    name: params.name + params.jobNameSuffix,
+	    name: params.name + '-' + params.jobNameSuffix,
 	    namespace: env.namespace,
 	    labels: {
 	      app: params.name,
@@ -35,7 +35,7 @@
 	              "--target_dataset=" + params.targetDataset,
 	              "--data_dir=" + params.dataDir,
 	              "--problem=" + params.problem,
-	              "--job_name=" + params.jobName + params.jobNameSuffix,
+	              "--job_name=" + params.jobName + '-' + params.jobNameSuffix,
 	              "--saved_model_dir=" + params.modelDir,
 	              "--temp_location=" + params.workingDir + "/dataflow/temp",
 	              "--staging_location=" + params.workingDir + "/dataflow/staging",

@@ -7,7 +7,7 @@ local experiments = import "experiments.libsonnet";
 local experimentName = baseParams.experiment;
 local jobNameSuffix = baseParams.jobNameSuffix;
 local params = baseParams + experiments[experimentName] + {
-  name: experimentName + "-create-search-index" + jobNameSuffix,
+  name: experimentName + "-create-search-index-" + jobNameSuffix,
 };
 
 local jobSpec = {
