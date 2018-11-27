@@ -43,7 +43,7 @@
 	              "--num_workers=" + params.numWorkers,
 	              "--requirements_file=requirements.dataflow.txt",
                   if (params.waitUntilFinish == "true") then
-                      "--wait_until_finish " + "--wait_until_finish_duration=" + params.waitUntilFinishDuration
+                      "--wait_until_finished"
                   else [],
 	            ],
 	            env: [
