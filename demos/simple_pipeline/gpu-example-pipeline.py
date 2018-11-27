@@ -38,7 +38,7 @@ def kubeflow_training(
   num_layers: kfp.PipelineParam = kfp.PipelineParam(name='numlayers', value='2'),
   optimizer: kfp.PipelineParam = kfp.PipelineParam(name='optimizer', value='ftrl')):
 
-  training = training_op(learning_rate, num_layers, optimizer)
+  training = training_op(learning_rate, num_layers, optimizer).set_gpu_limit(1)
   postprocessing = postprocessing_op(training.output) # pylint: disable=unused-variable
 
 if __name__ == '__main__':
