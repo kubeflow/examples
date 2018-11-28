@@ -5,7 +5,7 @@
 	  apiVersion: "batch/v1",
 	  kind: "Job",
 	  metadata: {
-	    name: params.name,
+	    name: params.name + '-' + params.jobNameSuffix,
 	    namespace: env.namespace,
 	    labels: {
 	      app: params.name,
@@ -35,13 +35,16 @@
 	              "--target_dataset=" + params.targetDataset,
 	              "--data_dir=" + params.dataDir,
 	              "--problem=" + params.problem,
-	              "--job_name=" + params.jobName,
+	              "--job_name=" + params.jobName + '-' + params.jobNameSuffix,
 	              "--saved_model_dir=" + params.modelDir,
 	              "--temp_location=" + params.workingDir + "/dataflow/temp",
 	              "--staging_location=" + params.workingDir + "/dataflow/staging",
 	              "--worker_machine_type=" + params.workerMachineType,
 	              "--num_workers=" + params.numWorkers,
 	              "--requirements_file=requirements.dataflow.txt",
+                  if (params.waitUntilFinish == "true") then
+                      "--wait_until_finished"
+                  else [],
 	            ],
 	            env: [
 	              {

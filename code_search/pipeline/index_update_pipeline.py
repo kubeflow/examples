@@ -2,8 +2,10 @@ from typing import Dict
 from kubernetes import client as k8s_client
 import kfp.dsl as dsl
 
+
 # disable max arg lint check
-#pylint: disable=R0913
+# pylint: disable=R0913
+
 
 def default_gcp_op(name: str, image: str, command: str = None,
            arguments: str = None, file_inputs: Dict[dsl.PipelineParam, str] = None,
@@ -57,33 +59,23 @@ def default_gcp_op(name: str, image: str, command: str = None,
   )
 
 def dataflow_function_embedding_op(
-                   project: 'GcpProject', runner: str, target_dataset: str, problem: str,
-                   data_dir: 'GcsUri', saved_model_dir: 'GcsUri', temp_location: 'GcsUri',
-                   staging_location: 'GcsUri',
-                   job_name: str, worker_machine_type: str,
-                   num_workers: int, step_name='dataflow_function_embedding'):
+        project: 'GcpProject', cluster_name: str, target_dataset: str, data_dir: 'GcsUri',
+        saved_model_dir: 'GcsUri', workflow_id: str, worker_machine_type: str,
+        num_workers: int, working_dir: str, step_name='dataflow_function_embedding'):
   return default_gcp_op(
     name=step_name,
-    image='gcr.io/kubeflow-examples/code-search-dataflow:latest',
-    command=[
-      'python2',
-      '-m',
-      'code_search.dataflow.cli.create_function_embeddings',
-    ],
+    image='gcr.io/kubeflow-examples/code-search-ks:v20181127-08f8c05-dirty-19ca4c',
+    command=['/usr/local/src/submit_code_embeddings_job.sh'],
     arguments=[
-      '--project', project,
-      '--runner', runner,
-      '--target_dataset', target_dataset,
-      '--problem', problem,
-      '--data_dir', data_dir,
-      '--saved_model_dir', saved_model_dir,
-      '--job_name', job_name,
-      '--temp_location', temp_location,
-      '--staging_location', staging_location,
-      '--worker_machine_type', worker_machine_type,
-      '--num_workers', num_workers,
-      '--requirements_file', 'requirements.dataflow.txt',
-      '--wait_until_finished',
+      "--workflowId=%s" % workflow_id,
+      "--modelDir=%s" % saved_model_dir,
+      "--dataDir=%s" % data_dir,
+      "--numWorkers=%s" % num_workers,
+      "--project=%s" % project,
+      "--targetDataset=%s" % target_dataset,
+      "--workerMachineType=%s" % worker_machine_type,
+      "--workingDir=%s" % working_dir,
+      '--cluster=%s' % cluster_name,
     ]
   )
 
@@ -93,7 +85,7 @@ def search_index_creator_op(
   return dsl.ContainerOp(
     # use component name as step name
     name='search_index_creator',
-    image='gcr.io/kubeflow-examples/code-search-ks:v20181126-e62ebca-dirty-4103da',
+    image='gcr.io/kubeflow-examples/code-search-ks:v20181127-08f8c05-dirty-19ca4c',
     command=['/usr/local/src/launch_search_index_creator_job.sh'],
     arguments=[
       '--workingDir=%s' % working_dir,
@@ -113,27 +105,21 @@ def search_index_creator_op(
 def function_embedding_update(
     project,
     working_dir,
-    data_dir,
     saved_model_dir,
     cluster_name,
     namespace,
-    problem=dsl.PipelineParam(
-      name='problem', value='kf_github_function_docstring'),
-    runner=dsl.PipelineParam(name='runnder', value='DataflowRunner'),
-    target_dataset=dsl.PipelineParam(
-      name='target-dataset', value='code_search'),
-    worker_machine_type=dsl.PipelineParam(
-      name='worker-machine-type', value='n1-highcpu-32'),
+    target_dataset=dsl.PipelineParam(name='target-dataset', value='code_search'),
+    worker_machine_type=dsl.PipelineParam(name='worker-machine-type', value='n1-highcpu-32'),
     num_workers=dsl.PipelineParam(name='num-workers', value=5)):
   workflow_name = '{{workflow.name}}'
-  temp_location = '%s/dataflow/%s/temp' % (working_dir, workflow_name)
-  staging_location = '%s/dataflow/%s/staging' % (working_dir, workflow_name)
+  working_dir = '%s/%s' % (working_dir, workflow_name)
+  data_dir = '%s/data' % working_dir
   function_embedding = dataflow_function_embedding_op(
-                            project, runner, target_dataset, problem, data_dir,
-                            saved_model_dir, temp_location, staging_location, workflow_name,
-                            worker_machine_type, num_workers)
+                            project, cluster_name, target_dataset, data_dir,
+                            saved_model_dir,
+                            workflow_name, worker_machine_type, num_workers, working_dir)
   search_index_creator_op(
-    working_dir, data_dir, workflow_name, cluster_name, namespace).after(function_embedding)
+      working_dir, data_dir, workflow_name, cluster_name, namespace).after(function_embedding)
 
 
 if __name__ == '__main__':
