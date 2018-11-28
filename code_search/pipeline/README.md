@@ -1,19 +1,3 @@
-To run the pipeline, follow the kubeflow pipeline instruction and compile index_update_pipeline.py and upload to pipeline
-page.
-
-Provide the parameter, e.g. 
-
-```
-PROJECT='code-search-demo'
-CLUSTER_NAME='cs-demo-1103'
-WORKING_DIR='gs://code-search-demo/pipeline'
-SAVED_MODEL_DIR='gs://code-search-demo/models/20181107-dist-sync-gpu/export/1541712907/'
-DATA_DIR='gs://code-search-demo/20181104/data'
-```
-
-
-
-
 ## Overview
 This directory shows how to build a scheduled pipeline to periodically update the search index and update the search UI
 using the new index. It also uses github to store the search UI's Kubernetes spec and hooks up Argo CD to automatically
@@ -32,7 +16,7 @@ ArgoCD then triggers a new service deployment with the new manifest.
 
 
 ## Instruction
-1. Upload the argocd/ dir to a github repository, and set up Argo CD following the 
+1. Upload the ks-web-app/ dir to a github repository, and set up Argo CD following the 
 [instruction](https://github.com/argoproj/argo-cd/blob/master/docs/getting_started.md#6-create-an-application-from-a-git-repository-location)
 Set up [Automated sync](https://github.com/argoproj/argo-cd/blob/master/docs/auto_sync.md) if you want the search UI to
 be updated at real time. Otherwise Argo CD will pull latest config every 3 minutes as default.  
@@ -42,4 +26,17 @@ as which the kubeflow is stored
  ```bash
 kubectl create secret generic github-access-token --from-literal=token=[your_github_token] -n kubeflow
 ```
-3. Upload the pipeline python to the pipeline system and set schedule for it. 
+3. To run the pipeline, follow the kubeflow pipeline instruction and compile index_update_pipeline.py and upload to pipeline
+page.
+
+Provide the parameter, e.g. 
+```
+PROJECT='code-search-demo'
+CLUSTER_NAME='cs-demo-1103'
+WORKING_DIR='gs://code-search-demo/pipeline'
+SAVED_MODEL_DIR='gs://code-search-demo/models/20181107-dist-sync-gpu/export/1541712907/'
+DATA_DIR='gs://code-search-demo/20181104/data'
+```
+
+TODO(IronPan): more details on how to run pipeline
+ 
