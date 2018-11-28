@@ -15,7 +15,8 @@
     // are not picked up by the individual components.
     // Need to see if we can find a way to fix this.
 
-    local imageTag = "v20181117-3c030ae-dirty-4d809c",
+    local imageTag = "v20181127-08f8c05-dirty-d9f034",
+
     "t2t-job": {
       jobType: "trainer",
       numChief: 0,
@@ -82,6 +83,17 @@
       jobNameSuffix: "null",
       image: $.components["t2t-job"].dataflowImage,
       dataDir: $.components["t2t-code-search"].workingDir + "/data",
+      lookupFile: "null",
+      indexFile: "null",
+    },
+    "search-index-server": {
+      // Most defaults should be defined in experiments.libsonnet.
+      // Parameters will be used to override those values.
+      name: "search-index-server",
+      servingUrl: "http://t2t-code-search.kubeflow:8500/v1/models/t2t-code-search:predict",
+      // 1 replica is convenient for debugging but we should bump after debugging.
+      replicas: 1,
+      image: "gcr.io/kubeflow-examples/code-search-ui:v20181122-dc0e646-dirty-043a63",
     },
     "submit-preprocess-job": {
       name: "submit-preprocess-job",
@@ -106,9 +118,11 @@
       // Directory where the model is stored.
       modelDir: "",
       jobName: "submit-code-embeddings-job",
+      jobNameSuffix: "",
       workerMachineType: "n1-highcpu-32",
       numWorkers: 5,
       project: "",
+      waitUntilFinish: "false",
     },
 
     tensorboard: {
