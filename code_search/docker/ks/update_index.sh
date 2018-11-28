@@ -15,11 +15,11 @@ set -ex
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null && pwd)"
 
 usage() {
-	echo "Usage: update_index.sh --base=OWNER:branch --appDir=<ksonnet app dir> --env=<ksonnet environment> --indexFile=<index file> --lookupFile=<lookup file>"
+	echo "Usage: update_index.sh --base=OWNER:branch --gitRepo=<github fork repo> --env=<ksonnet environment> --indexFile=<index file> --lookupFile=<lookup file>"
 }
 
 # List of required parameters
-names=(appDir env lookupFile indexFile base)
+names=(gitRepo env lookupFile indexFile base)
 
 source "${DIR}/parse_arguments.sh"
 
@@ -31,17 +31,15 @@ if [ -z ${dryrun} ]; then
 	dryrun=false
 fi
 
-cd ${appDir}
+
+git config --global user.email pipeline@localhost
+git clone https://${gitToken}@github.com/${gitRepo}.git repo
+
+cd repo
+git config credential.helper store
 ks param set --env=${env} search-index-server indexFile ${indexFile}
 ks param set --env=${env} search-index-server lookupFile ${lookupFile}
-git add .
-
-if (! ${dryrun}); then
-	git commit -m "Update the lookup and index file."
-	git push
-else
-	echo "dryrun; not committing to git."
-fi
+git add . && git commit -m "Update the lookup and index file."
 
 FILE=$(mktemp tmp.create_pull_request.XXXX)
 
@@ -56,5 +54,8 @@ EOF
 
 # Create a pull request
 if (! ${dryrun}); then
-hub pull-request --base=${base} -F ${FILE}
+    git push
+    hub pull-request --base=${base} -F ${FILE}
+else
+	echo "dryrun; not committing to git."
 fi
