@@ -23,7 +23,7 @@ gcloud auth activate-service-account --key-file=${GOOGLE_APPLICATION_CREDENTIALS
 
 cd $CONTEXT_DIR
 echo "Generate Seldon Dockerfile and artifacts"
-docker run -v ${CONTEXT_DIR}:/my_model seldonio/core-python-wrapper:0.7 /my_model mnistddpserving ${TAG} gcr.io/kubeflow-ci --grpc --force
+docker run -v ${CONTEXT_DIR}:/my_model seldonio/core-python-wrapper:0.7 /my_model mnistddpserving ${TAG} ${IMAGE} --grpc --force
 
 echo "GCP Project: "$PROJECT
 cd build
