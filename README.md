@@ -7,7 +7,6 @@ acting as a starting point for new users and a reference guide for experienced u
 This repository is home to the following types of examples and demos:
 * [End-to-end](#end-to-end)
 * [Component-focused](#component-focused)
-* [Application-specific](#application-specific)
 * [Demos](#demos)
 
 ## End-to-end
@@ -80,11 +79,6 @@ This example covers the following concepts:
 1. Shared persistent storage
 1. GCS and GKE
 1. Serving with Seldon Core
-
-
-## Application-specific
-
-1.
 
 ## Demos
 
