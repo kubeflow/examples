@@ -17,7 +17,7 @@ local getDataJob(namespace, name, pvc, url, mountPath) = {
               name: "get-data",
               image: "inutano/wget",
               imagePullPolicy: "IfNotPresent",
-              command: ["wget",  url, "-P", mountPath],
+              command: ["wget",  url, "-P", mountPath, "--no-check-certificate"],
               volumeMounts: [{
                   mountPath: mountPath,
                   name: "pets-data",

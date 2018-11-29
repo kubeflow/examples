@@ -21,12 +21,12 @@ local tfJobCpu = {
                 workingDir: "/models",
                 command: [
                   "python",
-                  "research/object_detection/model_main.py",
+                  "research/object_detection/legacy/train.py",
                 ],
                 args:[
                   "--alsologtostderr",
                   "--pipeline_config_path=" + params.pipelineConfigPath,
-                  "--model_dir=" + params.trainDir,
+                  "--train_dir=" + params.trainDir,
                 ],
                 image: params.image,
                 imagePullPolicy: "Always",
@@ -52,7 +52,7 @@ local tfJobCpu = {
           },
         },
       },
-      Chief: {
+      Master: {
         replicas: 1,
         template: {
           spec: {
@@ -61,12 +61,12 @@ local tfJobCpu = {
                 workingDir: "/models",
                 command: [
                   "python",
-                  "research/object_detection/model_main.py",
+                  "research/object_detection/legacy/train.py",
                 ],
                 args:[
                   "--alsologtostderr",
                   "--pipeline_config_path=" + params.pipelineConfigPath,
-                  "--model_dir=" + params.trainDir,
+                  "--train_dir=" + params.trainDir,
                 ],
                 image: params.image,
                 imagePullPolicy: "Always",
@@ -101,12 +101,12 @@ local tfJobCpu = {
                 workingDir: "/models",
                 command: [
                   "python",
-                  "research/object_detection/model_main.py",
+                  "research/object_detection/legacy/train.py",
                 ],
                 args:[
                   "--alsologtostderr",
                   "--pipeline_config_path=" + params.pipelineConfigPath,
-                  "--model_dir=" + params.trainDir,
+                  "--train_dir=" + params.trainDir,
                 ],
                 image: params.image,
                 imagePullPolicy: "Always",

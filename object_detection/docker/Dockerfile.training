@@ -76,4 +76,4 @@ WORKDIR $MODELS_HOME
 ARG pipeline_config_path
 ARG train_dir
 
-CMD ["python", "$MODELS_HOME/research/object_detection/model_main.py", "--pipeline_config_path=$pipeline_config_path"  "--model_dir=$train_dir"]
+CMD ["python", "$MODELS_HOME/research/object_detection/legacy/train.py", "--pipeline_config_path=$pipeline_config_path"  "--train_dir=$train_dir"]
