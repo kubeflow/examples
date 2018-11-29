@@ -14,7 +14,7 @@ After completing the steps in the kubeflow getting started guide you will have t
 - A new namespace in you K8s cluster called `kubeflow`
 - The following pods in your kubernetes cluster in the `kubeflow` namespace:
 ```
-kubectl -n kubeflow get pods
+$ kubectl -n kubeflow get pods
 NAME                                      READY     STATUS    RESTARTS   AGE
 ambassador-7987df44b9-4pht8               2/2       Running   0          1m
 ambassador-7987df44b9-dh5h6               2/2       Running   0          1m
