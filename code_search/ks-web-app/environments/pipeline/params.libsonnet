@@ -2,6 +2,9 @@ local params = std.extVar('__ksonnet/params');
 local globals = import 'globals.libsonnet';
 local envParams = params + {
   components+: {
+    "search-index-server"+: {
+      indexFile: 'foo',
+    },
   },
 };
 
