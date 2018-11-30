@@ -48,6 +48,4 @@ RUN pip install -U setuptools && \
   pip install apache-beam[gcp]==2.3.0 && \
   rm -rf /root/.cache/pip;
 
-# RUN pip --no-cache-dir install --upgrade protobuf six==1.10.0 pip==9.0.3
-
 ENTRYPOINT [ "python", "-m", "kubeflow_batch_predict.dataflow.batch_prediction_main" ]
