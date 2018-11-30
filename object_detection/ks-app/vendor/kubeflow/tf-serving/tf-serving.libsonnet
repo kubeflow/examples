@@ -25,7 +25,7 @@
     else
       $.params.httpProxyImage,
 
-    serviceType: "ClusterIP",
+    serviceType: "NodePort",
 
     // If users want to override the image then can override defaultCpuImage and/or defaultGpuImage
     // in which case the image used will still depend on whether GPUs are used or not.
