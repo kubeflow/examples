@@ -18,7 +18,7 @@
     //tokenPairsBQTable: self.project,
     //functionEmbeddingsBQTable: "someothervalue",
     tokenPairsBQTable: self.project + ":" + self.bqDataset + ".token_pairs",
-    jobNameSuffix: "20181201-1400",
+    jobNameSuffix: "20181201-1440",
     bqSuffix: std.strReplace(self.jobNameSuffix, "-", "_"),
     functionEmbeddingsBQTable: self.project + ":" + self.bqDataset + ".code_embeddings_" + self.bqSuffix,
 
