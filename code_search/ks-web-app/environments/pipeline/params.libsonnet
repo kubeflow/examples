@@ -3,7 +3,8 @@ local globals = import 'globals.libsonnet';
 local envParams = params + {
   components+: {
     "search-index-server"+: {
-      indexFile: 'bar',
+      indexFile: 'test1index',
+      lookupFile: 'test1lookup',
     },
   },
 };
