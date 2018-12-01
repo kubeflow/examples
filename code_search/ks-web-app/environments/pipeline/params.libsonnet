@@ -3,8 +3,8 @@ local globals = import 'globals.libsonnet';
 local envParams = params + {
   components+: {
     "search-index-server"+: {
-      indexFile: 'gs://code-search-demo/pipeline/function-embedding-fhj7w/code-embeddings-index/embeddings.index',
-      lookupFile: 'gs://code-search-demo/pipeline/function-embedding-fhj7w/code-embeddings-index/embedding-to-info.csv',
+      indexFile: 'gs://code-search-demo/pipeline/function-embedding-z6n7f/code-embeddings-index/embeddings.index',
+      lookupFile: 'gs://code-search-demo/pipeline/function-embedding-z6n7f/code-embeddings-index/embedding-to-info.csv',
     },
   },
 };
