@@ -2,7 +2,6 @@ import apache_beam as beam
 
 import code_search.dataflow.do_fns.prediction_do_fn as pred
 import code_search.dataflow.do_fns.function_embeddings as func_embeddings # pylint: disable=no-name-in-module
-import code_search.dataflow.transforms.github_bigquery as github_bigquery
 
 
 class FunctionEmbeddings(beam.PTransform):

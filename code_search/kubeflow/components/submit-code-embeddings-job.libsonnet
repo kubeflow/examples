@@ -34,6 +34,7 @@
 	              "--project=" + params.project,
 	              "--token_pairs_table=" + params.tokenPairsBQTable,
 	              "--function_embeddings_table=" + params.functionEmbeddingsBQTable,
+	              "--output_dir" + params.functionEmbeddingsDir,
 	              "--data_dir=" + params.dataDir,
 	              "--problem=" + params.problem,
 	              "--job_name=" + params.jobName + '-' + params.jobNameSuffix,
@@ -42,7 +43,7 @@
 	              "--staging_location=" + params.workingDir + "/dataflow/staging",
 	              "--worker_machine_type=" + params.workerMachineType,
 	              "--num_workers=" + params.numWorkers,
-	              "--requirements_file=requirements.dataflow.txt",
+	              "--requirements_file=requirements.txt",
                   if (params.waitUntilFinish == "true") then
                       "--wait_until_finished"
                   else [],

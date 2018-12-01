@@ -22,6 +22,11 @@ RUN python -m spacy download en
 ADD src/code_search /app/code_search
 ADD src             /src
 
+# See: https://github.com/kubeflow/examples/issues/390
+# Dataflow will try to build a source package locally and we need
+# the path to match what we have in setup.py.
+RUN ln -sf /src/requirements.dataflow.txt /src/requirements.txt
+
 WORKDIR /src
 
 ENV PYTHONIOENCODING=utf-8 T2T_USR_DIR=/app/code_search/t2t

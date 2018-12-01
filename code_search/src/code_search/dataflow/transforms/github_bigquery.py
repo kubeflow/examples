@@ -1,4 +1,3 @@
-import apache_beam.io.gcp.bigquery as bigquery
 import code_search.dataflow.transforms.bigquery as bq_transform
 
 
@@ -127,4 +126,3 @@ class ReadTransformedGithubDatasetQuery(object):
     if self.limit:
       query += '\nLIMIT {}'.format(self.limit)
     return query
-

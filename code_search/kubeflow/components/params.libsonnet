@@ -15,7 +15,7 @@
     // are not picked up by the individual components.
     // Need to see if we can find a way to fix this.
 
-    local imageTag = "v20181130-b807843-dirty-34a41a",
+    local imageTag = "v20181201-ae61193",
 
     "t2t-job": {
       jobType: "trainer",
