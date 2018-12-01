@@ -64,7 +64,7 @@ def dataflow_function_embedding_op(
         num_workers: int, working_dir: str, step_name='dataflow_function_embedding'):
   return default_gcp_op(
     name=step_name,
-    image='gcr.io/kubeflow-examples/code-search-ks:v20181127-08f8c05-dirty-19ca4c',
+    image='gcr.io/kubeflow-examples/code-search/ks:v20181130-b807843',
     command=['/usr/local/src/submit_code_embeddings_job.sh'],
     arguments=[
       "--workflowId=%s" % workflow_id,
@@ -81,19 +81,61 @@ def dataflow_function_embedding_op(
 
 
 def search_index_creator_op(
-        working_dir: str, data_dir: str, workflow_id: str, cluster_name: str, namespace: str):
+        index_file: str, lookup_file: str, data_dir: str, workflow_id: str, cluster_name: str, namespace: str):
   return dsl.ContainerOp(
     # use component name as step name
     name='search_index_creator',
-    image='gcr.io/kubeflow-examples/code-search-ks:v20181127-08f8c05-dirty-19ca4c',
+    image='gcr.io/kubeflow-examples/code-search/ks:v20181130-b807843',
     command=['/usr/local/src/launch_search_index_creator_job.sh'],
     arguments=[
-      '--workingDir=%s' % working_dir,
+      '--indexFile=%s' % index_file,
+      '--lookupFile=%s' % lookup_file,
       '--dataDir=%s' % data_dir,
       '--workflowId=%s' % workflow_id,
       '--cluster=%s' % cluster_name,
       '--namespace=%s' % namespace,
     ]
+  )
+
+
+def update_index_op(
+        base_git_repo: str, base_branch: str, app_dir: str, fork_git_repo: str,
+        index_file: str, lookup_file: str, workflow_id: str):
+  return (
+    dsl.ContainerOp(
+      name='update_index',
+      image='gcr.io/kubeflow-examples/code-search/ks:v20181130-b807843',
+      command=['/usr/local/src/update_index.sh'],
+      arguments=[
+        '--baseGitRepo=%s' % base_git_repo,
+        '--baseBranch=%s' % base_branch,
+        '--appDir=%s' % app_dir,
+        '--forkGitRepo=%s' % fork_git_repo,
+        '--env=%s' % 'pipeline',
+        '--indexFile=%s' % index_file,
+        '--lookupFile=%s' % lookup_file,
+        '--workflowId=%s' % workflow_id,
+      ],
+    )
+    .add_volume(
+      k8s_client.V1Volume(
+        name='github-access-token',
+        secret=k8s_client.V1SecretVolumeSource(
+          secret_name='github-access-token'
+        )
+      )
+    )
+    .add_env_variable(
+      k8s_client.V1EnvVar(
+        name='GITHUB_TOKEN',
+        value_from=k8s_client.V1EnvVarSource(
+          secret_key_ref=k8s_client.V1SecretKeySelector(
+            name='github-access-token',
+            key='token',
+          )
+        )
+      )
+    )
   )
 
 
@@ -103,23 +145,35 @@ def search_index_creator_op(
   description='Example function embedding pipeline'
 )
 def function_embedding_update(
-    project,
-    working_dir,
-    saved_model_dir,
-    cluster_name,
-    namespace,
-    target_dataset=dsl.PipelineParam(name='target-dataset', value='code_search'),
-    worker_machine_type=dsl.PipelineParam(name='worker-machine-type', value='n1-highcpu-32'),
-    num_workers=dsl.PipelineParam(name='num-workers', value=5)):
+    project='code-search-demo',
+    cluster_name='cs-demo-1103',
+    namespace='kubeflow',
+    working_dir='gs://code-search-demo/pipeline',
+    data_dir='gs://code-search-demo/20181104/data',
+    saved_model_dir='gs://code-search-demo/models/20181107-dist-sync-gpu/export/1541712907/',
+    target_dataset='code_search',
+    worker_machine_type='n1-highcpu-32',
+    function_embedding_num_workers=5,
+    base_git_repo='kubeflow/examples',
+    base_branch='master',
+    app_dir='code_search/ks-web-app',
+    fork_git_repo='IronPan/examples'):
   workflow_name = '{{workflow.name}}'
   working_dir = '%s/%s' % (working_dir, workflow_name)
-  data_dir = '%s/data' % working_dir
+  lookup_file = '%s/code-embeddings-index/embedding-to-info.csv' % working_dir
+  index_file = '%s/code-embeddings-index/embeddings.index'% working_dir
+
   function_embedding = dataflow_function_embedding_op(
                             project, cluster_name, target_dataset, data_dir,
                             saved_model_dir,
-                            workflow_name, worker_machine_type, num_workers, working_dir)
-  search_index_creator_op(
-      working_dir, data_dir, workflow_name, cluster_name, namespace).after(function_embedding)
+                            workflow_name, worker_machine_type, function_embedding_num_workers, working_dir)
+
+  search_index = search_index_creator_op(
+    index_file, lookup_file, data_dir, workflow_name, cluster_name, namespace).after(function_embedding)
+
+  update_index_op(
+      base_git_repo, base_branch, app_dir, fork_git_repo, index_file, lookup_file, workflow_name)\
+    .after(search_index)
 
 
 if __name__ == '__main__':
