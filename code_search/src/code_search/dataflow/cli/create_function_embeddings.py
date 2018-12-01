@@ -53,6 +53,7 @@ def create_function_embeddings(argv=None):
   (embeddings  # pylint: disable=expression-not-assigned
     | "Save Function Embeddings" >>
        beam.io.WriteToBigQuery(table=args.function_embeddings_table,
+                               schema=function_embeddings_schema.table_schema,
                                create_disposition=beam.io.BigQueryDisposition.CREATE_IF_NEEDED,
                                write_disposition=beam.io.BigQueryDisposition.WRITE_EMPTY)
   )

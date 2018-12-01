@@ -14,21 +14,12 @@ class BigQueryRead(beam.PTransform):
   string.
   """
 
-  def __init__(self, *args, **kw_args):
+  def __init__(self, project, dataset=None, table=None):
     super(BigQueryRead, self).__init__()
 
-    self.read_args = args
-    self.read_kw_args = kw_args
-
-    # TODO(jlewi): We should handle the case where dataset and project
-    # are set separately and table is not the full path "project:dataset.table"
-    self._table = self.read_kw_args["table"]
-
-    # Remove table from read_kw_args because it should not be passed to
-    #
-  @property
-  def table(self):
-    return self._table
+    self.project = project
+    self.dataset = dataset
+    self.table = table
 
   @property
   def limit(self):
@@ -44,12 +35,10 @@ class BigQueryRead(beam.PTransform):
     raise NotImplementedError
 
   def expand(self, input_or_inputs):
-    self.read_kw_args["query"] = self.query_string
-    self.read_kw_args["use_standard_sql"] = True
-
     return (input_or_inputs
-      | beam.io.Read(beam.io.BigQuerySource(*self.read_args,
-                                            **self.read_kw_args))
+      | beam.io.Read(beam.io.BigQuerySource(project=self.project,
+                                            query=self.query_string,
+                                            use_standard_sql=True))
     )
 
 
@@ -88,12 +77,16 @@ class BigQueryWrite(beam.PTransform):
     ]
   """
 
-  def __init__(self, batch_size=500, *args, **kw_args):
-    super(BigQueryWrite, self).__init__(*args, **kw_args)
+  def __init__(self, project, dataset, table, batch_size=500,
+               write_disposition=bigquery.BigQueryDisposition.WRITE_TRUNCATE):
+    super(BigQueryWrite, self).__init__()
 
+    self.project = project
+    self.dataset = dataset
+    self.table = table
+    self.write_disposition = write_disposition
     self.batch_size = batch_size
-    self.write_args = args
-    self.write_kw_args = kw_args
+
   @property
   def column_list(self):
     raise NotImplementedError
@@ -103,9 +96,13 @@ class BigQueryWrite(beam.PTransform):
     return self.construct_schema(self.column_list)
 
   def expand(self, input_or_inputs):
-    self.write_kw_args["schema"] = self.output_schema
     return (input_or_inputs
-      | beam.io.WriteToBigQuery(*self.write_args, **self.write_kw_args)
+      | beam.io.WriteToBigQuery(project=self.project,
+                                dataset=self.dataset,
+                                table=self.table,
+                                schema=self.output_schema,
+                                batch_size=self.batch_size,
+                                write_disposition=self.write_disposition)
     )
 
   @staticmethod

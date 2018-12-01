@@ -128,21 +128,3 @@ class ReadTransformedGithubDatasetQuery(object):
       query += '\nLIMIT {}'.format(self.limit)
     return query
 
-
-class WriteGithubFunctionEmbeddings(bq_transform.BigQueryWrite):
-
-  def __init__(self, *args, **kwargs):
-    if not "batch_size" in kwargs:
-      batch_size = 500
-    super(WriteGithubFunctionEmbeddings, self).__init__(*args, **kwargs)
-
-  @property
-  def column_list(self):
-    return [
-      ('nwo', 'STRING'),
-      ('path', 'STRING'),
-      ('function_name', 'STRING'),
-      ('lineno', 'STRING'),
-      ('original_function', 'STRING'),
-      ('function_embedding', 'STRING')
-    ]
