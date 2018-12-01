@@ -15,7 +15,7 @@
     // are not picked up by the individual components.
     // Need to see if we can find a way to fix this.
 
-    local imageTag = "v20181127-08f8c05-dirty-d9f034",
+    local imageTag = "v20181201-ae61193-dirty-d11191",
 
     "t2t-job": {
       jobType: "trainer",
@@ -111,17 +111,16 @@
     "submit-code-embeddings-job": {
       name: "submit-code-embeddings-job",
       image: $.components["t2t-job"].dataflowImage,
+      // Input table this should be of the form PROJECT:DATASET.table
+      inputTable: "",
       // Big query table where results will be written.
-      targetDataset: "code_search",
-      workingDir: $.components["t2t-code-search"].workingDir,
-      dataDir: self.workingDir + "/data",
+      targetDataset: "code_search",      
       // Directory where the model is stored.
       modelDir: "",
       jobName: "submit-code-embeddings-job",
       jobNameSuffix: "",
       workerMachineType: "n1-highcpu-32",
       numWorkers: 5,
-      project: "",
       waitUntilFinish: "false",
     },
 

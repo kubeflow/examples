@@ -44,13 +44,23 @@ def add_parser_arguments(parser):
                             'specified we run a query to filter the data.'))
 
   predict_args_parser = parser.add_argument_group('Batch Prediction Arguments')
+  predict_args_parser.add_argument('--token_pairs_table', metavar='', type=str,
+                                   help='The BigQuery table containing the '
+                                        'token pairs. This should be '
+                                        'of the form PROJECT:DATASET.TABLE.')
+  predict_args_parser.add_argument('--function_embeddings_table', metavar='', type=str,
+                                   help='The BigQuery table to write the '
+                                        'function embeddings too. This should be '
+                                        'of the form PROJECT:DATASET.TABLE.')
   predict_args_parser.add_argument('--problem', metavar='', type=str,
                                    help='Name of the T2T problem')
   predict_args_parser.add_argument('--data_dir', metavar='', type=str,
                                    help='Path to directory of the T2T problem data')
   predict_args_parser.add_argument('--saved_model_dir', metavar='', type=str,
                                    help='Path to directory containing Tensorflow SavedModel')
-
+  predict_args_parser.add_argument('--output_dir', metavar='', type=str,
+                                   help='Path to directory where the output '
+                                        'should should be written.')
 
 def prepare_pipeline_opts(argv=None):
   """Prepare pipeline options from CLI arguments.
