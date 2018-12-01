@@ -10,13 +10,20 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null && pwd)"
 branch=master
 
 usage() {
-	echo "Usage: update_index.sh --baseGitRepo=<base git repo name> --baseBranch=<base branch>
-	 --appDir=<ksonnet app dir> --forkGitRepo=<github repo with Argo CD hooked up> --env=<ksonnet environment>
-	 --indexFile=<index file> --lookupFile=<lookup file> --workflowId=<workflow id invoking the container>"
+	echo "Usage: update_index.sh
+	--baseGitRepo=<base git repo name>
+	--baseBranch=<base branch>
+	--appDir=<ksonnet app dir>
+	--forkGitRepo=<github repo with Argo CD hooked up>
+	--env=<ksonnet environment>
+	--indexFile=<index file>
+	--lookupFile=<lookup file>
+	--workflowId=<workflow id invoking the container>
+	--botEmail=<email account of the bot that send the PR>"
 }
 
 # List of required parameters
-names=(baseGitRepo baseBranch appDir forkGitRepo env indexFile lookupFile workflowId)
+names=(baseGitRepo baseBranch appDir forkGitRepo env indexFile lookupFile workflowId botEmail)
 
 source "${DIR}/parse_arguments.sh"
 
@@ -29,7 +36,7 @@ if [ -z ${dryrun} ]; then
 fi
 
 
-git config --global user.email kf.sample.bot@gmail.com
+git config --global user.email ${botEmail}
 git clone https://${GITHUB_TOKEN}@github.com/${forkGitRepo}.git repo && cd repo/${appDir}
 git config credential.helper store
 git remote add upstream https://github.com/${baseGitRepo}.git

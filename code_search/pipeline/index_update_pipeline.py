@@ -100,7 +100,7 @@ def search_index_creator_op(
 
 def update_index_op(
         base_git_repo: str, base_branch: str, app_dir: str, fork_git_repo: str,
-        index_file: str, lookup_file: str, workflow_id: str):
+        index_file: str, lookup_file: str, workflow_id: str, bot_email: str):
   return (
     dsl.ContainerOp(
       name='update_index',
@@ -115,6 +115,7 @@ def update_index_op(
         '--indexFile=%s' % index_file,
         '--lookupFile=%s' % lookup_file,
         '--workflowId=%s' % workflow_id,
+        '--botEmail=%s' % bot_email,
       ],
     )
     .add_volume(
@@ -157,7 +158,8 @@ def function_embedding_update(
     base_git_repo='kubeflow/examples',
     base_branch='master',
     app_dir='code_search/ks-web-app',
-    fork_git_repo='IronPan/examples'):
+    fork_git_repo='IronPan/examples',
+    bot_email='kf.sample.bot@gmail.com'):
   workflow_name = '{{workflow.name}}'
   working_dir = '%s/%s' % (working_dir, workflow_name)
   lookup_file = '%s/code-embeddings-index/embedding-to-info.csv' % working_dir
@@ -172,7 +174,7 @@ def function_embedding_update(
     index_file, lookup_file, data_dir, workflow_name, cluster_name, namespace).after(function_embedding)
 
   update_index_op(
-      base_git_repo, base_branch, app_dir, fork_git_repo, index_file, lookup_file, workflow_name)\
+      base_git_repo, base_branch, app_dir, fork_git_repo, index_file, lookup_file, workflow_name, bot_email)\
     .after(search_index)
 
 

@@ -36,7 +36,7 @@ source "${DIR}/initialize_kubectl.sh"
 ks param set ${component} dataDir ${dataDir} --env ${ksEnvName}
 ks param set ${component} jobNameSuffix ${workflowId} --env ${ksEnvName}
 ks param set ${component} lookupFile ${lookupFile} --env ${ksEnvName}
-ks param set ${component} indexFile --env ${ksEnvName}
+ks param set ${component} indexFile ${indexFile} --env ${ksEnvName}
 
 ks show ${ksEnvName} -c "${component}"
 ks apply ${ksEnvName} -c "${component}"
