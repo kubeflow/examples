@@ -170,12 +170,12 @@ def function_embedding_update(
                             saved_model_dir,
                             workflow_name, worker_machine_type, function_embedding_num_workers, working_dir)
 
-  search_index = search_index_creator_op(
-    index_file, lookup_file, data_dir, workflow_name, cluster_name, namespace).after(function_embedding)
-
+  search_index_creator = search_index_creator_op(
+    index_file, lookup_file, data_dir, workflow_name, cluster_name, namespace)
+  search_index_creator.after(function_embedding)
   update_index_op(
       base_git_repo, base_branch, app_dir, fork_git_repo, index_file, lookup_file, workflow_name, bot_email)\
-    .after(search_index)
+    .after(search_index_creator)
 
 
 if __name__ == '__main__':
