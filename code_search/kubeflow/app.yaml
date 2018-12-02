@@ -14,11 +14,11 @@ environments:
     path: pipeline
 kind: ksonnet.io/app
 libraries:
-  examples:
+  kubeflow/examples:
     name: examples
     registry: kubeflow
     version: dddba26893846041b7cee25ee6121e02a04bd503
-  tf-serving:
+  kubeflow/tf-serving:
     name: tf-serving
     registry: kubeflow
     version: dddba26893846041b7cee25ee6121e02a04bd503

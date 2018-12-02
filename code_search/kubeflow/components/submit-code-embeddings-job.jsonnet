@@ -8,6 +8,7 @@ local baseParams = std.extVar("__ksonnet/params").components["submit-code-embedd
 local experimentName = baseParams.experiment;
 local params = baseParams + experiments[experimentName] + {
   name: experimentName + "-embed-code",
+  bqSuffix: std.strReplace(self.jobNameSuffix, "-", "_"),
 };
 
 

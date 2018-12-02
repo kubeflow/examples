@@ -122,6 +122,10 @@
       workerMachineType: "n1-highcpu-32",
       numWorkers: 5,
       waitUntilFinish: "false",
+      workingDir: $.components["t2t-code-search"].workingDir,
+      dataDir: self.workingDir + "/data",
+      tokenPairsBQTable: "",
+      functionEmbeddingsBQTable: "",
     },
 
     tensorboard: {
