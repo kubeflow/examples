@@ -3,6 +3,9 @@ import apache_beam.io.gcp.bigquery as bigquery
 import apache_beam.io.gcp.internal.clients as clients
 
 
+# TODO(jlewi): Is this class necessary? Seems like a layer of indirection
+# Around BigQuerySource. I think a better pattern might just be to create
+# constants / classes defining the queries.
 class BigQueryRead(beam.PTransform):
   """Wrapper over Apache Beam Big Query Read.
 
@@ -39,6 +42,30 @@ class BigQueryRead(beam.PTransform):
     )
 
 
+class BigQuerySchema(object):
+  """Class for representing BigQuery schemas."""
+
+  def __init__(self, columns):
+    """Construct the schema.
+
+    Args: list of tuples defining the BigQuerySchema [
+      ('column_name', 'column_type')
+    ]
+    """
+    self.columns = columns
+
+    self.table_schema = clients.bigquery.TableSchema()
+
+    for column_name, column_type in self.columns:
+      field_schema = clients.bigquery.TableFieldSchema()
+      field_schema.name = column_name
+      field_schema.type = column_type
+      field_schema.mode = 'nullable'
+      self.table_schema.fields.append(field_schema)
+
+# TODO(https://github.com/kubeflow/examples/issues/381):
+# We should probably refactor this into a separate
+# class for helping with schemas and not bundle that with the BigQuerySink.
 class BigQueryWrite(beam.PTransform):
   """Wrapper over Apache Beam BigQuery Write.
 

@@ -1,4 +1,3 @@
-import apache_beam.io.gcp.bigquery as bigquery
 import code_search.dataflow.transforms.bigquery as bq_transform
 
 
@@ -99,45 +98,31 @@ class WriteTokenizedData(bq_transform.BigQueryWrite):
     ]
 
 
-class ReadTransformedGithubDataset(bq_transform.BigQueryRead):
+class ReadTransformedGithubDatasetQuery(object):
 
-  def __init__(self, project, dataset=None, table=PAIRS_TABLE):
-    super(ReadTransformedGithubDataset, self).__init__(project, dataset=dataset, table=table)
+  def __init__(self, table, limit=None):
+    """Query to select the transformed (token pairs) from BigQuery.
 
-  @property
-  def limit(self):
-    # return 500
-    return None
+    Args:
+      table: The table to query.
+      limit: Limit if needed.
+    """
+    self.table = table
+    self.limit = limit
 
   @property
   def query_string(self):
+    # https://cloud.google.com/bigquery/docs/reference/standard-sql/enabling-standard-sql
+    table = self.table
+    # In SQL queries table format uses period not :.
+    table = table.replace(":", ".")
     query = """
-      SELECT 
+      SELECT
         nwo, path, function_name, lineno, original_function, function_tokens, docstring_tokens
       FROM
-        {}.{}
-    """.format(self.dataset, self.table)
+        `{0}`
+    """.format(table)
 
     if self.limit:
       query += '\nLIMIT {}'.format(self.limit)
     return query
-
-
-class WriteGithubFunctionEmbeddings(bq_transform.BigQueryWrite):
-
-  def __init__(self, project, dataset, table=FUNCTION_EMBEDDINGS_TABLE, batch_size=500,
-               write_disposition=bigquery.BigQueryDisposition.WRITE_TRUNCATE):
-    super(WriteGithubFunctionEmbeddings, self).__init__(project, dataset, table,
-                                                        batch_size=batch_size,
-                                                        write_disposition=write_disposition)
-
-  @property
-  def column_list(self):
-    return [
-      ('nwo', 'STRING'),
-      ('path', 'STRING'),
-      ('function_name', 'STRING'),
-      ('lineno', 'STRING'),
-      ('original_function', 'STRING'),
-      ('function_embedding', 'STRING')
-    ]
