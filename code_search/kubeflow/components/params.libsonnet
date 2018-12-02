@@ -112,7 +112,6 @@
       name: "submit-code-embeddings-job",
       image: $.components["t2t-job"].dataflowImage,
       // Input table this should be of the form PROJECT:DATASET.table
-      inputTable: "",
       // Big query table where results will be written.
       targetDataset: "code_search",      
       // Directory where the model is stored.
@@ -124,8 +123,6 @@
       waitUntilFinish: "false",
       workingDir: $.components["t2t-code-search"].workingDir,
       dataDir: self.workingDir + "/data",
-      tokenPairsBQTable: "",
-      functionEmbeddingsBQTable: "",
     },
 
     tensorboard: {
