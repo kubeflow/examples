@@ -39,7 +39,7 @@ local jobSpec = {
 		          "python",
 		          "-m",
 		          "code_search.nmslib.cli.create_search_index",
-		          "--data_dir=" + params.dataDir,
+		          "--data_dir=" + params.functionEmbeddingsDir,
 		          "--lookup_file=" + params.lookupFile,
 		          "--index_file=" + params.indexFile,
 		        ],

@@ -34,7 +34,7 @@
 	              "--project=" + params.project,
 	              "--token_pairs_table=" + params.project + ":" + params.bqDataset + ".token_pairs",
 	              "--function_embeddings_table=" + params.project + ":" + params.bqDataset + ".code_embeddings_" + params.bqSuffix,
-	              "--output_dir=" + params.workingDir + "/code_embeddings",
+	              "--output_dir=" + params.functionEmbeddingsDir,
 	              "--data_dir=" + params.dataDir,
 	              "--problem=" + params.problem,
 	              "--job_name=" + params.jobName + '-' + params.jobNameSuffix,

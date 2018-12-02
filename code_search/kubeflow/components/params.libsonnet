@@ -82,7 +82,7 @@
       name: "search-index-creator",
       jobNameSuffix: "null",
       image: $.components["t2t-job"].dataflowImage,
-      dataDir: $.components["t2t-code-search"].workingDir + "/data",
+      functionEmbeddingsDir: "",
       lookupFile: "null",
       indexFile: "null",
     },
@@ -123,6 +123,7 @@
       waitUntilFinish: "false",
       workingDir: $.components["t2t-code-search"].workingDir,
       dataDir: self.workingDir + "/data",
+      functionEmbeddingsDir: self.workingDir + "/code_embeddings",
     },
 
     tensorboard: {

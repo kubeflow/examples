@@ -20,7 +20,7 @@ usage() {
 	--workflowId=<workflow id invoking the container>
 	--indexFile=<index file>
 	--lookupFile=<lookup file>
-	--dataDir=<data dir>
+	--functionEmbeddingsDir=<input function embedding dir>
 	--timeout=<timeout>
 	--namespace=<kubernetes namespace>
 	--cluster=<cluster to deploy job to>"
@@ -33,7 +33,7 @@ source "${DIR}/parse_arguments.sh"
 source "${DIR}/initialize_kubectl.sh"
 
 # Apply parameters
-ks param set ${component} dataDir ${dataDir} --env ${ksEnvName}
+ks param set ${component} functionEmbeddingsDir ${functionEmbeddingsDir} --env ${ksEnvName}
 ks param set ${component} jobNameSuffix ${workflowId} --env ${ksEnvName}
 ks param set ${component} lookupFile ${lookupFile} --env ${ksEnvName}
 ks param set ${component} indexFile ${indexFile} --env ${ksEnvName}
