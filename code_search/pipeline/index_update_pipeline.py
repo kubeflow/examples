@@ -81,7 +81,8 @@ def dataflow_function_embedding_op(
 
 
 def search_index_creator_op(
-        index_file: str, lookup_file: str, data_dir: str, workflow_id: str, cluster_name: str, namespace: str):
+        index_file: str, lookup_file: str, data_dir: str,
+        workflow_id: str, cluster_name: str, namespace: str):
   return dsl.ContainerOp(
     # use component name as step name
     name='search_index_creator',
@@ -167,14 +168,15 @@ def function_embedding_update(
 
   function_embedding = dataflow_function_embedding_op(
                             project, cluster_name, target_dataset, data_dir,
-                            saved_model_dir,
-                            workflow_name, worker_machine_type, function_embedding_num_workers, working_dir)
+                            saved_model_dir, workflow_name, worker_machine_type,
+                            function_embedding_num_workers, working_dir)
 
   search_index_creator = search_index_creator_op(
     index_file, lookup_file, data_dir, workflow_name, cluster_name, namespace)
   search_index_creator.after(function_embedding)
   update_index_op(
-      base_git_repo, base_branch, app_dir, fork_git_repo, index_file, lookup_file, workflow_name, bot_email)\
+      base_git_repo, base_branch, app_dir, fork_git_repo,
+      index_file, lookup_file, workflow_name, bot_email)\
     .after(search_index_creator)
 
 
