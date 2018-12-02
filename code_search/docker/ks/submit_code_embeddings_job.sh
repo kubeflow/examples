@@ -20,9 +20,16 @@ numWorkers=5
 workerMachineType=n1-highcpu-32
 
 usage() {
-	echo "Usage: submit_code_embeddings_job.sh --workflowId=<workflow id invoking the container> --modelDir=<directory contains the model>
-	--dataDir=<data dir> --numWorkers=<num of workers> --project=<project> --targetDataset=<target BQ dataset>
-	--workerMachineType=<worker machine type> --workingDir=<working dir> --cluster=<cluster to deploy job to>"
+	echo "Usage: submit_code_embeddings_job.sh
+	--workflowId=<workflow id invoking the container>
+	--modelDir=<directory contains the model>
+	--dataDir=<data dir>
+	--numWorkers=<num of workers>
+	--project=<project>
+	--targetDataset=<target BQ dataset>
+	--workerMachineType=<worker machine type>
+	--workingDir=<working dir>
+	--cluster=<cluster to deploy job to>"
 }
 
 # List of required parameters
