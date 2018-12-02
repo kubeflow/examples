@@ -119,16 +119,10 @@ Create the serving and UI components:
 ks apply default -c serving -c ui
 ```
 
-Connect to the UI by forwarding a port to one of the ambassador
-pods:
+Connect to the UI by forwarding a port to the ambassador service:
 
 ```
-AMBASSADOR_POD=$(kubectl get po -l service=ambassador | \
-  grep ambassador | \
-  head -n 1 | \
-  cut -d " " -f 1 \
-)
-kubectl port-forward ${AMBASSADOR_POD} 8080:80
+kubectl port-forward svc/ambassador 8080:80
 ```
 
 Optional: If necessary, setup an SSH tunnel from your local laptop into the
@@ -180,11 +174,7 @@ Compile it to create a .tar.gz file:
 View the pipelines UI locally by forwarding a port to the ml-pipeline-ui pod:
 
 ```
-PIPELINES_POD=$(kubectl get po -l app=ml-pipeline-ui | \
-  grep ml-pipeline-ui | \
-  head -n 1 | \
-  cut -d " " -f 1 )
-kubectl port-forward ${PIPELINES_POD} 8081:3000
+kubectl port-forward svc/ml-pipeline-ui 8081:80
 ```
 
 In the browser, navigate to `localhost:8081` and create a new pipeline by
@@ -222,11 +212,7 @@ kubectl describe studyjobs gpu-example
 To view the Katib UI, connect to the modeldb-frontend pod:
 
 ```
-KATIB_POD=$(kubectl get po -l app=vizier,component=ui | \
-  grep katib-ui | \
-  head -n 1 | \
-  cut -d " " -f 1 )
-kubectl port-forward ${KATIB_POD} 8082:80
+kubectl port-forward svc/katib-ui 8082:80
 ```
 
 In the browser, navigate to `localhost:8082/katib` and click on the

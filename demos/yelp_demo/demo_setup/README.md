@@ -463,7 +463,8 @@ full cluster with Kubeflow installed.
 ### CLI (kfctl)
 
 If you require GKE beta features such as TPUs and node autoprovisioning (NAP), these
-instructions describe manual cluster creation.
+instructions describe manual cluster creation and Kubeflow installation
+with kfctl.
 
 #### Create service accounts
 
@@ -597,7 +598,7 @@ kubectl create secret generic user-gcp-sa \
   --from-file=user-gcp-sa.json=${USER_FILE}
 ```
 
-Install kubeflow with the following commands:
+#### Install Kubeflow with kfctl
 
 ```
 kfctl init ${CLUSTER} --platform gcp
@@ -606,10 +607,14 @@ kfctl generate k8s
 kfctl apply k8s
 ```
 
-Recreate jupyterhub:
+To change the settings for any component, apply the change in
+ks_app/components/params.libsonnet, then delete and recreate the component.
+For example, to make changes to jupyterhub:
 
 ```
 cd ks_app
+sed -i "" "s/jupyterHubAuthenticator: 'iap'/jupyterHubAuthenticator: 'null'/" components/params.libsonnet
+ks delete default -c jupyterhub
 ks apply default -c jupyterhub
 ```
 
