@@ -25,9 +25,10 @@ usage() {
 	--modelDir=<directory contains the model>
 	--dataDir=<data dir>
 	--functionEmbeddingsDir=<output function embedding dir>
+	--tokenPairsBQTable=<input token pairs BQ table>
+	--functionEmbeddingsBQTable=<output function embedding BQ table>
 	--numWorkers=<num of workers>
 	--project=<project>
-	--targetDataset=<target BQ dataset>
 	--workerMachineType=<worker machine type>
 	--workingDir=<working dir>
 	--cluster=<cluster to deploy job to>
@@ -35,7 +36,7 @@ usage() {
 }
 
 # List of required parameters
-names=(dataDir modelDir targetDataset workingDir workflowId cluster namespace)
+names=(dataDir modelDir functionEmbeddingsDir tokenPairsBQTable functionEmbeddingsBQTable workingDir workflowId cluster namespace)
 
 source "${DIR}/parse_arguments.sh"
 source "${DIR}/initialize_kubectl.sh"
@@ -44,9 +45,10 @@ source "${DIR}/initialize_kubectl.sh"
 ks param set ${component} jobNameSuffix ${workflowId} --env ${ksEnvName}
 ks param set ${component} dataDir ${dataDir} --env ${ksEnvName}
 ks param set ${component} functionEmbeddingsDir ${functionEmbeddingsDir} --env ${ksEnvName}
+ks param set ${component} tokenPairsBQTable ${tokenPairsBQTable} --env ${ksEnvName}
+ks param set ${component} functionEmbeddingsBQTable ${functionEmbeddingsBQTable} --env ${ksEnvName}
 ks param set ${component} modelDir ${modelDir} --env ${ksEnvName}
 ks param set ${component} project ${project} --env ${ksEnvName}
-ks param set ${component} targetDataset ${targetDataset} --env ${ksEnvName}
 ks param set ${component} workingDir ${workingDir} --env ${ksEnvName}
 ks param set ${component} numWorkers ${numWorkers} --env ${ksEnvName}
 ks param set ${component} workerMachineType ${workerMachineType} --env ${ksEnvName}

@@ -17,7 +17,10 @@
     bqDataset: "code_search",
     //tokenPairsBQTable: self.project,
     //functionEmbeddingsBQTable: "someothervalue",
+    tokenPairsBQTable: self.project + ":" + self.bqDataset + ".token_pairs",
     jobNameSuffix: "20181201-1530",
+    bqSuffix: std.strReplace(self.jobNameSuffix, "-", "_"),
+    functionEmbeddingsBQTable: self.project + ":" + self.bqDataset + ".code_embeddings_" + self.bqSuffix,
 
     // Location where the function embeddings should be written.
     functionEmbeddingsDir: "gs://code-search-demo/20181130/code_embeddings",
