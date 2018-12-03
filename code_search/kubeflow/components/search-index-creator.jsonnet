@@ -22,6 +22,7 @@ local jobSpec = {
   },
   spec: {
     replicas: 1,
+    backoffLimit: 1,
     template: {
       metadata: {
         labels: {

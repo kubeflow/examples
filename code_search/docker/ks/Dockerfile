@@ -1,6 +1,6 @@
-FROM debian:7
+FROM google/cloud-sdk:225.0.0-slim
 
-RUN apt-get update && apt-get install -y wget ca-certificates git-core &&\
+RUN apt-get update && apt-get install -y wget &&\
     rm -rf /var/lib/apt/lists/*
 
 RUN wget -O /tmp/hub-linux-amd64-2.6.0.tgz https://github.com/github/hub/releases/download/v2.6.0/hub-linux-amd64-2.6.0.tgz && \

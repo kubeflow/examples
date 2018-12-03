@@ -29,6 +29,7 @@ usage() {
 	--project=<project>
 	--timeout=<timeout>
 	--tokenPairsBQTable=<output token pairs BQ table>
+	--vocabularyFile=<the pre-generated vocabulary file>
 	--workerMachineType=<worker machine type>
 	--workflowId=<workflow id invoking the container>
 	--workingDir=<working dir>"
@@ -39,6 +40,10 @@ names=(cluster dataDir failedTokenizeBQTable namespace project tokenPairsBQTable
 
 source "${DIR}/parse_arguments.sh"
 source "${DIR}/initialize_kubectl.sh"
+
+gcloud auth activate-service-account --key-file=${GOOGLE_APPLICATION_CREDENTIALS}
+# Copy the pre exist vocabulary file to the data directory. Used by the subsequent steps.
+gsutil cp ${vocabularyFile} ${dataDir}
 
 # Apply parameters
 ks param set ${component} dataDir ${dataDir} --env ${ksEnvName}

@@ -72,7 +72,7 @@ def dataflow_preprocess_op(
         working_dir: str):
   return default_gcp_op(
     name='dataflow_preprocess',
-    image='gcr.io/kubeflow-examples/code-search/ks:v20181203-73a6fc7-dirty-2cd0c1',
+    image='gcr.io/kubeflow-examples/code-search/ks:v20181203-a0c87ff-dirty-a99477',
     command=['/usr/local/src/submit_preprocess_job.sh'],
     arguments=[
       "--cluster=%s" % cluster_name,
@@ -85,6 +85,7 @@ def dataflow_preprocess_op(
       "--workerMachineType=%s" % worker_machine_type,
       "--workflowId=%s" % workflow_id,
       "--workingDir=%s" % working_dir,
+      "--vocabularyFile=%s" % 'gs://code-search-demo/20181104/data/vocab.kf_github_function_docstring.8192.subwords',
     ]
   )
 
@@ -103,7 +104,7 @@ def dataflow_function_embedding_op(
         working_dir: str,):
   return default_gcp_op(
     name='dataflow_function_embedding',
-    image='gcr.io/kubeflow-examples/code-search/ks:v20181203-73a6fc7-dirty-2cd0c1',
+    image='gcr.io/kubeflow-examples/code-search/ks:v20181203-a0c87ff-dirty-a99477',
     command=['/usr/local/src/submit_code_embeddings_job.sh'],
     arguments=[
       "--cluster=%s" % cluster_name,
@@ -132,7 +133,7 @@ def search_index_creator_op(
   return dsl.ContainerOp(
     # use component name as step name
     name='search_index_creator',
-    image='gcr.io/kubeflow-examples/code-search/ks:v20181203-73a6fc7-dirty-2cd0c1',
+    image='gcr.io/kubeflow-examples/code-search/ks:v20181203-a0c87ff-dirty-a99477',
     command=['/usr/local/src/launch_search_index_creator_job.sh'],
     arguments=[
       '--cluster=%s' % cluster_name,
@@ -157,7 +158,7 @@ def update_index_op(
   return (
     dsl.ContainerOp(
       name='update_index',
-      image='gcr.io/kubeflow-examples/code-search/ks:v20181203-73a6fc7-dirty-2cd0c1',
+      image='gcr.io/kubeflow-examples/code-search/ks:v20181203-a0c87ff-dirty-a99477',
       command=['/usr/local/src/update_index.sh'],
       arguments=[
         '--appDir=%s' % app_dir,
@@ -217,7 +218,7 @@ def function_embedding_update(
   # replacing characters in workflow name.
   bq_suffix = uuid.uuid4().hex[:6].upper()
   working_dir = '%s/%s' % (working_dir, workflow_name)
-  data_dir = '%s/%s' % (working_dir, "data")
+  data_dir = '%s/%s/' % (working_dir, "data")
   lookup_file = '%s/code-embeddings-index/embedding-to-info.csv' % working_dir
   index_file = '%s/code-embeddings-index/embeddings.index'% working_dir
   function_embeddings_dir = '%s/%s' % (working_dir, "code_embeddings")
