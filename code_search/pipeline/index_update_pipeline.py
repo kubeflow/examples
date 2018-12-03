@@ -75,7 +75,7 @@ def dataflow_function_embedding_op(
         working_dir: str,):
   return default_gcp_op(
     name='dataflow_function_embedding',
-    image='gcr.io/kubeflow-examples/code-search/ks:v20181203-a0c87ff-dirty-a99477',
+    image='gcr.io/kubeflow-examples/code-search/ks:v20181203-6875dc9-dirty-d54541',
     command=['/usr/local/src/submit_code_embeddings_job.sh'],
     arguments=[
       "--cluster=%s" % cluster_name,
@@ -88,6 +88,7 @@ def dataflow_function_embedding_op(
       "--numWorkers=%s" % num_workers,
       "--project=%s" % project,
       "--tokenPairsBQTable=%s" % token_pairs_bq_table,
+      "--vocabularyFile=%s" % 'gs://code-search-demo/20181104/data/vocab.kf_github_function_docstring.8192.subwords',
       "--workerMachineType=%s" % worker_machine_type,
       "--workflowId=%s" % workflow_id,
       "--workingDir=%s" % working_dir,
@@ -105,7 +106,7 @@ def search_index_creator_op(
   return dsl.ContainerOp(
     # use component name as step name
     name='search_index_creator',
-    image='gcr.io/kubeflow-examples/code-search/ks:v20181203-a0c87ff-dirty-a99477',
+    image='gcr.io/kubeflow-examples/code-search/ks:v20181203-6875dc9-dirty-d54541',
     command=['/usr/local/src/launch_search_index_creator_job.sh'],
     arguments=[
       '--cluster=%s' % cluster_name,
@@ -130,7 +131,7 @@ def update_index_op(
   return (
     dsl.ContainerOp(
       name='update_index',
-      image='gcr.io/kubeflow-examples/code-search/ks:v20181203-a0c87ff-dirty-a99477',
+      image='gcr.io/kubeflow-examples/code-search/ks:v20181203-6875dc9-dirty-d54541',
       command=['/usr/local/src/update_index.sh'],
       arguments=[
         '--appDir=%s' % app_dir,
@@ -202,6 +203,7 @@ def function_embedding_update(
   function_embedding = dataflow_function_embedding_op(
     cluster_name,
     data_dir,
+    failed_tokenize_bq_table,
     function_embeddings_bq_table,
     function_embeddings_dir,
     namespace,
@@ -212,7 +214,6 @@ def function_embedding_update(
     worker_machine_type,
     workflow_name,
     working_dir)
-  function_embedding
 
   search_index_creator = search_index_creator_op(
     cluster_name,
