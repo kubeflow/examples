@@ -22,7 +22,6 @@
     bqSuffix: std.strReplace(self.jobNameSuffix, "-", "_"),
     functionEmbeddingsBQTable: self.project + ":" + self.bqDataset + ".code_embeddings_" + self.bqSuffix,
 
-
     // Location where the function embeddings should be written.
     functionEmbeddingsDir: "gs://code-search-demo/20181130/code_embeddings",
 
@@ -34,5 +33,8 @@
   "pipeline": {
     name: "pipeline",
     problem: "kf_github_function_docstring",
+    project: "code-search-demo",
+    bqDataset: "code_search",
+    tokenPairsBQTable: self.project + ":" + self.bqDataset + ".token_pairs",
   },
 }

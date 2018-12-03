@@ -30,7 +30,7 @@
 	              "python2",
 	              "-m",
 	              "code_search.dataflow.cli.create_function_embeddings",
-	              "--runner=DataflowRunner",	              
+	              "--runner=DataflowRunner",
 	              "--project=" + params.project,
 	              "--token_pairs_table=" + params.tokenPairsBQTable,
 	              "--function_embeddings_table=" + params.functionEmbeddingsBQTable,
