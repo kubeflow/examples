@@ -42,15 +42,19 @@ def add_parser_arguments(parser):
                       help=('If specified read the entire GitHub dataset '
                             'specified as PROJECT:DATASET.TABLE. If not '
                             'specified we run a query to filter the data.'))
+  additional_args_parser.add_argument(
+                      '--read_github_dataset_for_function_embedding', action='store_true',
+                      help=('If specified read the GitHub dataset '
+                            'for creating function embedding.'))
+  additional_args_parser.add_argument('--failed_tokenize_table', metavar='', type=str,
+                                   help='The BigQuery table containing the '
+                                        'failed tokenize entry. This should be '
+                                        'of the form PROJECT:DATASET.TABLE.')
 
   predict_args_parser = parser.add_argument_group('Batch Prediction Arguments')
   predict_args_parser.add_argument('--token_pairs_table', metavar='', type=str,
                                    help='The BigQuery table containing the '
                                         'token pairs. This should be '
-                                        'of the form PROJECT:DATASET.TABLE.')
-  predict_args_parser.add_argument('--failed_tokenize_table', metavar='', type=str,
-                                   help='The BigQuery table containing the '
-                                        'failed tokenize entry. This should be '
                                         'of the form PROJECT:DATASET.TABLE.')
   predict_args_parser.add_argument('--function_embeddings_table', metavar='', type=str,
                                    help='The BigQuery table to write the '

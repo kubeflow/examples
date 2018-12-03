@@ -6,6 +6,7 @@ import apache_beam as beam
 import code_search.dataflow.cli.arguments as arguments
 from code_search.dataflow.transforms import bigquery
 import code_search.dataflow.transforms.github_bigquery as gh_bq
+import code_search.dataflow.transforms.github_dataset as github_dataset
 import code_search.dataflow.transforms.function_embeddings as func_embed
 import code_search.dataflow.do_fns.dict_to_csv as dict_to_csv
 
@@ -29,6 +30,18 @@ def create_function_embeddings(argv=None):
   args = pipeline_opts._visible_options  # pylint: disable=protected-access
 
   pipeline = beam.Pipeline(options=pipeline_opts)
+
+  if args.read_github_dataset_for_function_embedding:
+    pipeline = (pipeline
+      | "Read Github Dataset" >> gh_bq.ReadGithubDataset(args.project)
+      | "Transform Github Dataset" >> github_dataset.TransformGithubDataset(
+        args.token_pairs_table, args.failed_tokenize_table)
+      | "Format for CSV Write" >> beam.ParDo(dict_to_csv.DictToCSVString(
+        ['docstring_tokens', 'function_tokens']))
+      | "Write CSV" >> beam.io.WriteToText('{}/func-doc-pairs'.format(args.data_dir),
+                                              file_name_suffix='.csv',
+                                              num_shards=100)
+      )
 
   token_pairs_query = gh_bq.ReadTransformedGithubDatasetQuery(
     args.token_pairs_table)

@@ -59,39 +59,10 @@ def default_gcp_op(name: str, image: str, command: str = None,
     )
   )
 
-def dataflow_preprocess_op(
-        cluster_name: str,
-        data_dir: 'GcsUri',
-        failed_tokenize_bq_table: str,
-        namespace: str,
-        num_workers: int,
-        project: 'GcpProject',
-        token_pairs_bq_table: str,
-        worker_machine_type: str,
-        workflow_id: str,
-        working_dir: str):
-  return default_gcp_op(
-    name='dataflow_preprocess',
-    image='gcr.io/kubeflow-examples/code-search/ks:v20181203-a0c87ff-dirty-a99477',
-    command=['/usr/local/src/submit_preprocess_job.sh'],
-    arguments=[
-      "--cluster=%s" % cluster_name,
-      "--dataDir=%s" % data_dir,
-      "--failedTokenizeBQTable=%s" % failed_tokenize_bq_table,
-      "--namespace=%s" % namespace,
-      "--numWorkers=%s" % num_workers,
-      "--project=%s" % project,
-      "--tokenPairsBQTable=%s" % token_pairs_bq_table,
-      "--workerMachineType=%s" % worker_machine_type,
-      "--workflowId=%s" % workflow_id,
-      "--workingDir=%s" % working_dir,
-      "--vocabularyFile=%s" % 'gs://code-search-demo/20181104/data/vocab.kf_github_function_docstring.8192.subwords',
-    ]
-  )
-
 def dataflow_function_embedding_op(
         cluster_name: str,
         data_dir: 'GcsUri',
+        failed_tokenize_bq_table: str,
         function_embeddings_bq_table: str,
         function_embeddings_dir: str,
         namespace: str,
@@ -109,6 +80,7 @@ def dataflow_function_embedding_op(
     arguments=[
       "--cluster=%s" % cluster_name,
       "--dataDir=%s" % data_dir,
+      "--failedTokenizeBQTable=%s" % failed_tokenize_bq_table,
       "--functionEmbeddingsDir=%s" % function_embeddings_dir,
       "--functionEmbeddingsBQTable=%s" % function_embeddings_bq_table,
       "--modelDir=%s" % saved_model_dir,
@@ -227,18 +199,6 @@ def function_embedding_update(
   function_embeddings_bq_table = \
     '%s:%s.function_embeddings_%s' % (project, target_dataset, bq_suffix)
 
-  preprocess = dataflow_preprocess_op(
-    cluster_name,
-    data_dir,
-    failed_tokenize_bq_table,
-    namespace,
-    num_workers,
-    project,
-    token_pairs_bq_table,
-    worker_machine_type,
-    workflow_name,
-    working_dir)
-
   function_embedding = dataflow_function_embedding_op(
     cluster_name,
     data_dir,
@@ -252,7 +212,7 @@ def function_embedding_update(
     worker_machine_type,
     workflow_name,
     working_dir)
-  function_embedding.after(preprocess)
+  function_embedding
 
   search_index_creator = search_index_creator_op(
     cluster_name,

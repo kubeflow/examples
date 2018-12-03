@@ -15,7 +15,7 @@
     // are not picked up by the individual components.
     // Need to see if we can find a way to fix this.
 
-    local imageTag = "v20181203-73a6fc7-dirty-8c4866",
+    local imageTag = "v20181203-80a17b2-dirty-ab983e",
 
     "t2t-job": {
       jobType: "trainer",
@@ -125,6 +125,8 @@
       dataDir: self.workingDir + "/data",
       functionEmbeddingsDir: self.workingDir + "/code_embeddings",
       tokenPairsBQTable: "",
+      failedTokenizeBQTable: "",
+      readGithubDatasetForFunctionEmbedding: "false",
       functionEmbeddingsBQTable: "",
     },
 
