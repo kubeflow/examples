@@ -23,24 +23,26 @@ usage() {
 	echo "Usage: submit_preprocess_job.sh
 	--cluster=<cluster to deploy job to>
 	--dataDir=<data dir>
+	--failedTokenizeBQTable=<output failed tokenize entry BQ table>
 	--namespace=<kubernetes namespace>
 	--numWorkers=<num of workers>
 	--project=<project>
 	--timeout=<timeout>
-	--tokenPairsBQTable=<input token pairs BQ table>
+	--tokenPairsBQTable=<output token pairs BQ table>
 	--workerMachineType=<worker machine type>
 	--workflowId=<workflow id invoking the container>
 	--workingDir=<working dir>"
 }
 
 # List of required parameters
-names=(cluster dataDir namespace project tokenPairsBQTable workflowId workingDir)
+names=(cluster dataDir failedTokenizeBQTable namespace project tokenPairsBQTable workflowId workingDir)
 
 source "${DIR}/parse_arguments.sh"
 source "${DIR}/initialize_kubectl.sh"
 
 # Apply parameters
 ks param set ${component} dataDir ${dataDir} --env ${ksEnvName}
+ks param set ${component} failedTokenizeBQTable ${failedTokenizeBQTable} --env ${ksEnvName}
 ks param set ${component} jobNameSuffix ${workflowId} --env ${ksEnvName}
 ks param set ${component} numWorkers ${numWorkers} --env ${ksEnvName}
 ks param set ${component} project ${project} --env ${ksEnvName}

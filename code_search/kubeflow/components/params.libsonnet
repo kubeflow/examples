@@ -15,7 +15,7 @@
     // are not picked up by the individual components.
     // Need to see if we can find a way to fix this.
 
-    local imageTag = "v20181202-1cc8175-dirty-14797e",
+    local imageTag = "v20181203-73a6fc7-dirty-8c4866",
 
     "t2t-job": {
       jobType: "trainer",
@@ -99,6 +99,7 @@
       name: "submit-preprocess-job",
       image: $.components["t2t-job"].dataflowImage,
       tokenPairsBQTable: "",
+      failedTokenizeBQTable: "",
       workingDir: $.components["t2t-code-search"].workingDir,
       dataDir: self.workingDir + "/data",
       jobName: "preprocess-job",

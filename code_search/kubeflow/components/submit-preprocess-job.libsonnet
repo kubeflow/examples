@@ -33,6 +33,7 @@
                   "--runner=DataflowRunner",
                   "--project=" + params.project,
                   "--token_pairs_table=" + params.tokenPairsBQTable,
+                  "--failed_tokenize_table=" + params.failedTokenizeBQTable,
                   "--data_dir=" + params.dataDir,
                   "--job_name=" + params.jobName + '-' + params.jobNameSuffix,
                   "--temp_location=" + params.workingDir + "/dataflow/temp",

@@ -62,6 +62,7 @@ def default_gcp_op(name: str, image: str, command: str = None,
 def dataflow_preprocess_op(
         cluster_name: str,
         data_dir: 'GcsUri',
+        failed_tokenize_bq_table: str,
         namespace: str,
         num_workers: int,
         project: 'GcpProject',
@@ -71,11 +72,12 @@ def dataflow_preprocess_op(
         working_dir: str):
   return default_gcp_op(
     name='dataflow_preprocess',
-    image='gcr.io/kubeflow-examples/code-search/ks:v20181202-1cc8175',
+    image='gcr.io/kubeflow-examples/code-search/ks:v20181203-73a6fc7-dirty-2cd0c1',
     command=['/usr/local/src/submit_preprocess_job.sh'],
     arguments=[
       "--cluster=%s" % cluster_name,
       "--dataDir=%s" % data_dir,
+      "--failedTokenizeBQTable=%s" % failed_tokenize_bq_table,
       "--namespace=%s" % namespace,
       "--numWorkers=%s" % num_workers,
       "--project=%s" % project,
@@ -101,7 +103,7 @@ def dataflow_function_embedding_op(
         working_dir: str,):
   return default_gcp_op(
     name='dataflow_function_embedding',
-    image='gcr.io/kubeflow-examples/code-search/ks:v20181202-1cc8175',
+    image='gcr.io/kubeflow-examples/code-search/ks:v20181203-73a6fc7-dirty-2cd0c1',
     command=['/usr/local/src/submit_code_embeddings_job.sh'],
     arguments=[
       "--cluster=%s" % cluster_name,
@@ -130,7 +132,7 @@ def search_index_creator_op(
   return dsl.ContainerOp(
     # use component name as step name
     name='search_index_creator',
-    image='gcr.io/kubeflow-examples/code-search/ks:v20181202-1cc8175',
+    image='gcr.io/kubeflow-examples/code-search/ks:v20181203-73a6fc7-dirty-2cd0c1',
     command=['/usr/local/src/launch_search_index_creator_job.sh'],
     arguments=[
       '--cluster=%s' % cluster_name,
@@ -155,7 +157,7 @@ def update_index_op(
   return (
     dsl.ContainerOp(
       name='update_index',
-      image='gcr.io/kubeflow-examples/code-search/ks:v20181202-1cc8175',
+      image='gcr.io/kubeflow-examples/code-search/ks:v20181203-73a6fc7-dirty-2cd0c1',
       command=['/usr/local/src/update_index.sh'],
       arguments=[
         '--appDir=%s' % app_dir,
@@ -215,17 +217,19 @@ def function_embedding_update(
   # replacing characters in workflow name.
   bq_suffix = uuid.uuid4().hex[:6].upper()
   working_dir = '%s/%s' % (working_dir, workflow_name)
-  data_dir = '%s/%s' % (working_dir, "/data")
+  data_dir = '%s/%s' % (working_dir, "data")
   lookup_file = '%s/code-embeddings-index/embedding-to-info.csv' % working_dir
   index_file = '%s/code-embeddings-index/embeddings.index'% working_dir
-  function_embeddings_dir = '%s/%s' % (working_dir, "/code_embeddings")
+  function_embeddings_dir = '%s/%s' % (working_dir, "code_embeddings")
   token_pairs_bq_table = '%s:%s.token_pairs_%s' %(project, target_dataset, bq_suffix)
+  failed_tokenize_bq_table = '%s:%s.failed_tokenize_%s' %(project, target_dataset, bq_suffix)
   function_embeddings_bq_table = \
     '%s:%s.function_embeddings_%s' % (project, target_dataset, bq_suffix)
 
   preprocess = dataflow_preprocess_op(
     cluster_name,
     data_dir,
+    failed_tokenize_bq_table,
     namespace,
     num_workers,
     project,

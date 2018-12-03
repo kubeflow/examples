@@ -34,7 +34,5 @@
     name: "pipeline",
     problem: "kf_github_function_docstring",
     project: "code-search-demo",
-    bqDataset: "code_search",
-    tokenPairsBQTable: self.project + ":" + self.bqDataset + ".token_pairs",
   },
 }

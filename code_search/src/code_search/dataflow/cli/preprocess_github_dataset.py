@@ -24,7 +24,6 @@ def preprocess_github_dataset(argv=None):
     - If Github Python files have already been processed, use the
       pre-processed table instead (using flag `--pre-transformed`)
     - Tokenize files into pairs of function definitions and docstrings
-    - All results are stored in a BigQuery dataset (`args.token_pairs_table`)
     - See `transforms.github_dataset.TransformGithubDataset` for details of tables created
     - Additionally, store pairs of docstring and function tokens in a CSV file
       for training
@@ -40,7 +39,7 @@ def preprocess_github_dataset(argv=None):
   if args.pre_transformed:
     token_pairs = (pipeline
       | "Read Transformed Github Dataset" >> gh_bq.ReadTransformedGithubDataset(
-        args.project, dataset=args.token_pairs_table)
+        args.project, dataset=args.target_dataset)
     )
   else:
     if args.github_files:
@@ -59,8 +58,8 @@ def preprocess_github_dataset(argv=None):
       input_records = (pipeline
         | "Read Github Dataset" >> gh_bq.ReadGithubDataset(args.project))
     token_pairs = (input_records
-      | "Transform Github Dataset" >> github_dataset.TransformGithubDataset(args.project,
-                                                                            args.token_pairs_table)
+      | "Transform Github Dataset" >> github_dataset.TransformGithubDataset(args.token_pairs_table,
+                                                                            args.failed_tokenize_table)
     )
 
   (token_pairs  # pylint: disable=expression-not-assigned

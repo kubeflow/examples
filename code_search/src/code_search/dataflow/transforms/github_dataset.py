@@ -15,19 +15,15 @@ class TransformGithubDataset(beam.PTransform):
   All tiny docstrings (smaller than `self.min_docstring_tokens`)
   are filtered out.
 
-  This transform creates following tables in the `target_dataset`
+  This transform creates following tables
   which are defined as properties for easy modification.
     - `self.failed_tokenize_table`
     - `self.pairs_table`
   """
 
-  def __init__(self, project, target_dataset,
-               pairs_table=gh_bq.PAIRS_TABLE,
-               failed_tokenize_table=gh_bq.FAILED_TOKENIZE_TABLE):
+  def __init__(self, pairs_table, failed_tokenize_table):
     super(TransformGithubDataset, self).__init__()
 
-    self.project = project
-    self.target_dataset = target_dataset
     self.pairs_table = pairs_table
     self.failed_tokenize_table = failed_tokenize_table
 
@@ -44,10 +40,9 @@ class TransformGithubDataset(beam.PTransform):
 
     pairs, tokenize_errors = tokenize_result.rows, tokenize_result.err
 
-    if self.target_dataset:
+    if self.failed_tokenize_table:
       (tokenize_errors  # pylint: disable=expression-not-assigned
-       | "Failed Tokenization" >> gh_bq.WriteFailedTokenizedData(self.project, self.target_dataset,
-                                                                 self.failed_tokenize_table)
+       | "Failed Tokenization" >> gh_bq.WriteFailedTokenizedData(self.failed_tokenize_table)
       )
     else:
       logging.info("No bigquery dataset provided; tokenization errors will "
@@ -59,13 +54,11 @@ class TransformGithubDataset(beam.PTransform):
         lambda row: len(row['docstring_tokens'].split(' ')) > self.min_docstring_tokens)
     )
 
-    if self.target_dataset:
-      logging.info("Writing results to BigQuery %s:%s.%s",
-                   self.project, self.target_dataset, self.pairs_table)
+    if self.pairs_table:
+      logging.info("Writing results to BigQuery %s", self.pairs_table)
       (flat_rows  # pylint: disable=expression-not-assigned
-        | "Save Tokens" >> gh_bq.WriteTokenizedData(self.project, self.target_dataset,
-                                                    self.pairs_table)
+        | "Save Tokens" >> gh_bq.WriteTokenizedData(self.pairs_table)
       )
     else:
-      logging.info("target_dataset not set will not write to BigQuery")
+      logging.info("pairs_table not set will not write to BigQuery")
     return flat_rows
