@@ -58,8 +58,8 @@ def preprocess_github_dataset(argv=None):
       input_records = (pipeline
         | "Read Github Dataset" >> gh_bq.ReadGithubDataset(args.project))
     token_pairs = (input_records
-      | "Transform Github Dataset" >> github_dataset.TransformGithubDataset(args.token_pairs_table,
-                                                                            args.failed_tokenize_table)
+      | "Transform Github Dataset" >> github_dataset.TransformGithubDataset(
+                args.token_pairs_table, args.failed_tokenize_table)
     )
 
   (token_pairs  # pylint: disable=expression-not-assigned
