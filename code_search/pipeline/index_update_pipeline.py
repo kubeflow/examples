@@ -59,69 +59,113 @@ def default_gcp_op(name: str, image: str, command: str = None,
     )
   )
 
-def dataflow_function_embedding_op(
-        project: 'GcpProject', cluster_name: str, token_pairs_bq_table: str,
-        function_embeddings_bq_table: str, data_dir: 'GcsUri',
-        function_embeddings_dir: str, saved_model_dir: 'GcsUri', workflow_id: str,
-        worker_machine_type: str, num_workers: int, working_dir: str, namespace: str):
+def dataflow_preprocess_op(
+        cluster_name: str,
+        data_dir: 'GcsUri',
+        namespace: str,
+        num_workers: int,
+        project: 'GcpProject',
+        token_pairs_bq_table: str,
+        worker_machine_type: str,
+        workflow_id: str,
+        working_dir: str):
   return default_gcp_op(
-    name='dataflow_function_embedding',
-    image='gcr.io/kubeflow-examples/code-search/ks:v20181202-fbf5905-dirty-a8480a',
-    command=['/usr/local/src/submit_code_embeddings_job.sh'],
+    name='dataflow_preprocess',
+    image='gcr.io/kubeflow-examples/code-search/ks:v20181202-dcd4c67-dirty-031367',
+    command=['/usr/local/src/submit_preprocess_job.sh'],
     arguments=[
-      "--workflowId=%s" % workflow_id,
-      "--modelDir=%s" % saved_model_dir,
+      "--cluster=%s" % cluster_name,
       "--dataDir=%s" % data_dir,
-      "--functionEmbeddingsDir=%s" % function_embeddings_dir,
+      "--namespace=%s" % namespace,
       "--numWorkers=%s" % num_workers,
       "--project=%s" % project,
       "--tokenPairsBQTable=%s" % token_pairs_bq_table,
-      "--functionEmbeddingsBQTable=%s" % function_embeddings_bq_table,
       "--workerMachineType=%s" % worker_machine_type,
+      "--workflowId=%s" % workflow_id,
       "--workingDir=%s" % working_dir,
+    ]
+  )
+
+def dataflow_function_embedding_op(
+        cluster_name: str,
+        data_dir: 'GcsUri',
+        function_embeddings_bq_table: str,
+        function_embeddings_dir: str,
+        namespace: str,
+        num_workers: int,
+        project: 'GcpProject',
+        saved_model_dir: 'GcsUri',
+        token_pairs_bq_table: str,
+        worker_machine_type: str,
+        workflow_id: str,
+        working_dir: str,):
+  return default_gcp_op(
+    name='dataflow_function_embedding',
+    image='gcr.io/kubeflow-examples/code-search/ks:v20181202-dcd4c67-dirty-031367',
+    command=['/usr/local/src/submit_code_embeddings_job.sh'],
+    arguments=[
       "--cluster=%s" % cluster_name,
+      "--dataDir=%s" % data_dir,
+      "--functionEmbeddingsDir=%s" % function_embeddings_dir,
+      "--functionEmbeddingsBQTable=%s" % function_embeddings_bq_table,
+      "--modelDir=%s" % saved_model_dir,
       "--namespace=%s" % namespace,
+      "--numWorkers=%s" % num_workers,
+      "--project=%s" % project,
+      "--tokenPairsBQTable=%s" % token_pairs_bq_table,
+      "--workerMachineType=%s" % worker_machine_type,
+      "--workflowId=%s" % workflow_id,
+      "--workingDir=%s" % working_dir,
     ]
   )
 
 
 def search_index_creator_op(
-        index_file: str, lookup_file: str, function_embeddings_dir: str,
-        workflow_id: str, cluster_name: str, namespace: str):
+        cluster_name: str,
+        function_embeddings_dir: str,
+        index_file: str,
+        lookup_file: str,
+        namespace: str,
+        workflow_id: str):
   return dsl.ContainerOp(
     # use component name as step name
     name='search_index_creator',
-    image='gcr.io/kubeflow-examples/code-search/ks:v20181202-fbf5905-dirty-a8480a',
+    image='gcr.io/kubeflow-examples/code-search/ks:v20181202-dcd4c67-dirty-031367',
     command=['/usr/local/src/launch_search_index_creator_job.sh'],
     arguments=[
+      '--cluster=%s' % cluster_name,
+      '--functionEmbeddingsDir=%s' % function_embeddings_dir,
       '--indexFile=%s' % index_file,
       '--lookupFile=%s' % lookup_file,
-      '--functionEmbeddingsDir=%s' % function_embeddings_dir,
-      '--workflowId=%s' % workflow_id,
-      '--cluster=%s' % cluster_name,
       '--namespace=%s' % namespace,
+      '--workflowId=%s' % workflow_id,
     ]
   )
 
 
 def update_index_op(
-        base_git_repo: str, base_branch: str, app_dir: str, fork_git_repo: str,
-        index_file: str, lookup_file: str, workflow_id: str, bot_email: str):
+        app_dir: str,
+        base_branch: str,
+        base_git_repo: str,
+        bot_email: str,
+        fork_git_repo: str,
+        index_file: str,
+        lookup_file: str,
+        workflow_id: str):
   return (
     dsl.ContainerOp(
       name='update_index',
-      image='gcr.io/kubeflow-examples/code-search/ks:v20181202-fbf5905-dirty-a8480a',
+      image='gcr.io/kubeflow-examples/code-search/ks:v20181202-dcd4c67-dirty-031367',
       command=['/usr/local/src/update_index.sh'],
       arguments=[
-        '--baseGitRepo=%s' % base_git_repo,
-        '--baseBranch=%s' % base_branch,
         '--appDir=%s' % app_dir,
+        '--baseBranch=%s' % base_branch,
+        '--baseGitRepo=%s' % base_git_repo,
+        '--botEmail=%s' % bot_email,
         '--forkGitRepo=%s' % fork_git_repo,
-        '--env=%s' % 'pipeline',
         '--indexFile=%s' % index_file,
         '--lookupFile=%s' % lookup_file,
         '--workflowId=%s' % workflow_id,
-        '--botEmail=%s' % bot_email,
       ],
     )
     .add_volume(
@@ -156,11 +200,10 @@ def function_embedding_update(
     cluster_name='cs-demo-1103',
     namespace='kubeflow',
     working_dir='gs://code-search-demo/pipeline',
-    data_dir='gs://code-search-demo/20181104/data',
     saved_model_dir='gs://code-search-demo/models/20181107-dist-sync-gpu/export/1541712907/',
     target_dataset='code_search',
     worker_machine_type='n1-highcpu-32',
-    function_embedding_num_workers=5,
+    num_workers=5,
     base_git_repo='kubeflow/examples',
     base_branch='master',
     app_dir='code_search/ks-web-app',
@@ -172,23 +215,58 @@ def function_embedding_update(
   # replacing characters in workflow name.
   bq_suffix = uuid.uuid4().hex[:6].upper()
   working_dir = '%s/%s' % (working_dir, workflow_name)
+  data_dir = '%s/%s' % (working_dir, "/data")
   lookup_file = '%s/code-embeddings-index/embedding-to-info.csv' % working_dir
   index_file = '%s/code-embeddings-index/embeddings.index'% working_dir
   function_embeddings_dir = '%s/%s' % (working_dir, "/code_embeddings")
-  token_pairs_bq_table = '%s:%s.token_pairs' %(project, target_dataset)
+  token_pairs_bq_table = '%s:%s.token_pairs_%s' %(project, target_dataset, bq_suffix)
   function_embeddings_bq_table = \
     '%s:%s.function_embeddings_%s' % (project, target_dataset, bq_suffix)
 
+  preprocess = dataflow_preprocess_op(
+    cluster_name,
+    data_dir,
+    namespace,
+    num_workers,
+    project,
+    token_pairs_bq_table,
+    worker_machine_type,
+    workflow_name,
+    working_dir)
+
   function_embedding = dataflow_function_embedding_op(
-    project, cluster_name, token_pairs_bq_table, function_embeddings_bq_table,
-    data_dir, function_embeddings_dir, saved_model_dir, workflow_name,
-    worker_machine_type, function_embedding_num_workers, working_dir, namespace)
+    cluster_name,
+    data_dir,
+    function_embeddings_bq_table,
+    function_embeddings_dir,
+    namespace,
+    num_workers,
+    project,
+    saved_model_dir,
+    token_pairs_bq_table,
+    worker_machine_type,
+    workflow_name,
+    working_dir)
+  function_embedding.after(preprocess)
+
   search_index_creator = search_index_creator_op(
-    index_file, lookup_file, function_embeddings_dir, workflow_name, cluster_name, namespace)
+    cluster_name,
+    function_embeddings_dir,
+    index_file,
+    lookup_file,
+    namespace,
+    workflow_name)
   search_index_creator.after(function_embedding)
+
   update_index_op(
-      base_git_repo, base_branch, app_dir, fork_git_repo,
-      index_file, lookup_file, workflow_name, bot_email).after(search_index_creator)
+    app_dir,
+    base_branch,
+    base_git_repo,
+    bot_email,
+    fork_git_repo,
+    index_file,
+    lookup_file,
+    workflow_name).after(search_index_creator)
 
 
 if __name__ == '__main__':

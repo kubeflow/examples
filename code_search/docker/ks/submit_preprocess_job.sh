@@ -13,21 +13,18 @@ timeout="-1s"
 # Ksonnet Environment name. Always use pipeline
 ksEnvName="pipeline"
 # submit code embeddings job ksonnet component name
-component="submit-code-embeddings-job"
+component="submit-preprocess-job"
 # default number of dataflow workers
 numWorkers=5
 # default dataflow worker machine type
 workerMachineType=n1-highcpu-32
 
 usage() {
-	echo "Usage: submit_code_embeddings_job.sh
+	echo "Usage: submit_preprocess_job.sh
 	--cluster=<cluster to deploy job to>
 	--dataDir=<data dir>
-	--functionEmbeddingsBQTable=<output function embedding BQ table>
-	--functionEmbeddingsDir=<output function embedding dir>
-	--modelDir=<directory contains the model>
     --namespace=<kubernetes namespace>
-    --numWorkers=<num of workers>
+	--numWorkers=<num of workers>
 	--project=<project>
 	--timeout=<timeout>
 	--tokenPairsBQTable=<input token pairs BQ table>
@@ -37,17 +34,14 @@ usage() {
 }
 
 # List of required parameters
-names=(cluster dataDir functionEmbeddingsBQTable functionEmbeddingsDir modelDir namespace project tokenPairsBQTable workflowId workingDir)
+names=(cluster dataDir namespace project tokenPairsBQTable workflowId workingDir)
 
 source "${DIR}/parse_arguments.sh"
 source "${DIR}/initialize_kubectl.sh"
 
 # Apply parameters
 ks param set ${component} dataDir ${dataDir} --env ${ksEnvName}
-ks param set ${component} functionEmbeddingsBQTable ${functionEmbeddingsBQTable} --env ${ksEnvName}
-ks param set ${component} functionEmbeddingsDir ${functionEmbeddingsDir} --env ${ksEnvName}
 ks param set ${component} jobNameSuffix ${workflowId} --env ${ksEnvName}
-ks param set ${component} modelDir ${modelDir} --env ${ksEnvName}
 ks param set ${component} numWorkers ${numWorkers} --env ${ksEnvName}
 ks param set ${component} project ${project} --env ${ksEnvName}
 ks param set ${component} tokenPairsBQTable ${tokenPairsBQTable} --env ${ksEnvName}
@@ -57,7 +51,7 @@ ks param set ${component} workingDir ${workingDir} --env ${ksEnvName}
 ks show ${ksEnvName} -c "${component}"
 ks apply ${ksEnvName} -c "${component}"
 
-JOB_NAME="pipeline-embed-code-${workflowId}"
+JOB_NAME="pipeline-preprocess-${workflowId}"
 echo "wait for ${JOB_NAME} to finish"
 
 kubectl wait --timeout="${timeout}" --for=condition=complete job/${JOB_NAME} -n "${namespace}"

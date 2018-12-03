@@ -25,8 +25,6 @@ class PipelineCLIOptions(pipeline_options.StandardOptions,
 
 def add_parser_arguments(parser):
   additional_args_parser = parser.add_argument_group('Custom Arguments')
-  additional_args_parser.add_argument('--target_dataset', metavar='', type=str,
-                      help='BigQuery dataset for output results')
   additional_args_parser.add_argument('--pre_transformed', action='store_true',
                       help='Use a pre-transformed BigQuery dataset')
   additional_args_parser.add_argument('--wait_until_finished', action='store_true',
