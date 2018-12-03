@@ -26,8 +26,8 @@ usage() {
 	--functionEmbeddingsBQTable=<output function embedding BQ table>
 	--functionEmbeddingsDir=<output function embedding dir>
 	--modelDir=<directory contains the model>
-    --namespace=<kubernetes namespace>
-    --numWorkers=<num of workers>
+	--namespace=<kubernetes namespace>
+	--numWorkers=<num of workers>
 	--project=<project>
 	--timeout=<timeout>
 	--tokenPairsBQTable=<input token pairs BQ table>

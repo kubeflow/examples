@@ -1,8 +1,8 @@
 #!/bin/bash
-# This script is a wrapper script for calling submit code embedding job ksonnet component
-# and creates a kubernetes job to submit dataflow job to compute code function embedding
+# This script is a wrapper script for calling submit preprocess job ksonnet component
+# and creates a kubernetes job to submit dataflow job to preprocess github token
 # For more details about search index ksonnet component, check
-# https://github.com/kubeflow/examples/blob/master/code_search/kubeflow/components/submit-code-embeddings-job.libsonnet
+# https://github.com/kubeflow/examples/blob/master/code_search/kubeflow/components/submit-preprocess-job.libsonnet
 
 set -ex
 
@@ -23,7 +23,7 @@ usage() {
 	echo "Usage: submit_preprocess_job.sh
 	--cluster=<cluster to deploy job to>
 	--dataDir=<data dir>
-    --namespace=<kubernetes namespace>
+	--namespace=<kubernetes namespace>
 	--numWorkers=<num of workers>
 	--project=<project>
 	--timeout=<timeout>
