@@ -31,19 +31,18 @@ def create_function_embeddings(argv=None):
 
   pipeline = beam.Pipeline(options=pipeline_opts)
 
-  if args.read_github_dataset_for_function_embedding:
-    token_pairs = (pipeline
-      | "Read Github Dataset" >> gh_bq.ReadGithubDataset(args.project)
-      | "Transform Github Dataset" >> github_dataset.TransformGithubDataset(
-        args.token_pairs_table, args.failed_tokenize_table)
-    )
-  else:
+  if args.token_pairs_table:
     token_pairs_query = gh_bq.ReadTransformedGithubDatasetQuery(
       args.token_pairs_table)
     token_pairs_source = beam.io.BigQuerySource(
       query=token_pairs_query.query_string, use_standard_sql=True)
     token_pairs = (pipeline
       | "Read Transformed Github Dataset" >> beam.io.Read(token_pairs_source)
+    )
+  else:
+    token_pairs = (pipeline
+      | "Read Github Dataset" >> gh_bq.ReadGithubDataset(args.project)
+      | "Transform Github Dataset" >> github_dataset.TransformGithubDataset(None, None)
     )
 
   embeddings = (token_pairs

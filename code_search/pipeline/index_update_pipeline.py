@@ -61,15 +61,12 @@ def default_gcp_op(name: str, image: str, command: str = None,
 
 def dataflow_function_embedding_op(
         cluster_name: str,
-        data_dir: 'GcsUri',
-        failed_tokenize_bq_table: str,
         function_embeddings_bq_table: str,
         function_embeddings_dir: str,
         namespace: str,
         num_workers: int,
         project: 'GcpProject',
         saved_model_dir: 'GcsUri',
-        token_pairs_bq_table: str,
         worker_machine_type: str,
         workflow_id: str,
         working_dir: str,):
@@ -79,17 +76,13 @@ def dataflow_function_embedding_op(
     command=['/usr/local/src/submit_code_embeddings_job.sh'],
     arguments=[
       "--cluster=%s" % cluster_name,
-      "--dataDir=%s" % data_dir,
-      "--failedTokenizeBQTable=%s" % failed_tokenize_bq_table,
+      "--dataDir=%s" % 'gs://code-search-demo/20181104/data',
       "--functionEmbeddingsDir=%s" % function_embeddings_dir,
       "--functionEmbeddingsBQTable=%s" % function_embeddings_bq_table,
       "--modelDir=%s" % saved_model_dir,
       "--namespace=%s" % namespace,
       "--numWorkers=%s" % num_workers,
       "--project=%s" % project,
-      "--tokenPairsBQTable=%s" % token_pairs_bq_table,
-      "--vocabularyFile=%s" %
-      'gs://code-search-demo/20181104/data/vocab.kf_github_function_docstring.8192.subwords',
       "--workerMachineType=%s" % worker_machine_type,
       "--workflowId=%s" % workflow_id,
       "--workingDir=%s" % working_dir,
@@ -192,26 +185,20 @@ def function_embedding_update(
   # replacing characters in workflow name.
   bq_suffix = uuid.uuid4().hex[:6].upper()
   working_dir = '%s/%s' % (working_dir, workflow_name)
-  data_dir = '%s/%s/' % (working_dir, "data")
   lookup_file = '%s/code-embeddings-index/embedding-to-info.csv' % working_dir
   index_file = '%s/code-embeddings-index/embeddings.index'% working_dir
   function_embeddings_dir = '%s/%s' % (working_dir, "code_embeddings")
-  token_pairs_bq_table = '%s:%s.token_pairs_%s' %(project, target_dataset, bq_suffix)
-  failed_tokenize_bq_table = '%s:%s.failed_tokenize_%s' %(project, target_dataset, bq_suffix)
   function_embeddings_bq_table = \
     '%s:%s.function_embeddings_%s' % (project, target_dataset, bq_suffix)
 
   function_embedding = dataflow_function_embedding_op(
     cluster_name,
-    data_dir,
-    failed_tokenize_bq_table,
     function_embeddings_bq_table,
     function_embeddings_dir,
     namespace,
     num_workers,
     project,
     saved_model_dir,
-    token_pairs_bq_table,
     worker_machine_type,
     workflow_name,
     working_dir)

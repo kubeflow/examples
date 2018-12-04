@@ -22,8 +22,7 @@ workerMachineType=n1-highcpu-32
 usage() {
 	echo "Usage: submit_code_embeddings_job.sh
 	--cluster=<cluster to deploy job to>
-	--dataDir=<data dir>
-	--failedTokenizeBQTable=<output failed tokenize BQ table>
+	--dataDir=<data dir containing the pre generated vocabulary file>
 	--functionEmbeddingsBQTable=<output function embedding BQ table>
 	--functionEmbeddingsDir=<output function embedding dir>
 	--modelDir=<directory contains the model>
@@ -31,33 +30,25 @@ usage() {
 	--numWorkers=<num of workers>
 	--project=<project>
 	--timeout=<timeout>
-	--tokenPairsBQTable=<output token pairs BQ table>
-	--vocabularyFile=<the pre-generated vocabulary file>
 	--workerMachineType=<worker machine type>
 	--workflowId=<workflow id invoking the container>
 	--workingDir=<working dir>"
 }
 
 # List of required parameters
-names=(cluster dataDir failedTokenizeBQTable functionEmbeddingsBQTable functionEmbeddingsDir modelDir namespace project tokenPairsBQTable workflowId workingDir)
+names=(cluster dataDir functionEmbeddingsBQTable functionEmbeddingsDir modelDir namespace project workflowId workingDir)
 
 source "${DIR}/parse_arguments.sh"
 source "${DIR}/initialize_kubectl.sh"
 
-gcloud auth activate-service-account --key-file=${GOOGLE_APPLICATION_CREDENTIALS}
-# Copy the pre exist vocabulary file to the data directory. Used by the subsequent steps.
-gsutil cp ${vocabularyFile} ${dataDir}
-
 # Apply parameters
 ks param set ${component} dataDir ${dataDir} --env ${ksEnvName}
-ks param set ${component} failedTokenizeBQTable ${failedTokenizeBQTable} --env ${ksEnvName}
 ks param set ${component} functionEmbeddingsBQTable ${functionEmbeddingsBQTable} --env ${ksEnvName}
 ks param set ${component} functionEmbeddingsDir ${functionEmbeddingsDir} --env ${ksEnvName}
 ks param set ${component} jobNameSuffix ${workflowId} --env ${ksEnvName}
 ks param set ${component} modelDir ${modelDir} --env ${ksEnvName}
 ks param set ${component} numWorkers ${numWorkers} --env ${ksEnvName}
 ks param set ${component} project ${project} --env ${ksEnvName}
-ks param set ${component} tokenPairsBQTable ${tokenPairsBQTable} --env ${ksEnvName}
 ks param set ${component} workerMachineType ${workerMachineType} --env ${ksEnvName}
 ks param set ${component} workingDir ${workingDir} --env ${ksEnvName}
 

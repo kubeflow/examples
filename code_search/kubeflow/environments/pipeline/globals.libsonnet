@@ -4,5 +4,4 @@
   // e.g. "dataflowImage", "trainerCpuImage", "trainerGpuImage",
   experiment: "pipeline",
   waitUntilFinish: "true",
-  readGithubDatasetForFunctionEmbedding: "true",
 }

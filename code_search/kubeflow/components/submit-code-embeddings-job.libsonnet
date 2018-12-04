@@ -33,8 +33,6 @@
 	              "code_search.dataflow.cli.create_function_embeddings",
 	              "--runner=DataflowRunner",
 	              "--project=" + params.project,
-	              "--token_pairs_table=" + params.tokenPairsBQTable,
-                  "--failed_tokenize_table=" + params.failedTokenizeBQTable,
 	              "--function_embeddings_table=" + params.functionEmbeddingsBQTable,
 	              "--output_dir=" + params.functionEmbeddingsDir,
 	              "--data_dir=" + params.dataDir,
@@ -48,9 +46,6 @@
 	              "--requirements_file=requirements.txt",
                   if (params.waitUntilFinish == "true") then
                       "--wait_until_finished"
-                  else [],
-                  if (params.readGithubDatasetForFunctionEmbedding == "true") then
-                      "--read_github_dataset_for_function_embedding"
                   else [],
 	            ],
 	            env: [
