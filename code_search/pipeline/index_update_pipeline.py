@@ -75,7 +75,7 @@ def dataflow_function_embedding_op(
         working_dir: str,):
   return default_gcp_op(
     name='dataflow_function_embedding',
-    image='gcr.io/kubeflow-examples/code-search/ks:v20181203-6875dc9-dirty-d54541',
+    image='gcr.io/kubeflow-examples/code-search/ks:v20181203-ada7ae4-dirty-e59799',
     command=['/usr/local/src/submit_code_embeddings_job.sh'],
     arguments=[
       "--cluster=%s" % cluster_name,
@@ -106,7 +106,7 @@ def search_index_creator_op(
   return dsl.ContainerOp(
     # use component name as step name
     name='search_index_creator',
-    image='gcr.io/kubeflow-examples/code-search/ks:v20181203-6875dc9-dirty-d54541',
+    image='gcr.io/kubeflow-examples/code-search/ks:v20181203-ada7ae4-dirty-e59799',
     command=['/usr/local/src/launch_search_index_creator_job.sh'],
     arguments=[
       '--cluster=%s' % cluster_name,
@@ -131,7 +131,7 @@ def update_index_op(
   return (
     dsl.ContainerOp(
       name='update_index',
-      image='gcr.io/kubeflow-examples/code-search/ks:v20181203-6875dc9-dirty-d54541',
+      image='gcr.io/kubeflow-examples/code-search/ks:v20181203-ada7ae4-dirty-e59799',
       command=['/usr/local/src/update_index.sh'],
       arguments=[
         '--appDir=%s' % app_dir,
