@@ -88,7 +88,8 @@ def dataflow_function_embedding_op(
       "--numWorkers=%s" % num_workers,
       "--project=%s" % project,
       "--tokenPairsBQTable=%s" % token_pairs_bq_table,
-      "--vocabularyFile=%s" % 'gs://code-search-demo/20181104/data/vocab.kf_github_function_docstring.8192.subwords',
+      "--vocabularyFile=%s" %
+      'gs://code-search-demo/20181104/data/vocab.kf_github_function_docstring.8192.subwords',
       "--workerMachineType=%s" % worker_machine_type,
       "--workflowId=%s" % workflow_id,
       "--workingDir=%s" % working_dir,
