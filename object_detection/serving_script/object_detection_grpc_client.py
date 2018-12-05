@@ -44,13 +44,17 @@ def main(args):
 
     result = stub.Predict(request, 60.0)
     image_np = load_image_into_numpy_array(args.input_image)
- 
-    output_dict = {} 
-    output_dict[dt_fields.detection_classes] = np.squeeze(result.outputs[dt_fields.detection_classes].float_val).astype(np.uint8)
-    output_dict[dt_fields.detection_boxes] = np.reshape(result.outputs[dt_fields.detection_boxes].float_val, (-1,4))
-    output_dict[dt_fields.detection_scores] = np.squeeze(result.outputs[dt_fields.detection_scores].float_val)
 
-    category_index = label_map_util.create_category_index_from_labelmap(args.label_map, use_display_name=True)
+    output_dict = {}
+    output_dict[dt_fields.detection_classes] = np.squeeze(
+        result.outputs[dt_fields.detection_classes].float_val).astype(np.uint8)
+    output_dict[dt_fields.detection_boxes] = np.reshape(
+        result.outputs[dt_fields.detection_boxes].float_val, (-1, 4))
+    output_dict[dt_fields.detection_scores] = np.squeeze(
+        result.outputs[dt_fields.detection_scores].float_val)
+
+    category_index = label_map_util.create_category_index_from_labelmap(args.label_map,
+                                                                        use_display_name=True)
 
     vis_util.visualize_boxes_and_labels_on_image_array(image_np,
       output_dict[dt_fields.detection_boxes],
