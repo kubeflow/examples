@@ -2,6 +2,7 @@ import logging
 
 import apache_beam as beam
 
+from code_search.dataflow.transforms import bigquery
 import code_search.dataflow.do_fns.github_dataset as gh_do_fns
 import code_search.dataflow.transforms.github_bigquery as gh_bq
 
@@ -41,8 +42,18 @@ class TransformGithubDataset(beam.PTransform):
     pairs, tokenize_errors = tokenize_result.rows, tokenize_result.err
 
     if self.failed_tokenize_table:
+      failed_tokenize_table_schema = bigquery.BigQuerySchema([
+        ('nwo', 'STRING'),
+        ('path', 'STRING'),
+        ('content', 'STRING')
+      ])
+
       (tokenize_errors  # pylint: disable=expression-not-assigned
-       | "Failed Tokenization" >> gh_bq.WriteFailedTokenizedData(self.failed_tokenize_table)
+       | "Failed Tokenization" >> beam.io.WriteToBigQuery(table=self.failed_tokenize_table,
+                               schema=failed_tokenize_table_schema,
+                               create_disposition=beam.io.BigQueryDisposition.CREATE_IF_NEEDED,
+                               write_disposition=beam.io.BigQueryDisposition.WRITE_EMPTY)
+
       )
     else:
       logging.info("No bigquery dataset provided; tokenization errors will "
@@ -56,8 +67,20 @@ class TransformGithubDataset(beam.PTransform):
 
     if self.pairs_table:
       logging.info("Writing results to BigQuery %s", self.pairs_table)
+      tokenize_table_schema = bigquery.BigQuerySchema([
+        ('nwo', 'STRING'),
+        ('path', 'STRING'),
+        ('function_name', 'STRING'),
+        ('lineno', 'STRING'),
+        ('original_function', 'STRING'),
+        ('function_tokens', 'STRING'),
+        ('docstring_tokens', 'STRING'),
+      ])
       (flat_rows  # pylint: disable=expression-not-assigned
-        | "Save Tokens" >> gh_bq.WriteTokenizedData(self.pairs_table)
+        | "Save Tokens" >>  beam.io.WriteToBigQuery(table=self.pairs_table,
+                               schema=tokenize_table_schema,
+                               create_disposition=beam.io.BigQueryDisposition.CREATE_IF_NEEDED,
+                               write_disposition=beam.io.BigQueryDisposition.WRITE_EMPTY)
       )
     else:
       logging.info("pairs_table not set will not write to BigQuery")

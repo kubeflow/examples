@@ -15,7 +15,7 @@
     // are not picked up by the individual components.
     // Need to see if we can find a way to fix this.
 
-    local imageTag = "v20181204-3e8cf69-dirty-4b326e",
+    local imageTag = "v20181204-ee47a49-dirty-f4045c",
 
     "t2t-job": {
       jobType: "trainer",
@@ -98,18 +98,15 @@
     "submit-preprocess-job": {
       name: "submit-preprocess-job",
       image: $.components["t2t-job"].dataflowImage,
-      tokenPairsBQTable: "",
-      failedTokenizeBQTable: "",
+      targetDataset: "code_search",
       workingDir: $.components["t2t-code-search"].workingDir,
       dataDir: self.workingDir + "/data",
-      jobName: "preprocess-job",
-      jobNameSuffix: "",
+      jobName: "github-preprocess-1104-1831",
       workerMachineType: "n1-highcpu-32",
       // This should be the GitHub table containing the paths and contents.
       githubTable: "",
       numWorkers: 5,
       project: "",
-      waitUntilFinish: "false",
     },
     "submit-code-embeddings-job": {
       name: "submit-code-embeddings-job",
