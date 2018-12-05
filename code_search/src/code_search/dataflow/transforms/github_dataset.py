@@ -4,7 +4,6 @@ import apache_beam as beam
 
 from code_search.dataflow.transforms import bigquery
 import code_search.dataflow.do_fns.github_dataset as gh_do_fns
-import code_search.dataflow.transforms.github_bigquery as gh_bq
 
 
 class TransformGithubDataset(beam.PTransform):
