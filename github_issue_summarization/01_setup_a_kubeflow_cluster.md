@@ -25,39 +25,45 @@ In this part, you will setup kubeflow on an existing kubernetes cluster.
         ```
 ## Kubeflow setup
 
-Refer to the [user
-guide](https://github.com/kubeflow/kubeflow/blob/master/user_guide.md) for
+Refer to the [
+guide](https://www.kubeflow.org/docs/started/getting-started/) for
 detailed instructions on how to setup kubeflow on your kubernetes cluster.
 Specifically, complete the following sections:
 
-*    [Deploy
-Kubeflow](https://github.com/kubeflow/kubeflow/blob/master/user_guide.md#deploy-kubeflow)
-    *   The `ks-kubeflow` directory can be used instead of creating a ksonnet
-        app from scratch.
-    *   If you run into
-        [API rate limiting errors](https://github.com/ksonnet/ksonnet/blob/master/docs/troubleshooting.md#github-rate-limiting-errors),
-        ensure you have a `${GITHUB_TOKEN}` environment variable set.
-    *   If you run into
-        [RBAC permissions issues](https://github.com/kubeflow/kubeflow/blob/master/user_guide.md#rbac-clusters)
+* [Deploy
+Kubeflow](https://www.kubeflow.org/docs/started/getting-started/)
+    * The [ks-kubeflow](https://github.com/kubeflow/examples/tree/master/github_issue_summarization/ks-kubeflow) 
+	directory can be used instead of creating a ksonnet app from scratch.
+    
+    * If you run into 
+        [API rate limiting errors](https://github.com/ksonnet/ksonnet/blob/master/docs/troubleshooting.md#github-rate-limiting-errors), ensure you have a `${GITHUB_TOKEN}` environment variable set.
+    
+    * If you run into [RBAC permissions issues](https://github.com/kubeflow/kubeflow/blob/master/user_guide.md#rbac-clusters)
         running `ks apply` commands, be sure you have created a `cluster-admin` ClusterRoleBinding for your username.
-*    [Setup a persistent disk](https://github.com/kubeflow/kubeflow/blob/master/user_guide.md#advanced-customization)
-    *   We need a shared persistent disk to store our training data since
-        containers' filesystems are ephemeral and don't have a lot of storage space.
-    *   For this example, provision a `10GB` cluster-wide shared NFS mount with the
-        name `github-issues-data`.
-    *   After the NFS is ready, delete the `tf-hub-0` pod so that it gets recreated and
-        picks up the NFS mount. You can delete it by running `kubectl delete pod
-        tf-hub-0 -n=${NAMESPACE}`
-*    [Bringing up a
-Notebook](https://github.com/kubeflow/kubeflow/blob/master/user_guide.md#bringing-up-a-jupyter-notebook)
-    *   When choosing an image for your cluster in the JupyterHub UI, use the
-        image from this example:
-        [`gcr.io/kubeflow-dev/issue-summarization-notebook-cpu:latest`](https://github.com/kubeflow/examples/blob/master/github_issue_summarization/workflow/Dockerfile).
+
+* [Setup a persistent disk](https://www.kubeflow.org/docs/guides/advanced/)
+
+    * We need a shared persistent disk to store our training data since
+      containers' filesystems are ephemeral and don't have a lot of storage space.
+
+    * For this example, provision a `10GB` cluster-wide shared NFS mount with the
+      name `github-issues-data`.
+
+    * After the NFS is ready, delete the `tf-hub-0` pod so that it gets recreated and
+      picks up the NFS mount. You can delete it by running `kubectl delete pod
+      tf-hub-0 -n=${NAMESPACE}`
+
+* [Bringing up a
+Notebook](https://www.kubeflow.org/docs/guides/components/jupyter/)
+
+    * When choosing an image for your cluster in the JupyterHub UI, use the
+      image from this example:
+      [`gcr.io/kubeflow-dev/issue-summarization-notebook-cpu:latest`](https://github.com/kubeflow/examples/blob/master/github_issue_summarization/workflow/Dockerfile).
 
 After completing that, you should have the following ready:
 
-*   A ksonnet app in a directory named `ks-kubeflow`
-*   An output similar to this for `kubectl get pods` command
+* A ksonnet app in a directory named `ks-kubeflow`
+* An output similar to this for `kubectl get pods` command
 
 ```commandline
 NAME                                   READY     STATUS              RESTARTS   AGE
@@ -81,6 +87,6 @@ tf-job-operator-77776c8446-lpprm       1/1       Running             0          
 *   We deployed the kubeflow-core component to our kubernetes cluster
 *   We created a disk for storing our training data
 *   We connected to JupyterHub and spawned a new Jupyter notebook
-*   For additional details and playground visit [katacoda](https://www.katacoda.com/kubeflow/scenarios/deploying-github-issue-summarization)
+*   For additional details and self-paced learning scenarios check `Resources` section of the [getting started guide](https://www.kubeflow.org/docs/started/getting-started/)
 
 *Next*: [Training the model](02_training_the_model.md)
