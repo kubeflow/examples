@@ -77,12 +77,10 @@ class BigQueryWrite(beam.PTransform):
     ]
   """
 
-  def __init__(self, project, dataset, table, batch_size=500,
+  def __init__(self, table, batch_size=500,
                write_disposition=bigquery.BigQueryDisposition.WRITE_TRUNCATE):
     super(BigQueryWrite, self).__init__()
 
-    self.project = project
-    self.dataset = dataset
     self.table = table
     self.write_disposition = write_disposition
     self.batch_size = batch_size
@@ -97,9 +95,7 @@ class BigQueryWrite(beam.PTransform):
 
   def expand(self, input_or_inputs):
     return (input_or_inputs
-      | beam.io.WriteToBigQuery(project=self.project,
-                                dataset=self.dataset,
-                                table=self.table,
+      | beam.io.WriteToBigQuery(table=self.table,
                                 schema=self.output_schema,
                                 batch_size=self.batch_size,
                                 write_disposition=self.write_disposition)
