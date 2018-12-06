@@ -1,4 +1,4 @@
-# Example Pipeline to update code search index server configuration
+# Example Pipeline to update code search UI configuration
 # To compile, use Kubeflow Pipelines V0.1.3 SDK or above.
 
 import uuid
