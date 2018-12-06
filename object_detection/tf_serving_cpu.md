@@ -17,12 +17,14 @@ MODEL_COMPONENT=pets-model
 MODEL_PATH=/mnt/exported_graphs/saved_model
 MODEL_STORAGE_TYPE=nfs
 NFS_PVC_NAME=pets-pvc
+TF_SERVING_VERSION=`kubectl -n kubeflow exec -ti tf-training-job-master-0 -- python -c 'from __future__ import print_function;import tensorflow;print(tensorflow.__version__, end="")'`
 
 ks param set ${MODEL_COMPONENT} modelPath ${MODEL_PATH}
 ks param set ${MODEL_COMPONENT} modelStorageType ${MODEL_STORAGE_TYPE}
 ks param set ${MODEL_COMPONENT} nfsPVC ${NFS_PVC_NAME}
+ks param set ${MODEL_COMPONENT} defaultCpuImage tensorflow/serving:${TF_SERVING_VERSION}
 
-ks apply ${ENV} -c pets-model
+ks apply ${ENV} -c ${MODEL_COMPONENT}
 ```
 
 After applying the component you should see pets-model pod. Run:
