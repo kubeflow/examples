@@ -26,7 +26,7 @@ class PipelineCLIOptions(pipeline_options.StandardOptions,
 def add_parser_arguments(parser):
   additional_args_parser = parser.add_argument_group('Custom Arguments')
   additional_args_parser.add_argument('--target_dataset', metavar='', type=str,
-                      help='BigQuery dataset for output results')
+                                      help='BigQuery dataset for output results')
   additional_args_parser.add_argument('--pre_transformed', action='store_true',
                       help='Use a pre-transformed BigQuery dataset')
   additional_args_parser.add_argument('--wait_until_finished', action='store_true',
@@ -42,6 +42,10 @@ def add_parser_arguments(parser):
                       help=('If specified read the entire GitHub dataset '
                             'specified as PROJECT:DATASET.TABLE. If not '
                             'specified we run a query to filter the data.'))
+  additional_args_parser.add_argument('--failed_tokenize_table', metavar='', type=str,
+                                   help='The BigQuery table containing the '
+                                        'failed tokenize entry. This should be '
+                                        'of the form PROJECT:DATASET.TABLE.')
 
   predict_args_parser = parser.add_argument_group('Batch Prediction Arguments')
   predict_args_parser.add_argument('--token_pairs_table', metavar='', type=str,

@@ -74,30 +74,6 @@ class ReadGithubDataset(bq_transform.BigQueryRead):
     return query
 
 
-class WriteFailedTokenizedData(bq_transform.BigQueryWrite):
-  @property
-  def column_list(self):
-    return [
-      ('nwo', 'STRING'),
-      ('path', 'STRING'),
-      ('content', 'STRING')
-    ]
-
-
-class WriteTokenizedData(bq_transform.BigQueryWrite):
-  @property
-  def column_list(self):
-    return [
-      ('nwo', 'STRING'),
-      ('path', 'STRING'),
-      ('function_name', 'STRING'),
-      ('lineno', 'STRING'),
-      ('original_function', 'STRING'),
-      ('function_tokens', 'STRING'),
-      ('docstring_tokens', 'STRING'),
-    ]
-
-
 class ReadTransformedGithubDatasetQuery(object):
 
   def __init__(self, table, limit=None):
