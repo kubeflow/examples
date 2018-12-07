@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.#
 
-ARG base_image=tensorflow/tensorflow:1.8.0
+ARG base_image=tensorflow/tensorflow:1.8.0-gpu
 
 FROM $base_image
 
@@ -43,9 +43,15 @@ RUN     apt-get update && apt-get install -y software-properties-common && \
 WORKDIR /root
 
 RUN pip install -U setuptools && \
-  curl -o /opt/kubeflow-batch-predict.zip -L https://github.com/kubeflow/batch-predict/archive/master.zip && \
+  curl -o /tmp/kubeflow-batch-predict.zip -L https://github.com/kubeflow/batch-predict/archive/master.zip && \
+  mkdir -p /tmp/unzipped && \
+  unzip -o /tmp/kubeflow-batch-predict.zip -d /tmp/unzipped && \
+  sed -i 's/tensorflow/tensorflow-gpu/g' /tmp/unzipped/batch-predict-master/kubeflow_batch_predict/version.py && \
+  cd /tmp/unzipped && \
+  zip -r /opt/kubeflow-batch-predict.zip * && \
   pip install /opt/kubeflow-batch-predict.zip && \
   pip install apache-beam[gcp]==2.3.0 && \
+  rm -rf /tmp/unzipped && \
   rm -rf /root/.cache/pip;
 
 ENTRYPOINT [ "python", "-m", "kubeflow_batch_predict.dataflow.batch_prediction_main" ]
