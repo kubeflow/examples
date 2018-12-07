@@ -138,7 +138,7 @@ Create service accounts, add permissions, download credentials, and create secre
 ADMIN_EMAIL=${CLUSTER}-admin@${PROJECT}.iam.gserviceaccount.com
 USER_EMAIL=${CLUSTER}-user@${PROJECT}.iam.gserviceaccount.com
 ADMIN_FILE=${HOME}/.ssh/${ADMIN_EMAIL}.json
-USER_FILE=${HOME}/.ssh/${ADMIN_EMAIL}.json
+USER_FILE=${HOME}/.ssh/${USER_EMAIL}.json
 
 gcloud iam service-accounts create ${CLUSTER}-admin --display-name=${CLUSTER}-admin
 gcloud iam service-accounts create ${CLUSTER}-user --display-name=${CLUSTER}-user

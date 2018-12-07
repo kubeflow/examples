@@ -8,15 +8,23 @@ set -ex
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null && pwd)"
 
 branch=master
+# Ksonnet Environment name. Always use pipeline
+ksEnvName="pipeline"
 
 usage() {
-	echo "Usage: update_index.sh --branch=<base branch> --appDir=<ksonnet app dir>
-	--gitRepo=<github repo with Argo CD hooked up> --env=<ksonnet environment> --indexFile=<index file>
-	--lookupFile=<lookup file> --workflowId=<workflow id invoking the container>"
+	echo "Usage: update_index.sh
+	--appDir=<ksonnet app dir>
+	--baseBranch=<base branch>
+	--baseGitRepo=<base git repo name>
+	--botEmail=<email account of the bot that send the PR>
+	--forkGitRepo=<github repo with Argo CD hooked up>
+	--indexFile=<index file>
+	--lookupFile=<lookup file>
+	--workflowId=<workflow id invoking the container>"
 }
 
 # List of required parameters
-names=(appDir gitRepo env lookupFile indexFile workflowId)
+names=(appDir baseBranch baseGitRepo botEmail forkGitRepo indexFile lookupFile workflowId)
 
 source "${DIR}/parse_arguments.sh"
 
@@ -29,12 +37,16 @@ if [ -z ${dryrun} ]; then
 fi
 
 
-git config --global user.email pipeline@localhost
-git clone -b ${branch} https://${GITHUB_TOKEN}@github.com/${gitRepo}.git repo && cd repo/${appDir}
+git config --global user.email ${botEmail}
+git clone https://${GITHUB_TOKEN}@github.com/${forkGitRepo}.git repo && cd repo/${appDir}
 git config credential.helper store
+git remote add upstream https://github.com/${baseGitRepo}.git
+git fetch upstream
+git merge upstream/${baseBranch} master
+
 git checkout -b ${workflowId}
-ks param set --env=${env} search-index-server indexFile ${indexFile}
-ks param set --env=${env} search-index-server lookupFile ${lookupFile}
+ks param set --env=${ksEnvName} search-index-server indexFile ${indexFile}
+ks param set --env=${ksEnvName} search-index-server lookupFile ${lookupFile}
 git add . && git commit -m "Update the lookup and index file."
 
 FILE=$(mktemp tmp.create_pull_request.XXXX)
@@ -51,7 +63,7 @@ EOF
 # Create a pull request
 if (! ${dryrun}); then
     git push origin ${workflowId}
-    hub pull-request --base=${gitRepo}:${branch} -F ${FILE}
+    hub pull-request --base=${baseGitRepo}:${baseBranch} -F ${FILE}
 else
 	echo "dry run; not committing to git."
 fi

@@ -20,26 +20,37 @@ numWorkers=5
 workerMachineType=n1-highcpu-32
 
 usage() {
-	echo "Usage: submit_code_embeddings_job.sh --workflowId=<workflow id invoking the container> --modelDir=<directory contains the model>
-	--dataDir=<data dir> --numWorkers=<num of workers> --project=<project> --targetDataset=<target BQ dataset>
-	--workerMachineType=<worker machine type> --workingDir=<working dir> --cluster=<cluster to deploy job to>"
+	echo "Usage: submit_code_embeddings_job.sh
+	--cluster=<cluster to deploy job to>
+	--dataDir=<data dir containing the pre generated vocabulary file>
+	--functionEmbeddingsBQTable=<output function embedding BQ table>
+	--functionEmbeddingsDir=<output function embedding dir>
+	--modelDir=<directory contains the model>
+	--namespace=<kubernetes namespace>
+	--numWorkers=<num of workers>
+	--project=<project>
+	--timeout=<timeout>
+	--workerMachineType=<worker machine type>
+	--workflowId=<workflow id invoking the container>
+	--workingDir=<working dir>"
 }
 
 # List of required parameters
-names=(dataDir modelDir targetDataset workingDir workflowId cluster)
+names=(cluster dataDir functionEmbeddingsBQTable functionEmbeddingsDir modelDir namespace project workflowId workingDir)
 
 source "${DIR}/parse_arguments.sh"
 source "${DIR}/initialize_kubectl.sh"
 
 # Apply parameters
-ks param set ${component} jobNameSuffix ${workflowId} --env ${ksEnvName}
 ks param set ${component} dataDir ${dataDir} --env ${ksEnvName}
+ks param set ${component} functionEmbeddingsBQTable ${functionEmbeddingsBQTable} --env ${ksEnvName}
+ks param set ${component} functionEmbeddingsDir ${functionEmbeddingsDir} --env ${ksEnvName}
+ks param set ${component} jobNameSuffix ${workflowId} --env ${ksEnvName}
 ks param set ${component} modelDir ${modelDir} --env ${ksEnvName}
-ks param set ${component} project ${project} --env ${ksEnvName}
-ks param set ${component} targetDataset ${targetDataset} --env ${ksEnvName}
-ks param set ${component} workingDir ${workingDir} --env ${ksEnvName}
 ks param set ${component} numWorkers ${numWorkers} --env ${ksEnvName}
+ks param set ${component} project ${project} --env ${ksEnvName}
 ks param set ${component} workerMachineType ${workerMachineType} --env ${ksEnvName}
+ks param set ${component} workingDir ${workingDir} --env ${ksEnvName}
 
 ks show ${ksEnvName} -c "${component}"
 ks apply ${ksEnvName} -c "${component}"

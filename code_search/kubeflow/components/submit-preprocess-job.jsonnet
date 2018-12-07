@@ -33,7 +33,7 @@ local jobSpec = {
               "python2",
               "-m",
               "code_search.dataflow.cli.preprocess_github_dataset",
-              "--runner=DataflowRunner",              
+              "--runner=DataflowRunner",
               "--project=" + params.project,
               "--target_dataset=" + params.targetDataset,
               "--data_dir=" + params.dataDir,
@@ -50,7 +50,7 @@ local jobSpec = {
                 value: "/secret/gcp-credentials/user-gcp-sa.json",
               },
             ],
-            workingDir: "/src",            
+            workingDir: "/src",
             volumeMounts: [
               {
                 mountPath: "/secret/gcp-credentials",

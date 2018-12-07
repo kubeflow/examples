@@ -1,11 +1,23 @@
 from __future__ import print_function
+import os
 import subprocess
 from distutils.command.build import build as distutils_build #pylint: disable=no-name-in-module
 from setuptools import setup, find_packages, Command as SetupToolsCommand
 
 VERSION = '0.1.dev0'
 
-with open('requirements.dataflow.txt', 'r') as f:
+# Dataflow workers always download the requirements file to
+# requirements.txt regardless of what file was used as the source.
+# So we follow that convention. If running on some other platform
+# you may need to rename the file
+if not os.path.exists('requirements.txt'):
+  if os.path.exists('requirements.dataflow.txt'):
+    print('Error: requirements.txt does not exist but '
+          'requirements.dataflow.txt does.')
+    print('You probably need to rename requirements.txt to '
+          'requirements.dataflow.txt.')
+
+with open('requirements.txt', 'r') as f:
   install_requires = f.readlines()
 
 CUSTOM_COMMANDS = [

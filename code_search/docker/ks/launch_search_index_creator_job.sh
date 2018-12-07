@@ -16,21 +16,27 @@ ksEnvName="pipeline"
 component="search-index-creator"
 
 usage() {
-	echo "Usage: launch_search_index_creator_job.sh --workingDir=<working dir> --workflowId=<workflow id invoking the container>
-	--dataDir=<data dir> --timeout=<timeout>  --namespace=<kubernetes namespace>  --cluster=<cluster to deploy job to> "
+	echo "Usage: launch_search_index_creator_job.sh
+	--cluster=<cluster to deploy job to>
+	--functionEmbeddingsDir=<input function embedding dir>
+	--indexFile=<index file>
+	--lookupFile=<lookup file>
+	--namespace=<kubernetes namespace>
+	--timeout=<timeout>
+	--workflowId=<workflow id invoking the container>"
 }
 
 # List of required parameters
-names=(workingDir workflowId dataDir namespace cluster)
+names=(cluster functionEmbeddingsDir indexFile lookupFile namespace workflowId)
 
 source "${DIR}/parse_arguments.sh"
 source "${DIR}/initialize_kubectl.sh"
 
 # Apply parameters
-ks param set ${component} dataDir ${dataDir} --env ${ksEnvName}
+ks param set ${component} functionEmbeddingsDir ${functionEmbeddingsDir} --env ${ksEnvName}
+ks param set ${component} indexFile ${indexFile} --env ${ksEnvName}
 ks param set ${component} jobNameSuffix ${workflowId} --env ${ksEnvName}
-ks param set ${component} lookupFile ${workingDir}/code-embeddings-index/embedding-to-info.csv --env ${ksEnvName}
-ks param set ${component} indexFile ${workingDir}/code-embeddings-index/embeddings.index --env ${ksEnvName}
+ks param set ${component} lookupFile ${lookupFile} --env ${ksEnvName}
 
 ks show ${ksEnvName} -c "${component}"
 ks apply ${ksEnvName} -c "${component}"
