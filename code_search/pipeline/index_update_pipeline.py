@@ -1,63 +1,14 @@
-from typing import Dict
+# Example Pipeline to update code search UI configuration
+# To compile, use Kubeflow Pipelines V0.1.3 SDK or above.
+
 import uuid
 from kubernetes import client as k8s_client
 import kfp.dsl as dsl
+import kfp.gcp as gcp
 
 
 # disable max arg lint check
 # pylint: disable=R0913
-
-
-def default_gcp_op(name: str, image: str, command: str = None,
-           arguments: str = None, file_inputs: Dict[dsl.PipelineParam, str] = None,
-           file_outputs: Dict[str, str] = None, is_exit_handler=False):
-  """An operator that mounts the default GCP service account to the container.
-
-  The user-gcp-sa secret is created as part of the kubeflow deployment that
-  stores the access token for kubeflow user service account.
-
-  With this service account, the container has a range of GCP APIs to
-  access to. This service account is automatically created as part of the
-  kubeflow deployment.
-
-  For the list of the GCP APIs this service account can access to, check
-  https://github.com/kubeflow/kubeflow/blob/7b0db0d92d65c0746ac52b000cbc290dac7c62b1/deployment/gke/deployment_manager_configs/iam_bindings_template.yaml#L18
-
-  If you want to call the GCP APIs in a different project, grant the kf-user
-  service account access permission.
-  """
-
-  return (
-    dsl.ContainerOp(
-      name,
-      image,
-      command,
-      arguments,
-      file_inputs,
-      file_outputs,
-      is_exit_handler,
-    )
-      .add_volume(
-      k8s_client.V1Volume(
-        name='gcp-credentials',
-        secret=k8s_client.V1SecretVolumeSource(
-          secret_name='user-gcp-sa'
-        )
-      )
-    )
-      .add_volume_mount(
-      k8s_client.V1VolumeMount(
-        mount_path='/secret/gcp-credentials',
-        name='gcp-credentials',
-      )
-    )
-      .add_env_variable(
-      k8s_client.V1EnvVar(
-        name='GOOGLE_APPLICATION_CREDENTIALS',
-        value='/secret/gcp-credentials/user-gcp-sa.json'
-      )
-    )
-  )
 
 def dataflow_function_embedding_op(
         cluster_name: str,
@@ -70,7 +21,7 @@ def dataflow_function_embedding_op(
         worker_machine_type: str,
         workflow_id: str,
         working_dir: str,):
-  return default_gcp_op(
+  return dsl.ContainerOp(
     name='dataflow_function_embedding',
     image='gcr.io/kubeflow-examples/code-search/ks:v20181204-ee47a49-dirty-fa8aa3',
     command=['/usr/local/src/submit_code_embeddings_job.sh'],
@@ -87,7 +38,8 @@ def dataflow_function_embedding_op(
       "--workflowId=%s" % workflow_id,
       "--workingDir=%s" % working_dir,
     ]
-  )
+  ).apply(gcp.use_gcp_secret('user-gcp-sa'))
+
 
 
 def search_index_creator_op(
