@@ -193,21 +193,18 @@ curl -H "Content-Type:application/json" \
 
 ```
 {
-  "data": {
-    "names": [
-      "t:0", 
-      "t:1"
-    ], 
-    "tensor": {
-      "shape": [
-        1, 
-        2
-      ], 
-      "values": [
-        97522.359375, 
-        97522.359375
-      ]
+  "meta": {
+    "puid": "8buc4oo78m67716m2vevvgtpap",
+    "tags": {
+    },
+    "routing": {
     }
+  },
+  "data": {
+    "names": ["t:0", "t:1"],
+    "tensor": {
+      "shape": [1, 2],
+      "values": [97522.359375, 97522.359375]
   }
 }
 ```
