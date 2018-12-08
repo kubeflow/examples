@@ -31,7 +31,7 @@ RUN git clone --recursive https://github.com/dmlc/xgboost && \
 RUN cd .. && \
     git clone https://github.com/kubeflow/examples.git && \
     cd examples && \
-    cd xgboost && \
+    cd xgboost_ames_housing && \
     pip install -r seldon_serve/requirements.txt
 
-ENTRYPOINT ["python", "examples/xgboost/housing.py"]
+ENTRYPOINT ["python", "examples/xgboost_ames_housing/housing.py"]
