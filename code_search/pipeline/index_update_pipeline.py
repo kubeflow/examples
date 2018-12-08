@@ -23,7 +23,7 @@ def dataflow_function_embedding_op(
         working_dir: str,):
   return dsl.ContainerOp(
     name='dataflow_function_embedding',
-    image='gcr.io/kubeflow-examples/code-search/ks:v20181204-ee47a49-dirty-fa8aa3',
+    image='gcr.io/kubeflow-examples/code-search/ks:v20181208-4c97087-dirty-c727db',
     command=['/usr/local/src/submit_code_embeddings_job.sh'],
     arguments=[
       "--cluster=%s" % cluster_name,
@@ -52,7 +52,7 @@ def search_index_creator_op(
   return dsl.ContainerOp(
     # use component name as step name
     name='search_index_creator',
-    image='gcr.io/kubeflow-examples/code-search/ks:v20181204-ee47a49-dirty-fa8aa3',
+    image='gcr.io/kubeflow-examples/code-search/ks:v20181208-4c97087-dirty-c727db',
     command=['/usr/local/src/launch_search_index_creator_job.sh'],
     arguments=[
       '--cluster=%s' % cluster_name,
@@ -77,7 +77,7 @@ def update_index_op(
   return (
     dsl.ContainerOp(
       name='update_index',
-      image='gcr.io/kubeflow-examples/code-search/ks:v20181204-ee47a49-dirty-fa8aa3',
+      image='gcr.io/kubeflow-examples/code-search/ks:v20181208-4c97087-dirty-c727db',
       command=['/usr/local/src/update_index.sh'],
       arguments=[
         '--appDir=%s' % app_dir,
@@ -135,13 +135,12 @@ def function_embedding_update(
   # Can't use workflow name as bq_suffix since BQ table doesn't accept '-' and
   # workflow name is assigned at runtime. Pipeline might need to support
   # replacing characters in workflow name.
-  bq_suffix = uuid.uuid4().hex[:6].upper()
   working_dir = '%s/%s' % (working_dir, workflow_name)
   lookup_file = '%s/code-embeddings-index/embedding-to-info.csv' % working_dir
   index_file = '%s/code-embeddings-index/embeddings.index'% working_dir
   function_embeddings_dir = '%s/%s' % (working_dir, "code_embeddings")
   function_embeddings_bq_table = \
-    '%s:%s.function_embeddings_%s' % (project, target_dataset, bq_suffix)
+    '%s:%s.function_embeddings_%s' % (project, target_dataset, workflow_name)
 
   function_embedding = dataflow_function_embedding_op(
     cluster_name,
