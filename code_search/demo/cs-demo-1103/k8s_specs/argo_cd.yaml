@@ -348,7 +348,7 @@ spec:
         - --status-processors
         - "20"
         - --operation-processors
-        - "10"
+        - "10"        
         image: argoproj/argocd-application-controller:v0.10.6
         name: application-controller
       serviceAccountName: application-controller
@@ -402,6 +402,7 @@ spec:
         - /shared/app
         - --repo-server
         - argocd-repo-server:8081
+        - --insecure
         image: argoproj/argocd-server:v0.10.6
         name: argocd-server
         readinessProbe:
