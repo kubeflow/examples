@@ -43,7 +43,7 @@ RUN curl -O https://bootstrap.pypa.io/get-pip.py && \
     rm get-pip.py
 
 RUN pip --no-cache-dir install \
-        tensorflow
+        tensorflow==1.10.0
 
 RUN pip --no-cache-dir install \
         Cython \
