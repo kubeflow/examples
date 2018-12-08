@@ -186,7 +186,9 @@ kubectl port-forward $(kubectl get pods -n ${NAMESPACE} -l service=ambassador -o
 Now you are ready to send requests on `localhost:8080`
 
 ```
-curl -H "Content-Type: application/x-www-form-urlencoded" -d 'json={"data":{"tensor":{"shape":[1,37],"values":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37]}}}' http://localhost:8080/predict
+curl -H "Content-Type:application/json" \
+  -d '{"data":{"tensor":{"shape":[1,37],"values":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37]}}}' \
+  http://localhost:8080/seldon/xgboost-ames/api/v0.1/predictions
 ```
 
 ```
