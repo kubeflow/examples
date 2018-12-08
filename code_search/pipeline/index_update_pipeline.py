@@ -139,7 +139,7 @@ def function_embedding_update(
   index_file = '%s/code-embeddings-index/embeddings.index'% working_dir
   function_embeddings_dir = '%s/%s' % (working_dir, "code_embeddings")
   function_embeddings_bq_table = \
-    '%s:%s.function_embeddings_%s' % (project, target_dataset, workflow_name)
+    '%s.function_embeddings_%s' % (target_dataset, workflow_name)
 
   function_embedding = dataflow_function_embedding_op(
     cluster_name,

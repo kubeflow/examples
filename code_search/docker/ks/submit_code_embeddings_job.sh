@@ -46,7 +46,7 @@ functionEmbeddingsBQTable=$(echo "${functionEmbeddingsBQTable}" | tr - _)
 
 # Apply parameters
 ks param set ${component} dataDir ${dataDir} --env ${ksEnvName}
-ks param set ${component} functionEmbeddingsBQTable ${functionEmbeddingsBQTable} --env ${ksEnvName}
+ks param set ${component} functionEmbeddingsBQTable ${project}:${functionEmbeddingsBQTable} --env ${ksEnvName}
 ks param set ${component} functionEmbeddingsDir ${functionEmbeddingsDir} --env ${ksEnvName}
 ks param set ${component} jobNameSuffix ${workflowId} --env ${ksEnvName}
 ks param set ${component} modelDir ${modelDir} --env ${ksEnvName}
