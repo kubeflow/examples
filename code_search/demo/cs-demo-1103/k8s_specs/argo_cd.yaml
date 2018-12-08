@@ -295,6 +295,17 @@ kind: Service
 metadata:
   name: argocd-server
   namespace: argocd
+  annotations:
+    getambassador.io/config: |-
+      ---
+      apiVersion: ambassador/v0
+      kind:  Mapping
+      name: argocd-mapping
+      prefix: /argocd
+      rewrite: /argocd
+      timeout_ms: 300000
+      service: argocd-server.argocd
+      use_websocket: true
 spec:
   ports:
   - name: http
