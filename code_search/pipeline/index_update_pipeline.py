@@ -1,7 +1,6 @@
 # Example Pipeline to update code search UI configuration
 # To compile, use Kubeflow Pipelines V0.1.3 SDK or above.
 
-import uuid
 from kubernetes import client as k8s_client
 import kfp.dsl as dsl
 import kfp.gcp as gcp
