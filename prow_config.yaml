@@ -19,14 +19,14 @@ workflows:
       registry: "gcr.io/kubeflow-ci"
     include_dirs:
     - pytorch_mnist/web-ui/*
-# The postsubmit run publishes the docker images to gcr.io/kubeflow-images-public
+# The postsubmit run publishes the docker images to gcr.io/kubeflow-examples
   - app_dir: kubeflow/examples/test/workflows
     component: pytorch-mnist-webui-release
     name: mnist-webui
     job_types:
     - postsubmit
     params:
-      registry: "gcr.io/kubeflow-images-public"
+      registry: "gcr.io/kubeflow-examples"
     include_dirs:
     - pytorch_mnist/web-ui/*
 
@@ -39,14 +39,14 @@ workflows:
       registry: "gcr.io/kubeflow-ci"
     include_dirs:
     - pytorch_mnist/training/ddp/mnist/*
-# The postsubmit run publishes the docker images to gcr.io/kubeflow-images-public
+# The postsubmit run publishes the docker images to gcr.io/kubeflow-examples
   - app_dir: kubeflow/examples/test/workflows
     component: pytorch-mnist-cpu-release
     name: mnist-cpu
     job_types:
     - postsubmit
     params:
-      registry: "gcr.io/kubeflow-images-public"
+      registry: "gcr.io/kubeflow-examples"
     include_dirs:
     - pytorch_mnist/training/ddp/mnist/*
 
@@ -59,14 +59,14 @@ workflows:
       registry: "gcr.io/kubeflow-ci"
     include_dirs:
     - pytorch_mnist/training/ddp/mnist/*
-# The postsubmit run publishes the docker images to gcr.io/kubeflow-images-public
+# The postsubmit run publishes the docker images to gcr.io/kubeflow-examples
   - app_dir: kubeflow/examples/test/workflows
     component: pytorch-mnist-gpu-release
     name: mnist-gpu
     job_types:
     - postsubmit
     params:
-      registry: "gcr.io/kubeflow-images-public"
+      registry: "gcr.io/kubeflow-examples"
     include_dirs:
     - pytorch_mnist/training/ddp/mnist/*
 
@@ -79,13 +79,13 @@ workflows:
       registry: "gcr.io/kubeflow-ci"
     include_dirs:
     - pytorch_mnist/serving/*
-# The postsubmit run publishes the docker images to gcr.io/kubeflow-images-public
+# The postsubmit run publishes the docker images to gcr.io/kubeflow-examples
   - app_dir: kubeflow/examples/test/workflows
     component: pytorch-mnist-serve-release
     name: mnist-serve
     job_types:
     - postsubmit
     params:
-      registry: "gcr.io/kubeflow-images-public"
+      registry: "gcr.io/kubeflow-examples"
     include_dirs:
     - pytorch_mnist/serving/*
