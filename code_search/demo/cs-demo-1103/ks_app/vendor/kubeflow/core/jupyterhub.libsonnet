@@ -267,6 +267,7 @@
           ],
           resources: [
             "pods",
+            "pods/log",
             "services",
           ],
           verbs: [
