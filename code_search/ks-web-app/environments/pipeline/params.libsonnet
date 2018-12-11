@@ -2,6 +2,10 @@ local params = std.extVar('__ksonnet/params');
 local globals = import 'globals.libsonnet';
 local envParams = params + {
   components+: {
+    "search-index-server"+: {
+      indexFile: 'gs://code-search-demo/pipeline/recurrentbvqw5-8-2395692053/code-embeddings-index/embeddings.index',
+      lookupFile: 'gs://code-search-demo/pipeline/recurrentbvqw5-8-2395692053/code-embeddings-index/embedding-to-info.csv',
+    },
   },
 };
 
