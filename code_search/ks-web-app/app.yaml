@@ -8,7 +8,7 @@ environments:
     path: cs_demo
   pipeline:
     destination:
-      namespace: cs-web-app
+      namespace: kubeflow
       server: https://35.185.115.154
     k8sVersion: v1.10.9
     path: pipeline
