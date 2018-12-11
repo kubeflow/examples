@@ -23,7 +23,7 @@ def dataflow_function_embedding_op(
         working_dir: str,):
   return dsl.ContainerOp(
     name='dataflow_function_embedding',
-    image='gcr.io/kubeflow-examples/code-search/ks:v20181204-ee47a49-dirty-fa8aa3',
+    image='gcr.io/kubeflow-examples/code-search/ks:v20181210-d7487dd-dirty-eb371e',
     command=['/usr/local/src/submit_code_embeddings_job.sh'],
     arguments=[
       "--cluster=%s" % cluster_name,
@@ -52,7 +52,7 @@ def search_index_creator_op(
   return dsl.ContainerOp(
     # use component name as step name
     name='search_index_creator',
-    image='gcr.io/kubeflow-examples/code-search/ks:v20181204-ee47a49-dirty-fa8aa3',
+    image='gcr.io/kubeflow-examples/code-search/ks:v20181210-d7487dd-dirty-eb371e',
     command=['/usr/local/src/launch_search_index_creator_job.sh'],
     arguments=[
       '--cluster=%s' % cluster_name,
@@ -77,7 +77,7 @@ def update_index_op(
   return (
     dsl.ContainerOp(
       name='update_index',
-      image='gcr.io/kubeflow-examples/code-search/ks:v20181204-ee47a49-dirty-fa8aa3',
+      image='gcr.io/kubeflow-examples/code-search/ks:v20181210-d7487dd-dirty-eb371e',
       command=['/usr/local/src/update_index.sh'],
       arguments=[
         '--appDir=%s' % app_dir,
@@ -114,10 +114,10 @@ def update_index_op(
 
 # The pipeline definition
 @dsl.pipeline(
-  name='function_embedding',
-  description='Example function embedding pipeline'
+  name='github_code_index_update',
+  description='Example of pipeline to update github code index'
 )
-def function_embedding_update(
+def github_code_index_update(
     project='code-search-demo',
     cluster_name='cs-demo-1103',
     namespace='kubeflow',
@@ -130,12 +130,13 @@ def function_embedding_update(
     base_branch='master',
     app_dir='code_search/ks-web-app',
     fork_git_repo='IronPan/examples',
-    bot_email='kf.sample.bot@gmail.com'):
+    bot_email='kf.sample.bot@gmail.com',
+    # Can't use workflow name as bq_suffix since BQ table doesn't accept '-' and
+    # workflow name is assigned at runtime. Pipeline might need to support
+    # replacing characters in workflow name.
+    # For recurrent pipeline, pass in '[[Index]]' instead, for unique naming.
+    bq_suffix=uuid.uuid4().hex[:6].upper()):
   workflow_name = '{{workflow.name}}'
-  # Can't use workflow name as bq_suffix since BQ table doesn't accept '-' and
-  # workflow name is assigned at runtime. Pipeline might need to support
-  # replacing characters in workflow name.
-  bq_suffix = uuid.uuid4().hex[:6].upper()
   working_dir = '%s/%s' % (working_dir, workflow_name)
   lookup_file = '%s/code-embeddings-index/embedding-to-info.csv' % working_dir
   index_file = '%s/code-embeddings-index/embeddings.index'% working_dir
@@ -178,4 +179,4 @@ def function_embedding_update(
 if __name__ == '__main__':
   import kfp.compiler as compiler
 
-  compiler.Compiler().compile(function_embedding_update, __file__ + '.tar.gz')
+  compiler.Compiler().compile(github_code_index_update, __file__ + '.tar.gz')
