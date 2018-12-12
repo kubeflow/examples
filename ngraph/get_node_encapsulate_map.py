@@ -29,7 +29,7 @@ def create_node_encapsulate_map_pkl(input_dir, output_pkl_name):
   pattern = re.compile("^" + start_with + "(.*?)" + ends_with + "$")
   # Note: relying on this particular pattern. Could be brittle if the filenames change
   declustered_pbtxts = filter(lambda file_name: pattern.search(file_name),
-                              os.listdir(input_dir))
+                              os.listdir(input_dir))  # pylint: disable=W0108
   node_cluster_map = {}
   for filename in declustered_pbtxts:
     full_name = os.path.join(input_dir, filename)

@@ -23,6 +23,9 @@ This example will create a docker image which, when run, will
 - run.sh
   - Created kubeflow namespace and deploys the kubeflow mnist component to this namespace
 
+## expected output
+
+- tensorboard should show a graph that looks like below:
 
 Running `make run` will call run.sh which uses kubeflow to create a mnist module and deploy a single-job with this image
 

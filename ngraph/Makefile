@@ -26,5 +26,5 @@ run: push
 	@./run.sh $(KUBEFLOW_DIR) $(TAG) $(GCLOUD_PROJECT)
 
 clean:
-	@cd ngraph && $(KUBEFLOW_DIR)/scripts/kfctl.sh delete all && cd .. && rm -rf ngraph
+	@./clean.sh $(KUBEFLOW_DIR)
 

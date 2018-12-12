@@ -95,9 +95,9 @@ def load_file(graph_file, input_binary, modifier_function_list=[]):
         graphdef.ParseFromString(protobuf_str)
       else:
         text_format.Merge(protobuf_str, graphdef)
-      except:
-        raise Exception("Failed to read pb or pbtxt. input_binary is " +
-          str(input_binary) + " maybe try flipping it?")
+    except:
+      raise Exception("Failed to read pb or pbtxt. input_binary is " +
+        str(input_binary) + " maybe try flipping it?")
   for modifier_function in modifier_function_list:
     graphdef = modifier_function(graphdef)
   return graphdef
