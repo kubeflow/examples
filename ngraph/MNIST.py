@@ -15,13 +15,10 @@ limitations under the License.
 '''
 
 
-import os
-
-from google.cloud import storage
 import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
 
-import ngraph_bridge
+import ngraph_bridge # noqa
 
 
 ###############################################################
@@ -54,15 +51,15 @@ learning_rate = 1e-4
 ###############################################################
 
 def create_layer(shape, prev_layer, is_output):
-    W = tf.Variable(tf.truncated_normal(shape, stddev=0.1))
-    b = tf.Variable(tf.constant(0.1, shape=[shape[1]]))
-    activation = tf.matmul(prev_layer, W) + b
-    if is_output:
-        new_layer = tf.nn.softmax(activation)
-    else:
-        new_layer = tf.nn.relu(activation)
-        tf.nn.dropout(new_layer, dropout_prob)
-    return new_layer
+  W = tf.Variable(tf.truncated_normal(shape, stddev=0.1))
+  b = tf.Variable(tf.constant(0.1, shape=[shape[1]]))
+  activation = tf.matmul(prev_layer, W) + b
+  if is_output:
+    new_layer = tf.nn.softmax(activation)
+  else:
+    new_layer = tf.nn.relu(activation)
+    tf.nn.dropout(new_layer, dropout_prob)
+  return new_layer
 
 
 # define inputs
@@ -94,16 +91,16 @@ init = tf.global_variables_initializer()
 sess.run(init)
 
 for i in range(arg_steps):
-    batch_x, batch_y = mnist.train.next_batch(batch_size)
+  batch_x, batch_y = mnist.train.next_batch(batch_size)
+  feed_dict = {x: batch_x, y: batch_y, dropout_prob: 0.5}
+  sess.run(train, feed_dict=feed_dict)
+  if i % 100 == 0:
     feed_dict = {x: batch_x, y: batch_y, dropout_prob: 0.5}
-    sess.run(train, feed_dict=feed_dict)
-    if i % 100 == 0:
-        feed_dict = {x: batch_x, y: batch_y, dropout_prob: 0.5}
-        train_acc = sess.run(accuracy, feed_dict=feed_dict)
-        print("step %d/%d, training accuracy %g" % (i, arg_steps, train_acc))
+    train_acc = sess.run(accuracy, feed_dict=feed_dict)
+    print("step %d/%d, training accuracy %g" % (i, arg_steps, train_acc))
 # print final accuracy on test images
 feed_dict = {x: mnist.test.images, y: mnist.test.labels, dropout_prob: 1.0}
-print (sess.run(accuracy, feed_dict=feed_dict))
+print(sess.run(accuracy, feed_dict=feed_dict))
 
 ###############################################################
 #   EXPORT TRAINED MODEL
@@ -134,4 +131,3 @@ builder.add_meta_graph_and_variables(
 builder.save()
 print("writing pbtxt")
 tf.train.write_graph(sess.graph_def, '/home/tensorflow', 'saved_model.pbtxt')
-
