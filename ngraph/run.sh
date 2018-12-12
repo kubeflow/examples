@@ -15,7 +15,6 @@ ks param set mnist jobName mnist
 ks param set mnist jobImage gcr.io/${GCLOUD_PROJECT}/kubeflow-train:$TAG
 kubectl create ns kubeflow
 ks env add default --namespace kubeflow
-ks apply default -c ambassador
 ks apply default -c mnist
 echo 'run kubectl port-forward <mnist-pod> 6006'
 echo 'open browser to url http://localhost:6006'
