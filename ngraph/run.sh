@@ -6,19 +6,9 @@ GCLOUD_PROJECT=$3
 PID=''
 PORT=6006
 
-cleanup() {
-  if [[ -n $PID ]]; then
-    echo killing $PID
-    kill -9 $PID
-  fi
-}
-trap cleanup EXIT
-
 portforward() {
   local pod=$1 namespace=$2 from_port=$3 to_port=$4 cmd
-  kubectl port-forward $pod ${from_port}:${to_port} --namespace=$namespace 2>&1>/dev/null &
-  PID=$!
-  echo 'PID='$PID
+  kubectl port-forward $pod ${from_port}:${to_port} --namespace=$namespace 2>&1>/dev/null 
 }
 
 waitforpod() {
@@ -50,8 +40,8 @@ kubectl create ns kubeflow
 ks env add default --namespace kubeflow
 ks apply default -c mnist
 echo "Waiting for training to complete and tensorboard to run... (1-2min)"
-pod=$(waitforpod)
-echo "Pod $pod has completed training and tensorboard is running. Setting up port-forward"
-portforward $pod kubeflow $PORT $PORT
+POD=$(waitforpod)
+echo "Pod $POD has completed training and tensorboard is running. Setting up port-forward"
 echo "Opening browser to view tensorboard"
 open http://localhost:$PORT
+portforward $POD kubeflow $PORT $PORT
