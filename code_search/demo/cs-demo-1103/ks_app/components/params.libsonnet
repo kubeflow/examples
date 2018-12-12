@@ -40,7 +40,7 @@
       useJupyterLabAsDefault: "false",
     },
     centraldashboard: {
-      image: "gcr.io/kubeflow-images-public/centraldashboard:v0.3.0",
+      image: "gcr.io/kubeflow-images-public/centraldashboard:v0.3.4",
       name: "centraldashboard",
     },
     "tf-job-operator": {
