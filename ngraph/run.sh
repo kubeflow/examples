@@ -39,9 +39,10 @@ ks param set mnist jobImage gcr.io/${GCLOUD_PROJECT}/kubeflow-ngraph:$TAG
 kubectl create ns kubeflow
 ks env add default --namespace kubeflow
 ks apply default -c mnist
-echo "Waiting for training to complete and tensorboard to run... (1-2min)"
+echo 'Waiting for training to complete and tensorboard to run... (~1min)'
 POD=$(waitforpod)
-echo "Pod $POD has completed training and tensorboard is running. Setting up port-forward"
-echo "Opening browser to view tensorboard"
+echo "mnist has completed training and tensorboard is running in $POD."
+echo "Opening browser to view tensorboard."
 open http://localhost:$PORT
+echo "Setting up port-forward."
 portforward $POD kubeflow $PORT $PORT
