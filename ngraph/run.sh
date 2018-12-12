@@ -27,7 +27,7 @@ waitforpod() {
     found=$(eval "$cmd")
   done
   found=${found#*/}
-  cmd="kubectl logs $found | grep '^TensorBoard 1.12.0')"
+  cmd="kubectl logs $found | grep '^TensorBoard 1.12.0'"
   finished=$(eval "$cmd")
   while [[ -z $finished ]]; do
     sleep 1

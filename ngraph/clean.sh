@@ -7,4 +7,6 @@ if [[ -d ngraph ]]; then
   ${KUBEFLOW_DIR}/scripts/kfctl.sh delete all 
   popd
   rm -rf ngraph
+else
+  echo "Nothing to clean"
 fi
