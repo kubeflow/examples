@@ -1,13 +1,21 @@
 #!/usr/bin/env bash
 
-TAG=$1
-GCLOUD_PROJECT=${GCLOUD_PROJECT:-kubeflow-public-images}
+KUBEFLOW_DIR=$1
+TAG=$2
+GCLOUD_PROJECT=$3
 
 echo 'Deploying kubeflow...'
-kf delete
-kf generate
-kf add pkg tensorboard
-kf add pkg jobs
-kf add module mnist using jobs/[single-job --jobName=mnist --jobImage=gcr.io/${GCLOUD_PROJECT}/kubeflow-train:${TAG}]
-echo 'Deploying mnist module ...'
-kf apply
+$KUBEFLOW_DIR/scripts/kfctl.sh init ngraph --platform none
+cd ngraph
+$KUBEFLOW_DIR/scripts/kfctl.sh generate all
+cd ks_app/
+ks pkg install kubeflow/jobs
+ks generate single-job mnist
+ks param set mnist jobName mnist
+ks param set mnist jobImage gcr.io/${GCLOUD_PROJECT}/kubeflow-train:$TAG
+kubectl create ns kubeflow
+ks env add default --namespace kubeflow
+ks apply default -c ambassador
+ks apply default -c mnist
+echo 'run kubectl port-forward <mnist-pod> 6006'
+echo 'open browser to url http://localhost:6006'

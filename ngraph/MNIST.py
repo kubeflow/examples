@@ -135,17 +135,3 @@ builder.save()
 print("writing pbtxt")
 tf.train.write_graph(sess.graph_def, '/home/tensorflow', 'saved_model.pbtxt')
 
-
-###############################################################
-#   UPLOAD MODEL TO GOOGLE CLOUD STORAGE
-###############################################################
-
-print("uploading to " + arg_bucket + "/" + arg_version)
-client = storage.Client()
-bucket = client.get_bucket(arg_bucket)
-if bucket:
-        for root, dirs, files in os.walk(export_path):
-            for file in files:
-                path = os.path.join(root, file)
-                blob = bucket.blob(path)
-                blob.upload_from_filename(path)
