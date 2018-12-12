@@ -16,17 +16,15 @@
 
 from __future__ import print_function
 
-import ngraph_bridge
-import tensorflow as tf
-import numpy as np
 import re
 import os
-import pdb
+import tensorflow as tf
+import argparse
+import pickle as pkl
 from google.protobuf import text_format
 from tensorflow.core.framework import graph_pb2
 from tensorflow.python.platform import gfile
-import argparse
-import pickle as pkl
+import ngraph_bridge # pylint: disable=W0611
 
 
 def modify_node_names(graph_def, node_map):
@@ -105,7 +103,8 @@ def load_file(graph_file, input_binary, modifier_function_list=[]):
 
 def preprocess(input_filename, out_dir, input_binary, node_map):
   # Note: node_map should be applied before sanitize_node_names.
-  # Else sanitize_node_names might change the node names, which might become unrecognizable to node_map
+  # Else sanitize_node_names might change the node names, 
+  # which might become unrecognizable to node_map
   modifiers = [
     lambda pbtxt_str: prepend_to_name(pbtxt_str, node_map),
     sanitize_node_names
@@ -153,7 +152,8 @@ def graphdef_to_tensorboard(gdef, tensorboard_output):
     writer = tf.summary.FileWriter(tensorboard_output, sess.graph)
     # TODO: try with tf master
     # wont work now if we have NGraphVariable, NGraphEncapsulateOp
-    # TODO: How about supporting NGraphVariable and NGraphEncapsulateOp by switching their optype with something TB knows
+    # TODO: How about supporting NGraphVariable and NGraphEncapsulateOp 
+    # by switching their optype with something TB knows
     writer.flush()
     writer.close()
   # It seems NGraphVariable and NGraphEncapsulateOp are registered in C++ but not in python
@@ -215,4 +215,4 @@ if __name__ == "__main__":
   node_map = {} if args.cluster is None else pkl.load(
     open(args.cluster, 'rb'))
   visualizations_supported[args.visualize](args.input, args.out, args.binary,
-                                            node_map)
+                                           node_map)

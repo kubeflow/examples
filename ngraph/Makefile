@@ -1,7 +1,7 @@
 
 GCLOUD_PROJECT ?= none
 KUBEFLOW_DIR ?= $$HOME/go/src/github.com/kubeflow/kubeflow
-IMG ?= gcr.io/$(GCLOUD_PROJECT)/kubeflow-train
+IMG ?= gcr.io/$(GCLOUD_PROJECT)/kubeflow-ngraph
 TAG ?= $(eval TAG := $(shell date +v%Y%m-%d-%H-%M))$(TAG)
 
 all: build

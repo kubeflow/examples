@@ -4,6 +4,7 @@ KUBEFLOW_DIR=$1
 TAG=$2
 GCLOUD_PROJECT=$3
 PID=''
+PORT=6006
 
 cleanup() {
   if [[ -n $PID ]]; then
@@ -21,12 +22,12 @@ portforward() {
 }
 
 waitforpod() {
-  local cmd="kubectl get pods --no-headers -oname --selector=job-name --field-selector=status.phase=Running --namespace=kubeflow-admin" found=$(eval "$cmd") finished
+  local cmd="kubectl get pods --no-headers --selector=job-name --field-selector=status.phase=Running --namespace=kubeflow 2>/dev/null" found=$(eval "$cmd") finished
   while [[ -z $found ]]; do
     sleep 1
     found=$(eval "$cmd")
   done
-  found=${found#*/}
+  found=${found%% *}
   cmd="kubectl logs $found | grep '^TensorBoard 1.12.0'"
   finished=$(eval "$cmd")
   while [[ -z $finished ]]; do
@@ -44,13 +45,13 @@ cd ks_app/
 ks pkg install kubeflow/jobs
 ks generate single-job mnist
 ks param set mnist jobName mnist
-ks param set mnist jobImage gcr.io/${GCLOUD_PROJECT}/kubeflow-train:$TAG
+ks param set mnist jobImage gcr.io/${GCLOUD_PROJECT}/kubeflow-ngraph:$TAG
 kubectl create ns kubeflow
 ks env add default --namespace kubeflow
 ks apply default -c mnist
 echo "Waiting for training to complete and tensorboard to run... (1-2min)"
 pod=$(waitforpod)
-echo "Pod $pod has completed training and tensorboard is up. Setting up port-forward"
-portforward $pod $namespace $port $port
+echo "Pod $pod has completed training and tensorboard is running. Setting up port-forward"
+portforward $pod kubeflow $PORT $PORT
 echo "Opening browser to view tensorboard"
-open browser http://localhost:6006
+open http://localhost:$PORT
