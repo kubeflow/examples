@@ -26,6 +26,16 @@ We are using the following project
    ```
    ks12 apply  cs_demo -c search-index-server
    ```
+
+1. Copy the GCP service account to the namespace where the servers run
+
+   * The serving piece runs in a different namespace from Kubeflow
+   * We need to copy the GCP service account to that namespace because the pod will try to mount it.
+
+   ```
+   kubectl -n kubeflow get secret user-gcp-sa -o json | jq -r '.data["user-gcp-sa.json"]' | base64 -d > ${SECRET_FILE}
+   kubectl -n cs-web-app create secret generic user-gcp-sa --from-file=user-gcp-sa.json=${SECRET_FILE}
+   ```
 # Install Argo CD
 
 ```
