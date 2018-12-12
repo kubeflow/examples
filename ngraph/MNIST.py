@@ -18,7 +18,7 @@ limitations under the License.
 import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
 
-import ngraph_bridge # noqa
+import ngraph_bridge # pylint: disable=W0611
 
 
 ###############################################################
