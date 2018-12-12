@@ -1,7 +1,7 @@
 import argparse
 import sys
+import ngraph_bridge # pylint: disable=W0611
 import tensorflow as tf
-import ngraph_bridge
 
 from tensorflow.python.platform import app
 from tensorflow.python.summary import summary
@@ -29,6 +29,7 @@ def import_to_tensorboard(model_dir, log_dir):
           "tensorboard --logdir={}".format(log_dir))
 
 def main(unused_args):
+  #pylint: disable=unused-argument
   import_to_tensorboard(FLAGS.model_dir, FLAGS.log_dir)
 
 if __name__ == "__main__":
