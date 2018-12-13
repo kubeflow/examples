@@ -40,8 +40,8 @@ This example will create a docker image which, when run, will
 
 ![tensorboard](./tensorboard.png "tensorboard")
 
-- All pbtxt files copied from the container can be viewed with the online model viewer [here](https://lutzroeder.github.io/netron/).
+- All pbtxt files copied from the container can be viewed with the netron model viewer [here](https://lutzroeder.github.io/netron/). 
 
-- using the netron viewer the ngraph_cluster_0.pbtxt file looks like:
+- using the netron model viewer the ngraph_cluster_0.pbtxt file looks like:
 
 ![ngraph_cluster_0](./ngraph_cluster_0.png "ngraph_cluster_0")

@@ -44,8 +44,7 @@ POD=$(waitforpod)
 echo "mnist has completed training and tensorboard is running in $POD."
 echo "copying pbtxt files from container"
 pushd ../..
-for i in $(kubectl exec $POD -it -- sh -c 'ls *.pbtxt'); do
-  file=${i%'\r'}
+for file in $(kubectl exec $POD -it -- sh -c 'ls *.pbtxt' | tr -d '\r'); do
   echo kubectl cp ${POD}:/home/tensorflow/$file .
   kubectl cp ${POD}:/home/tensorflow/$file .
 done
