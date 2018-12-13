@@ -1,4 +1,4 @@
-# ngraph example using gcp
+# Ngraph example using kubeflow on GKE
 
 This example will create a docker image which, when run, will 
 - train a mnist model using tensorflow with ngraph enabled.
@@ -6,27 +6,38 @@ This example will create a docker image which, when run, will
 - generate graph data under /home/tensorflow/output using saved_model.pbtxt
 - bring up tensorboard to view the output
 
-## prerequisites
+## Prerequisites
 
-- kfctl.sh needs to be in your path
+- docker client is installed
+- gcp is installed
+- kubeflow is installed
+
+## Environment variable settings
+
 - GCLOUD_PROJECT env variable needs to point to a gcr.io project that you can push the model to
+  The Makefile will attempt to push the docker image to gcr.io/$(GCLOUD_PROJECT)/kubeflow-ngraph
 - KUBEFLOW_DIR env variable needs to point to where kubeflow is installed
 
-## files
+## Files
 
 - MNIST.py
-  - contains TensorFlow code to train a model and upload the results to a Google Cloud Storage bucket
+  - contains TensorFlow code to train a model and output the saved model
 - MNIST.sh
-  - container entry point, will run MNIST.py, convert output, run tensorboard
+  - container entry point, will run MNIST.py, generate output to /home/tensorflow/output, run tensorboard
 - Dockerfile
   - Builds a container to run the MNIST job and bring up tensorboard 
 - run.sh
-  - Created kubeflow namespace and deploys the kubeflow mnist component to this namespace
+  - Creates kubeflow namespace and deploys the kubeflow mnist component to this namespace
 
-## expected output
+## Expected output
 
 - tensorboard should show a graph that looks like below:
 
-Running `make run` will call run.sh which uses kubeflow to create a mnist module and deploy a single-job with this image
+![tensorboard](./tensorboard.png "tensorboard")
+
+## Running the example
+
+- Run `make run` 
+  This will call run.sh which calls kfctl.sh to create a mnist component and deploy this to the GKE cluster.
 
 Ngraph declustered*.txt output can be viewed with the online model viewer [here](https://lutzroeder.github.io/netron/).

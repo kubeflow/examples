@@ -28,7 +28,7 @@ import ngraph_bridge # pylint: disable=W0611
 
 
 # pylint: disable=redefined-outer-name
-def modify_node_names(graph_def, node_map): 
+def modify_node_names(graph_def, node_map):
   '''
   Accepts a graphdef and a map of node name to new node name.
   Replaces the nodes with their new names in the graphdef
@@ -80,6 +80,7 @@ def prepend_to_name(graph_def, node_map):
     })
 
 
+# pylint: disable=dangerous-default-value
 def load_file(graph_file, input_binary, modifier_function_list=[]):
   '''
   can load protobuf (pb or pbtxt). can modify only pbtxt for now
@@ -140,6 +141,7 @@ def graphdef_to_dot(gdef, dot_output):
   print('=-' * 30)
 
 
+# pylint: disable=dangerous-default-value
 def protobuf_to_dot(input_filename, dot_dir, input_binary=False, node_map={}):
   gdef = preprocess(input_filename, dot_dir, input_binary, node_map)
   graphdef_to_dot(
@@ -166,6 +168,7 @@ def graphdef_to_tensorboard(gdef, tensorboard_output):
     ('=-' * 30) + "\n")
 
 
+# pylint: disable=dangerous-default-value
 # pylint: disable=redefined-outer-name
 def protobuf_to_grouped_tensorboard(input_filename,
                                     tensorboard_dir,
