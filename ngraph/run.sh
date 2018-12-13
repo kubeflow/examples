@@ -42,7 +42,18 @@ ks apply default -c mnist
 echo 'Waiting for training to complete and tensorboard to run... (~1min)'
 POD=$(waitforpod)
 echo "mnist has completed training and tensorboard is running in $POD."
-echo "Opening browser to view tensorboard."
+echo "copying pbtxt files from container"
+pushd ../..
+for i in $(kubectl exec $POD -it -- sh -c 'ls *.pbtxt'); do
+  file=${i%'\r'}
+  echo kubectl cp ${POD}:/home/tensorflow/$file .
+  kubectl cp ${POD}:/home/tensorflow/$file .
+done
+popd
+echo "Opening browser windows for tensorboard and netron."
+echo "For netron select a pbtxt file in this directory."
+sleep 2
 open http://localhost:$PORT
+open https://lutzroeder.github.io/netron/
 echo "Setting up port-forward."
 portforward $POD kubeflow $PORT $PORT

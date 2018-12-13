@@ -9,4 +9,4 @@ NGRAPH_TF_DUMP_CLUSTERS=1 NGRAPH_TF_DUMP_DECLUSTERED_GRAPHS=1 NGRAPH_TF_LOG_PLAC
 python get_node_encapsulate_map.py /home/tensorflow nodemap.pkl
 python import_pb_to_tensorboard.py --model_dir ${DIR} --log_dir ${DIR}/output
 python ngtf_graph_viewer.py -c nodemap.pkl /home/tensorflow/saved_model.pbtxt $DIR
-/usr/local/bin/tensorboard --logdir=${DIR}
+/usr/local/bin/tensorboard --logdir=${DIR}/output

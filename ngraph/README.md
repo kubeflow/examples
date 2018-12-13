@@ -29,15 +29,19 @@ This example will create a docker image which, when run, will
 - run.sh
   - Creates kubeflow namespace and deploys the kubeflow mnist component to this namespace
 
-## Expected output
-
-- tensorboard should show a graph that looks like below:
-
-![tensorboard](./tensorboard.png "tensorboard")
-
 ## Running the example
 
 - Run `make run` 
   This will call run.sh which calls kfctl.sh to create a mnist component and deploy this to the GKE cluster.
 
-Ngraph declustered*.txt output can be viewed with the online model viewer [here](https://lutzroeder.github.io/netron/).
+## Viewing the Graphs
+
+- tensorboard should show a graph that looks like:
+
+![tensorboard](./tensorboard.png "tensorboard")
+
+- All pbtxt files copied from the container can be viewed with the online model viewer [here](https://lutzroeder.github.io/netron/).
+
+- using the netron viewer the ngraph_cluster_0.pbtxt file looks like:
+
+![ngraph_cluster_0](./ngraph_cluster_0.png "ngraph_cluster_0")
