@@ -16,18 +16,19 @@
 
 from __future__ import print_function
 
+import argparse
 import re
 import os
-import tensorflow as tf
-import argparse
 import pickle as pkl
 from google.protobuf import text_format
+import tensorflow as tf
 from tensorflow.core.framework import graph_pb2
 from tensorflow.python.platform import gfile
 import ngraph_bridge # pylint: disable=W0611
 
 
-def modify_node_names(graph_def, node_map):
+# pylint: disable=redefined-outer-name
+def modify_node_names(graph_def, node_map): 
   '''
   Accepts a graphdef and a map of node name to new node name.
   Replaces the nodes with their new names in the graphdef
@@ -66,6 +67,7 @@ def sanitize_node_names(graph_def):
   })
 
 
+# pylint: disable=redefined-outer-name
 def prepend_to_name(graph_def, node_map):
   '''
   prepend an extra string to the node name (presumably a scope, to denote encapsulate)
@@ -101,9 +103,10 @@ def load_file(graph_file, input_binary, modifier_function_list=[]):
   return graphdef
 
 
+# pylint: disable=redefined-outer-name
 def preprocess(input_filename, out_dir, input_binary, node_map):
   # Note: node_map should be applied before sanitize_node_names.
-  # Else sanitize_node_names might change the node names, 
+  # Else sanitize_node_names might change the node names,
   # which might become unrecognizable to node_map
   modifiers = [
     lambda pbtxt_str: prepend_to_name(pbtxt_str, node_map),
@@ -152,7 +155,7 @@ def graphdef_to_tensorboard(gdef, tensorboard_output):
     writer = tf.summary.FileWriter(tensorboard_output, sess.graph)
     # TODO: try with tf master
     # wont work now if we have NGraphVariable, NGraphEncapsulateOp
-    # TODO: How about supporting NGraphVariable and NGraphEncapsulateOp 
+    # TODO: How about supporting NGraphVariable and NGraphEncapsulateOp
     # by switching their optype with something TB knows
     writer.flush()
     writer.close()
@@ -163,6 +166,7 @@ def graphdef_to_tensorboard(gdef, tensorboard_output):
     ('=-' * 30) + "\n")
 
 
+# pylint: disable=redefined-outer-name
 def protobuf_to_grouped_tensorboard(input_filename,
                                     tensorboard_dir,
                                     input_binary=False,
