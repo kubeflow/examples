@@ -10,7 +10,7 @@ This example will create a docker image which, when run, will
 
 - docker client is installed
 - gcp is installed
-- kubeflow is installed
+- kubeflow is installed. This examples assumes kubeflow-0.3.4 or kubeflow-0.4.0
 
 ## Environment variable settings
 
@@ -27,7 +27,8 @@ This example will create a docker image which, when run, will
 - Dockerfile
   - Builds a container to run the MNIST job and bring up tensorboard 
 - run.sh
-  - Creates kubeflow namespace and deploys the kubeflow mnist component to this namespace
+  - Creates kubeflow namespace and deploys the kubeflow mnist component to this namespace.
+    You should have cluster-admin privileges for the cluster you're working with.
 
 ## Running the example
 
