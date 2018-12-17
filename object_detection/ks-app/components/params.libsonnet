@@ -8,6 +8,11 @@
       name: 'pets-pvc',
       storage: '20Gi',
     },
+    "pets-pv": {
+      name: 'pets-pv',
+      nfsDir: '/tmp',
+      nfsServer: '127.0.0.1',
+    },
     "get-data-job": {
       mountPath: '/pets_data',
       name: 'get-data-job',

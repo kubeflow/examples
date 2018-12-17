@@ -52,7 +52,7 @@ ks env set ${ENV} --namespace kubeflow
 **Note:** TensorFlow works with many file systems like HDFS and S3, you can use
 them to push the dataset and other configurations there and skip the Download and Decompress steps in this tutorial.
 
-First let's create a PVC to store the data. This step assumes that your K8s cluster has [Dynamic Volume Provisioning](https://kubernetes.io/docs/concepts/storage/dynamic-provisioning/) enabled.
+First let's create a PVC to store the data.
 
 ```
 # First, lets configure and apply the pets-pvc to create a PVC where the training data will be stored
@@ -65,6 +65,26 @@ The command above will create a PVC with `ReadWriteMany` access mode if your Kub
 does not support this feature you can modify the `accessMode` value to create the PVC in `ReadWriteOnce`
 and before you execute the tf-job to train the model add a `nodeSelector:` configuration to execute the pods
 in the same node. You can find more about assigning pods to specific nodes [here](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/)
+
+This step assumes that your K8s cluster has [Dynamic Volume Provisioning](https://kubernetes.io/docs/concepts/storage/dynamic-provisioning/) enabled.
+Otherwise you can find that the PVC remains `Pending` status.
+
+```
+$ kubectl get pvc pets-pvc -n kubeflow
+NAME        STATUS    VOLUME    CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+pets-pvc    Pending                                                      28s
+```
+
+You can create a PV with your NFS server to make the PVC work.
+
+```
+# Replace YOUR_NFS_SERVER_IP with your NFS server IP, saying 10.0.0.1; replace YOUR_NFS_SERVER_EXPORT_DIR with your NFS server mountable directory, saying /tmp.
+NFSDIR="YOUR_NFS_SERVER_EXPORT_DIR"
+NFSSERVER="YOUR_NFS_SERVER_IP"
+ks param set pets-pv nfsDir ${NFSDIR}
+ks param set pets-pv nfsServer ${NFSSERVER}
+ks apply default -c pets-pv
+```
 
 Now we will get the data we need to prepare our training pipeline:
 
