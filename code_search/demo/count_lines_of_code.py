@@ -17,33 +17,33 @@ import tempfile
 # Mapping from categories to regexes to include
 # These are applied to the full path.
 MATCH_RES = {
-  "dataflow": [re.compile(".*dataflow.*\.py")],
+  "dataflow": [re.compile(r".*dataflow.*\.py")],
   "packaging (e.g dockerfile)": [
     re.compile(".*Dockerfile.*"),
-    re.compile("code_search/src/.*requirements.*\.txt")],
+    re.compile(r"code_search/src/.*requirements.*\.txt")],
   "cloud config": [re.compile(".*gcp_config.*")],
   "k8s & kubeflow config": [
-    re.compile(".*/cs-demo-1103/ks_app/components/.*"),
-    re.compile(".*/cs-demo-1103/k8s_specs/.*")],
+    re.compile(r".*/cs-demo-1103/ks_app/components/.*"),
+    re.compile(r".*/cs-demo-1103/k8s_specs/.*")],
   "model": [
-    re.compile(".*t2t/.*\.py")
+    re.compile(r".*t2t/.*\.py")
   ],
   "serving k8s config": [
-    re.compile(".*/ks-web-app/components/.*"),
+    re.compile(r".*/ks-web-app/components/.*"),
   ],
   "batch k8s config": [
-    re.compile(".*/kubeflow/components/.*"),
+    re.compile(r".*/kubeflow/components/.*"),
   ],
   "serving code": [
-      re.compile(".*/code_search/nmslib/.*\.py"),
-      re.compile(".*/ui.*\.js$"),
+      re.compile(r".*/code_search/nmslib/.*\.py"),
+      re.compile(r".*/ui.*\.js$"),
   ],
 }
 
 # Regexes matching files to exclude
 NAME_EXCLUDES = [
-  re.compile(".*\.pyc"),
-  re.compile("__init__\.py"),
+  re.compile(r".*\.pyc"),
+  re.compile(r"__init__\.py"),
 ]
 
 class Results(object):
@@ -71,10 +71,10 @@ def classify_files(root_dir):
     categories: Dictionary mapping a category to list of files.
   """
   categories = {}
-  for k in MATCH_RES.keys():
+  for k in MATCH_RES.iterkeys():
     categories[k] = Results()
 
-  for root, dirs, files in os.walk(root_dir):
+  for root, _, files in os.walk(root_dir):
     for name in files:
       full_path = os.path.join(root, name)
       exclude = False
@@ -92,7 +92,7 @@ def classify_files(root_dir):
 
   return categories
 
-if __name__ == "__main__":
+def main():
   logging.basicConfig(level=logging.INFO,
                       format=('%(levelname)s|%(asctime)s'
                               '|%(pathname)s|%(lineno)d| %(message)s'),
@@ -112,7 +112,7 @@ if __name__ == "__main__":
   args = parser.parse_args()
 
   if not args.output:
-    with tempfile.NamedTemporaryFile(prefix="tmpCS_demo_code_stats",dir=None,
+    with tempfile.NamedTemporaryFile(prefix="tmpCS_demo_code_stats", dir=None,
                                      suffix=".csv",
                                      delete=True) as hf:
       args.output = hf.name
@@ -141,3 +141,5 @@ if __name__ == "__main__":
       writer.writerow(row)
       std_writer.writerow(row)
 
+if __name__ == "__main__":
+  main()
