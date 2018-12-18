@@ -66,7 +66,16 @@ does not support this feature you can modify the `accessMode` value to create th
 and before you execute the tf-job to train the model add a `nodeSelector:` configuration to execute the pods
 in the same node. You can find more about assigning pods to specific nodes [here](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/)
 
-This step assumes that your K8s cluster has [Dynamic Volume Provisioning](https://kubernetes.io/docs/concepts/storage/dynamic-provisioning/) enabled.
+This step assumes that your K8s cluster has [Dynamic Volume Provisioning](https://kubernetes.io/docs/concepts/storage/dynamic-provisioning/) enabled and
+the default Storage Class is created. You can check if the assumption is ready like below (a storageclass with `(defaut)` notation need exist):
+
+```
+$ kubectl get storageclass
+NAME                 PROVISIONER               AGE
+standard (default)   kubernetes.io/gce-pd      1d
+gold                 kubernetes.io/gce-pd      1d
+```
+
 Otherwise you can find that the PVC remains `Pending` status.
 
 ```
