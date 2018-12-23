@@ -35,10 +35,7 @@ def get_prediction(image, server_host='127.0.0.1', server_port=8080,
   :param server_host: the address of the Seldon server
   :param server_port: the port used by the server
   :param deployment_name: the name of the deployment
-  :param timeout:     the amount of time to wait for a prediction to complete
   :return 0:          the integer predicted in the MNIST image
-  :return 1:          the confidence scores for all classes
-  :return 2:          the version number of the model handling the request
   """
 
   try:

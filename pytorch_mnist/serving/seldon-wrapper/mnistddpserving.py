@@ -24,7 +24,7 @@ from torchvision import transforms
 
 
 class Net(torch.nn.Module):
-  """ Network architecture. """
+  """ Network architecture """
 
   def __init__(self):
     super(Net, self).__init__()
