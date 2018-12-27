@@ -12,8 +12,11 @@ local defaultParams = {
   // The name to use for the volume to use to contain test data.
   dataVolume: "kubeflow-test-volume",
 
-  // Step image:
+  // Default step image:
   stepImage: "gcr.io/kubeflow-ci/test-worker:v20181017-bfeaaf5-dirty-4adcd0",
+
+  // Image to use for running tests related to training/exporting models
+  trainImage: "gcr.io/kubeflow-examples/code-search:v20181204-ee47a49-dirty-f4045c"
 };
 
 local params = defaultParams + overrides;
@@ -36,7 +39,7 @@ local artifactsDir = outputDir + "/artifacts";
 local srcRootDir = testDir + "/src";
 
 // The directory containing the kubeflow/kubeflow repo
-local srcDir = srcRootDir + "/" + prowEnv.REPO_OWNER + "/" + prowEnv.REPO_NAME;
+local srcDir = srcRootDir + "/" + prowDict.REPO_OWNER + "/" + prowDict.REPO_NAME;
 
 
 // Build template is a template for constructing Argo step templates.
@@ -47,12 +50,16 @@ local srcDir = srcRootDir + "/" + prowEnv.REPO_OWNER + "/" + prowEnv.REPO_NAME;
 // We customize the defaults for each step in the workflow by modifying
 // buildTemplate.argoTemplate
 local buildTemplate = {
-  // These variables should be overwritten for every test.
+  // name & command variables should be overwritten for every test.
+  // Other variables can be changed per step as needed.
   // They are hidden because they shouldn't be included in the Argo template
   name: "",
   command:: "",
+  image: params.stepImage,
+  workingDir:: null,
   env_vars:: [],
   side_cars: [],
+
 
   activeDeadlineSeconds: 1800,  // Set 30 minute timeout for each template
 
@@ -68,7 +75,8 @@ local buildTemplate = {
     container: {
       command: template.command,
       name: template.name,
-      image: params.stepImage,
+      image: template.image,
+      workingDir: template.workingDir,
       env: [
         {
           // Add the source directories to the python path.
@@ -140,6 +148,20 @@ local dagTemplates = [
     },  // create-pr-symlink
     dependencies: ["checkout"],
   },  // create-pr-symlink
+  {
+    // Run the python test to train and export the model
+    template: buildTemplate {
+      name: "train-export-test",
+      command: [
+        "python3",
+        "-m",
+        "code_search.t2t.similarity_transformer_export_test",
+      ],
+      image: params.trainImage,
+      workingDir: srcDir + "/code_search/src",      
+    },
+    dependencies: ["checkout"],
+  },  // similarity_t2t_test
 ];
 
 // Dag defines the tasks in the graph
