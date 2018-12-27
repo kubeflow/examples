@@ -3,7 +3,7 @@
 // https://cloud.google.com/cloud-build/docs/speeding-up-builds#using_a_cached_docker_image
 {
 	
-	"steps": [      
+	"steps": [
     {
       "id": "pull-cpu",
       "name": "gcr.io/cloud-builders/docker",

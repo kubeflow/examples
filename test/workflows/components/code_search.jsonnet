@@ -14,9 +14,6 @@ local defaultParams = {
 
   // Default step image:
   stepImage: "gcr.io/kubeflow-ci/test-worker:v20181017-bfeaaf5-dirty-4adcd0",
-
-  // Image to use for running tests related to training/exporting models
-  trainImage: "gcr.io/kubeflow-examples/code-search:v20181204-ee47a49-dirty-f4045c"
 };
 
 local params = defaultParams + overrides;
@@ -41,6 +38,11 @@ local srcRootDir = testDir + "/src";
 // The directory containing the kubeflow/kubeflow repo
 local srcDir = srcRootDir + "/" + prowDict.REPO_OWNER + "/" + prowDict.REPO_NAME;
 
+
+// These variables control where the docker images get pushed and what 
+// tag to use
+local imageBase = "gcr.io/kubeflow-ci/code-search";
+local imageTag = "build-" + prowDict["BUILD_ID"];
 
 // Build template is a template for constructing Argo step templates.
 //
@@ -149,18 +151,41 @@ local dagTemplates = [
     dependencies: ["checkout"],
   },  // create-pr-symlink
   {
+    // Submit a GCB job to build the images
+    template: buildTemplate {
+      name: "build-images",
+      command: util.buildCommand([
+      [
+        "gcloud",
+        "auth",
+        "activate-service-account",
+        "--key-file=${GOOGLE_APPLICATION_CREDENTIALS}",
+      ],
+      	[
+        "make",
+        "build-gcb",
+        "IMG=" + imageBase,
+        "TAG=" + imageTag,
+      ]]
+      ),
+      workingDir: srcDir + "/code_search",      
+    },
+    dependencies: ["checkout"],
+  },  // build-images
+  {
     // Run the python test to train and export the model
     template: buildTemplate {
       name: "train-export-test",
       command: [
         "python3",
         "-m",
-        "code_search.t2t.similarity_transformer_export_test",
+        "code_search.t2t.similarity_transformer_test",
       ],
-      image: params.trainImage,
+      // Use the newly built image.
+      image: imageBase + ":" + imageTag,
       workingDir: srcDir + "/code_search/src",      
     },
-    dependencies: ["checkout"],
+    dependencies: ["build-images"],
   },  // similarity_t2t_test
 ];
 

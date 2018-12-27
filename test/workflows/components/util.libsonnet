@@ -55,4 +55,21 @@
     template: i.template.name,
     dependencies: if std.objectHas(i, "dependencies") then i.dependencies else null,
   }, templates),
+
+  // Build a multi-line container command.
+  // Input is a list of lists. Where each list describes a command to be run.
+  // e.g
+  // [ ["echo", "command-one"], ["echo", "command-two"]]
+  // Output is a list containing a shell command to run them
+  // e.g.
+  // ["/bin/sh", "-c", "echo command-one; echo command-two"]
+
+  buildCommand: function(items)
+    ["/bin/sh", "-c"] +
+    [std.join("; ",
+      std.map(
+        function(c) std.join(" ", c),
+        items,
+      )
+    )],
 }
