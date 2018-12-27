@@ -23,6 +23,10 @@ all: build
 
 TF_VERSION=1.11.0
 
+
+# Whether to use cached images with GCB
+USE_IMAGE_CACHE ?= true
+
 echo:
 	@echo IMG=$(IMG)
 	@echo GIT_VERSION=$(GIT_VERSION)
@@ -61,7 +65,9 @@ build: build-cpu build-gpu build-dataflow
 build-gcb-spec:
 	rm -rf ./build
 	mkdir  -p build
-	jsonnet ./docker/t2t/build.jsonnet --ext-str gitVersion=$(GIT_VERSION) --ext-str tag=$(TAG) \
+	jsonnet ./docker/t2t/build.jsonnet --ext-str imageBase=$(IMG) \
+	  --ext-str gitVersion=$(GIT_VERSION) --ext-str tag=$(TAG) \
+	  --ext-str useImageCache=$(USE_IMAGE_CACHE) \
 	  > ./build/build.json
 # Build using GCB. This is useful if we are on a slow internet connection
 # and don't want to pull
