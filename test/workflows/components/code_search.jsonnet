@@ -88,7 +88,7 @@ local buildTemplate = {
             },
           },
         },
-      ] + template.env_vars,
+      ] + prowEnv + template.env_vars,
       volumeMounts: [
         {
           name: params.dataVolume,
@@ -179,16 +179,17 @@ local exitTemplates =
       template:
         buildTemplate {
           name: "test-dir-delete",
-          command: [
-            "python",
-            "-m",
-            "testing.run_with_retry",
-            "--retries=5",
-            "--",
+          command: [           
             "rm",
             "-rf",
             testDir,
           ],
+
+          argoTemplate+: {
+        	  retryStrategy: {
+        	  	limit: 3,
+        	  },
+          },
         },  // test-dir-delete
       dependencies: ["copy-artifacts"],
     },
@@ -205,9 +206,9 @@ local exitDag = {
 };
 
 // A list of templates for the actual steps
-local stepTemplates = std.map(function(i) i.template
+local stepTemplates = std.map(function(i) i.template.argoTemplate
                               , dagTemplates) +
-                      std.map(function(i) i.template
+                      std.map(function(i) i.template.argoTemplate
                               , exitTemplates);
 
 // Define the Argo Workflow.
