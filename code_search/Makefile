@@ -1,4 +1,8 @@
-IMG = gcr.io/kubeflow-examples/code-search
+# Makefile for building images
+#
+# To override variables do
+# make ${TARGET} ${VAR}=${VALUE}
+IMG ?= gcr.io/kubeflow-examples/code-search
 
 # List any changed  files. We only include files in the notebooks directory.
 # because that is the code in the docker image.
@@ -18,6 +22,15 @@ TAG := $(shell date +v%Y%m%d)-$(GIT_VERSION)
 all: build
 
 TF_VERSION=1.11.0
+
+
+# Whether to use cached images with GCB
+USE_IMAGE_CACHE ?= true
+
+echo:
+	@echo IMG=$(IMG)
+	@echo GIT_VERSION=$(GIT_VERSION)
+	@echo TAG=$(TAG)
 
 # To build without the cache set the environment variable
 # export DOCKER_BUILD_OPTS=--no-cache
@@ -48,13 +61,17 @@ build-dataflow:
 
 build: build-cpu build-gpu build-dataflow
 
-# Build using GCB. This is useful if we are on a slow internet connection
-# and don't want to pull
-build-gcb:
+# Build the GCB workflow
+build-gcb-spec:
 	rm -rf ./build
 	mkdir  -p build
-	jsonnet ./docker/t2t/build.jsonnet --ext-str gitVersion=$(GIT_VERSION) --ext-str tag=$(TAG) \
+	jsonnet ./docker/t2t/build.jsonnet --ext-str imageBase=$(IMG) \
+	  --ext-str gitVersion=$(GIT_VERSION) --ext-str tag=$(TAG) \
+	  --ext-str useImageCache=$(USE_IMAGE_CACHE) \
 	  > ./build/build.json
+# Build using GCB. This is useful if we are on a slow internet connection
+# and don't want to pull
+build-gcb: build-gcb-spec	
 	cp -r ./docker ./build/
 	cp -r ./src ./build/
 	rm -rf ./build/src/code_search/dataflow/cli/test_data
