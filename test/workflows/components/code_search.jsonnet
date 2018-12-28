@@ -19,7 +19,23 @@ local defaultParams = {
 local params = defaultParams + overrides;
 
 local prowEnv = util.parseEnv(params.prow_env);
-local prowDict = util.listOfDictToMap(prowEnv);
+
+// Create a dictionary of the different prow variables so we can refer to them in the workflow.
+//
+// Important: We want to initialize all variables we reference to some value. If we don't
+// and we reference a variable which doesn't get set then we get very hard to debug failure messages.
+// In particular, we've seen problems where if we add a new environment and evaluate one component eg. "workflows"
+// and another component e.g "code_search.jsonnet" doesn't have a default value for BUILD_ID then ksonnet
+// fails because BUILD_ID is undefined.
+local prowDict = {
+	BUILD_ID: "notset",
+	BUILD_NUMBER: "notset",
+	REPO_OWNER: "notset",
+	REPO_NAME: "notset",
+	JOB_NAME: "notset",
+	JOB_TYPE: "notset",
+	PULL_NUMBER: "notset",	
+ } + util.listOfDictToMap(prowEnv);
 
 local bucket = params.bucket;
 
