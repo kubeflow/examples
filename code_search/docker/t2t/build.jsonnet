@@ -41,10 +41,14 @@
     local image = std.extVar("imageBase") + "/" + template.name + ":" + std.extVar("tag"),
     local imageLatest = std.extVar("imageBase") + "/" + template.name + ":latest",
 
+
     images: [image, imageLatest],
     steps: pullStep +
            [
              {
+               local buildArgList = if template.buildArg != null then ["--build-arg", template.buildArg] else [],
+               local cacheList = if useImageCache then ["--cache-from=" + imageLatest] else [],
+
                id: "build-" + template.name,
                name: "gcr.io/cloud-builders/docker",
                args: [
@@ -53,14 +57,11 @@
                        image,
                        "--label=git-versions=" + std.extVar("gitVersion"),
                      ]
-                     +
-                     if template.buildArg != null then ["--build-arg", template.buildArg] else []
-                                                                                               + [
-                                                                                                 "--file=" + template.dockerFile,
-                                                                                               ]
-                                                                                               +
-                                                                                               if useImageCache then ["--cache-from=" + imageLatest] else []
-                                                                                                                                                          + ["."],
+                     + buildArgList
+                     + [
+                       "--file=" + template.dockerFile,
+                     ]
+                     + cacheList + ["."],
                waitFor: if useImageCache then ["pull-" + template.name] else ["-"],
              },
              {

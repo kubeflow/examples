@@ -62,10 +62,10 @@
   // [ ["echo", "command-one"], ["echo", "command-two"]]
   // Output is a list containing a shell command to run them
   // e.g.
-  // ["/bin/sh", "-c", "echo command-one; echo command-two"]
+  // ["/bin/sh", "-xc", "echo command-one; echo command-two"]
 
   buildCommand: function(items)
-    ["/bin/sh", "-c"] +
+    ["/bin/sh", "-xc"] +
     [std.join("; ",
       std.map(
         function(c) std.join(" ", c),
