@@ -10,15 +10,13 @@
       bucket: "kubeflow-ci_temp",
       name: "kubeflow-code_search",
       namespace: "kubeflow-test-infra",
-      prow: "JOB_NAME=kubeflow-examples-presubmit-test,JOB_TYPE=presubmit,PULL_NUMBER=209,REPO_NAME=examples,REPO_OWNER=kubeflow,BUILD_NUMBER=997a",
-      prow_env: "JOB_NAME=kubeflow-examples-presubmit-test,JOB_TYPE=presubmit,PULL_NUMBER=374,REPO_NAME=examples,REPO_OWNER=kubeflow,BUILD_NUMBER=6e32",
+      prow_env: "BUILD_NUMBER=997a,BUILD_ID=997a,JOB_NAME=kubeflow-examples-presubmit-test,JOB_TYPE=presubmit,PULL_NUMBER=374,REPO_NAME=examples,REPO_OWNER=kubeflow",
     },
     workflows: {
       bucket: "kubeflow-ci_temp",
       name: "kubeflow-examples-presubmit-test-374-6e32",
       namespace: "kubeflow-test-infra",
-      prow: "JOB_NAME=kubeflow-examples-presubmit-test,JOB_TYPE=presubmit,PULL_NUMBER=209,REPO_NAME=examples,REPO_OWNER=kubeflow,BUILD_NUMBER=997a",
-      prow_env: "JOB_NAME=kubeflow-examples-presubmit-test,JOB_TYPE=presubmit,PULL_NUMBER=374,REPO_NAME=examples,REPO_OWNER=kubeflow,BUILD_NUMBER=6e32",
+      prow_env: "BUILD_NUMBER=997a,BUILD_ID=997a,JOB_NAME=kubeflow-examples-presubmit-test,JOB_TYPE=presubmit,PULL_NUMBER=374,REPO_NAME=examples,REPO_OWNER=kubeflow",
     },
     "pytorch-mnist-webui-release": {
       bucket: "kubeflow-ci_temp",
