@@ -177,7 +177,7 @@ local dagTemplates = [
     template: buildTemplate {
       name: "train-export-test",
       command: [
-        "python3",
+        "python",
         "-m",
         "code_search.t2t.similarity_transformer_test",
       ],
