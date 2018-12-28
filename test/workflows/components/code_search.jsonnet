@@ -182,7 +182,7 @@ local dagTemplates = [
         "code_search.t2t.similarity_transformer_test",
       ],
       // Use the newly built image.
-      image: imageBase + ":" + imageTag,
+      image: imageBase + "/t2t-cpu:" + imageTag,
       workingDir: srcDir + "/code_search/src",      
     },
     dependencies: ["build-images"],

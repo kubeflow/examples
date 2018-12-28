@@ -3,10 +3,15 @@ ARG BASE_IMAGE_TAG=1.8.0
 FROM tensorflow/tensorflow:$BASE_IMAGE_TAG
 
 RUN pip --no-cache-dir install oauth2client~=4.1.0 &&\
-    apt-get update && apt-get install -y jq git &&\
+    apt-get update && apt-get install -y jq git python3-pip &&\
     rm -rf /var/lib/apt/lists/*
 
 RUN pip --no-cache-dir install \
+	tensor2tensor~=1.10.0 \
+	tensorflow-hub~=0.1.1 \
+	six
+
+RUN pip3 --no-cache-dir install \
 	tensor2tensor~=1.10.0 \
 	tensorflow-hub~=0.1.1 \
 	six
