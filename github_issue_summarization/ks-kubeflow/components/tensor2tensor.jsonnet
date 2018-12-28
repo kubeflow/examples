@@ -1,5 +1,5 @@
 local env = std.extVar("__ksonnet/environments");
-local params = std.extVar("__ksonnet/params").components["tensor2tensor-v1alpha2"];
+local params = std.extVar("__ksonnet/params").components["tensor2tensor"];
 
 local k = import "k.libsonnet";
 
@@ -104,7 +104,7 @@ local volumes = [
 ];
 
 local tfjob = {
-  apiVersion: "kubeflow.org/v1alpha2",
+  apiVersion: "kubeflow.org/v1beta1",
   kind: "TFJob",
   metadata: {
     name: name,

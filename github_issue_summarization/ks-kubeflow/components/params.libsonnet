@@ -35,7 +35,7 @@
       githubToken: "",
       image: "gcr.io/kubeflow-examples/issue-summarization-ui:v20180629-v0.1-2-g98ed4b4-dirty-182929",
     },
-    "tfjob-v1alpha2": {
+    "tfjob": {
       name: "tfjob-issue-summarization",
       image: "gcr.io/kubeflow-examples/tf-job-issue-summarization:v20180629-v0.1-2-g98ed4b4-dirty-182929",
       input_data_gcs_bucket: "kubeflow-examples",
@@ -65,15 +65,15 @@
       tfDefaultImage: "null",
       tfJobImage: "gcr.io/kubeflow-images-public/tf_operator:v0.2.0",
       tfJobUiServiceType: "ClusterIP",
-      tfJobVersion: "v1alpha2",
+      tfJobVersion: "v1beta1",
       usageId: "unknown_cluster",
     },
-    "tensor2tensor-v1alpha2": {
-      name: "tensor2tensor-v1alpha2",
+    "tensor2tensor": {
+      name: "tensor2tensor",
     },
     "data-downloader": {},
-    "tfjob-pvc-v1alpha2": {
-      name: "tfjob-pvc-v1alpha2",
+    "tfjob-pvc": {
+      name: "tfjob-pvc",
     },
     "hp-tune": {},
     // Run tensorboard with pvc.
