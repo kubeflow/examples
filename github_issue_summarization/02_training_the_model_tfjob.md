@@ -106,20 +106,21 @@ ks apply ${KF_ENV} -c tfjob
 
 In a while you should see a new pod with the label `tf_job_name=tf-job-issue-summarization`
 ```bash
-kubectl get pods -n=${NAMESPACE} -ltf_job_name=tf-job-issue-summarization
+kubectl get pods -n=${NAMESPACE} tfjob-issue-summarization-master-0
+```
+
+You can view the training logs using
+
+```bash
+kubectl logs -f -n=${NAMESPACE} tfjob-issue-summarization-master-0
 ```
 
 You can view the logs of the tf-job operator using
 
 ```bash
-kubectl logs -f $(kubectl get pods -n=${NAMESPACE} -lname=tf-job-operator -o=jsonpath='{.items[0].metadata.name}')
+kubectl logs -f -n=${NAMESPACE} $(kubectl get pods -n=${NAMESPACE} -lname=tf-job-operator -o=jsonpath='{.items[0].metadata.name}')
 ```
 
-You can view the actual training logs using
-
-```bash
-kubectl logs -f $(kubectl get pods -n=${NAMESPACE} -ltf_job_name=tf-job-issue-summarization -o=jsonpath='{.items[0].metadata.name}')
-```
 
 _(Optional)_ You can also perform training with two alternate methods:
 - [Training the model with a notebook](02_training_the_model.md)
