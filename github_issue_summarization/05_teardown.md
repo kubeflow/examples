@@ -1,21 +1,13 @@
 # Teardown
 
-Delete the kubernetes `namespace`.
+If you created a cluster with Click-to-Deploy or `kfctl`, delete the deployment
+using the [GCP console](https://console.cloud.google.com/dm/deployments). The
+default deployment name is `kubeflow`.
 
-```commandline
-kubectl delete namespace ${NAMESPACE}
-```
+Delete the PD (persistent disk) backing the NFS mount.
 
-Delete the PD (persistent data) backing the NFS mount.
-
-```commandline
+```bash
 gcloud --project=${PROJECT} compute disks delete  --zone=${ZONE} ${PD_DISK_NAME}
-```
-
-Delete the `kubeflow-app` directory.
-
-```commandline
-rm -rf my-kubeflow
 ```
 
 *Back*: [Querying the model](04_querying_the_model.md)

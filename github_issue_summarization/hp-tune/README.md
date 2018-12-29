@@ -18,7 +18,7 @@ tuning support to the GitHub issue summarization example using Katib.
 1. Deploy the hyperparameter tuning job 
 
    ```
-   cd kubeflow/examples/github_issue_summarization/ks-kubeflow
+   cd kubeflow/examples/github_issue_summarization/ks_app
    ks apply ${ENVIRONMENT} -c hp-tune
    ```
 
@@ -35,7 +35,7 @@ Access to `http://${ENDPOINT}/katib/projects`
       and ENDPOINT
 
       ```
-      kubectl port-forward `kubectl get pods --selector=service=ambassador -o jsonpath='{.items[0].metadata.name}'` 8080:80
+      kubectl port-forward svc/ambassador 8080:80
       ENDPOINT=localhost:8080
       ```
 

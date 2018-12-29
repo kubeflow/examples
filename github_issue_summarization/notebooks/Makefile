@@ -61,7 +61,7 @@ push: build
 
 set-image: push
 	# Set the image to use
-	cd ../ks-kubeflow && ks param set tfjob-pvc image $(IMG):$(TAG)
+	cd ../ks_app && ks param set tfjob-pvc image $(IMG):$(TAG)
 
 # To build without the cache set the environment variable
 # export DOCKER_BUILD_OPTS=--no-cache
@@ -107,7 +107,7 @@ push-model-image: build-model-image
 
 set-model-image: push-model-image
 	# Set the image to use
-	cd ../ks-kubeflow && ks param set issue-summarization-model-serving image $(MODEL_IMG):$(TAG)
+	cd ../ks_app && ks param set issue-summarization-model image $(MODEL_IMG):$(TAG)
 
 # Build the estimator image
 build-estimator:

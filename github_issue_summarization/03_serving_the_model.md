@@ -58,41 +58,44 @@ Now that we have an image with our model server, we can deploy it to our kuberne
 ## Deploy Seldon Core
 
 
-Install the CRD and it's controller using the seldon prototype
+Install the CRD and its controller using the seldon prototype. If you used
+`kfctl` to install Kubeflow, seldon is already included and you can run
+the following commands (if not, follow the
+[quick start](https://www.kubeflow.org/docs/started/getting-started/#kubeflow-quick-start)
+instructions to generate the k8s manifests first):
 
 ```bash
-cd ks-kubeflow
-# Gives cluster-admin role to the default service account in the ${NAMESPACE}
-kubectl create clusterrolebinding seldon-admin --clusterrole=cluster-admin --serviceaccount=${NAMESPACE}:default
-# Install the kubeflow/seldon package
-ks pkg install kubeflow/seldon
+cd ks_app
 # Generate the seldon component and deploy it
-ks generate seldon seldon --name=seldon --namespace=${NAMESPACE}
+ks generate seldon seldon --namespace=${NAMESPACE}
 ks apply ${KF_ENV} -c seldon
 ```
 
-Seldon Core should now be running on your cluster. You can verify it by running `kubectl get pods -n${NAMESPACE}`. You should see a pod named `seldon-cluster-manager-*`
+Seldon Core should now be running on your cluster. You can verify it by running
+`kubectl get pods -n${NAMESPACE}`. You should see two pods named
+`seldon-seldon-cluster-manager-*` and `seldon-redis-*`.
 
 ## Deploying the actual model
 
-Now that you have seldon core deployed, you can deploy the model using the `kubeflow/seldon-serve-simple` prototype.
+Now that you have seldon core deployed, you can deploy the model using the
+`seldon-serve-simple-v1alpha2` prototype.
 
 ```bash
-ks generate seldon-serve-simple issue-summarization-model-serving \
+ks generate seldon-serve-simple-v1alpha2 issue-summarization-model \
   --name=issue-summarization \
   --image=gcr.io/gcr-repository-name/issue-summarization:0.1 \
   --namespace=${NAMESPACE} \
   --replicas=2
-ks apply ${KF_ENV} -c issue-summarization-model-serving
+ks apply ${KF_ENV} -c issue-summarization-model
 ```
 
 
 # Sample request and response
 
-Seldon Core uses ambassador to route it's requests. To send requests to the model, you can port-forward the ambassador container locally:
+Seldon Core uses ambassador to route its requests. To send requests to the model, you can port-forward the ambassador container locally:
 
 ```
-kubectl port-forward $(kubectl get pods -n ${NAMESPACE} -l service=ambassador -o jsonpath='{.items[0].metadata.name}') -n ${NAMESPACE} 8080:80
+kubectl port-forward svc/ambassador -n ${NAMESPACE} 8080:80
 ```
 
 
