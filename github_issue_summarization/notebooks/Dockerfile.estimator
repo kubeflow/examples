@@ -12,11 +12,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install unzip
 RUN mkdir /issues
 WORKDIR /issues
-COPY notebooks/train.py /issues
-COPY notebooks/trainer.py /issues
-COPY notebooks/seq2seq_utils.py /issues
-COPY ks-kubeflow/components/download_data.sh /issues
-RUN chmod +x /issues/download_data.sh
+COPY ./ /issues/
 RUN mkdir /model
 RUN mkdir /data
 

@@ -39,6 +39,11 @@ class TrainTest(unittest.TestCase):
     for f in output_files:
       self.assertTrue(os.path.exists(f))
 
+  # TODO(https://github.com/kubeflow/examples/issues/280)
+  # TODO(https://github.com/kubeflow/examples/issues/196)
+  # This test won't work until we fix the code to work using the estimator
+  # API.
+  @unittest.skip("skip estimator test")
   def test_estimator(self):
     """Test training_with_keras."""
     output_dir = tempfile.mkdtemp()

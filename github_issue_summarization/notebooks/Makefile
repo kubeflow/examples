@@ -108,13 +108,3 @@ push-model-image: build-model-image
 set-model-image: push-model-image
 	# Set the image to use
 	cd ../ks-kubeflow && ks param set issue-summarization-model-serving image $(MODEL_IMG):$(TAG)
-
-# Build the estimator image
-build-estimator:
-	cd .. && docker build ${DOCKER_BUILD_OPTS} -t $(IMG_ESTIMATOR):$(TAG) . \
-					-f ./notebooks/Dockerfile.estimator --label=git-verions=$(GIT_VERSION)
-	@echo Built $(IMG_ESTIMATOR):$(TAG)
-
-push-estimator: build-estimator
-	gcloud docker -- push $(IMG_ESTIMATOR):$(TAG)
-	@echo Pushed $(IMG_ESTIMATOR):$(TAG)
