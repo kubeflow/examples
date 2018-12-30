@@ -16,6 +16,11 @@ local defaultParams = {
 
   // Default step image:
   stepImage: "gcr.io/kubeflow-ci/test-worker:v20181017-bfeaaf5-dirty-4adcd0",
+
+  // Which Kubeflow cluster to use for running TFJobs on.
+  kfProject = "kubeflow-ci",
+  kfZone = "us-east1-d",
+  kfCluster = "kf-v0-4-n00",  
 };
 
 local params = defaultParams + overrides;
@@ -56,6 +61,8 @@ local srcRootDir = testDir + "/src";
 // The directory containing the kubeflow/kubeflow repo
 local srcDir = srcRootDir + "/" + prowDict.REPO_OWNER + "/" + prowDict.REPO_NAME;
 
+// value of KUBECONFIG environment variable. This should be  a full path.
+local kubeConfig = testDir + "/.kube/kubeconfig",
 
 // These variables control where the docker images get pushed and what 
 // tag to use
@@ -89,6 +96,8 @@ local buildTemplate = {
   // py scripts to use.
   local kubeflowTestingPy = srcRootDir + "/kubeflow/testing/py",
 
+  local tfOperatorPy = srcRootDir + kubeflow/tf-operator,
+
   // Actual template for Argo
   argoTemplate: {
     name: template.name,
@@ -101,7 +110,7 @@ local buildTemplate = {
         {
           // Add the source directories to the python path.
           name: "PYTHONPATH",
-          value: kubeflowTestingPy,
+          value: kubeflowTestingPy + ":" + tfOperatorPy,
         },
         {
           name: "GOOGLE_APPLICATION_CREDENTIALS",
@@ -115,6 +124,12 @@ local buildTemplate = {
               key: "github_token",
             },
           },
+        },
+        {
+          // We use a directory in our NFS share to store our kube config.
+          // This way we can configure it on a single step and reuse it on subsequent steps.
+          name: "KUBECONFIG",
+          value: kubeConfig,
         },
       ] + prowEnv + template.env_vars,
       volumeMounts: [
@@ -147,7 +162,8 @@ local dagTemplates = [
 
       env_vars: [{
         name: "EXTRA_REPOS",
-        value: "kubeflow/testing@HEAD",
+        // tf-operator has utilities needed for testing TFJobs.
+        value: "kubeflow/testing@HEAD,kubeflow/tf-operator@HEAD",
       }],
     },
     dependencies: null,
@@ -204,6 +220,31 @@ local dagTemplates = [
     },
     dependencies: ["build-images"],
   },  // train-test
+  {
+    // Configure KUBECONFIG
+    template: buildTemplate {
+      name: "get-kubeconfig",
+      command: util.buildCommand([
+      [
+        "gcloud",
+        "auth",
+        "activate-service-account",
+        "--key-file=${GOOGLE_APPLICATION_CREDENTIALS}",
+      ],
+      [
+        "gcloud",
+        "--project=" + params.kfProject,        
+        "container",
+        "clusters",
+        "get-credentilas",
+        "--zone=" + params.kfZone,
+        params.kfCluster,
+      ]]
+      ),
+      workingDir: srcDir + "/github_issue_summarization",      
+    },
+    dependencies: ["checkout"],
+  }, // build-images
 ];
 
 // Dag defines the tasks in the graph

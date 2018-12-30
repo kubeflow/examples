@@ -46,6 +46,16 @@
       gcpSecretName: "user-gcp-sa",
       gcpSecretFile: "user-gcp-sa.json",
     },
+    "tfjob-v1beta1": {
+      name: "tfjob-issue-summarization",
+      image: "gcr.io/kubeflow-examples/github-issue-summarization/trainer-estimator:v20181229-v0.2-131-g662c666-dirty-312900",
+      input_data: "gs://kubeflow-examples/github-issue-summarization-data/github_issues_sample.csv",
+      output_model: "/tmp/model.h5",
+      sample_size: "100000",
+      num_epochs: "7",
+      gcpSecretName: "user-gcp-sa",
+      gcpSecretFile: "user-gcp-sa.json",
+    },
     "kubeflow-core": {
       AmbassadorImage: "quay.io/datawire/ambassador:0.30.1",
       AmbassadorServiceType: "ClusterIP",
