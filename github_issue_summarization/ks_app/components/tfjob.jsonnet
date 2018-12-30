@@ -14,6 +14,7 @@ local tfjob = {
     namespace: namespace,
   },
   spec: {
+    tTLSecondsAfterFinished: 60 * 60 * 24 * 7,
     tfReplicaSpecs: {
       Master: {
         replicas: 1,
@@ -32,15 +33,13 @@ local tfjob = {
                 ],
                 command: [
                   "python",
-                ],
-                args: [
-                  "/workdir/train.py",
+                  "train.py",
+                  "--num_epochs=" + std.toString(params.num_epochs),
                   "--sample_size=" + std.toString(params.sample_size),
-                  "--input_data_gcs_bucket=" + params.input_data_gcs_bucket,
-                  "--input_data_gcs_path=" + params.input_data_gcs_path,
-                  "--output_model_gcs_bucket=" + params.output_model_gcs_bucket,
-                  "--output_model_gcs_path=" + params.output_model_gcs_path,
+                  "--input_data=" + params.input_data,
+                  "--output_model=" + params.output_model,
                 ],
+                workingDir: "/issues",
                 env: [
                   {
                     name: "GOOGLE_APPLICATION_CREDENTIALS",
@@ -68,3 +67,4 @@ local tfjob = {
 k.core.v1.list.new([
   tfjob,
 ])
+
