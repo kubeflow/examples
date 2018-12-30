@@ -18,9 +18,9 @@ local defaultParams = {
   stepImage: "gcr.io/kubeflow-ci/test-worker:v20181017-bfeaaf5-dirty-4adcd0",
 
   // Which Kubeflow cluster to use for running TFJobs on.
-  kfProject = "kubeflow-ci",
-  kfZone = "us-east1-d",
-  kfCluster = "kf-v0-4-n00",  
+  kfProject: "kubeflow-ci",
+  kfZone: "us-east1-d",
+  kfCluster: "kf-v0-4-n00",  
 };
 
 local params = defaultParams + overrides;
@@ -62,12 +62,13 @@ local srcRootDir = testDir + "/src";
 local srcDir = srcRootDir + "/" + prowDict.REPO_OWNER + "/" + prowDict.REPO_NAME;
 
 // value of KUBECONFIG environment variable. This should be  a full path.
-local kubeConfig = testDir + "/.kube/kubeconfig",
+local kubeConfig = testDir + "/.kube/kubeconfig";
 
 // These variables control where the docker images get pushed and what 
 // tag to use
 local imageBase = "gcr.io/kubeflow-ci/github-issue-summarization";
 local imageTag = "build-" + prowDict["BUILD_ID"];
+local trainerImage = imageBase + "/trainer-estimator:" + imageTag;
 
 // Build template is a template for constructing Argo step templates.
 //
@@ -96,7 +97,7 @@ local buildTemplate = {
   // py scripts to use.
   local kubeflowTestingPy = srcRootDir + "/kubeflow/testing/py",
 
-  local tfOperatorPy = srcRootDir + kubeflow/tf-operator,
+  local tfOperatorPy = srcRootDir + "kubeflow/tf-operator",
 
   // Actual template for Argo
   argoTemplate: {
@@ -150,7 +151,6 @@ local buildTemplate = {
   },
 };  // buildTemplate
 
-
 // Create a list of dictionary.
 // Each item is a dictionary describing one step in the graph.
 local dagTemplates = [
@@ -163,7 +163,7 @@ local dagTemplates = [
       env_vars: [{
         name: "EXTRA_REPOS",
         // tf-operator has utilities needed for testing TFJobs.
-        value: "kubeflow/testing@HEAD,kubeflow/tf-operator@HEAD",
+        value: "kubeflow/testing@HEAD;kubeflow/tf-operator@HEAD",
       }],
     },
     dependencies: null,
@@ -215,7 +215,7 @@ local dagTemplates = [
         "train_test.py",
       ],
       // Use the newly built image.
-      image: imageBase + "/trainer-estimator:" + imageTag,
+      image: trainerImage,
       workingDir: "/issues",
     },
     dependencies: ["build-images"],
@@ -236,15 +236,29 @@ local dagTemplates = [
         "--project=" + params.kfProject,        
         "container",
         "clusters",
-        "get-credentilas",
+        "get-credentials",
         "--zone=" + params.kfZone,
         params.kfCluster,
       ]]
       ),
-      workingDir: srcDir + "/github_issue_summarization",      
+      workingDir: srcDir + "/github_issue_summarization",
     },
     dependencies: ["checkout"],
-  }, // build-images
+  }, // get-kubeconfig
+  {
+    // Run the python test for TFJob
+    template: buildTemplate {
+      name: "tfjob-test",
+      command: [
+        "python",
+        "tfjob_test.py",
+        "--params=name=gis-test-" + prowDict["BUILD_ID"] + ",namespace=kubeflow,num_epochs=1,sample_size=10,image=" + trainerImage,
+        "--artifacts_path=" + artifactsDir,
+      ],
+      workingDir: srcDir + "/github_issue_summarization/testing",
+    },
+    dependencies: ["build-images", "get-kubeconfig"],
+  },  // tfjob-test
 ];
 
 // Dag defines the tasks in the graph
