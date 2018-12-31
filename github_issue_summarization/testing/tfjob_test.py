@@ -50,6 +50,7 @@ class TFJobTest(test_util.TestCase):
     self.env = env
     self.namespace = namespace
     self.params = args.params
+    self.ks_cmd = ks_util.get_ksonnet_cmd(self.app_dir)
     super(TFJobTest, self).__init__(class_name="TFJobTest", name=name)
 
   def test_train(self):
@@ -63,8 +64,10 @@ class TFJobTest(test_util.TestCase):
     ks_util.setup_ks_app(self.app_dir, self.env, self.namespace, component,
                          self.params)
 
+
     # Create the TF job
-    util.run(["ks", "apply", self.env, "-c", component], cwd=self.app_dir)
+    util.run([self.ks_cmd, "apply", self.env, "-c", component],
+             cwd=self.app_dir)
     logging.info("Created job %s in namespaces %s", self.name, self.namespace)
 
     # Wait for the job to complete.
