@@ -16,8 +16,8 @@ There are two primary goals for this tutorial:
 By the end of this tutorial, you should learn how to:
 
 *   Setup a Kubeflow cluster on an existing Kubernetes deployment
-*   Spawn up a Jupyter Notebook on the cluster
-*   Spawn up a shared-persistent storage across the cluster to store large
+*   Spawn a Jupyter Notebook on the cluster
+*   Spawn a shared-persistent storage across the cluster to store large
     datasets
 *   Train a Sequence-to-Sequence model using TensorFlow and GPUs on the cluster
 *   Serve the model using [Seldon Core](https://github.com/SeldonIO/seldon-core/)
