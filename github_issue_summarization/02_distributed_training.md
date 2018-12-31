@@ -1,23 +1,26 @@
 # Distributed training using Estimator
 
-Distributed training with keras currently doesn't work; see
+Distributed training with Keras currently does not work. Do not follow this guide
+until these issues have been resolved:
 
-* kubeflow/examples#280
-* kubeflow/examples#96
+* [kubeflow/examples#280](https://github.com/kubeflow/examples/issues/280)
+* [kubeflow/examples#196](https://github.com/kubeflow/examples/issues/196)
 
-Requires Tensorflow 1.9 or later.
+Requires TensorFlow 1.9 or later.
 Requires [StorageClass](https://kubernetes.io/docs/concepts/storage/storage-classes/) capable of creating ReadWriteMany persistent volumes.
 
 On GKE you can follow [GCFS documentation](https://master.kubeflow.org/docs/started/getting-started-gke/#using-gcfs-with-kubeflow) to enable it.
 
-Estimator and Keras are both part of Tensorflow. These high level APIs are designed
-to make building models easier. In our distributed training example we will show how both
+Estimator and Keras are both part of TensorFlow. These high-level APIs are designed
+to make building models easier. In our distributed training example, we will show how both
 APIs work together to help build models that will be trainable in both single node and
 distributed manner.
 
 ## Keras and Estimators
 
-Code required to run this example can be found in [distributed](https://github.com/kubeflow/examples/tree/master/github_issue_summarization/distributed) directory.
+Code required to run this example can be found in the
+[distributed](https://github.com/kubeflow/examples/tree/master/github_issue_summarization/distributed)
+directory.
 
 You can read more about Estimators [here](https://www.tensorflow.org/guide/estimators).
 In our example we will leverage `model_to_estimator` function that allows to turn existing tf.keras model to estimator, and therefore allow it to
@@ -93,3 +96,7 @@ tool for us. Please refer to [documentation](https://www.tensorflow.org/guide/pr
 ## Model
 
 After training is complete, our model can be found in "model" PVC.
+
+*Next*: [Serving the model](03_serving_the_model.md)
+
+*Back*: [Setup a kubeflow cluster](01_setup_a_kubeflow_cluster.md)

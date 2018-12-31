@@ -15,7 +15,7 @@ WORKDIR /issues
 COPY notebooks/train.py /issues
 COPY notebooks/trainer.py /issues
 COPY notebooks/seq2seq_utils.py /issues
-COPY ks-kubeflow/components/download_data.sh /issues
+COPY ks_app/components/download_data.sh /issues
 RUN chmod +x /issues/download_data.sh
 RUN mkdir /model
 RUN mkdir /data
