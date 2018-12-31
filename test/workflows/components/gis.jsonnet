@@ -97,7 +97,7 @@ local buildTemplate = {
   // py scripts to use.
   local kubeflowTestingPy = srcRootDir + "/kubeflow/testing/py",
 
-  local tfOperatorPy = srcRootDir + "kubeflow/tf-operator",
+  local tfOperatorPy = srcRootDir + "/kubeflow/tf-operator",
 
   // Actual template for Argo
   argoTemplate: {
@@ -163,7 +163,9 @@ local dagTemplates = [
       env_vars: [{
         name: "EXTRA_REPOS",
         // tf-operator has utilities needed for testing TFJobs.
-        value: "kubeflow/testing@HEAD;kubeflow/tf-operator@HEAD",
+        // TODO(jlewi): Update extra repos once kubeflow/testing#271 and 
+        // kubeflow/tf-operator#908 are merged.
+        value: "kubeflow/testing@HEAD:271;kubeflow/tf-operator@HEAD:908",
       }],
     },
     dependencies: null,

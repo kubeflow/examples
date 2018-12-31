@@ -30,10 +30,10 @@ import os
 import time
 
 from kubernetes import client as k8s_client
-from py import ks_util
 from py import tf_job_client
 from py import test_runner
 
+from kubeflow.testing import ks_util
 from kubeflow.testing import test_util
 from kubeflow.testing import util
 
