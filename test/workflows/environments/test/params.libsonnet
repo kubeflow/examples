@@ -7,6 +7,11 @@ local envParams = params + {
       name: 'jlewi-code-search-test-446-1227-171741',
       prow_env: 'JOB_NAME=code-search-test,JOB_TYPE=presubmit,REPO_NAME=examples,REPO_OWNER=kubeflow,BUILD_NUMBER=1227-171741,BUILD_ID=1227-171741,PULL_NUMBER=446',
     },
+    gis+: {
+      namespace: 'kubeflow-test-infra',
+      name: 'jlewi-gis-search-test-449-1228-184223',
+      prow_env: 'JOB_NAME=gis-search-test,JOB_TYPE=presubmit,REPO_NAME=examples,REPO_OWNER=kubeflow,BUILD_NUMBER=1228-184223,BUILD_ID=1228-184223,PULL_NUMBER=449',
+    },
   },
 };
 
