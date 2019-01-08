@@ -1,7 +1,7 @@
 // Test workflow for GitHub Issue Summarization.
 //
 local env = std.extVar("__ksonnet/environments");
-local overrides = std.extVar("__ksonnet/params").components.gis;
+local overrides = std.extVar("__ksonnet/params").components.mnist;
 
 local k = import "k.libsonnet";
 local util = import "util.libsonnet";
@@ -15,22 +15,12 @@ local defaultParams = {
   dataVolume: "kubeflow-test-volume",
 
   // Default step image:
-  stepImage: "gcr.io/kubeflow-ci/test-worker:v20190104-f2a1cdf-e3b0c4",
-
-  // Which Kubeflow cluster to use for running TFJobs on.
-  kfProject: "kubeflow-ci",
-  kfZone: "us-east1-d",
-  kfCluster: "kf-v0-4-n00",  
+  stepImage: "gcr.io/kubeflow-ci/test-worker:v20181017-bfeaaf5-dirty-4adcd0",
 };
 
 local params = defaultParams + overrides;
 
 local prowEnv = util.parseEnv(params.prow_env);
-
-// Workflow template is the name of the workflow template; typically the name of the ks component.
-// This is used as a label to make it easy to identify all Argo workflows created from a given
-// template.
-local workflow_template = "gis";
 
 // Create a dictionary of the different prow variables so we can refer to them in the workflow.
 //
@@ -66,14 +56,11 @@ local srcRootDir = testDir + "/src";
 // The directory containing the kubeflow/kubeflow repo
 local srcDir = srcRootDir + "/" + prowDict.REPO_OWNER + "/" + prowDict.REPO_NAME;
 
-// value of KUBECONFIG environment variable. This should be  a full path.
-local kubeConfig = testDir + "/.kube/kubeconfig";
 
 // These variables control where the docker images get pushed and what 
 // tag to use
 local imageBase = "gcr.io/kubeflow-ci/github-issue-summarization";
 local imageTag = "build-" + prowDict["BUILD_ID"];
-local trainerImage = imageBase + "/trainer-estimator:" + imageTag;
 
 // Build template is a template for constructing Argo step templates.
 //
@@ -102,18 +89,9 @@ local buildTemplate = {
   // py scripts to use.
   local kubeflowTestingPy = srcRootDir + "/kubeflow/testing/py",
 
-  local tfOperatorPy = srcRootDir + "/kubeflow/tf-operator",
-
   // Actual template for Argo
   argoTemplate: {
     name: template.name,
-    metadata: {
-      labels: prowDict + {
-        workflow: params.name,
-        workflow_template: workflow_template,
-        step_name: + template.name,
-      },
-    },
     container: {
       command: template.command,
       name: template.name,
@@ -123,7 +101,7 @@ local buildTemplate = {
         {
           // Add the source directories to the python path.
           name: "PYTHONPATH",
-          value: kubeflowTestingPy + ":" + tfOperatorPy,
+          value: kubeflowTestingPy,
         },
         {
           name: "GOOGLE_APPLICATION_CREDENTIALS",
@@ -137,12 +115,6 @@ local buildTemplate = {
               key: "github_token",
             },
           },
-        },
-        {
-          // We use a directory in our NFS share to store our kube config.
-          // This way we can configure it on a single step and reuse it on subsequent steps.
-          name: "KUBECONFIG",
-          value: kubeConfig,
         },
       ] + prowEnv + template.env_vars,
       volumeMounts: [
@@ -163,6 +135,7 @@ local buildTemplate = {
   },
 };  // buildTemplate
 
+
 // Create a list of dictionary.
 // Each item is a dictionary describing one step in the graph.
 local dagTemplates = [
@@ -174,9 +147,7 @@ local dagTemplates = [
 
       env_vars: [{
         name: "EXTRA_REPOS",
-        // tf-operator has utilities needed for testing TFJobs.
-        // TODO(jlewi): Update extra repos once kubeflow/testing#271 are merged.
-        value: "kubeflow/testing@HEAD:274;kubeflow/tf-operator@HEAD",
+        value: "kubeflow/testing@HEAD",
       }],
     },
     dependencies: null,
@@ -228,50 +199,11 @@ local dagTemplates = [
         "train_test.py",
       ],
       // Use the newly built image.
-      image: trainerImage,
+      image: imageBase + "/trainer-estimator:" + imageTag,
       workingDir: "/issues",
     },
     dependencies: ["build-images"],
   },  // train-test
-  {
-    // Configure KUBECONFIG
-    template: buildTemplate {
-      name: "get-kubeconfig",
-      command: util.buildCommand([
-      [
-        "gcloud",
-        "auth",
-        "activate-service-account",
-        "--key-file=${GOOGLE_APPLICATION_CREDENTIALS}",
-      ],
-      [
-        "gcloud",
-        "--project=" + params.kfProject,        
-        "container",
-        "clusters",
-        "get-credentials",
-        "--zone=" + params.kfZone,
-        params.kfCluster,
-      ]]
-      ),
-      workingDir: srcDir + "/github_issue_summarization",
-    },
-    dependencies: ["checkout"],
-  }, // get-kubeconfig
-  {
-    // Run the python test for TFJob
-    template: buildTemplate {
-      name: "tfjob-test",
-      command: [
-        "python",
-        "tfjob_test.py",
-        "--params=name=gis-test-" + prowDict["BUILD_ID"] + ",namespace=kubeflow,num_epochs=1,sample_size=10,image=" + trainerImage,
-        "--artifacts_path=" + artifactsDir,
-      ],
-      workingDir: srcDir + "/github_issue_summarization/testing",
-    },
-    dependencies: ["build-images", "get-kubeconfig"],
-  },  // tfjob-test
 ];
 
 // Dag defines the tasks in the graph
@@ -350,8 +282,11 @@ local workflow = {
   metadata: {
     name: params.name,
     namespace: env.namespace,
-    labels: prowDict + {      
-      workflow_template: workflow_template,
+    labels: {
+      org: prowDict.REPO_OWNER,
+      repo: prowDict.REPO_NAME,
+      workflow: "gis",
+      [if std.objectHas(prowDict, "PULL_NUMBER") then "pr"]: prowDict.PULL_NUMBER,
     },
   },
   spec: {

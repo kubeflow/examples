@@ -67,3 +67,7 @@ to partition a dataset into different chuncks.
 ## Model
 
 After training is complete, our model can be found in "pytorch/model" PVC.
+
+*Next*: [Serving the Model](03_serving_the_model.md)
+
+*Back*: [Setup](01_setup_a_kubeflow_cluster.md)
