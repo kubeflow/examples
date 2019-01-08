@@ -6,6 +6,26 @@ workflows:
     name: examples-e2e
     job_types:
     - presubmit
+  
+  # E2E test for code_search example
+  - app_dir: kubeflow/examples/test/workflows
+    component: code_search
+    name: code-search
+    job_types:
+    - presubmit
+    - postsubmit
+    include_dirs:
+    - code_search/*
+  
+  # E2E test for github issue summarization example
+  - app_dir: kubeflow/examples/test/workflows
+    component: gis
+    name: gis
+    job_types:
+    - presubmit
+    - postsubmit
+    include_dirs:
+    - github_issue_summarization/*
 # Image Auto Release workflows.
 # The workflows below are related to auto building our Docker images.
 # We have separate pre/postsubmit jobs because we want to use different

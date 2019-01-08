@@ -115,7 +115,7 @@ ks generate tf-job-simple train
 ```
 This Ksonnet protoytype needs to be slightly modified to our needs, you can simply copy an updated version of this prototype by copying the updated version from the repository.
 ```
-cp ../tensorflow-model/CPU/train.jsonnet ./components/train.jsonnet
+cp ../tensorflow_model/CPU/train.jsonnet ./components/train.jsonnet
 ```
 
 Now we need to define the parameters which are currently set as placeholders in the training job prototype.
@@ -252,7 +252,7 @@ We will create a separate pool and install the necessary NVIDIA GPU device drive
 For more instruction on how to handle GPUs on Kubernetes, see https://cloud.google.com/kubernetes-engine/docs/how-to/gpus.
 
 ```
-cloud container node-pools create gpu-pool --accelerator type=nvidia-tesla-k80,count=1 --zone europe-west1-b --cluster kubeflow --num-nodes 1 --min-nodes 1 --max-nodes 1 --enable-autoscaling --scopes=https://www.googleapis.com/auth/cloud-platform
+gcloud container node-pools create gpu-pool --accelerator type=nvidia-tesla-k80,count=1 --zone europe-west1-b --cluster kubeflow --num-nodes 1 --min-nodes 1 --max-nodes 1 --enable-autoscaling --scopes=https://www.googleapis.com/auth/cloud-platform
 kubectl apply -f https://raw.githubusercontent.com/GoogleCloudPlatform/container-engine-accelerators/stable/nvidia-driver-installer/cos/daemonset-preloaded.yaml
 ```
 
