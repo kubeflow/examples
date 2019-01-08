@@ -17,6 +17,16 @@ workflows:
     include_dirs:
     - code_search/*
   
+  # E2E test for mnist example
+  - app_dir: kubeflow/examples/test/workflows
+    component: mnist
+    name: mnist
+    job_types:
+    - presubmit
+    - postsubmit
+    include_dirs:
+    - mnist/*
+
   # E2E test for github issue summarization example
   - app_dir: kubeflow/examples/test/workflows
     component: gis
