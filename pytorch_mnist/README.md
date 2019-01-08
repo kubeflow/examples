@@ -43,12 +43,3 @@ Looks like it’s pretty confident this one is an 8!
 1.  [Serving the model](03_serving_the_model.md)
 1.  [Querying the model](04_querying_the_model.md)
 1.  [Teardown](05_teardown.md)
-
-## TODO
-- [x] Argo workflow tests to push images to gcr.io/kubeflow-examples
-- [ ] Grant access to service account to push images
-- [x] 01_setup_a_kubeflow_cluster
-- [x] 02_distributed_training
-- [x] 03_serving_the_model
-- [x] 04_querying_the_model
-- [x] 05_teardown
