@@ -78,17 +78,18 @@ class TFJobTest(test_util.TestCase):
           status_callback=tf_job_client.log_status)
     logging.info("Final TFJob:\n %s", json.dumps(results, indent=2))
 
+    # Check for errors creating pods and services. Can potentially
+    # help debug failed test runs.
+    creation_failures = tf_job_client.get_creation_failures_from_tfjob(
+        api_client, self.namespace, results)
+    if creation_failures:
+      logging.warning(creation_failures)
+
     if not tf_job_client.job_succeeded(results):
       self.failure = "Job {0} in namespace {1} in status {2}".format(  # pylint: disable=attribute-defined-outside-init
           self.name, self.namespace, results.get("status", {}))
       logging.error(self.failure)
       return
-
-    # Check for creation failures.
-    creation_failures = tf_job_client.get_creation_failures_from_tfjob(
-        api_client, self.namespace, results)
-    if creation_failures:
-      logging.warning(creation_failures)
 
     # We don't delete the jobs. We rely on TTLSecondsAfterFinished
     # to delete old jobs. Leaving jobs around should make it
