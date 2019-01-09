@@ -93,6 +93,51 @@ With our data and workloads ready, now the cluster must be prepared. We will be 
 
 In the following instructions we will install our required components to a single namespace.  For these instructions we will assume the chosen namespace is `tfworkflow`:
 
+### Training your model
+
+#### Using GCS
+
+Follow these instructions to write the model to GCS.
+
+Lets start by creating an environment to store parameters particular to writing the model to GCS.
+
+```
+KSENV=distributed
+cd ks_app
+ks env add ${KSENV}
+```
+
+Give the job a different name (to distinguish it from your job which didn't use GCS)
+
+```
+ks param set --env=${KSENV} train name mnist-train-dist
+```
+
+Configure the job to run distributed
+
+```
+ks param set --env=${KSENV} train numPs 1
+ks param set --env=${KSENV} train numWorkers 2
+```
+
+Set the environment variable GOOGLE_APPLICATION_CREDENTIALS
+
+```
+ks param set --env=${KSENV} train envVariables GOOGLE_APPLICATION_CREDENTIALS=/var/secrets/user-gcp-sa.json
+ks param set --env=${KSENV} train secret user-gcp-sa=/var/secrets
+```
+
+Set the output location to GCS
+
+```
+ks param set --env=${KSENV} train modelDir gs://${BUCKET}/${MODEL_PATH}
+ks param set --env=${KSENV} train exportDir gs://${BUCKET}/${MODEL_PATH}
+```
+
+### Using S3
+
+TODO
+
 ### Deploying Tensorflow Operator and Argo.
 
 We are using the Tensorflow operator to automate the deployment of our distributed model training, and Argo to create the overall training pipeline. The easiest way to install these components on your Kubernetes cluster is by using Kubeflow's ksonnet prototypes.

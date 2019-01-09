@@ -43,6 +43,9 @@ local trainEnv = [
   },
 ];
 
+local secretName = std.split(params.secret, "=")[0];
+local secretMountPath = std.split(params.secret, "=")[1];
+
 local replicaSpec = {
   containers: [
     {
@@ -53,9 +56,27 @@ local replicaSpec = {
       env: trainEnv + util.parseEnv(params.envVariables),
       image: params.image,
       name: "tensorflow",
+      volumeMounts: if secretMountPath != "" then
+        [
+          {
+            name: secretName,
+            mountPath: secretMountPath,
+            readOnly: true,
+          },
+        ] else [],
       workingDir: "/opt",
     },
   ],
+  volumes:
+    if secretName != "" then
+      [
+        {
+          name: secretName,
+          secret: {
+            secretName: secretName,
+          },
+        },
+      ] else [],
   restartPolicy: "OnFailure",
 };
 
