@@ -1,0 +1,15 @@
+apiVersion: 0.3.0
+environments:
+  jlewi:
+    destination:
+      namespace: kubeflow
+      server: https://35.196.210.94
+    k8sVersion: v1.11.5
+    path: jlewi
+kind: ksonnet.io/app
+name: ks_app
+registries:
+  incubator:
+    protocol: github
+    uri: github.com/ksonnet/parts/tree/master/incubator
+version: 0.0.1

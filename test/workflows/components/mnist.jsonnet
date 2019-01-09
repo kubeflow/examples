@@ -16,6 +16,11 @@ local defaultParams = {
 
   // Default step image:
   stepImage: "gcr.io/kubeflow-ci/test-worker:v20181017-bfeaaf5-dirty-4adcd0",
+
+  // Which Kubeflow cluster to use for running TFJobs on.
+  kfProject: "kubeflow-ci",
+  kfZone: "us-east1-d",
+  kfCluster: "kf-v0-4-n00",
 };
 
 local params = defaultParams + overrides;
@@ -56,11 +61,14 @@ local srcRootDir = testDir + "/src";
 // The directory containing the kubeflow/kubeflow repo
 local srcDir = srcRootDir + "/" + prowDict.REPO_OWNER + "/" + prowDict.REPO_NAME;
 
-
 // These variables control where the docker images get pushed and what 
 // tag to use
-local imageBase = "gcr.io/kubeflow-ci/github-issue-summarization";
+local imageBase = "gcr.io/kubeflow-ci/mnist";
 local imageTag = "build-" + prowDict["BUILD_ID"];
+local trainerImage = imageBase + "/model:" + imageTag;
+
+// Directory where model should be stored.
+local modelDir = params.bucket + "/mnist/models/" + prowDict["BUILD_ID"];
 
 // Build template is a template for constructing Argo step templates.
 //
@@ -186,24 +194,51 @@ local dagTemplates = [
         "TAG=" + imageTag,
       ]]
       ),
-      workingDir: srcDir + "/github_issue_summarization",      
+      workingDir: srcDir + "/mnist",
     },
     dependencies: ["checkout"],
   }, // build-images
   {
-    // Run the python test to train the model
+    // Configure KUBECONFIG
     template: buildTemplate {
-      name: "train-test",
+      name: "get-kubeconfig",
+      command: util.buildCommand([
+      [
+        "gcloud",
+        "auth",
+        "activate-service-account",
+        "--key-file=${GOOGLE_APPLICATION_CREDENTIALS}",
+      ],
+      [
+        "gcloud",
+        "--project=" + params.kfProject,        
+        "container",
+        "clusters",
+        "get-credentials",
+        "--zone=" + params.kfZone,
+        params.kfCluster,
+      ]]
+      ),
+      workingDir: srcDir + "/github_issue_summarization",
+    },
+    dependencies: ["checkout"],
+  }, // get-kubeconfig
+  {
+    // Run the python test for TFJob
+    template: buildTemplate {
+      name: "tfjob-test",
       command: [
         "python",
-        "train_test.py",
+        "tfjob_test.py",
+        "--params=name=mnist-test-" + prowDict["BUILD_ID"] + ",namespace=kubeflow,numTrainSteps=10,batchSize=10,image=" + trainerImage
+           + ",numPS=1,numWorkers=2,modelDir=" + modelDir + ",exportDir=" + exportDir,
+        "--artifacts_path=" + artifactsDir,
       ],
-      // Use the newly built image.
-      image: imageBase + "/trainer-estimator:" + imageTag,
-      workingDir: "/issues",
+      workingDir: srcDir + "/mnist/testing",
     },
-    dependencies: ["build-images"],
-  },  // train-test
+    dependencies: ["build-images", "get-kubeconfig"],
+  },  // tfjob-test
+  // TODO(jlewi): We should add a non-distributed test that just uses the default values.
 ];
 
 // Dag defines the tasks in the graph
