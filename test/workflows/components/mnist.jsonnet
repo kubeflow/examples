@@ -21,6 +21,10 @@ local defaultParams = {
   kfProject: "kubeflow-ci",
   kfZone: "us-east1-d",
   kfCluster: "kf-v0-4-n00",
+
+  // The bucket where the model should be written
+  // This needs to be writable by the GCP service account in the Kubeflow cluster (not the test cluster)
+  modelBucket: "kubeflow-ci_temp",
 };
 
 local params = defaultParams + overrides;
@@ -68,7 +72,7 @@ local imageTag = "build-" + prowDict["BUILD_ID"];
 local trainerImage = imageBase + "/model:" + imageTag;
 
 // Directory where model should be stored.
-local modelDir = "gs://" + params.bucket + "/mnist/models/" + prowDict["BUILD_ID"];
+local modelDir = "gs://" + params.modelBucket + "/mnist/models/" + prowDict["BUILD_ID"];
 
 // value of KUBECONFIG environment variable. This should be  a full path.
 local kubeConfig = testDir + "/.kube/kubeconfig";

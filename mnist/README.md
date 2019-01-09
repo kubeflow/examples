@@ -123,11 +123,32 @@ And you can check the job
 kubectl get tfjobs -o yaml mnist-train-local
 ```
 
+And to check the logs 
+
+```
+kubectl logs mnist-train-local-chief-0
+```
+
+Storing the model in a directory inside the container isn't useful because the directory is
+lost as soon as the pod is deleted.
+
+So in the next sections we cover saving the model on a suitable filesystem like GCS or S3.
+
 #### Using GCS
 
-Follow these instructions to write the model to GCS.
+In this section we describe how to save the model to Google Cloud Storage (GCS).
 
-Lets start by creating an environment to store parameters particular to writing the model to GCS.
+Storing the model in GCS has the advantages
+
+* The model is readily available after the job finishes
+* We can run distributed training
+   
+  * Distributed training requires a storage system accessible to all the machines
+
+
+
+Lets start by creating an environment to store parameters particular to writing the model to GCS
+and running distributed.
 
 ```
 KSENV=distributed
@@ -141,11 +162,17 @@ Give the job a different name (to distinguish it from your job which didn't use 
 ks param set --env=${KSENV} train name mnist-train-dist
 ```
 
-Configure the job to run distributed
+Next we configure it to run distributed by setting the number of parameter servers and workers to use.
 
 ```
 ks param set --env=${KSENV} train numPs 1
 ks param set --env=${KSENV} train numWorkers 2
+```
+Now we need to configure parameters telling the code to save the model to GCS.
+
+```
+ks param set --env=${KSENV} train modelDir gs://${BUCKET}/${MODEL_PATH}
+ks param set --env=${KSENV} train exportDir gs://${BUCKET}/${MODEL_PATH}/export
 ```
 
 Set the environment variable GOOGLE_APPLICATION_CREDENTIALS
@@ -155,12 +182,6 @@ ks param set --env=${KSENV} train envVariables GOOGLE_APPLICATION_CREDENTIALS=/v
 ks param set --env=${KSENV} train secret user-gcp-sa=/var/secrets
 ```
 
-Set the output location to GCS
-
-```
-ks param set --env=${KSENV} train modelDir gs://${BUCKET}/${MODEL_PATH}
-ks param set --env=${KSENV} train exportDir gs://${BUCKET}/${MODEL_PATH}
-```
 
 #### Using S3
 
