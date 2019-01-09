@@ -31,15 +31,15 @@ local trainEnv = [
   },
   {
     name: "TF_TRAIN_STEPS",
-    value: params.trainSteps,
+    value: std.toString(params.trainSteps),
   },
   {
     name: "TF_BATCH_SIZE",
-    value: params.batchSize,
+    value: std.toString(params.batchSize),
   },
   {
     name: "TF_LEARNING_RATE",
-    value: params.learningRate,
+    value: std.toString(params.learningRate),
   },
 ];
 

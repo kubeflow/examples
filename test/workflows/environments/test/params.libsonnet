@@ -12,6 +12,11 @@ local envParams = params + {
       name: 'jlewi-gis-search-test-456-0105-104058',
       prow_env: 'JOB_NAME=gis-search-test,JOB_TYPE=presubmit,REPO_NAME=examples,REPO_OWNER=kubeflow,BUILD_NUMBER=0105-104058,BUILD_ID=0105-104058,PULL_NUMBER=456',
     },
+    mnist+: {
+      namespace: 'kubeflow-test-infra',
+      name: 'jlewi-mnist-test-465-0108-220405',
+      prow_env: 'JOB_NAME=mnist-test,JOB_TYPE=presubmit,REPO_NAME=examples,REPO_OWNER=kubeflow,BUILD_NUMBER=0108-220405,BUILD_ID=0108-220405,PULL_NUMBER=465',
+    },
   },
 };
 
