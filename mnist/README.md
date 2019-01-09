@@ -95,6 +95,34 @@ In the following instructions we will install our required components to a singl
 
 ### Training your model
 
+#### Local storage
+
+Let's start by runing the training job and write to a temporary directory inside the container
+
+```
+KSENV=local
+cd ks_app
+ks env add ${KSENV}
+```
+
+Give the job a name to indicate it is running locally
+
+```
+ks param set --env=${KSENV} train name mnist-train-local
+```
+
+You can now submit the job 
+
+```
+ks apply ${KSENV} -c train
+```
+
+And you can check the job
+
+```
+kubectl get tfjobs -o yaml mnist-train-local
+```
+
 #### Using GCS
 
 Follow these instructions to write the model to GCS.
@@ -134,9 +162,23 @@ ks param set --env=${KSENV} train modelDir gs://${BUCKET}/${MODEL_PATH}
 ks param set --env=${KSENV} train exportDir gs://${BUCKET}/${MODEL_PATH}
 ```
 
-### Using S3
+#### Using S3
 
-TODO
+For fetching and uploading data, our workflow requires S3 credentials and variables. These credentials will be provided as kubernetes secrets, and the variables will be passed into the workflow. Modify the below values to suit your environment.
+
+```
+export S3_ENDPOINT=s3.us-west-2.amazonaws.com  #replace with your s3 endpoint in a host:port format, e.g. minio:9000
+export AWS_ENDPOINT_URL=https://${S3_ENDPOINT} #use http instead of https for default minio installs
+export AWS_ACCESS_KEY_ID=xxxxx
+export AWS_SECRET_ACCESS_KEY=xxxxx
+export AWS_REGION=us-west-2
+export BUCKET_NAME=mybucket
+export S3_USE_HTTPS=1 #set to 0 for default minio installs
+export S3_VERIFY_SSL=1 #set to 0 for defaul minio installs
+
+kubectl create secret generic aws-creds --from-literal=awsAccessKeyID=${AWS_ACCESS_KEY_ID} \
+ --from-literal=awsSecretAccessKey=${AWS_SECRET_ACCESS_KEY}
+```
 
 ### Deploying Tensorflow Operator and Argo.
 

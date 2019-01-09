@@ -14,8 +14,8 @@ local envParams = params + {
     },
     mnist+: {
       namespace: 'kubeflow-test-infra',
-      name: 'jlewi-mnist-test-465-0108-222318',
-      prow_env: 'JOB_NAME=mnist-test,JOB_TYPE=presubmit,REPO_NAME=examples,REPO_OWNER=kubeflow,BUILD_NUMBER=0108-222318,BUILD_ID=0108-222318,PULL_NUMBER=465',
+      name: 'jlewi-mnist-test-465-0109-050605',
+      prow_env: 'JOB_NAME=mnist-test,JOB_TYPE=presubmit,REPO_NAME=examples,REPO_OWNER=kubeflow,BUILD_NUMBER=0109-050605,BUILD_ID=0109-050605,PULL_NUMBER=465',
     },
   },
 };
