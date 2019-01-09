@@ -58,7 +58,7 @@ class TFJobTest(test_util.TestCase):
     # same name.
     api_client = k8s_client.ApiClient()
 
-    component = "tfjob"
+    component = "train"
     # Setup the ksonnet app
     ks_util.setup_ks_app(self.app_dir, self.env, self.namespace, component,
                          self.params)
