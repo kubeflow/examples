@@ -27,6 +27,7 @@ import numpy as np
 import tensorflow as tf
 
 # Configure model options
+# TODO(jlewi): Why environment variables and not command line arguments?
 TF_DATA_DIR = os.getenv("TF_DATA_DIR", "/tmp/data/")
 TF_MODEL_DIR = os.getenv("TF_MODEL_DIR", None)
 TF_EXPORT_DIR = os.getenv("TF_EXPORT_DIR", "mnist/")

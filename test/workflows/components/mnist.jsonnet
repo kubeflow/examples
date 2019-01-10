@@ -15,7 +15,16 @@ local defaultParams = {
   dataVolume: "kubeflow-test-volume",
 
   // Default step image:
-  stepImage: "gcr.io/kubeflow-ci/test-worker:v20181017-bfeaaf5-dirty-4adcd0",
+  stepImage: "gcr.io/kubeflow-ci/test-worker:v20190104-f2a1cdf-e3b0c4",
+
+  // Which Kubeflow cluster to use for running TFJobs on.
+  kfProject: "kubeflow-ci",
+  kfZone: "us-east1-d",
+  kfCluster: "kf-v0-4-n00",
+
+  // The bucket where the model should be written
+  // This needs to be writable by the GCP service account in the Kubeflow cluster (not the test cluster)
+  modelBucket: "kubeflow-ci_temp",
 };
 
 local params = defaultParams + overrides;
@@ -56,11 +65,17 @@ local srcRootDir = testDir + "/src";
 // The directory containing the kubeflow/kubeflow repo
 local srcDir = srcRootDir + "/" + prowDict.REPO_OWNER + "/" + prowDict.REPO_NAME;
 
-
 // These variables control where the docker images get pushed and what 
 // tag to use
-local imageBase = "gcr.io/kubeflow-ci/github-issue-summarization";
+local imageBase = "gcr.io/kubeflow-ci/mnist";
 local imageTag = "build-" + prowDict["BUILD_ID"];
+local trainerImage = imageBase + "/model:" + imageTag;
+
+// Directory where model should be stored.
+local modelDir = "gs://" + params.modelBucket + "/mnist/models/" + prowDict["BUILD_ID"];
+
+// value of KUBECONFIG environment variable. This should be  a full path.
+local kubeConfig = testDir + "/.kube/kubeconfig";
 
 // Build template is a template for constructing Argo step templates.
 //
@@ -88,6 +103,7 @@ local buildTemplate = {
   // The directory within the kubeflow_testing submodule containing
   // py scripts to use.
   local kubeflowTestingPy = srcRootDir + "/kubeflow/testing/py",
+  local tfOperatorPy = srcRootDir + "/kubeflow/tf-operator",
 
   // Actual template for Argo
   argoTemplate: {
@@ -101,7 +117,7 @@ local buildTemplate = {
         {
           // Add the source directories to the python path.
           name: "PYTHONPATH",
-          value: kubeflowTestingPy,
+          value: kubeflowTestingPy + ":" + tfOperatorPy,
         },
         {
           name: "GOOGLE_APPLICATION_CREDENTIALS",
@@ -115,6 +131,12 @@ local buildTemplate = {
               key: "github_token",
             },
           },
+        },        
+        {
+          // We use a directory in our NFS share to store our kube config.
+          // This way we can configure it on a single step and reuse it on subsequent steps.
+          name: "KUBECONFIG",
+          value: kubeConfig,
         },
       ] + prowEnv + template.env_vars,
       volumeMounts: [
@@ -147,7 +169,7 @@ local dagTemplates = [
 
       env_vars: [{
         name: "EXTRA_REPOS",
-        value: "kubeflow/testing@HEAD",
+        value: "kubeflow/testing@HEAD;kubeflow/tf-operator@HEAD",
       }],
     },
     dependencies: null,
@@ -186,24 +208,61 @@ local dagTemplates = [
         "TAG=" + imageTag,
       ]]
       ),
-      workingDir: srcDir + "/github_issue_summarization",      
+      workingDir: srcDir + "/mnist",
     },
     dependencies: ["checkout"],
   }, // build-images
   {
-    // Run the python test to train the model
+    // Configure KUBECONFIG
     template: buildTemplate {
-      name: "train-test",
+      name: "get-kubeconfig",
+      command: util.buildCommand([
+      [
+        "gcloud",
+        "auth",
+        "activate-service-account",
+        "--key-file=${GOOGLE_APPLICATION_CREDENTIALS}",
+      ],
+      [
+        "gcloud",
+        "--project=" + params.kfProject,        
+        "container",
+        "clusters",
+        "get-credentials",
+        "--zone=" + params.kfZone,
+        params.kfCluster,
+      ]]
+      ),
+      workingDir: srcDir + "/github_issue_summarization",
+    },
+    dependencies: ["checkout"],
+  }, // get-kubeconfig
+  {
+    // Run the python test for TFJob
+    template: buildTemplate {
+      name: "tfjob-test",
       command: [
         "python",
-        "train_test.py",
-      ],
-      // Use the newly built image.
-      image: imageBase + "/trainer-estimator:" + imageTag,
-      workingDir: "/issues",
+        "tfjob_test.py",
+        "--artifacts_path=" + artifactsDir,
+        "--params=" + std.join(",", [
+          "name=mnist-test-" + prowDict["BUILD_ID"], 
+          "namespace=kubeflow",
+          "numTrainSteps=10",
+          "batchSize=10",
+          "image=" + trainerImage,
+          "numPs=1",
+          "numWorkers=2",
+          "modelDir=" + modelDir ,
+          "exportDir=" + modelDir, 
+          "envVariables=GOOGLE_APPLICATION_CREDENTIALS=/var/secrets/user-gcp-sa.json",
+          "secret=user-gcp-sa=/var/secrets",
+      ])],
+      workingDir: srcDir + "/mnist/testing",
     },
-    dependencies: ["build-images"],
-  },  // train-test
+    dependencies: ["build-images", "get-kubeconfig"],
+  },  // tfjob-test
+  // TODO(jlewi): We should add a non-distributed test that just uses the default values.
 ];
 
 // Dag defines the tasks in the graph
