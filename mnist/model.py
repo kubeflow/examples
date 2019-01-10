@@ -151,6 +151,8 @@ def main(_):
     classifier = tf.estimator.LinearClassifier(
         feature_columns=feature_columns, n_classes=N_DIGITS,
         model_dir=TF_MODEL_DIR, config=training_config)
+    # TODO(jlewi): Should it be linear_serving_input_receiver_fn here?
+    serving_fn=cnn_serving_input_receiver_fn
     export_final = tf.estimator.FinalExporter(
         TF_EXPORT_DIR, serving_input_receiver_fn=cnn_serving_input_receiver_fn)
 
@@ -158,6 +160,7 @@ def main(_):
     # Convolutional network
     classifier = tf.estimator.Estimator(
         model_fn=conv_model, model_dir=TF_MODEL_DIR, config=training_config)
+    serving_fn=cnn_serving_input_receiver_fn
     export_final = tf.estimator.FinalExporter(
         TF_EXPORT_DIR, serving_input_receiver_fn=cnn_serving_input_receiver_fn)
   else:
@@ -172,6 +175,8 @@ def main(_):
                                       throttle_secs=1,
                                       start_delay_secs=1)
   tf.estimator.train_and_evaluate(classifier, train_spec, eval_spec)
+
+  classifier.export_savedmodel(TF_EXPORT_DIR, serving_input_receiver_fn=serving_fn)
 
 if __name__ == '__main__':
   tf.app.run()

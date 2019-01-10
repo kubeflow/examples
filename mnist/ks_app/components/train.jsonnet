@@ -43,8 +43,9 @@ local trainEnv = [
   },
 ];
 
-local secretName = std.split(params.secret, "=")[0];
-local secretMountPath = std.split(params.secret, "=")[1];
+local secretPieces = std.split(params.secret, "=");
+local secretName = if std.length(secretPieces) > 0 then secretPieces[0] else "";
+local secretMountPath = if std.length(secretPieces) > 1 then secretPieces[1] else "";
 
 local replicaSpec = {
   containers: [
