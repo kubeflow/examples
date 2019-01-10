@@ -9,7 +9,7 @@ metadata:
 spec:
   containers:
   - name: xgboost
-    image: gcr.io/cloudmlplat/ames-housing:v1
+    image: gcr.io/kubeflow-examples/ames-housing:v1
     volumeMounts:
     - mountPath: "/mnt/xgboost"
       name: datadir
