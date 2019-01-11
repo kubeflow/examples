@@ -138,6 +138,7 @@ def main(_):
 
   is_chief = False
   if not job_name or job_name.lower() in ["chief", "master"]:
+    is_chief=True
     tf.logging.info("Will export model")
   else:
     tf.logging.info("Will not export model")
