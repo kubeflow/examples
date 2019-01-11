@@ -179,6 +179,7 @@ def main(_):
 
   print("Export saved model")
   classifier.export_savedmodel(TF_EXPORT_DIR, serving_input_receiver_fn=serving_fn)
+  print("Done exporting the model")
 
 if __name__ == '__main__':
   tf.app.run()
