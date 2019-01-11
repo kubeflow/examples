@@ -138,7 +138,7 @@ def main(_):
 
   is_chief = False
   if not job_name or job_name.lower() in ["chief", "master"]:
-    is_chief=True
+    is_chief = True
     tf.logging.info("Will export model")
   else:
     tf.logging.info("Will not export model")
@@ -169,7 +169,7 @@ def main(_):
         feature_columns=feature_columns, n_classes=N_DIGITS,
         model_dir=TF_MODEL_DIR, config=training_config)
     # TODO(jlewi): Should it be linear_serving_input_receiver_fn here?
-    serving_fn=cnn_serving_input_receiver_fn
+    serving_fn = cnn_serving_input_receiver_fn
     export_final = tf.estimator.FinalExporter(
         TF_EXPORT_DIR, serving_input_receiver_fn=cnn_serving_input_receiver_fn)
 
@@ -177,7 +177,7 @@ def main(_):
     # Convolutional network
     classifier = tf.estimator.Estimator(
         model_fn=conv_model, model_dir=TF_MODEL_DIR, config=training_config)
-    serving_fn=cnn_serving_input_receiver_fn
+    serving_fn = cnn_serving_input_receiver_fn
     export_final = tf.estimator.FinalExporter(
         TF_EXPORT_DIR, serving_input_receiver_fn=cnn_serving_input_receiver_fn)
   else:

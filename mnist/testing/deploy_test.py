@@ -21,7 +21,6 @@ Manually running the test
 
 """
 
-import json
 import logging
 import os
 
@@ -57,13 +56,13 @@ class MnistDeployTest(test_util.TestCase):
     api_client = k8s_client.ApiClient()
 
     # Apply the components
-    for component in [ "mnist-deploy-gcp", "mnist-service"]:
+    for component in ["mnist-deploy-gcp", "mnist-service"]:
       # Setup the ksonnet app
       ks_util.setup_ks_app(self.app_dir, self.env, self.namespace, component,
                            self.params)
 
-      output = util.run([self.ks_cmd, "apply", self.env, "-c", component],
-                         cwd=self.app_dir)
+      util.run([self.ks_cmd, "apply", self.env, "-c", component],
+               cwd=self.app_dir)
 
       logging.info("Created deployment %s in namespaces %s", self.name, self.namespace)
 
