@@ -126,6 +126,19 @@ def linear_serving_input_receiver_fn():
 def main(_):
   tf.logging.set_verbosity(tf.logging.INFO)
 
+
+  cluster = tf_config_json.get('cluster')
+  job_name = tf_config_json.get('task', {}).get('type')
+  task_index = tf_config_json.get('task', {}).get('index')
+  tf.logging.info("cluster=%s job_name=%s task_index=%s", cluster, job_name,
+                  task_index)
+
+  is_chief = False
+  if not job_name or job_name.lower() in ["chief", "master"]:
+    tf.logging("Will export model")
+  else:
+    tf.logging("Will not export model")
+
   # Download and load MNIST dataset.
   mnist = tf.contrib.learn.datasets.DATASETS['mnist'](TF_DATA_DIR)
   train_input_fn = tf.estimator.inputs.numpy_input_fn(
@@ -176,10 +189,12 @@ def main(_):
                                       start_delay_secs=1)
   print("Train and evaluate")
   tf.estimator.train_and_evaluate(classifier, train_spec, eval_spec)
+  print("Training done")
 
-  print("Export saved model")
-  classifier.export_savedmodel(TF_EXPORT_DIR, serving_input_receiver_fn=serving_fn)
-  print("Done exporting the model")
+  if is_chief:
+    print("Export saved model")
+    classifier.export_savedmodel(TF_EXPORT_DIR, serving_input_receiver_fn=serving_fn)
+    print("Done exporting the model")
 
 if __name__ == '__main__':
   tf.app.run()
