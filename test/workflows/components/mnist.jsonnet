@@ -25,6 +25,12 @@ local defaultParams = {
   // The bucket where the model should be written
   // This needs to be writable by the GCP service account in the Kubeflow cluster (not the test cluster)
   modelBucket: "kubeflow-ci_temp",
+
+  // Whether to delete the namespace at the end.
+  // Leaving the namespace around can be useful for debugging.
+  //
+  // TODO(jlewi): We should consider running a cronjob to GC so namespaces.
+  deleteNamespace: false,
 };
 
 local params = defaultParams + overrides;
@@ -335,8 +341,9 @@ local dag = {
 
 // Define templates for the steps to be performed when the
 // test exits
-local exitTemplates =
-  [
+
+local deleteTemplates = if params.deleteNamespace then
+ [
     {
       // Delete the namespace
       // TODO(jlewi): We should add some sort of retry.
@@ -358,6 +365,11 @@ local exitTemplates =
         ),
       },
     }, // delete-namespace
+  ] else [];
+
+local exitTemplates =
+  deleteTemplates +
+  [  
     {
       // Copy artifacts to GCS for gubernator.
       // TODO(https://github.com/kubeflow/testing/issues/257): Create-pr-symlink
@@ -392,7 +404,7 @@ local exitTemplates =
         	  },
           },
         },  // test-dir-delete
-      dependencies: ["copy-artifacts", "delete-namespace"],
+      dependencies: ["copy-artifacts"] + if params.deleteNamespace then ["delete-namespace"] else [],
     },
   ];
 
