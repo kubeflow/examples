@@ -15,26 +15,24 @@
 # Use an official Ubuntu 18.04 as parent image
 FROM ubuntu:18.04
 
-# Install python 2.7
+# Install python 2.7.
 FROM python:2.7
 
 RUN apt-get update
 RUN apt-get install -y git make g++
 
-# Download the training set to local directory 'ames_dataset'.
+# Download the training set and code.
 COPY ames_dataset/ ./ames_dataset
+COPY housing.py ./housing.py
 
-# Build XGBoost
+# Install Kubeflow seldon_serve component.
+COPY seldon_serve/ ./seldon_serve
+RUN pip install -r seldon_serve/requirements.txt
+
+# Build XGBoost.
 RUN git clone --recursive https://github.com/dmlc/xgboost && \
     cd xgboost && \
     make -j4 && \
     cd python-package; python setup.py install
 
-# Download code and install dependencies
-RUN cd .. && \
-    git clone https://github.com/kubeflow/examples.git && \
-    cd examples && \
-    cd xgboost_ames_housing && \
-    pip install -r seldon_serve/requirements.txt
-
-ENTRYPOINT ["python", "examples/xgboost_ames_housing/housing.py"]
+ENTRYPOINT ["python", "housing.py"]
