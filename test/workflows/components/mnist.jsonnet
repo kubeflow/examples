@@ -25,6 +25,12 @@ local defaultParams = {
   // The bucket where the model should be written
   // This needs to be writable by the GCP service account in the Kubeflow cluster (not the test cluster)
   modelBucket: "kubeflow-ci_temp",
+
+  // Whether to delete the namespace at the end.
+  // Leaving the namespace around can be useful for debugging.
+  //
+  // TODO(jlewi): We should consider running a cronjob to GC so namespaces.
+  deleteNamespace: false,
 };
 
 local params = defaultParams + overrides;
@@ -76,6 +82,9 @@ local modelDir = "gs://" + params.modelBucket + "/mnist/models/" + prowDict["BUI
 
 // value of KUBECONFIG environment variable. This should be  a full path.
 local kubeConfig = testDir + "/.kube/kubeconfig";
+
+// Namespace where tests should run
+local testNamespace = "mnist-" + prowDict["BUILD_ID"];
 
 // Build template is a template for constructing Argo step templates.
 //
@@ -233,10 +242,48 @@ local dagTemplates = [
         params.kfCluster,
       ]]
       ),
-      workingDir: srcDir + "/github_issue_summarization",
     },
     dependencies: ["checkout"],
   }, // get-kubeconfig
+  {
+    // Create the namespace
+    // TODO(jlewi): We should add some sort of retry.
+    template: buildTemplate {
+      name: "create-namespace",
+      command: util.buildCommand([
+      [
+        "echo",
+        "KUBECONFIG=",
+        "${KUBECONFIG}",
+      ],
+      [
+        "gcloud",
+        "auth",
+        "activate-service-account",
+        "--key-file=${GOOGLE_APPLICATION_CREDENTIALS}",
+      ],
+      [
+        "kubectl",
+        "config" ,
+        "current-context",
+      ],
+      [
+        "kubectl",
+        "create",
+        "namespace",
+        testNamespace,
+      ],
+      # Copy the GCP secret from the kubeflow namespace to the test namespace
+      [
+        srcDir + "/test/copy_secret.sh",
+        "kubeflow",
+        testNamespace,
+        "user-gcp-sa",
+      ]]
+      ),
+    },
+    dependencies: ["get-kubeconfig"],
+  }, // create-namespace
   {
     // Run the python test for TFJob
     template: buildTemplate {
@@ -247,7 +294,7 @@ local dagTemplates = [
         "--artifacts_path=" + artifactsDir,
         "--params=" + std.join(",", [
           "name=mnist-test-" + prowDict["BUILD_ID"], 
-          "namespace=kubeflow",
+          "namespace=" + testNamespace,
           "numTrainSteps=10",
           "batchSize=10",
           "image=" + trainerImage,
@@ -260,8 +307,25 @@ local dagTemplates = [
       ])],
       workingDir: srcDir + "/mnist/testing",
     },
-    dependencies: ["build-images", "get-kubeconfig"],
+    dependencies: ["build-images", "create-namespace"],
   },  // tfjob-test
+  {
+    // Run the python test for TFJob
+    template: buildTemplate {
+      name: "deploy-test",
+      command: [
+        "python",
+        "deploy_test.py",        
+        "--params=" + std.join(",", [
+          "name=mnist-test-" + prowDict["BUILD_ID"], 
+          "namespace=" + testNamespace,          
+          "modelBasePath=" + modelDir  + "/export",
+          "exportDir=" + modelDir,
+      ])],
+      workingDir: srcDir + "/mnist/testing",
+    },
+    dependencies: ["tfjob-test"],
+  },  // deploy-test
   // TODO(jlewi): We should add a non-distributed test that just uses the default values.
 ];
 
@@ -277,8 +341,35 @@ local dag = {
 
 // Define templates for the steps to be performed when the
 // test exits
+
+local deleteTemplates = if params.deleteNamespace then
+ [
+    {
+      // Delete the namespace
+      // TODO(jlewi): We should add some sort of retry.
+      template: buildTemplate {
+        name: "delete-namespace",
+        command: util.buildCommand([
+        [
+          "gcloud",
+          "auth",
+          "activate-service-account",
+          "--key-file=${GOOGLE_APPLICATION_CREDENTIALS}",
+        ],
+        [
+          "kubectl",
+          "delete",
+          "namespace",
+          testNamespace,
+        ]]
+        ),
+      },
+    }, // delete-namespace
+  ] else [];
+
 local exitTemplates =
-  [
+  deleteTemplates +
+  [  
     {
       // Copy artifacts to GCS for gubernator.
       // TODO(https://github.com/kubeflow/testing/issues/257): Create-pr-symlink
@@ -294,7 +385,6 @@ local exitTemplates =
           "--bucket=" + bucket,
         ],
       },  // copy-artifacts,
-
     },
     {
       // Delete the test directory in NFS.
@@ -314,7 +404,7 @@ local exitTemplates =
         	  },
           },
         },  // test-dir-delete
-      dependencies: ["copy-artifacts"],
+      dependencies: ["copy-artifacts"] + if params.deleteNamespace then ["delete-namespace"] else [],
     },
   ];
 
