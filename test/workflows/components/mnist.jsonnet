@@ -249,7 +249,7 @@ local dagTemplates = [
         "kubectl",
         "create",
         "namespace",
-        testNaamespace,
+        testNamespace,
       ],
       # Copy the GCP secret from the kubeflow namespace to the test namespace
       [
@@ -287,6 +287,23 @@ local dagTemplates = [
     },
     dependencies: ["build-images", "create-namespace"],
   },  // tfjob-test
+  {
+    // Run the python test for TFJob
+    template: buildTemplate {
+      name: "deploy-test",
+      command: [
+        "python",
+        "deploy_test.py",        
+        "--params=" + std.join(",", [
+          "name=mnist-test-" + prowDict["BUILD_ID"], 
+          "namespace=" + testNamespace,          
+          "modelBasePath=" + modelDir  + "/export",
+          "exportDir=" + modelDir,
+      ])],
+      workingDir: srcDir + "/mnist/testing",
+    },
+    dependencies: ["tfjob-test"],
+  },  // deploy-test
   // TODO(jlewi): We should add a non-distributed test that just uses the default values.
 ];
 
@@ -318,7 +335,6 @@ local exitTemplates =
         ]]
         ),
       },
-      dependencies: ["delete-namespace"],
     }, // delete-namespace
     {
       // Copy artifacts to GCS for gubernator.
@@ -335,7 +351,6 @@ local exitTemplates =
           "--bucket=" + bucket,
         ],
       },  // copy-artifacts,
-
     },
     {
       // Delete the test directory in NFS.

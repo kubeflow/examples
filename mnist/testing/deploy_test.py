@@ -62,8 +62,9 @@ class MnistDeployTest(test_util.TestCase):
       ks_util.setup_ks_app(self.app_dir, self.env, self.namespace, component,
                            self.params)
 
-      util.run([self.ks_cmd, "apply", self.env, "-c", component],
-               cwd=self.app_dir)
+      output = util.run([self.ks_cmd, "apply", self.env, "-c", component],
+                         cwd=self.app_dir)
+
       logging.info("Created deployment %s in namespaces %s", self.name, self.namespace)
 
     util.wait_for_deployment(api_client, self.namespace, self.name,

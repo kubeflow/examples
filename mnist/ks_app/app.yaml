@@ -2,7 +2,7 @@ apiVersion: 0.3.0
 environments:
   jlewi:
     destination:
-      namespace: kubeflow
+      namespace: jlewi
       server: https://35.196.210.94
     k8sVersion: v1.11.5
     path: jlewi
