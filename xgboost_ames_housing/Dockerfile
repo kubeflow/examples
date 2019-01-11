@@ -21,6 +21,9 @@ FROM python:2.7
 RUN apt-get update
 RUN apt-get install -y git make g++
 
+# Download the training set to local directory 'ames_dataset'.
+COPY ames_dataset/ ./ames_dataset
+
 # Build XGBoost
 RUN git clone --recursive https://github.com/dmlc/xgboost && \
     cd xgboost && \
