@@ -21,6 +21,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import json
 import os
 import sys
 import numpy as np
@@ -126,7 +127,9 @@ def linear_serving_input_receiver_fn():
 def main(_):
   tf.logging.set_verbosity(tf.logging.INFO)
 
-
+  tf_config = os.environ.get('TF_CONFIG', '{}')
+  tf.logging.info("TF_CONFIG %s", tf_config)
+  tf_config_json = json.loads(tf_config)
   cluster = tf_config_json.get('cluster')
   job_name = tf_config_json.get('task', {}).get('type')
   task_index = tf_config_json.get('task', {}).get('index')
@@ -135,9 +138,9 @@ def main(_):
 
   is_chief = False
   if not job_name or job_name.lower() in ["chief", "master"]:
-    tf.logging("Will export model")
+    tf.logging.info("Will export model")
   else:
-    tf.logging("Will not export model")
+    tf.logging.info("Will not export model")
 
   # Download and load MNIST dataset.
   mnist = tf.contrib.learn.datasets.DATASETS['mnist'](TF_DATA_DIR)
