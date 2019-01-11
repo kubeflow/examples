@@ -246,6 +246,22 @@ local dagTemplates = [
       name: "create-namespace",
       command: util.buildCommand([
       [
+        "echo",
+        "KUBECONFIG=",
+        "${KUBECONFIG}",
+      ],
+      [
+        "gcloud",
+        "auth",
+        "activate-service-account",
+        "--key-file=${GOOGLE_APPLICATION_CREDENTIALS}",
+      ],
+      [
+        "kubectl",
+        "config" ,
+        "current-context",
+      ],
+      [
         "kubectl",
         "create",
         "namespace",
@@ -327,6 +343,12 @@ local exitTemplates =
       template: buildTemplate {
         name: "delete-namespace",
         command: util.buildCommand([
+        [
+          "gcloud",
+          "auth",
+          "activate-service-account",
+          "--key-file=${GOOGLE_APPLICATION_CREDENTIALS}",
+        ],
         [
           "kubectl",
           "delete",
