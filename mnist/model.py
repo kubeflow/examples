@@ -174,8 +174,10 @@ def main(_):
                                       exporters=export_final,
                                       throttle_secs=1,
                                       start_delay_secs=1)
+  print("Train and evaluate")
   tf.estimator.train_and_evaluate(classifier, train_spec, eval_spec)
 
+  print("Export saved model")
   classifier.export_savedmodel(TF_EXPORT_DIR, serving_input_receiver_fn=serving_fn)
 
 if __name__ == '__main__':
