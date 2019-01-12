@@ -14,7 +14,7 @@ You have two options for getting a model server
   * So you can just run this image to get a pre-trained model
   * Serving your own model using this server is discussed below
 
-1. You can build your own model server as discussed below
+1. You can build your own model server as discussed below. For this you will need to install the [Source2Image executable s2i](https://github.com/openshift/source-to-image).
 
 
 ## Wrap the model into a Seldon Core microservice
@@ -26,7 +26,7 @@ PROJECT=my-gcp-project
 TAG=0.1
 ```
 
-cd into the notebooks directory and run the following command:
+cd into the notebooks directory and run the following command (you will need [s2i](https://github.com/openshift/source-to-image) installed):
 
 ```
 cd notebooks/
