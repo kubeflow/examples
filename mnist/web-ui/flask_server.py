@@ -34,7 +34,6 @@ def main():
   port_arg = request.args.get('port', '9000')
   args = {"name": name_arg, "addr": addr_arg, "port": port_arg}
   logging.info("Request args: %s", args)
-  print(args)
 
   output = None
   connection = {"text": "", "success": False}
@@ -58,7 +57,7 @@ def main():
       scores_dict += [{"index": str(i), "val": scores[i]}]
     output = {"truth": y, "prediction": pred,
               "img_path": img_path, "scores": scores_dict}
-  except Exception as e:
+  except Exception as e: # pylint: disable=broad-except
     logging.info("Exception occured: %s", e)
     # server connection failed
     connection["text"] = "Exception making request: {0}".format(e)

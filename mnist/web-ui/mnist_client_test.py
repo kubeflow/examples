@@ -12,11 +12,10 @@ Python Path Requirements:
 Manually running the test
  1. Configure your KUBECONFIG file to point to the desired cluster
  2. Use kubectl port-forward to forward a local port
-    to the gRPC port of TFServing.
+    to the gRPC port of TFServing; e.g.
+    kubectl -n ${NAMESPACE} port-forward service/mnist-service 9000:9000
 """
 
-import json
-import logging
 import os
 
 import mnist_client
@@ -24,7 +23,6 @@ import mnist_client
 from py import test_runner
 
 from kubeflow.testing import test_util
-from kubeflow.testing import util
 
 class MnistClientTest(test_util.TestCase):
   def __init__(self, args):
@@ -32,21 +30,27 @@ class MnistClientTest(test_util.TestCase):
     super(MnistClientTest, self).__init__(class_name="MnistClientTest",
                                           name="MnistClientTest")
 
-  def test_predict(self):
+  def test_predict(self):  # pylint: disable=no-self-use
     this_dir = os.path.dirname(__file__)
     data_dir = os.path.join(this_dir, "..", "data")
     img_path = os.path.abspath(data_dir)
 
-    x, y, _ = mnist_client.random_mnist(img_path)
+    x, _, _ = mnist_client.random_mnist(img_path)
 
     server_host = "localhost"
     server_port = 9000
     model_name = "mnist"
     # get prediction from TensorFlow server
-    pred, scores, ver = mnist_client.get_prediction(
+    pred, scores, _ = mnist_client.get_prediction(
       x, server_host=server_host, server_port=server_port,
       server_name=model_name, timeout=10)
 
+    if pred < 0 or pred >= 10:
+      raise ValueError("Prediction {0} is not in the range [0, 9]".format(pred))
+
+    if len(scores) != 10:
+      raise ValueError("Scores should have dimension 10. Got {0}".format(
+        scores))
     # TODO(jlewi): Should we do any additional validation?
 
 if __name__ == "__main__":
