@@ -58,7 +58,7 @@
       trafficRule: 'v1:100',
     },
     "tensorboard": {
-      image: "tensorflow/tensorflow:1.11.1",
+      image: "tensorflow/tensorflow:1.11.0",
       logDir: "gs://example/to/model/logdir",
       name: "tensorboard",
     },

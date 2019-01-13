@@ -24,6 +24,9 @@ local envParams = params + {
     "mnist-service"+: {
       namespace: 'jlewi',
     },
+    tensorboard+: {
+      logDir: 'gs://kubeflow-ci_temp/mnist-jlewi/',
+    },
   },
 };
 

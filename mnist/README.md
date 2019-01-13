@@ -464,14 +464,32 @@ There are various ways to monitor workflow/training job. In addition to using `k
 
 TODO: This section needs to be updated
 
-Tensorboard is deployed just before training starts. To connect:
+Configure TensorBoard to point to your model location
 
 ```
-PODNAME=$(kubectl get pod -l app=tensorboard-${JOB_NAME} -o jsonpath='{.items[0].metadata.name}')
-kubectl port-forward ${PODNAME} 6006:6006
+ks param set tensorboard --env=${KSENV} logDir ${LOGDIR}
+
 ```
 
-Tensorboard can now be accessed at [http://127.0.0.1:6006](http://127.0.0.1:6006).
+Assuming you followed the directions above if you used GCS you can use the following value
+
+```
+LOGDIR=gs://${BUCKET}/${MODEL_PATH}
+```
+
+Then you can deploy tensorboard
+
+```
+ks apply ${KSENV} -c tensorboard
+```
+
+To access tensorboard using port-forwarding
+
+```
+kubectl -n jlewi port-forward service/tensorboard-tb 8090:80
+```
+Tensorboard can now be accessed at [http://127.0.0.1:8090](http://127.0.0.1:8090).
+
 
 ## Serving the model
 
