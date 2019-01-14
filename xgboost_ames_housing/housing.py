@@ -30,7 +30,8 @@ def read_input(file_name, test_size=0.25):
 
   train_X, test_X, train_y, test_y = train_test_split(X.values,
                                                       y.values,
-                                                      test_size=test_size)
+                                                      test_size=test_size,
+                                                      shuffle=False)
 
   imputer = Imputer()
   train_X = imputer.fit_transform(train_X)
@@ -61,7 +62,7 @@ def train_model(train_X,
 def eval_model(model, test_X, test_y):
   """Evaluate the model performance."""
   predictions = model.predict(test_X)
-  print("MAE on test: {:.2f}".format(mean_absolute_error(predictions, test_y)))
+  print("mean_absolute_error={:.2f}".format(mean_absolute_error(predictions, test_y)))
 
 def save_model(model, model_file):
   """Save XGBoost model for serving."""
