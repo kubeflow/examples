@@ -88,6 +88,12 @@
     contextDir: "."
   },
 
-  steps: modelSteps.steps + ksonnetSteps.steps,
-  images: modelSteps.images + ksonnetSteps.images,
+  local uiSteps = subGraphTemplate {
+    name: "web-ui",
+    dockerFile: "./web-ui/Dockerfile",
+    contextDir: "./web-ui"
+  },
+
+  steps: modelSteps.steps + ksonnetSteps.steps + uiSteps.steps,
+  images: modelSteps.images + ksonnetSteps.images + uiSteps.images,
 }

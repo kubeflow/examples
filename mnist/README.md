@@ -464,14 +464,32 @@ There are various ways to monitor workflow/training job. In addition to using `k
 
 TODO: This section needs to be updated
 
-Tensorboard is deployed just before training starts. To connect:
+Configure TensorBoard to point to your model location
 
 ```
-PODNAME=$(kubectl get pod -l app=tensorboard-${JOB_NAME} -o jsonpath='{.items[0].metadata.name}')
-kubectl port-forward ${PODNAME} 6006:6006
+ks param set tensorboard --env=${KSENV} logDir ${LOGDIR}
+
 ```
 
-Tensorboard can now be accessed at [http://127.0.0.1:6006](http://127.0.0.1:6006).
+Assuming you followed the directions above if you used GCS you can use the following value
+
+```
+LOGDIR=gs://${BUCKET}/${MODEL_PATH}
+```
+
+Then you can deploy tensorboard
+
+```
+ks apply ${KSENV} -c tensorboard
+```
+
+To access tensorboard using port-forwarding
+
+```
+kubectl -n jlewi port-forward service/tensorboard-tb 8090:80
+```
+Tensorboard can now be accessed at [http://127.0.0.1:8090](http://127.0.0.1:8090).
+
 
 ## Serving the model
 
@@ -534,95 +552,33 @@ TODO: Add instructions
 
 TODO: Add instructions
 
-### Create the K8s service
+## Web Front End
 
-Next we need to create a K8s service to route traffic to our model
+The example comes with a simple web front end that can be used with your model.
 
-```
-ks apply jlewi -c mnist-service
-```
-
-By default the workflow deploys our model via Tensorflow Serving. Included in this example is a client that can query your model and provide results:
+To deploy the web front end
 
 ```
-POD_NAME=$(kubectl get pod -l=app=mnist-${JOB_NAME} -o jsonpath='{.items[0].metadata.name}')
-kubectl port-forward ${POD_NAME} 9000:9000 &
-TF_MNIST_IMAGE_PATH=data/7.png python mnist_client.py
+ks apply ${ENV} -c web-ui
 ```
 
-This should result in output similar to this, depending on how well your model was trained:
+### Connecting via port forwarding
+
+To connect to the web app via port-forwarding
+
 ```
-outputs {
-  key: "classes"
-  value {
-    dtype: DT_UINT8
-    tensor_shape {
-      dim {
-        size: 1
-      }
-    }
-    int_val: 7
-  }
-}
-outputs {
-  key: "predictions"
-  value {
-    dtype: DT_FLOAT
-    tensor_shape {
-      dim {
-        size: 1
-      }
-      dim {
-        size: 10
-      }
-    }
-    float_val: 0.0
-    float_val: 0.0
-    float_val: 0.0
-    float_val: 0.0
-    float_val: 0.0
-    float_val: 0.0
-    float_val: 0.0
-    float_val: 1.0
-    float_val: 0.0
-    float_val: 0.0
-  }
-}
-
-
-............................
-............................
-............................
-............................
-............................
-............................
-............................
-..............@@@@@@........
-..........@@@@@@@@@@........
-........@@@@@@@@@@@@........
-........@@@@@@@@.@@@........
-........@@@@....@@@@........
-................@@@@........
-...............@@@@.........
-...............@@@@.........
-...............@@@..........
-..............@@@@..........
-..............@@@...........
-.............@@@@...........
-.............@@@............
-............@@@@............
-............@@@.............
-............@@@.............
-...........@@@..............
-..........@@@@..............
-..........@@@@..............
-..........@@................
-............................
-Your model says the above number is... 7!
+kubectl -n ${NAMESPACE} port-forward svc/web-ui 8080:80
 ```
 
-You can also omit `TF_MNIST_IMAGE_PATH`, and the client will pick a random number from the mnist test data. Run it repeatedly and see how your model fares!
+You should now be able to open up the web app at [http://localhost:8080](http://localhost:8080).
 
+### Using IAP on GCP
+
+If you are using GCP and have set up IAP then you can access the web UI at
+
+```
+https://${DEPLOYMENT}.endpoints.${PROJECT}.cloud.goog/${NAMESPACE}/mnist/
+```
 
 ## Conclusion and Next Steps
 

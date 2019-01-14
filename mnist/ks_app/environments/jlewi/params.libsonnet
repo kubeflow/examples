@@ -22,9 +22,10 @@ local envParams = params + {
       namespace: 'jlewi',
     },
     "mnist-service"+: {
-      name: 'jlewi-deploy-test',
       namespace: 'jlewi',
-      modelBasePath: 'gs://kubeflow-ci_temp/mnist-jlewi/export',
+    },
+    tensorboard+: {
+      logDir: 'gs://kubeflow-ci_temp/mnist-jlewi/',
     },
   },
 };
