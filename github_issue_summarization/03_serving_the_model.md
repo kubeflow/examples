@@ -19,7 +19,7 @@ You have two options for getting a model server
 
 ## Wrap the model into a Seldon Core microservice
 
-Set a couple of environment variables tospecify the GCP Project and the TAG you want to build the image for:
+Set a couple of environment variables to specify the GCP Project and the TAG you want to build the image for:
 
 ```
 PROJECT=my-gcp-project
