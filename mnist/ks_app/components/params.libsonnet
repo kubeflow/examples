@@ -52,10 +52,23 @@
     "mnist-service": {
       enablePrometheus: 'true',
       injectIstio: 'false',
-      modelName: 'null',
+      modelName: 'mnist',
       name: 'mnist-service',
       serviceType: 'ClusterIP',
       trafficRule: 'v1:100',
+    },
+    "tensorboard": {
+      image: "tensorflow/tensorflow:1.11.0",
+      logDir: "gs://example/to/model/logdir",
+      name: "tensorboard",
+    },
+    "web-ui": {
+      containerPort: 5000,
+      image: "gcr.io/kubeflow-examples/mnist/web-ui:v20190112-v0.2-142-g3b38225",
+      name: "web-ui",
+      replicas: 1,
+      servicePort: 80,
+      type: "ClusterIP",
     },
   },
 }
