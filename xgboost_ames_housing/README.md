@@ -152,16 +152,15 @@ tf-hub-0                                  1/1       Running   0          16m
 tf-job-dashboard-7b57c549c8-bfpp8         1/1       Running   0          16m
 tf-job-operator-594d8c7ddd-lqn8r          1/1       Running   0          16m
 ```
-Deploy the XGBoost model
 
-First, we need to upload our docker image to `gcr.io`.
+Second, we need to upload our docker image to `gcr.io`.
 
 ```
 gcloud auth configure-docker
 docker push gcr.io/${PROJECT_ID}/housingserve:latest
 ```
 
-We can start the serving service by running
+Finally, we can deploy the XGBoost model
 ```
 ks generate seldon-serve-simple-v1alpha2 xgboost-ames   \
                                 --name=xgboost-ames   \
