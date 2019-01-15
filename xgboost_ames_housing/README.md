@@ -35,7 +35,7 @@ directly download the image.
 
 ```
 IMAGE_NAME=ames-housing
-VERSION=v1
+VERSION=latest
 ```
 
 Use `gcloud` command to get the GCP project
@@ -59,7 +59,7 @@ gcloud auth configure-docker
 docker push gcr.io/${PROJECT_ID}/${IMAGE_NAME}:${VERSION}
 ```
 
-A public copy is available at `gcr.io/kubeflow-examples/ames-housing:v1`.
+A public copy is available at `gcr.io/kubeflow-examples/ames-housing:latest`.
 
 
 ## Model training on GKE
@@ -80,10 +80,10 @@ In this section we will run the above docker container on a [Google Kubernetes E
    * Use the `kubectl` command to run the image on GKE
    
      ```
-     kubectl create -f py-pod.yaml
+     kubectl create -f py-job.yaml
      ```
    
-     Once the above command finishes you will have an XGBoost model available at Persistent Volume `/mnt/xgboost/housing.dat`
+     Once the above command finishes you will have an XGBoost model available at Persistent Volume `/mnt/xgboost/housing.dat`.
 
 ## Model Export
 The model is exported to the location `/tmp/ames/housing.dat`. We will use [Seldon Core](https://github.com/SeldonIO/seldon-core/) to serve the model asset. In order to make the model servable we have created `xgboost/seldon_serve` with the following assets
