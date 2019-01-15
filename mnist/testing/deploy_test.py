@@ -31,6 +31,8 @@ from kubeflow.testing import ks_util
 from kubeflow.testing import test_util
 from kubeflow.testing import util
 
+# TODO(jlewi): Should we refactor this to use pytest like predict_test
+# and not depend on test_runner.
 class MnistDeployTest(test_util.TestCase):
   def __init__(self, args):
     namespace, name, env = test_runner.parse_runtime_params(args)

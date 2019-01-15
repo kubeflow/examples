@@ -15,7 +15,7 @@ local defaultParams = {
   dataVolume: "kubeflow-test-volume",
 
   // Default step image:
-  stepImage: "gcr.io/kubeflow-ci/test-worker:v20190104-f2a1cdf-e3b0c4",
+  stepImage: "gcr.io/kubeflow-ci/test-worker/test-worker:v20190116-b7abb8d-e3b0c4",
 
   // Which Kubeflow cluster to use for running TFJobs on.
   kfProject: "kubeflow-ci",
@@ -86,6 +86,16 @@ local kubeConfig = testDir + "/.kube/kubeconfig";
 // Namespace where tests should run
 local testNamespace = "mnist-" + prowDict["BUILD_ID"];
 
+// The directory within the kubeflow_testing submodule containing
+// py scripts to use.
+local kubeflowTestingPy = srcRootDir + "/kubeflow/testing/py";
+local tfOperatorPy = srcRootDir + "/kubeflow/tf-operator";
+
+// Workflow template is the name of the workflow template; typically the name of the ks component.
+// This is used as a label to make it easy to identify all Argo workflows created from a given
+// template.
+local workflow_template = "mnist";
+
 // Build template is a template for constructing Argo step templates.
 //
 // step_name: Name for the template
@@ -103,20 +113,22 @@ local buildTemplate = {
   workingDir:: null,
   env_vars:: [],
   side_cars: [],
-
+  pythonPath: kubeflowTestingPy,
 
   activeDeadlineSeconds: 1800,  // Set 30 minute timeout for each template
 
   local template = self,
-
-  // The directory within the kubeflow_testing submodule containing
-  // py scripts to use.
-  local kubeflowTestingPy = srcRootDir + "/kubeflow/testing/py",
-  local tfOperatorPy = srcRootDir + "/kubeflow/tf-operator",
-
+ 
   // Actual template for Argo
   argoTemplate: {
     name: template.name,
+    metadata: {
+      labels: prowDict + {
+        workflow: params.name,
+        workflow_template: workflow_template,
+        step_name: + template.name,
+      },
+    },
     container: {
       command: template.command,
       name: template.name,
@@ -126,7 +138,7 @@ local buildTemplate = {
         {
           // Add the source directories to the python path.
           name: "PYTHONPATH",
-          value: kubeflowTestingPy + ":" + tfOperatorPy,
+          value: template.pythonPath,
         },
         {
           name: "GOOGLE_APPLICATION_CREDENTIALS",
@@ -178,7 +190,8 @@ local dagTemplates = [
 
       env_vars: [{
         name: "EXTRA_REPOS",
-        value: "kubeflow/testing@HEAD;kubeflow/tf-operator@HEAD",
+        // TODO(jlewi): Pin to commit on master when #281 is checked in.
+        value: "kubeflow/testing@HEAD:281;kubeflow/tf-operator@HEAD",
       }],
     },
     dependencies: null,
@@ -305,26 +318,53 @@ local dagTemplates = [
           "envVariables=GOOGLE_APPLICATION_CREDENTIALS=/var/secrets/user-gcp-sa.json",
           "secret=user-gcp-sa=/var/secrets",
       ])],
+      // This test only we need to add tfOperatorPy.
+      // We don't want to add it to the other steps because
+      // of a top level path conflict see
+      // https://github.com/kubeflow/tf-operator/issues/914
+      pythonPath: kubeflowTestingPy + ":" + tfOperatorPy,
       workingDir: srcDir + "/mnist/testing",
     },
     dependencies: ["build-images", "create-namespace"],
   },  // tfjob-test
-  {
-    // Run the python test for TFJob
+  {   
     template: buildTemplate {
       name: "deploy-test",
       command: [
         "python",
-        "deploy_test.py",        
+        "deploy_test.py",
         "--params=" + std.join(",", [
           "name=mnist-test-" + prowDict["BUILD_ID"], 
           "namespace=" + testNamespace,          
           "modelBasePath=" + modelDir  + "/export",
           "exportDir=" + modelDir,
       ])],
+      // This test only we need to add tfOperatorPy.
+      // We don't want to add it to the other steps because
+      // of a top level path conflict see
+      // https://github.com/kubeflow/tf-operator/issues/914
+      pythonPath: kubeflowTestingPy + ":" + tfOperatorPy,
       workingDir: srcDir + "/mnist/testing",
     },
     dependencies: ["tfjob-test"],
+  },  // deploy-test
+  {
+    template: buildTemplate {
+      name: "predict-test",
+      command: [        
+        "pytest",
+        "predict_test.py",
+        // I think -s mean stdout/stderr will print out to aid in debugging.
+        // Failures still appear to be captured and stored in the junit file.
+        "-s",
+        // Test timeout in seconds.
+        "--timeout=500",
+        "--junitxml=" + artifactsDir + "/junit_predict-test.xml",
+        "--namespace=" + testNamespace,
+      ],
+      workingDir: srcDir + "/mnist/testing",
+    },
+    dependencies: ["deploy-test"],
   },  // deploy-test
   // TODO(jlewi): We should add a non-distributed test that just uses the default values.
 ];
