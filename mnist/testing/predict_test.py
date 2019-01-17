@@ -71,8 +71,10 @@ def test_predict(master, namespace):
   r = requests.post(url, json=instances, headers=headers, verify=False)
 
   if r.status_code == requests.codes.NOT_FOUND:
-    logging.info("Request to %s returned 404", url)
-    return
+    message = "Request to {0} returned 404".format(url)
+    logging.error(msg)
+    raise RuntimeError(message)
+
   if r.status_code != requests.codes.OK:
     msg = "Request to {0} exited with status code: {1} and content: {2}".format(
       url, r.status_code, r.content)
