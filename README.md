@@ -1,13 +1,13 @@
 	# kubeflow-examples
 
 A repository to share extended Kubeflow examples and tutorials to demonstrate machine learning
-concepts, data science workflows, and Kubeflow deployments. They illustrate the happy path,
+concepts, data science workflows, and Kubeflow deployments. The examples illustrate the happy path,
 acting as a starting point for new users and a reference guide for experienced users.
 
-This repository is home to three types of examples:
-1. [End-to-end](#end-to-end)
-1. [Component-focused](#component-focused)
-1. [Application-specific](#application-specific)
+This repository is home to the following types of examples and demos:
+* [End-to-end](#end-to-end)
+* [Component-focused](#component-focused)
+* [Demos](#demos)
 
 ## End-to-end
 
@@ -19,8 +19,20 @@ This example covers the following concepts:
 1. Connecting to Jupyterhub
 1. Shared persistent storage
 1. Training a Tensorflow model
-  1. CPU
-  1. GPU
+    1. CPU
+    1. GPU
+1. Serving with Seldon Core
+1. Flask front-end
+
+### [Pytorch MNIST](./pytorch_mnist)
+Author: [David Sabater](https://github.com/dsdinter)
+
+This example covers the following concepts:
+1. Distributed Data Parallel (DDP) training with Pytorch on CPU and GPU
+1. Shared persistent storage
+1. Training a Pytorch model
+    1. CPU
+    1. GPU
 1. Serving with Seldon Core
 1. Flask front-end
 
@@ -78,10 +90,19 @@ This example covers the following concepts:
 1. GCS and GKE
 1. Serving with Seldon Core
 
+## Demos
 
-## Application-specific
+Demos are for showing Kubeflow or one of its components publicly, with the
+intent of highlighting product vision, not necessarily teaching. In contrast,
+the goal of the **examples** is to provide a self-guided walkthrough of
+Kubeflow or one of its components, for the purpose of teaching you how to
+install and use the product.
 
-1.
+In an *example*, all commands should be embedded in the process and explained.
+In a *demo*, most details should be done behind the scenes, to optimize for
+ on-stage rhythm and limited timing.
+
+You can find the demos in the [`/demos` directory](demos/).
 
 ## Third-party hosted
 
@@ -98,4 +119,3 @@ This example covers the following concepts:
 In the interest of fostering an open and welcoming environment, we as contributors and maintainers pledge to making participation in our project and our community a harassment-free experience for everyone, regardless of age, body size, disability, ethnicity, gender identity and expression, level of experience, education, socio-economic status, nationality, personal appearance, race, religion, or sexual identity and orientation.
 
 The Kubeflow community is guided by our [Code of Conduct](https://github.com/kubeflow/community/blob/master/CODE_OF_CONDUCT.md), which we encourage everybody to read before participating.
-

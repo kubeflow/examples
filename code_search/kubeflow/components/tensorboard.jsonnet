@@ -101,3 +101,4 @@ local deployment = {
 };
 
 std.prune(k.core.v1.list.new([service, deployment]))
+

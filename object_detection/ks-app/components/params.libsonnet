@@ -35,7 +35,7 @@
     },
     "tf-training-job": {
       image: 'lcastell/pets_object_detection',
-      mountPath: '/pets-data',
+      mountPath: '/pets_data',
       name: 'tf-training-job',
       numGpu: 0,
       numPs: 1,
@@ -64,6 +64,8 @@
       numGpus: 1,
     },
     "pets-model": {
+      defaultCpuImage: 'tensorflow/serving:1.10.0',
+      defaultGpuImage: 'tensorflow/serving:1.10.0-gpu',
       deployHttpProxy: true,
       modelPath: '/mnt/exported_graphs/saved_model',
       modelStorageType: 'nfs',

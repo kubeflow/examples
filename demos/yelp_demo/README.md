@@ -5,89 +5,57 @@ presentation to public audiences.
 
 The base demo includes the following steps:
 
-1. [Install kubeflow locally](#1-install-kubeflow-locally)
-1. [Run training locally](#2-run-training-locally)
-1. [Install kubeflow on GKE](#3-install-kubeflow-on-gke)
-1. [Run training on GKE](#4-run-training-on-gke)
-1. [Create the serving and UI components](#5-create-the-serving-and-ui-components)
-1. [Bring up a notebook](#6-bring-up-a-notebook)
+1. [Setup your environment](#1-setup-your-environment)
+1. [Run training on CPUs](#2-run-training-on-cpus)
+1. [Run training on TPUs](#3-run-training-on-tpus)
+1. [Create the serving and UI components](#4-create-the-serving-and-ui-components)
+1. [Bring up a notebook](#5-bring-up-a-notebook)
+1. [Run a simple pipeline](#6-run-a-simple-pipeline)
+1. [Perform hyperparameter tuning](#7-perform-hyperparameter-tuning)
+1. [Run a better pipeline](#8-run-a-better-pipeline)
+1. [Cleanup](#9-cleanup)
 
-## Important! Pre-work
+## 1. Setup your environment
 
-Before completing any of the below steps, follow the instructions in
-[./demo_setup](https://github.com/kubeflow/examples/blob/master/demos/yelp_demo/demo_setup/README.md)
-to prepare for demonstrating Kubeflow:
+Follow the instructions in
+[demo_setup/README.md](https://github.com/kubeflow/examples/blob/master/demos/yelp_demo/demo_setup/README.md)
+to setup your environment and install Kubeflow with pipelines on an
+auto-provisioning GKE cluster with support for GPUs and TPUs.
+_Note: This was tested using the_
+_[v0.3.4-rc.1](https://github.com/kubeflow/kubeflow/tree/v0.3.4-rc.1)_
+_branch with a cherry-pick of_
+_[#1955](https://github.com/kubeflow/kubeflow/pull/1955)._
 
-* [Create a minikube cluster](https://github.com/kubeflow/examples/blob/master/demos/yelp_demo/demo_setup/README.md#4-create-a-minikube-cluster)
-* [Create a GKE cluster](https://github.com/kubeflow/examples/blob/master/demos/yelp_demo/demo_setup/README.md#5-create-a-gke-cluster)
+View the installed components in the GCP Console.
+*  In the
+[Kubernetes Engine](https://console.cloud.google.com/kubernetes)
+section, you will see a new cluster ${CLUSTER} with 3 `n1-standard-1` nodes
+*  Under
+[Workloads](https://console.cloud.google.com/kubernetes/workload),
+you will see all the default Kubeflow and pipeline components.
 
-## 1. Create clusters
-
-[Setup your environment](https://github.com/kubeflow/examples/tree/master/demos/yelp_demo/demo_setup#2-set-environment-variables)
-or source the base file:
+Source the environment file and activate the conda environment for pipelines:
 
 ```
-cd demo_setup
 source kubeflow-demo-base.env
+source activate kfp
 ```
 
-Create a minikube cluster:
+## 2. Run training on CPUs
+
+Navigate to the ksonnet app directory created by `kfctl` and retrieve the
+following files for the t2tcpu & t2ttpu jobs:
 
 ```
-minikube start \
-  --cpus 4 \
-  --memory 8096 \
-  --disk-size=50g \
-  --kubernetes-version v1.10.6
-```
-
-Create a GKE cluster with access to GPUs and TPUs:
-
-```
-gcloud beta container clusters create ${CLUSTER} \
-  --project ${DEMO_PROJECT} \
-  --zone ${ZONE} \
-  --accelerator type=nvidia-tesla-k80,count=2 \
-  --cluster-version 1.10.6-gke.2 \
-  --enable-ip-alias \
-  --enable-tpu \
-  --machine-type n1-highmem-8 \
-  --scopes cloud-platform,compute-rw,storage-rw \
-  --verbosity error
-```
-
-## 1. Install kubeflow locally
-
-Run the following script to create a ksonnet app for Kubeflow and deploy it:
-
-```
-export KUBEFLOW_VERSION=0.2.5
-curl https://raw.githubusercontent.com/kubeflow/kubeflow/v${KUBEFLOW_VERSION}/scripts/deploy.sh | bash
-```
-
-View the installed components:
-
-```
-kubectl get pod
-```
-
-## 2. Run training locally
-
-Retrieve the following files for the t2tcpu & t2ttpu jobs:
-
-```
-cd kubeflow_ks_app
-cp ${REPO_PATH}/demo/components/t2t[ct]pu.* components
-cp ${REPO_PATH}/demo/components/params.* components
+cd ks_app
+cp ${DEMO_REPO}/demo/components/t2t*pu.* components
+cp ${DEMO_REPO}/demo/components/params.* components
 ```
 
 Set parameter values for training:
 
 ```
-ks param set --env default t2tcpu \
-  cloud "minikube"
-ks param set --env default t2tcpu \
-  workers 2
+ks param set t2tcpu outputGCSPath ${GCS_TRAINING_OUTPUT_DIR_CPU}
 ```
 
 Generate manifests and apply to cluster:
@@ -99,7 +67,7 @@ ks apply default -c t2tcpu
 View the new training pod and wait until it has a `Running` status:
 
 ```
-kubectl get pod
+kubectl get pod -l tf_job_name=t2tcpu
 ```
 
 View the logs to watch training commence:
@@ -108,76 +76,18 @@ View the logs to watch training commence:
 kubectl logs -f t2tcpu-master-0 | grep INFO:tensorflow
 ```
 
-## 3. Install kubeflow on GKE
-
-Switch to a GKE cluster:
-
-```
-kubectl config use gke
-```
-
-Create an environment:
-
-```
-ks env add gke
-```
-
-Install kubeflow on the cluster:
-
-```
-ks apply gke -c kubeflow-core
-```
-
-View the installed components:
-
-```
-kubectl get pod
-```
-
-## 4. Run training on GKE
-
-### Distributed CPU training
+## 3. Run training on TPUs
 
 Set parameter values for training:
 
 ```
-ks param set --env gke t2tcpu \
-  outputGCSPath ${GCS_TRAINING_OUTPUT_DIR_CPU}
+ks param set t2ttpu outputGCSPath ${GCS_TRAINING_OUTPUT_DIR_TPU}
 ```
 
-Warning: this command can take hours(!) to complete if the number of steps is
-above 1000.
+Kick off training:
 
 ```
-ks apply gke -c t2tcpu
-```
-
-View the new training pod and wait until it has a `Running` status:
-
-```
-kubectl get pod
-```
-
-View the logs to watch training commence:
-
-```
-kubectl logs -f t2tcpu-master-0 | grep INFO:tensorflow
-```
-
-### Distributed TPU training
-
-Set parameter values for training:
-
-```
-ks param set --env gke t2ttpu \
-  outputGCSPath ${GCS_TRAINING_OUTPUT_DIR_TPU}
-```
-
-Warning: this command can take hours(!) to complete if the number of steps is
-above 1000.
-
-```
-ks apply gke -c t2ttpu
+ks apply default -c t2ttpu
 ```
 
 Verify that a TPU is being provisioned by viewing pod status. It should remain
@@ -194,58 +104,43 @@ Once it has `Running` status, view the logs to watch training commence:
 kubectl logs -f t2ttpu-master-0 | grep INFO:tensorflow
 ```
 
-## 5. Create the serving and UI components
+## 4. Create the serving and UI components
 
 Retrieve the following files for the serving & UI components:
 
 ```
-cp ${REPO_PATH}/demo/components/serving.* components
-cp ${REPO_PATH}/demo/components/ui.* components
+cp ${DEMO_REPO}/demo/components/serving.* components
+cp ${DEMO_REPO}/demo/components/ui.* components
 ```
 
 Create the serving and UI components:
 
 ```
-ks apply gke -c serving -c ui
+ks apply default -c serving -c ui
 ```
 
-Forward the port for viewing from a local browser:
+Connect to the UI by forwarding a port to the ambassador service:
+
 ```
-UI_POD=$(kubectl get po -l app=kubeflow-demo-ui | \
-  grep kubeflow-demo-ui | \
-  head -n 1 | \
-  cut -d " " -f 1 \
-)
-kubectl port-forward ${UI_POD} 8080:80
+kubectl port-forward svc/ambassador 8080:80
 ```
 
 Optional: If necessary, setup an SSH tunnel from your local laptop into the
 compute instance connecting to GKE:
 
 ```
-ssh $HOST -L 8080:localhost:8080
+ssh ${HOST} -L 8080:localhost:8080
 ```
 
-To show the naive version, navigate to [localhost:8080](localhost:8080) from a browser.
+To show the naive version, navigate to
+[localhost:8080/kubeflow_demo/](localhost:8080/kubeflow_demo/) from a browser.
 
 To show the ML version, navigate to
-[localhost:8080/kubeflow](localhost:8080/kubeflow) from a browser.
+[localhost:8080/kubeflow_demo/kubeflow](localhost:8080/kubeflow_demo/kubeflow) from a browser.
 
-## 6. Bring up a notebook
+## 5. Bring up a notebook
 
-Connect to the Central Dashboard by forwarding a port to one of the ambassador
-pods:
-
-```
-AMBASSADOR_POD=$(kubectl get po -l service=ambassador | \
-  grep ambassador | \
-  head -n 1 | \
-  cut -d " " -f 1 \
-)
-kubectl port-forward ${AMBASSADOR_POD} 8081:80
-```
-
-Open a browser and connect to [localhost:8081](localhost:8081).
+Open a browser and connect to the Central Dashboard at [localhost:8080/](localhost:8080/).
 Show the TF-job dashboard, then click on Jupyterhub.
 Log in with any username and password combination and wait until the page
 refreshes. Spawn a new pod with these resource requirements:
@@ -257,9 +152,110 @@ refreshes. Spawn a new pod with these resource requirements:
 | Memory                | 48G                                                                  |
 | Extra Resource Limits | `{"nvidia.com/gpu":2}`                                               |
 
+It will take a while for the pod to spawn. While you're waiting, watch for
+autoprovisioning to occur. View the Workload and Node status in the GCP console.
+
 Once the notebook environment is
 available, open a new terminal and upload this
 [Yelp notebook](notebooks/yelp.ipynb).
 
-Execute the notebook to show that it works.
+Ensure the kernel is set to Python 2, then execute the notebook.
+
+## 6. Run a simple pipeline
+
+Show the file `gpu-example-pipeline.py` as an example of a simple pipeline.
+
+Compile it to create a .tar.gz file:
+
+```
+./gpu-example-pipeline.py
+```
+
+View the pipelines UI locally by forwarding a port to the ml-pipeline-ui pod:
+
+```
+kubectl port-forward svc/ml-pipeline-ui 8081:80
+```
+
+In the browser, navigate to `localhost:8081` and create a new pipeline by
+uploading `gpu-example-pipeline.py.tar.gz`. Select the pipeline and click
+_Create experiment_. Use all suggested defaults.
+
+View the effects of autoprovisioning by observing the number of nodes increase.
+
+Select _Experiments_ from the left-hand side, then _Runs_. Click on the
+experiment run to view the graph and watch it execute.
+
+View the container logs for the training step and take note of the low accuracy (~0.113).
+
+## 7. Perform hyperparameter tuning
+
+In order to determine parameters that result in higher accuracy, use Katib
+to execute a Study, which defines a search space for performing training with a
+range of different parameters.
+
+Create a Study by applying an
+[example file](https://github.com/kubeflow/katib/blob/master/examples/gpu-example.yaml)
+to the cluster:
+
+```
+kubectl apply -f https://raw.githubusercontent.com/kubeflow/katib/master/examples/gpu-example.yaml
+```
+
+This creates a Studyjob object. To view it:
+
+```
+kubectl get studyjob
+kubectl describe studyjobs gpu-example
+```
+
+To view the Katib UI, connect to the modeldb-frontend pod:
+
+```
+kubectl port-forward svc/katib-ui 8082:80
+```
+
+In the browser, navigate to `localhost:8082/katib` and click on the
+gpu-example project. In the _Explore Visualizations_ section, select
+_Optimizer_ in the _Group By_ dropdown, then click _Compare_.
+
+
+View the creation of a new GPU node pool:
+
+```
+gcloud container node-pools list --cluster ${CLUSTER}
+```
+
+View the creation of new nodes:
+
+```
+kubectl get nodes
+```
+
+In the Katib UI, interact with the various graphs to determine which
+combination of parameters results in the highest accuracy. Grouping by optimizer
+type is one way to find consistently higher accuracies. Gather a set of
+parameters to use in a new run of the pipeline.
+
+## 8. Run a better pipeline
+
+In the pipelines UI, clone the previous experiment run and update the arguments
+to match the parameters for one of the runs with higher accuracies from the
+Katib UI. Execute the pipeline and watch for the resulting accuracy, which
+should be closer to 0.98.
+
+Approximately 5 minutes after the last run completes, check the cluster nodes
+to verify that GPU nodes have disappeared.
+
+
+## 9. Cleanup
+
+From the application directory created by `kfctl`, issue a cleanup command:
+
+```
+kfctl delete k8s
+```
+
+The cluster will scale back down to the default node pool, removing all nodes
+created by NAP.
 

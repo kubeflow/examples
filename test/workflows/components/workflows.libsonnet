@@ -163,10 +163,22 @@
                     name: "create-pr-symlink",
                     template: "create-pr-symlink",
                   },
-                  {
-                    name: "py-test",
-                    template: "py-test",
-                  },
+                  // test_py_checks runs all py files matching "_test.py"
+                  // This is currently commented out because the only matching tests
+                  // are manual tests for some of the examples and/or they require
+                  // dependencies (e.g. tensorflow) not in the generic test worker image.
+                  //                                
+                  // 
+                  // test_py_checks doesn't have options to exclude specific directories.
+                  // Since there are no other tests we just comment it out.
+                  //
+                  // TODO(https://github.com/kubeflow/testing/issues/240): Modify py_test
+                  // so we can exclude specific files.
+                  //
+                  // {
+                  //    name: "py-test",
+                  //    template: "py-test",
+                  // },
                   {
                     name: "py-lint",
                     template: "py-lint",

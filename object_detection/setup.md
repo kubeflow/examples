@@ -14,7 +14,7 @@ After completing the steps in the kubeflow getting started guide you will have t
 - A new namespace in you K8s cluster called `kubeflow`
 - The following pods in your kubernetes cluster in the `kubeflow` namespace:
 ```
-kubectl -n kubeflow get pods
+$ kubectl -n kubeflow get pods
 NAME                                      READY     STATUS    RESTARTS   AGE
 ambassador-7987df44b9-4pht8               2/2       Running   0          1m
 ambassador-7987df44b9-dh5h6               2/2       Running   0          1m
@@ -42,6 +42,9 @@ Let's make use of the app to continue with the tutorial.
 
 ```
 cd ks-app
+ENV=default
+ks env add ${ENV} --context=`kubectl config current-context`
+ks env set ${ENV} --namespace kubeflow
 ```
 
 ## Preparing the training data
@@ -49,7 +52,7 @@ cd ks-app
 **Note:** TensorFlow works with many file systems like HDFS and S3, you can use
 them to push the dataset and other configurations there and skip the Download and Decompress steps in this tutorial.
 
-First let's create a PVC to store the data. This step assumes that your K8s cluster has [Dynamic Volume Provisioning](https://kubernetes.io/docs/concepts/storage/dynamic-provisioning/) enabled.
+First let's create a PVC to store the data.
 
 ```
 # First, lets configure and apply the pets-pvc to create a PVC where the training data will be stored
@@ -62,6 +65,26 @@ The command above will create a PVC with `ReadWriteMany` access mode if your Kub
 does not support this feature you can modify the `accessMode` value to create the PVC in `ReadWriteOnce`
 and before you execute the tf-job to train the model add a `nodeSelector:` configuration to execute the pods
 in the same node. You can find more about assigning pods to specific nodes [here](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/)
+
+This step assumes that your K8s cluster has [Dynamic Volume Provisioning](https://kubernetes.io/docs/concepts/storage/dynamic-provisioning/) enabled and
+the default Storage Class is created. You can check if the assumption is ready like below (a storageclass with `(default)` notation need exist):
+
+```
+$ kubectl get storageclass
+NAME                 PROVISIONER               AGE
+standard (default)   kubernetes.io/gce-pd      1d
+gold                 kubernetes.io/gce-pd      1d
+```
+
+Otherwise you can find that the PVC remains `Pending` status.
+
+```
+$ kubectl get pvc pets-pvc -n kubeflow
+NAME        STATUS    VOLUME    CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+pets-pvc    Pending                                                      28s
+```
+
+If your cluster doesn't have defined default storageclass, you can create a [PersistentVolume](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) manually to make the PVC work.
 
 Now we will get the data we need to prepare our training pipeline:
 
@@ -107,7 +130,7 @@ Now we will configure and apply the `decompress-data-job` component:
 ```
 ANNOTATIONS_PATH="${MOUNT_PATH}/annotations.tar.gz"
 DATASET_PATH="${MOUNT_PATH}/images.tar.gz"
-PRE_TRAINED_MODEL_PATH = "${MOUNT_PATH}/faster_rcnn_resnet101_coco_2018_01_28.tar.gz"
+PRE_TRAINED_MODEL_PATH="${MOUNT_PATH}/faster_rcnn_resnet101_coco_2018_01_28.tar.gz"
 
 ks param set decompress-data-job mountPath ${MOUNT_PATH}
 ks param set decompress-data-job pvc ${PVC}

@@ -26,18 +26,45 @@ class PipelineCLIOptions(pipeline_options.StandardOptions,
 def add_parser_arguments(parser):
   additional_args_parser = parser.add_argument_group('Custom Arguments')
   additional_args_parser.add_argument('--target_dataset', metavar='', type=str,
-                      help='BigQuery dataset for output results')
+                                      help='BigQuery dataset for output results')
   additional_args_parser.add_argument('--pre_transformed', action='store_true',
                       help='Use a pre-transformed BigQuery dataset')
+  additional_args_parser.add_argument('--wait_until_finished', action='store_true',
+                      help='Wait until preprocess job is finished')
+
+  additional_args_parser.add_argument('--github_files', default='',
+                    help=('If specified read the GitHub dataset '
+                          'from the specified json files. Each line of text '
+                          'should be a json record with two fields content and '
+                          'repo_path'))
+
+  additional_args_parser.add_argument('--github_table', default='',
+                      help=('If specified read the entire GitHub dataset '
+                            'specified as PROJECT:DATASET.TABLE. If not '
+                            'specified we run a query to filter the data.'))
+  additional_args_parser.add_argument('--failed_tokenize_table', metavar='', type=str,
+                                   help='The BigQuery table containing the '
+                                        'failed tokenize entry. This should be '
+                                        'of the form PROJECT:DATASET.TABLE.')
 
   predict_args_parser = parser.add_argument_group('Batch Prediction Arguments')
+  predict_args_parser.add_argument('--token_pairs_table', metavar='', type=str,
+                                   help='The BigQuery table containing the '
+                                        'token pairs. This should be '
+                                        'of the form PROJECT:DATASET.TABLE.')
+  predict_args_parser.add_argument('--function_embeddings_table', metavar='', type=str,
+                                   help='The BigQuery table to write the '
+                                        'function embeddings too. This should be '
+                                        'of the form PROJECT:DATASET.TABLE.')
   predict_args_parser.add_argument('--problem', metavar='', type=str,
                                    help='Name of the T2T problem')
   predict_args_parser.add_argument('--data_dir', metavar='', type=str,
                                    help='Path to directory of the T2T problem data')
   predict_args_parser.add_argument('--saved_model_dir', metavar='', type=str,
                                    help='Path to directory containing Tensorflow SavedModel')
-
+  predict_args_parser.add_argument('--output_dir', metavar='', type=str,
+                                   help='Path to directory where the output '
+                                        'should should be written.')
 
 def prepare_pipeline_opts(argv=None):
   """Prepare pipeline options from CLI arguments.

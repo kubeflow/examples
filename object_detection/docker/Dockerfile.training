@@ -43,7 +43,7 @@ RUN curl -O https://bootstrap.pypa.io/get-pip.py && \
     rm get-pip.py
 
 RUN pip --no-cache-dir install \
-        tensorflow
+        tensorflow==1.10.0
 
 RUN pip --no-cache-dir install \
         Cython \
@@ -76,4 +76,4 @@ WORKDIR $MODELS_HOME
 ARG pipeline_config_path
 ARG train_dir
 
-CMD ["python", "$MODELS_HOME/research/object_detection/model_main.py", "--pipeline_config_path=$pipeline_config_path"  "--model_dir=$train_dir"]
+CMD ["python", "$MODELS_HOME/research/object_detection/legacy/train.py", "--pipeline_config_path=$pipeline_config_path"  "--train_dir=$train_dir"]

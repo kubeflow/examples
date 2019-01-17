@@ -17,19 +17,15 @@ import argparse
 import logging
 import os
 import re
+import shutil
+import time
 import zipfile
 
-from google.cloud import storage  # pylint: disable=no-name-in-module
-import dill as dpickle
-import numpy as np
-import pandas as pd
-from keras import optimizers
-from keras.layers import GRU, BatchNormalization, Dense, Embedding, Input
-from keras.models import Model
-from sklearn.model_selection import train_test_split
+import tempfile
 
-from ktext.preprocess import processor
-from seq2seq_utils import load_encoder_inputs, load_text_processor
+from google.cloud import storage  # pylint: disable=no-name-in-module
+
+import trainer
 
 GCS_REGEX = re.compile("gs://([^/]*)(/.*)?")
 
@@ -43,12 +39,78 @@ def split_gcs_uri(gcs_uri):
     path = m.group(2).lstrip("/")
   return bucket, path
 
+def is_gcs_path(gcs_uri):
+  return GCS_REGEX.match(gcs_uri)
 
-def main():  # pylint: disable=too-many-statements
+def process_input_file(remote_file):
+  """Process the input file.
+
+  If its a GCS file we download it to a temporary local file. We do this
+  because Keras text preprocessing doesn't work with GCS.
+
+  If its a zip file we unpack it.
+
+  Args:
+    remote_file: The input
+
+  Returns:
+    csv_file: The local csv file to process
+  """
+  if is_gcs_path(remote_file):
+    # Download the input to a local
+    with tempfile.NamedTemporaryFile() as hf:
+      input_data = hf.name
+
+    logging.info("Copying %s to %s", remote_file, input_data)
+    input_data_gcs_bucket, input_data_gcs_path = split_gcs_uri(
+      remote_file)
+
+    logging.info("Download bucket %s object %s.", input_data_gcs_bucket,
+                 input_data_gcs_path)
+    bucket = storage.Bucket(storage.Client(), input_data_gcs_bucket)
+    storage.Blob(input_data_gcs_path, bucket).download_to_filename(
+      input_data)
+  else:
+    input_data = remote_file
+
+  ext = os.path.splitext(input_data)[-1]
+  if ext.lower() == '.zip':
+    zip_ref = zipfile.ZipFile(input_data, 'r')
+    zip_ref.extractall('.')
+    zip_ref.close()
+    # TODO(jlewi): Hardcoding the file in the Archive to use is brittle.
+    # We should probably just require the input to be a CSV file.:
+    csv_file = 'github_issues.csv'
+  else:
+    csv_file = input_data
+
+  return csv_file
+
+def wait_for_preprocessing(preprocessed_file):
+  """Wait for preprocessing.
+
+  In the case of distributed training the workers need to wait for the
+  preprocessing to be completed. But only the master runs preprocessing.
+  """
+  # TODO(jlewi): Why do we need to block waiting for the file?
+  # I think this is because only the master produces the npy
+  # files so the other workers need to wait for the files to arrive.
+  # It might be better to make preprocessing a separate job.
+  # We should move this code since its only needed when using
+  # TF.Estimator
+  while True:
+    if os.path.isfile(preprocessed_file):
+      break
+    logging.info("Waiting for dataset")
+    time.sleep(2)
+
+def main(unparsed_args=None):  # pylint: disable=too-many-statements
   # Parsing flags.
   parser = argparse.ArgumentParser()
   parser.add_argument("--sample_size", type=int, default=2000000)
-  parser.add_argument("--learning_rate", default="0.001")
+  parser.add_argument("--num_epochs", type=int, default=7,
+                      help="Number of training epochs.")
+  parser.add_argument("--learning_rate", default=0.001, type=float)
 
   parser.add_argument(
     "--input_data",
@@ -56,27 +118,11 @@ def main():  # pylint: disable=too-many-statements
     default="",
     help="The input location. Can be a GCS or local file path.")
 
-  # TODO(jlewi): The following arguments are deprecated; just
-  # use input_data. We should remove them as soon as all call sites
-  # are updated.
-  parser.add_argument(
-    "--input_data_gcs_bucket", type=str, default="kubeflow-examples")
-  parser.add_argument(
-    "--input_data_gcs_path",
-    type=str,
-    default="github-issue-summarization-data/github-issues.zip")
-
   parser.add_argument(
     "--output_model",
     type=str,
     default="",
     help="The output location for the model GCS or local file path.")
-
-  parser.add_argument("--output_model_gcs_bucket", type=str, default="")
-  parser.add_argument(
-    "--output_model_gcs_path",
-    type=str,
-    default="github-issue-summarization-data")
 
   parser.add_argument(
     "--output_body_preprocessor_dpkl",
@@ -90,10 +136,14 @@ def main():  # pylint: disable=too-many-statements
     "--output_train_title_vecs_npy", type=str, default="train_title_vecs.npy")
   parser.add_argument(
     "--output_train_body_vecs_npy", type=str, default="train_body_vecs.npy")
-  parser.add_argument(
-    "--output_model_h5", type=str, default="seq2seq_model_tutorial.h5")
 
-  args = parser.parse_args()
+  parser.add_argument(
+    "--mode",
+    type=str,
+    default="keras",
+    help="Whether to train using TF.estimator or Keras.")
+
+  args = parser.parse_args(unparsed_args)
 
   logging.basicConfig(
     level=logging.INFO,
@@ -104,184 +154,66 @@ def main():  # pylint: disable=too-many-statements
   logging.getLogger().setLevel(logging.INFO)
   logging.info(args)
 
-  learning_rate = float(args.learning_rate)
 
-  pd.set_option('display.max_colwidth', 500)
+  mode = args.mode.lower()
+  if not mode in ["estimator", "keras"]:
+    raise ValueError("Unrecognized mode %s; must be keras or estimator" % mode)
 
-  # For backwords compatibility
-  input_data_gcs_bucket = None
-  input_data_gcs_path = None
+  csv_file = process_input_file(args.input_data)
 
-  if not args.input_data:
-    # Since input_data isn't set fall back on old arguments.
-    input_data_gcs_bucket = args.input_data_gcs_bucket
-    input_data_gcs_path = args.input_data_gcs_path
-  else:
-    if args.input_data.startswith('gs://'):
-      input_data_gcs_bucket, input_data_gcs_path = split_gcs_uri(
-        args.input_data)
+  # Use a temporary directory for all the outputs.
+  # We will then copy the files to the final directory.
+  output_dir = tempfile.mkdtemp()
+  model_trainer = trainer.Trainer(output_dir)
+  model_trainer.preprocess(csv_file, args.sample_size)
 
-  if input_data_gcs_bucket:
-    logging.info("Download bucket %s object %s.", input_data_gcs_bucket,
-                 input_data_gcs_path)
-    bucket = storage.Bucket(storage.Client(), input_data_gcs_bucket)
-    args.input_data = 'github-issues.zip'
-    storage.Blob(input_data_gcs_path, bucket).download_to_filename(
-      args.input_data)
+  if mode == "estimator":
+    wait_for_preprocessing(model_trainer.preprocessed_bodies)
 
-  ext = os.path.splitext(args.input_data)[-1]
-  if ext.lower() == '.zip':
-    zip_ref = zipfile.ZipFile(args.input_data, 'r')
-    zip_ref.extractall('.')
-    zip_ref.close()
-    # TODO(jlewi): Hardcoding the file in the Archive to use is brittle.
-    # We should probably just require the input to be a CSV file.
-    csv_file = 'github_issues.csv'
-  else:
-    csv_file = args.input_data
+  model_trainer.build_model(args.learning_rate)
 
-  # Read in data sample 2M rows (for speed of tutorial)
-  traindf, testdf = train_test_split(
-    pd.read_csv(csv_file).sample(n=args.sample_size), test_size=.10)
+  # Tuples of (temporary, final) paths
+  pairs = []
 
-  # Print stats about the shape of the data.
-  logging.info('Train: %d rows %d columns', traindf.shape[0], traindf.shape[1])
-  logging.info('Test: %d rows %d columns', testdf.shape[0], testdf.shape[1])
+  if mode == "keras":
+    local_model_output = args.output_model
+    if is_gcs_path(args.output_model):
+      local_model_output = os.path.join(output_dir, "model.h5")
 
-  train_body_raw = traindf.body.tolist()
-  train_title_raw = traindf.issue_title.tolist()
+    model_trainer.train_keras(local_model_output,
+                              base_name=os.path.join(output_dir, "model-checkpoint"),
+                              epochs=args.num_epochs)
 
-  # Clean, tokenize, and apply padding / truncating such that each document
-  # length = 70. Also, retain only the top 8,000 words in the vocabulary and set
-  # the remaining words to 1 which will become common index for rare words.
-  body_pp = processor(keep_n=8000, padding_maxlen=70)
-  train_body_vecs = body_pp.fit_transform(train_body_raw)
+    model_trainer.evaluate_keras()
 
-  logging.info('Example original body: %s', train_body_raw[0])
-  logging.info('Example body after pre-processing: %s', train_body_vecs[0])
+    # With Keras we might need to write to a local directory and then
+    # copy to GCS.
+    pairs.append((local_model_output, args.output_model))
+  elif mode == "estimator":
+    # With TF.Estimator we should be able to write directly to GCS.
+    model_trainer.train_estimator()
 
-  # Instantiate a text processor for the titles, with some different parameters.
-  title_pp = processor(
-    append_indicators=True, keep_n=4500, padding_maxlen=12, padding='post')
+  pairs.extend([
+    (model_trainer.body_pp_file, args.output_body_preprocessor_dpkl),
+    (model_trainer.title_pp_file, args.output_title_preprocessor_dpkl),
+    (model_trainer.preprocessed_titles, args.output_train_title_vecs_npy),
+    (model_trainer.preprocessed_bodies, args.output_train_body_vecs_npy),])
+  # Copy outputs
+  for p in pairs:
+    local = p[0]
+    remote = p[1]
+    if local == remote:
+      continue
 
-  # process the title data
-  train_title_vecs = title_pp.fit_transform(train_title_raw)
+    logging.info("Copying %s to %s", local, remote)
 
-  logging.info('Example original title: %s', train_title_raw[0])
-  logging.info('Example title after pre-processing: %s', train_title_vecs[0])
-
-  # Save the preprocessor.
-  with open(args.output_body_preprocessor_dpkl, 'wb') as f:
-    dpickle.dump(body_pp, f)
-
-  with open(args.output_title_preprocessor_dpkl, 'wb') as f:
-    dpickle.dump(title_pp, f)
-
-  # Save the processed data.
-  np.save(args.output_train_title_vecs_npy, train_title_vecs)
-  np.save(args.output_train_body_vecs_npy, train_body_vecs)
-
-  _, doc_length = load_encoder_inputs(args.output_train_body_vecs_npy)
-
-  num_encoder_tokens, body_pp = load_text_processor(
-    args.output_body_preprocessor_dpkl)
-  num_decoder_tokens, title_pp = load_text_processor(
-    args.output_title_preprocessor_dpkl)
-
-  # Arbitrarly set latent dimension for embedding and hidden units
-  latent_dim = 300
-
-  ###############
-  # Encoder Model.
-  ###############
-  encoder_inputs = Input(shape=(doc_length,), name='Encoder-Input')
-
-  # Word embeding for encoder (ex: Issue Body)
-  x = Embedding(
-    num_encoder_tokens, latent_dim, name='Body-Word-Embedding',
-    mask_zero=False)(encoder_inputs)
-  x = BatchNormalization(name='Encoder-Batchnorm-1')(x)
-
-  # We do not need the `encoder_output` just the hidden state.
-  _, state_h = GRU(latent_dim, return_state=True, name='Encoder-Last-GRU')(x)
-
-  # Encapsulate the encoder as a separate entity so we can just
-  # encode without decoding if we want to.
-  encoder_model = Model(
-    inputs=encoder_inputs, outputs=state_h, name='Encoder-Model')
-
-  seq2seq_encoder_out = encoder_model(encoder_inputs)
-
-  ################
-  # Decoder Model.
-  ################
-  decoder_inputs = Input(
-    shape=(None,), name='Decoder-Input')  # for teacher forcing
-
-  # Word Embedding For Decoder (ex: Issue Titles)
-  dec_emb = Embedding(
-    num_decoder_tokens,
-    latent_dim,
-    name='Decoder-Word-Embedding',
-    mask_zero=False)(decoder_inputs)
-  dec_bn = BatchNormalization(name='Decoder-Batchnorm-1')(dec_emb)
-
-  # Set up the decoder, using `decoder_state_input` as initial state.
-  decoder_gru = GRU(
-    latent_dim, return_state=True, return_sequences=True, name='Decoder-GRU')
-  decoder_gru_output, _ = decoder_gru(dec_bn, initial_state=seq2seq_encoder_out)
-  x = BatchNormalization(name='Decoder-Batchnorm-2')(decoder_gru_output)
-
-  # Dense layer for prediction
-  decoder_dense = Dense(
-    num_decoder_tokens, activation='softmax', name='Final-Output-Dense')
-  decoder_outputs = decoder_dense(x)
-
-  ################
-  # Seq2Seq Model.
-  ################
-
-  seq2seq_Model = Model([encoder_inputs, decoder_inputs], decoder_outputs)
-
-  seq2seq_Model.compile(
-    optimizer=optimizers.Nadam(lr=learning_rate),
-    loss='sparse_categorical_crossentropy')
-
-  seq2seq_Model.summary()
-
-  #############
-  # Save model.
-  #############
-  seq2seq_Model.save(args.output_model_h5)
-
-  ######################
-  # Upload model to GCS.
-  ######################
-  # For backwords compatibility
-  output_model_gcs_bucket = None
-  output_model_gcs_path = None
-
-  if not args.output_model:
-    # Since input_data isn't set fall back on old arguments.
-    output_model_gcs_bucket = args.output_model_gcs_bucket
-    output_model_gcs_path = args.output_model_gcs_path
-  else:
-    if args.output_model.startswith('gs://'):
-      output_model_gcs_bucket, output_model_gcs_path = split_gcs_uri(
-        args.output_model)
-
-  if output_model_gcs_bucket:
-    logging.info("Uploading model files to bucket %s path %s.",
-                 output_model_gcs_bucket, output_model_gcs_path)
-    bucket = storage.Bucket(storage.Client(), output_model_gcs_bucket)
-    storage.Blob(
-      output_model_gcs_path + "/" + args.output_model_h5, bucket).upload_from_filename(
-      args.output_model_h5)
-    storage.Blob(output_model_gcs_path + "/" + args.output_body_preprocessor_dpkl,
-                 bucket).upload_from_filename(args.output_body_preprocessor_dpkl)
-    storage.Blob(output_model_gcs_path + "/" + args.output_title_preprocessor_dpkl,
-                 bucket).upload_from_filename(args.output_title_preprocessor_dpkl)
-
+    if is_gcs_path(remote):
+      bucket_name, path = split_gcs_uri(remote)
+      bucket = storage.Bucket(storage.Client(), bucket_name)
+      blob = storage.Blob(path, bucket)
+      blob.upload_from_filename(local)
+    else:
+      shutil.move(local, remote)
 
 if __name__ == '__main__':
   main()

@@ -1,8 +1,19 @@
+import logging
+import sys
+
 import ast
 import astor
 import nltk.tokenize as tokenize
 import spacy
 
+en = spacy.load('en')
+
+# In python2 we need to call decode but in python3 strings
+# are always unicode.
+def _maybe_decode(s):
+  if sys.version_info[0] < 3:
+    return s.decode("utf-8")
+  return s
 
 def tokenize_docstring(text):
   """Tokenize docstrings.
@@ -13,8 +24,7 @@ def tokenize_docstring(text):
   Returns:
     A list of strings representing the tokens in the docstring.
   """
-  en = spacy.load('en')
-  tokens = en.tokenizer(text.decode('utf8'))
+  tokens = en.tokenizer(_maybe_decode(text))
   return [token.text.lower() for token in tokens if not token.is_space]
 
 
@@ -30,7 +40,6 @@ def tokenize_code(text):
     A list of strings representing the tokens in the code.
   """
   return tokenize.RegexpTokenizer(r'\w+').tokenize(text)
-
 
 def get_function_docstring_pairs(blob):
   """Extract (function/method, docstring) pairs from a given code blob.
@@ -67,14 +76,19 @@ def get_function_docstring_pairs(blob):
       source = astor.to_source(f)
       docstring = ast.get_docstring(f) if ast.get_docstring(f) else ''
       func = source.replace(ast.get_docstring(f, clean=False), '') if docstring else source
+
+      docstring_tokens = tokenize_docstring(docstring.split('\n\n')[0])
       pair_tuple = (
-        f.name.decode('utf-8'),
-        str(f.lineno).decode('utf-8'),
-        source.decode('utf-8'),
-        ' '.join(tokenize_code(func)).decode('utf-8'),
-        ' '.join(tokenize_docstring(docstring.split('\n\n')[0])).decode('utf-8'),
+        _maybe_decode(f.name),
+        _maybe_decode(str(f.lineno)),
+        _maybe_decode(source),
+        _maybe_decode(' '.join(tokenize_code(func))),
+        _maybe_decode(' '.join(docstring_tokens)),
       )
       pairs.append(pair_tuple)
-  except (AssertionError, MemoryError, SyntaxError, UnicodeEncodeError):
-    pass
+  # TODO(jlewi): Can we be more selective in swallowing errors?
+  except (AssertionError, MemoryError, SyntaxError,
+          UnicodeEncodeError) as e:
+    logging.error("Exception occurred parsing code: %s", e)
+
   return pairs

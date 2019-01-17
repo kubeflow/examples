@@ -19,6 +19,8 @@ Ensure that you have at least the below versions of these tools (latest as of
 
 * [docker](#install-docker) v18.03.1-ce
 * [gcloud](#install-gcloud) v202.0.0
+* [kfctl](#install-kfctl) v0.3.1
+* [kfp](#install-kfp) v0.1.3-rc.2
 * [ksonnet](#install-ksonnet) v0.12.0
 * [kubectl](#install-kubectl) v1.10.3
 * [miniconda](#install-miniconda) v4.4.10
@@ -36,6 +38,43 @@ The latest version for MacOS can be found
 
 The Google Cloud SDK can be found
 [here](https://cloud.google.com/sdk/downloads).
+
+### Install kfctl
+
+Clone the Kubeflow GitHub repository, create a symlink to `kfctl.sh`, and add the
+directory to your $PATH:
+
+```
+export KUBEFLOW_TAG=v0.3.1
+git clone git@github.com:kubeflow/kubeflow.git
+cd kubeflow/scripts
+git checkout ${KUBEFLOW_TAG}
+ln -s kfctl.sh kfctl
+export PATH=${PATH}:`pwd`
+```
+
+### Install kfp
+
+Create a clean python environment for installing Kubeflow Pipelines:
+
+```
+conda create --name kfp python=3.6
+source activate kfp
+```
+
+Install the Kubeflow Pipelines SDK:
+
+```
+pip install https://storage.googleapis.com/ml-pipeline/release/0.1.3-rc.2/kfp.tar.gz --upgrade
+```
+
+#### Troubleshooting
+
+If you encounter any errors, run this before repeating the previous command:
+
+```
+pip uninstall kfp
+```
 
 ### Install ksonnet
 
@@ -335,9 +374,9 @@ To start a minikube instance:
 ```
 minikube start \
   --cpus 4 \
-  --memory 8096 \
+  --memory 8192 \
   --disk-size=50g \
-  --kubernetes-version v1.10.6
+  --kubernetes-version v1.10.7
 ```
 
 ### Create k8s secrets
@@ -348,14 +387,24 @@ credentials. One of type `docker-registry` for pulling images from GCR and one
 one of type `generic` for accessing private assets.
 
 ```
-kubectl -n $NAMESPACE create secret docker-registry gcp-registry-credentials \
+kubectl create namespace ${NAMESPACE}
+
+kubectl -n ${NAMESPACE} create secret docker-registry gcp-registry-credentials \
   --docker-server=gcr.io \
   --docker-username=_json_key \
-  --docker-password="$(cat $HOME/.ssh/minikube_key.json)" \
+  --docker-password="$(cat ${HOME}/.ssh/minikube_key.json)" \
   --docker-email=minikube@${DEMO_PROJECT}.iam.gserviceaccount.com
 
-kubectl -n $NAMESPACE create secret generic gcp-credentials \
+kubectl -n ${NAMESPACE} create secret generic gcp-credentials \
   --from-file=key.json="${HOME}/.ssh/minikube_key.json"
+```
+
+### Setup context to include namespace
+
+This allows the use of `kubectl` without needing to specify `-n ${NAMESPACE}`
+
+```
+./create_context.sh minikube ${NAMESPACE}
 ```
 
 ### Prepare the ksonnet app
@@ -387,65 +436,138 @@ ks param set --env minikube serving modelPath ${GCS_TRAINING_OUTPUT_DIR_LOCAL}/e
 
 ## 5. Create a GKE cluster
 
-### Setup a CPU/GPU/TPU cluster
+Choose one of the following options for creating a cluster and installing
+Kubeflow with pipelines:
 
-Choose one of two ways to create a GKE cluster:
+* Click-to-deploy
+* CLI (kfctl)
 
-1. gcloud command line OR
-1. Deployment Manager (no TPU support)
+### Click-to-deploy
+
+This is the recommended path if you do *not* require access to GKE beta
+features such as TPUs and node auto-provisioning (NAP).
+
+Generate a web app Client ID and Client Secret by following the instructions
+[here](https://www.kubeflow.org/docs/started/getting-started-gke/#create-oauth-client-credentials).
+Save these as environment variables for easy access.
+
+In the browser, navigate to the
+[Click-to-deploy app](https://deploy.kubeflow.cloud/). Enter the project name,
+along with the Client ID and Client Secret previously generated. Select the
+desired ${ZONE} and latest version of Kubeflow, then click _Create Deployment_.
+
+In the [GCP Console](https://console.cloud.google.com/kubernetes), navigate to the
+Kubernetes Engine panel to watch the cluster creation process. This results in a
+full cluster with Kubeflow installed.
+
+### CLI (kfctl)
+
+If you require GKE beta features such as TPUs and node autoprovisioning (NAP), these
+instructions describe manual cluster creation and Kubeflow installation
+with kfctl.
+
+#### Create service accounts
+
+Create service accounts, add permissions, and download credentials
+
+```
+ADMIN_EMAIL=${CLUSTER}-admin@${PROJECT}.iam.gserviceaccount.com
+ADMIN_FILE=${HOME}/.ssh/${ADMIN_EMAIL}.json
+USER_EMAIL=${CLUSTER}-user@${PROJECT}.iam.gserviceaccount.com
+USER_FILE=${HOME}/.ssh/${USER_EMAIL}.json
+
+gcloud iam service-accounts create ${CLUSTER}-admin --display-name=${CLUSTER}-admin
+gcloud iam service-accounts create ${CLUSTER}-user --display-name=${CLUSTER}-user
+
+gcloud projects add-iam-policy-binding ${PROJECT} \
+  --member=serviceAccount:${ADMIN_EMAIL} \
+  --role=roles/source.admin
+gcloud projects add-iam-policy-binding ${PROJECT} \
+  --member=serviceAccount:${ADMIN_EMAIL} \
+  --role=roles/servicemanagement.admin
+gcloud projects add-iam-policy-binding ${PROJECT} \
+  --member=serviceAccount:${ADMIN_EMAIL} \
+  --role=roles/compute.networkAdmin
+gcloud projects add-iam-policy-binding ${PROJECT} \
+  --member=serviceAccount:${ADMIN_EMAIL} \
+  --role=roles/storage.admin
+
+gcloud projects add-iam-policy-binding ${PROJECT} \
+  --member=serviceAccount:${USER_EMAIL} \
+  --role=roles/cloudbuild.builds.editor
+gcloud projects add-iam-policy-binding ${PROJECT} \
+  --member=serviceAccount:${USER_EMAIL} \
+  --role=roles/viewer
+gcloud projects add-iam-policy-binding ${PROJECT} \
+  --member=serviceAccount:${USER_EMAIL} \
+  --role=roles/source.admin
+gcloud projects add-iam-policy-binding ${PROJECT} \
+  --member=serviceAccount:${USER_EMAIL} \
+  --role=roles/storage.admin
+gcloud projects add-iam-policy-binding ${PROJECT} \
+  --member=serviceAccount:${USER_EMAIL} \
+  --role=roles/bigquery.admin
+gcloud projects add-iam-policy-binding ${PROJECT} \
+  --member=serviceAccount:${USER_EMAIL} \
+  --role=roles/dataflow.admin
+
+gcloud iam service-accounts keys create ${ADMIN_FILE} \
+  --project ${PROJECT} \
+  --iam-account ${ADMIN_EMAIL}
+gcloud iam service-accounts keys create ${USER_FILE} \
+  --project ${PROJECT} \
+  --iam-account ${USER_EMAIL}
+```
 
 #### Create the cluster with gcloud
 
+To create a cluster with auto-provisioning, run the following commands
+(estimated: 30 minutes):
+
 Follow the instructions
 [here](https://cloud.google.com/tpu/docs/kubernetes-engine-setup) to create a
-GKE cluster for use with TPUs and GPUs:
+GKE cluster for use with TPUs and node autoprovisiong (NAP) (estimated: 30
+minutes):
 
 ```
 gcloud beta container clusters create ${CLUSTER} \
   --project ${DEMO_PROJECT} \
   --zone ${ZONE} \
-  --accelerator type=nvidia-tesla-k80,count=2 \
-  --cluster-version 1.10.6-gke.2 \
+  --cluster-version 1.11 \
   --enable-ip-alias \
   --enable-tpu \
   --machine-type n1-highmem-8 \
+  --num-nodes=5 \
   --scopes cloud-platform,compute-rw,storage-rw \
   --verbosity error
+
+# scale down cluster to 3 (initial 5 is just to prevent master restarts due to upscaling)
+# we cannot use 0 because then cluster autoscaler treats the cluster as unhealthy.
+# Also having a few small non-gpu nodes is needed to handle system pods
+gcloud container clusters resize ${CLUSTER} \
+  --project ${DEMO_PROJECT} \
+  --zone ${ZONE} \
+  --size=3 \
+  --node-pool=default-pool
+
+# enable node auto-provisioning
+gcloud beta container clusters update ${CLUSTER} \
+  --project ${DEMO_PROJECT} \
+  --zone ${ZONE} \
+  --enable-autoprovisioning \
+  --max-cpu 48 \
+  --max-memory 312 \
+  --max-accelerator=type=nvidia-tesla-k80,count=8
 ```
 
-#### OPTIONAL: Create the cluster with Deployment Manager instead (no TPUs)
-
-Create a config file:
+Once the cluster has been created, install GPU drivers:
 
 ```
-cp gke/cluster-kubeflow-demo-base.yaml gke/cluster-${DEMO_PROJECT}.yaml
+kubectl apply -f https://raw.githubusercontent.com/GoogleCloudPlatform/container-engine-accelerators/master/daemonset.yaml
 ```
 
-Modify any desired values, such as cluster name. Issue the following command, which uses Deployment Manager to create a GKE
-cluster:
-
-```
-gcloud deployment-manager deployments create gke-${CLUSTER} \
-  --project=${DEMO_PROJECT} \
-  --config=gke/cluster-${DEMO_PROJECT}.yaml
-```
-
-#### Setup kubectl access
-
-The script [create_context.sh](./create_context.sh) creates a kubectl context
-referencing the correct namespace, enabling the use of `kubectl` in all future
-commands.
-
-```
-gcloud container clusters get-credentials ${CLUSTER} \
-  --project=${DEMO_PROJECT} \
-  --zone=${ZONE}
-./create_context.sh gke ${NAMESPACE}
-```
-
-#### Add RBAC permissions
-
-This allows your user to install kubeflow components on the cluster.
+Add RBAC permissions, which allows your user to install kubeflow components on
+the cluster:
 
 ```
 kubectl create clusterrolebinding cluster-admin-binding-${USER} \
@@ -453,57 +575,67 @@ kubectl create clusterrolebinding cluster-admin-binding-${USER} \
   --user $(gcloud config get-value account)
 ```
 
-#### Install GPU device drivers
+Setup kubectl access:
 
 ```
-kubectl create -f https://raw.githubusercontent.com/GoogleCloudPlatform/container-engine-accelerators/k8s-1.10/nvidia-driver-installer/cos/daemonset-preloaded.yaml
+kubectl create namespace kubeflow
+./create_context.sh gke ${NAMESPACE}
 ```
 
-#### Create the kubeflow namespace
+Setup OAuth environment variables ${CLIENT_ID} and ${CLIENT_SECRET} using the
+instructions
+[here](https://www.kubeflow.org/docs/started/getting-started-gke/#create-oauth-client-credentials).
 
 ```
-kubectl create namespace ${NAMESPACE}
+kubectl create secret generic kubeflow-oauth \
+  --from-literal=client_id=${CLIENT_ID} \
+  --from-literal=client_secret=${CLIENT_SECRET}
+
+kubectl create secret generic admin-gcp-sa \
+  --from-file=admin-gcp-sa.json=${ADMIN_FILE}
+
+kubectl create secret generic user-gcp-sa \
+  --from-file=user-gcp-sa.json=${USER_FILE}
 ```
 
-### Create k8s secrets
-
-Since our project is private, we need to provide access to resources via the use
-of service accounts. We need two different types of secrets for storing these
-credentials. One of type `docker-registry` for pulling images from GCR and one
-one of type `generic` for accessing private assets.
+#### Install Kubeflow with kfctl
 
 ```
-kubectl -n $NAMESPACE create secret docker-registry gcp-registry-credentials \
-  --docker-server=gcr.io \
-  --docker-username=_json_key \
-  --docker-password="$(cat $HOME/.ssh/${CLUSTER}_key.json)" \
-  --docker-email=${CLUSTER}@${DEMO_PROJECT}.iam.gserviceaccount.com
-
-kubectl -n $NAMESPACE create secret generic gcp-credentials \
-  --from-file=key.json="${HOME}/.ssh/${CLUSTER}_key.json"
+kfctl init ${CLUSTER} --platform gcp
+cd ${CLUSTER}
+kfctl generate k8s
+kfctl apply k8s
 ```
 
-#### Create the ksonnet environment
-
-The ksonnet app can be found in the [demo](../demo) directory of this repo. Add an
-environment referencing the newly created GKE cluster for deployment of each
-component.
+To change the settings for any component, apply the change in
+ks_app/components/params.libsonnet, then delete and recreate the component.
+For example, to make changes to jupyterhub:
 
 ```
-cd ../demo
-ks env add ${ENV} --namespace=${NAMESPACE}
+cd ks_app
+sed -i "" "s/jupyterHubAuthenticator: 'iap'/jupyterHubAuthenticator: 'null'/" components/params.libsonnet
+ks delete default -c jupyterhub
+ks apply default -c jupyterhub
 ```
+
+View the installed components in the GCP Console. In the
+[Kubernetes Engine](https://console.cloud.google.com/kubernetes)
+section, you will see a new cluster ${CLUSTER}. Under
+[Workloads](https://console.cloud.google.com/kubernetes/workload),
+you will see all the default Kubeflow and pipeline components.
 
 ## 6. Prepare the ksonnet app
 
-The ksonnet app can be found in the [demo](../demo) directory of this repo. Add an
-environment referencing the newly created GKE cluster for deployment of each
-component.
+The `kfctl` tool created a new ksonnet app in the directory `ks_app`.
+The ksonnet application files specific to this demo can be found in the
+[ks_app](../ks_app) directory of this repo.
 
 ### Set parameter values for training components
 
 ```
-ks param set --env ${ENV} t2tcpu \
+cd ks_app
+
+ks param set t2tcpu \
   dataDir ${GCS_TRAINING_DATA_DIR}
 ks param set --env ${ENV} t2tcpu \
   outputGCSPath ${GCS_TRAINING_OUTPUT_DIR_CPU}
