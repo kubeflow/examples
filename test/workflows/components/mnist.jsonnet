@@ -33,8 +33,7 @@ local defaultParams = {
   // But if we leave namespaces up; then we end up leaving the servers up which
   // uses up CPU.
   //
-  // DO NOT SUBMIT set back to true
-  deleteNamespace: false,
+  deleteNamespace: true,
 };
 
 local params = defaultParams + overrides;
@@ -483,6 +482,8 @@ local workflow = {
   },
   spec: {
     entrypoint: "e2e",
+    // Have argo garbage collect old workflows otherwise we overload the API server.
+    ttlSecondsAfterFinished: 7 * 24 * 60 * 60,
     volumes: [
       {
         name: "github-token",

@@ -22,10 +22,10 @@ Manually running the test
 import json
 import logging
 import os
+import subprocess
 import requests
 from retrying import retry
 import six
-import subprocess
 
 from kubernetes.config import kube_config
 from kubernetes import client as k8s_client
