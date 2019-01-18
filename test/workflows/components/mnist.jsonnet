@@ -479,7 +479,6 @@ local workflow = {
     labels: prowDict + {
         workflow: params.name,
         workflow_template: workflow_template,
-        step_name: template.name,
     },
   },
   spec: {
