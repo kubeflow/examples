@@ -25,6 +25,7 @@ import os
 import requests
 from retrying import retry
 import six
+import subprocess
 
 from kubernetes.config import kube_config
 from kubernetes import client as k8s_client
@@ -45,7 +46,9 @@ def is_retryable_result(r):
        stop_max_delay=5*60*1000,
        retry_on_result=is_retryable_result)
 def send_request(*args, **kwargs):
-  token = util.run(["gcloud", "auth", "print-access-token"])
+  # We don't use util.run because that ends up including the access token
+  # in the logs
+  token = subprocess.check_output(["gcloud", "auth", "print-access-token"])
   if six.PY3 and hasattr(token, "decode"):
     token = token.decode()
   token = token.strip()
@@ -63,7 +66,7 @@ def send_request(*args, **kwargs):
 
   return r
 
-def test_predict(master, namespace):
+def test_predict(master, namespace, service):
   app_credentials = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
   if app_credentials:
     print("Activate service account")
@@ -78,8 +81,6 @@ def test_predict(master, namespace):
     host = api_client.configuration.host
     print("host={0}".format(host))
     master = host.rsplit("/", 1)[-1]
-
-  service = "mnist-service"
 
   this_dir = os.path.dirname(__file__)
   test_data = os.path.join(this_dir, "test_data", "instances.json")
@@ -112,4 +113,10 @@ def test_predict(master, namespace):
   logging.info("URL %s returned; %s", url, content)
 
 if __name__ == "__main__":
+  logging.basicConfig(level=logging.INFO,
+                      format=('%(levelname)s|%(asctime)s'
+                              '|%(pathname)s|%(lineno)d| %(message)s'),
+                      datefmt='%Y-%m-%dT%H:%M:%S',
+                      )
+  logging.getLogger().setLevel(logging.INFO)
   pytest.main()

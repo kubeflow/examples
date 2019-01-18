@@ -7,6 +7,10 @@ def pytest_addoption(parser):
   parser.addoption(
       "--namespace", action="store", default="", help="namespace of server")
 
+  parser.addoption(
+      "--service", action="store", default="",
+      help="The name of the mnist K8s service")
+
 @pytest.fixture
 def master(request):
   return request.config.getoption("--master")
@@ -14,3 +18,7 @@ def master(request):
 @pytest.fixture
 def namespace(request):
   return request.config.getoption("--namespace")
+
+@pytest.fixture
+def service(request):
+  return request.config.getoption("--service")

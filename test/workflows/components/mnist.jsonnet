@@ -365,6 +365,7 @@ local dagTemplates = [
         "--timeout=500",
         "--junitxml=" + artifactsDir + "/junit_predict-test.xml",
         "--namespace=" + testNamespace,
+        "--service=mnist-test-" + prowDict["BUILD_ID"],
       ],
       workingDir: srcDir + "/mnist/testing",
     },
@@ -475,11 +476,10 @@ local workflow = {
   metadata: {
     name: params.name,
     namespace: env.namespace,
-    labels: {
-      org: prowDict.REPO_OWNER,
-      repo: prowDict.REPO_NAME,
-      workflow: "gis",
-      [if std.objectHas(prowDict, "PULL_NUMBER") then "pr"]: prowDict.PULL_NUMBER,
+    labels: prowDict + {
+        workflow: params.name,
+        workflow_template: workflow_template,
+        step_name: template.name,
     },
   },
   spec: {
