@@ -2,8 +2,6 @@
 
 This file tests that we can deploy the model.
 
-TODO(jlewi): Test that we can send predictions to the model.
-
 It is an integration test as it depends on having access to
 a Kubeflow deployment to deploy on. It also depends on having a model.
 
@@ -75,4 +73,8 @@ class MnistDeployTest(test_util.TestCase):
     # garbage collected.
 
 if __name__ == "__main__":
+  # TODO(jlewi): It looks like using test_runner we don't exit with an error
+  # if the deployment doesn't succeed. So the Argo workflow continues which
+  # isn't what we want. Might be a good reason to switch to using
+  # pytest.
   test_runner.main(module=__name__)
