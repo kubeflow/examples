@@ -72,7 +72,7 @@ def test_predict(master, namespace):
 
   if r.status_code == requests.codes.NOT_FOUND:
     message = "Request to {0} returned 404".format(url)
-    logging.error(msg)
+    logging.error(message)
     raise RuntimeError(message)
 
   if r.status_code != requests.codes.OK:
