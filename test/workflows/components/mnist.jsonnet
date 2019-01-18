@@ -29,7 +29,11 @@ local defaultParams = {
   // Whether to delete the namespace at the end.
   // Leaving the namespace around can be useful for debugging.
   //
-  // TODO(jlewi): We should consider running a cronjob to GC so namespaces.
+  // TODO(jlewi): We should consider running a cronjob to GC namespaces.
+  // But if we leave namespaces up; then we end up leaving the servers up which
+  // uses up CPU.
+  //
+  // DO NOT SUBMIT set back to true
   deleteNamespace: false,
 };
 
@@ -126,7 +130,7 @@ local buildTemplate = {
       labels: prowDict + {
         workflow: params.name,
         workflow_template: workflow_template,
-        step_name: + template.name,
+        step_name: template.name,
       },
     },
     container: {
@@ -336,7 +340,7 @@ local dagTemplates = [
         "--params=" + std.join(",", [
           "name=mnist-test-" + prowDict["BUILD_ID"], 
           "namespace=" + testNamespace,          
-          "modelBasePath=" + modelDir  + "/export",
+          "modelBasePath=" + modelDir,
           "exportDir=" + modelDir,
       ])],
       // This test only we need to add tfOperatorPy.
