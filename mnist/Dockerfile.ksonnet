@@ -4,8 +4,7 @@ FROM ubuntu:16.04
 ENV KUBECTL_VERSION v1.9.2
 ENV KSONNET_VERSION 0.10.1
 
-RUN apt-get update
-RUN apt-get -y install curl 
+RUN apt-get update && apt-get -y install curl && rm -rf /var/lib/apt/lists/*
 #RUN apk add --update ca-certificates openssl && update-ca-certificates
 
 RUN curl -O -L https://github.com/ksonnet/ksonnet/releases/download/v${KSONNET_VERSION}/ks_${KSONNET_VERSION}_linux_amd64.tar.gz

@@ -1,5 +1,0 @@
--e git://github.com/tensorflow/agents.git@459c4f88ece996eac3489e6e97a6ee0b30bdd6b3#egg=agents
-pybullet==1.7.5
-gym==0.9.4
-tensorflow==1.4.1
-google-cloud-storage==1.7.0

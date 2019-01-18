@@ -69,10 +69,10 @@ The resulting model is [model.py](model.py).
 With our code ready, we will now build/push the docker image.
 
 ```
-DOCKER_BASE_URL=docker.io/elsonrodriguez # Put your docker registry here
-docker build . --no-cache  -f Dockerfile.model -t ${DOCKER_BASE_URL}/mytfmodel:1.7
+DOCKER_URL=docker.io/reponame/mytfmodel # Put your docker registry here
+docker build . --no-cache  -f Dockerfile.model -t ${DOCKER_URL}
 
-docker push ${DOCKER_BASE_URL}/mytfmodel:1.7
+docker push ${DOCKER_URL}
 ```
 
 ## Preparing your Kubernetes Cluster
@@ -100,6 +100,19 @@ Give the job a name to indicate it is running locally
 
 ```
 ks param set --env=${KSENV} train name mnist-train-local
+```
+
+Point the job at your custom training image
+
+```
+ks param set --env=${KSENV} train image $DOCKER_URL
+```
+
+Configure a filepath for the exported model and checkpoints.
+
+```
+ks param set --env=${KSENV} train modelDir ./output
+ks param set --env=${KSENV} train exportDir ./output/export
 ```
 
 You can now submit the job 
@@ -145,6 +158,17 @@ cd ks_app
 ks env add ${KSENV}
 ```
 
+Set an environment variable that points to your GCP project Id
+```
+PROJECT=<your project id>
+```
+
+Create a bucket on GCS to store our model. The name must be unique across all GCS buckets
+```
+BUCKET=$KSENV-$(date +%s)
+gsutil mb gs://$BUCKET/
+```
+
 Give the job a different name (to distinguish it from your job which didn't use GCS)
 
 ```
@@ -160,6 +184,7 @@ ks param set --env=${KSENV} train numWorkers 2
 Now we need to configure parameters telling the code to save the model to GCS.
 
 ```
+MODEL_PATH=my-model
 ks param set --env=${KSENV} train modelDir gs://${BUCKET}/${MODEL_PATH}
 ks param set --env=${KSENV} train exportDir gs://${BUCKET}/${MODEL_PATH}/export
 ```
@@ -183,7 +208,7 @@ then a number of steps have already been performed for you
      * To see the secrets in your cluster
      
        ```
-       kubectl get secrets
+       kubectl get secrets -n kubeflow
        ```
 
   1. We granted this service account permission to read/write GCS buckets in this project
@@ -194,7 +219,7 @@ then a number of steps have already been performed for you
        gcloud projects get-iam-policy ${PROJECT} --format=yaml
        ```
 
-     * The output should look like
+     * The output should look like the following
 
        ```
         bindings:
@@ -206,49 +231,46 @@ then a number of steps have already been performed for you
           ...
         etag: BwV_BqSmSCY=
         version: 1
-      ```
+        ```
+
 To use this service account we perform the following steps
 
-  1. Mount the secret into the pod
+  1. Mount the secret into the pod 
+       ```
+       ks param set --env=${KSENV} train secret user-gcp-sa=/var/secrets
+       ```
 
-     ```
-     ks param set --env=${KSENV} train secret user-gcp-sa=/var/secrets
-     ```
-
+     * Note: ensure your envrionment is pointed at the same `kubeflow` namespace as the `user-gcp-sa` secret
      * Setting this ksonnet parameter causes a volumeMount and volume to be added to your TFJob
-     * To see this you can run
-
-       ```
-       ks show ${KSENV} -c train
-       ```
+     * To see this you can run `ks show ${KSENV} -c train`
 
      * The output should now include a volumeMount and volume section
 
        ```
-apiVersion: kubeflow.org/v1beta1
-kind: TFJob
-metadata:
-  ...
-spec:
-  tfReplicaSpecs:
-    Chief:
-      ...
-      template:
-        ...
+        apiVersion: kubeflow.org/v1beta1
+        kind: TFJob
+        metadata:
+          ...
         spec:
-          containers:
-          - command:
-            ...
-            volumeMounts:
-            - mountPath: /var/secrets
-              name: user-gcp-sa
-              readOnly: true
-            ...
-          volumes:
-          - name: user-gcp-sa
-            secret:
-              secretName: user-gcp-sa
-       ...
+          tfReplicaSpecs:
+            Chief:
+              ...
+              template:
+                ...
+                spec:
+                  containers:
+                  - command:
+                    ...
+                    volumeMounts:
+                    - mountPath: /var/secrets
+                      name: user-gcp-sa
+                      readOnly: true
+                    ...
+                  volumes:
+                  - name: user-gcp-sa
+                    secret:
+                      secretName: user-gcp-sa
+                  ...
        ```
 
   1. Next we need to set the environment variable `GOOGLE_APPLICATION_CREDENTIALS` so that our code knows
@@ -262,7 +284,8 @@ spec:
 
        ```
         ks show ${KSENV} -c train
-
+       ```
+       ```
         apiVersion: kubeflow.org/v1beta1
         kind: TFJob
         metadata:
@@ -292,7 +315,7 @@ You can now submit the job
 ks apply ${KSENV} -c train
 ```
 
-And you can check the job
+And you can check the job status
 
 ```
 kubectl get tfjobs -o yaml mnist-train-dist
@@ -301,18 +324,24 @@ kubectl get tfjobs -o yaml mnist-train-dist
 And to check the logs 
 
 ```
-kubectl logs mnist-train-dist-chief-0
+kubectl logs -f mnist-train-dist-chief-0
 ```
 
 
 #### Using S3
 
-**Note** This example isn't working on S3 yet. There is an open issue [#466](https://github.com/kubeflow/examples/issues/466) 
-to fix that.
+To use S3 we need we need to configure TensorFlow to use S3 credentials and variables. These credentials will be provided as kubernetes secrets and the variables will be passed in as environment variables. Modify the below values to suit your environment.
 
-To use S3 we need we need to configure TensorFlow to use S3 credentials and variables. These credentials will be provided as kubernetes secrets, and the variables will be passed in as environment variables. Modify the below values to suit your environment.
+Lets start by creating an environment to store parameters particular to writing the model to S3
+and running distributed.
 
-Give the job a different name (to distinguish it from your job which didn't use GCS)
+```
+KSENV=distributed
+cd ks_app
+ks env add ${KSENV}
+```
+
+Give the job a different name (to distinguish it from your job which didn't use S3)
 
 ```
 ks param set --env=${KSENV} train name mnist-train-dist
@@ -354,46 +383,48 @@ various environment variables configuring access to S3.
        --from-literal=awsSecretAccessKey=${AWS_SECRET_ACCESS_KEY}
      ```
   
-  1. Mount the secret into the pod
+  1. Pass secrets as environment variables into pod
 
      ```
-     ks param set --env=${KSENV} train secret aws-creds=/var/secrets
+     ks param set --env=${KSENV} train secretKeyRefs AWS_ACCESS_KEY_ID=aws-creds.awsAccessKeyID,AWS_SECRET_ACCESS_KEY=aws-creds.awsSecretAccessKey
      ```
 
-     * Setting this ksonnet parameter causes a volumeMount and volume to be added to your TFJob
+     * Setting this ksonnet parameter causes a two new environment variables to be added to your TFJob
      * To see this you can run
 
        ```
        ks show ${KSENV} -c train
        ```
 
-     * The output should now include a volumeMount and volume section
+     * The output should now include two environment variables referencing K8s secret
 
        ```
-apiVersion: kubeflow.org/v1beta1
-kind: TFJob
-metadata:
-  ...
-spec:
-  tfReplicaSpecs:
-    Chief:
-      ...
-      template:
-        ...
-        spec:
-          containers:
-          - command:
-            ...
-            volumeMounts:
-            - mountPath: /var/secrets
-              name: aws-creds
-              readOnly: true
-            ...
-          volumes:
-          - name: aws-creds
-            secret:
-              secretName: aws-creds
-       ...
+       apiVersion: kubeflow.org/v1beta1
+       kind: TFJob
+       metadata:
+         ...
+       spec:
+         tfReplicaSpecs:
+           Chief:
+             ...
+             template:
+               ...
+               spec:
+                 containers:
+                 - command:
+                   ...
+                   env:
+                   - name: AWS_ACCESS_KEY_ID
+                     valueFrom:
+                       secretKeyRef:
+                         key: awsAccessKeyID
+                         name: aws-creds
+                   - name: AWS_SECRET_ACCESS_KEY
+                     valueFrom:
+                       secretKeyRef:
+                         key: awsSecretAccessKey
+                         name: aws-creds
+                   ...
        ```
   
   1. Next we need to set a whole bunch of S3 related environment variables so that TensorFlow
@@ -410,7 +441,8 @@ spec:
      ks param set --env=${KSENV} train envVariables ${AWSENV}
      ```
 
-     * If we look at the spec for our job we can see that the environment variable `GOOGLE_APPLICATION_CREDENTIALS` is set.
+     * If we look at the spec for our job we can see that the environment variables related 
+     to S3 are set.
 
        ```
         ks show ${KSENV} -c train
@@ -430,7 +462,9 @@ spec:
                     ..
                     env:
                     ...
-                    - name: AWS_BUCKET
+                    - name: AWS_REGION
+                      value: us-west-2
+                    - name: BUCKET_NAME
                       value: somebucket
                     ...
                   ...
@@ -453,7 +487,7 @@ kubectl get tfjobs -o yaml mnist-train-dist
 And to check the logs 
 
 ```
-kubectl logs mnist-train-dist-chief-0
+kubectl logs -f mnist-train-dist-chief-0
 ```
 
 ## Monitoring
@@ -462,13 +496,12 @@ There are various ways to monitor workflow/training job. In addition to using `k
 
 ### Tensorboard
 
-TODO: This section needs to be updated
+#### Using GCS
 
 Configure TensorBoard to point to your model location
 
 ```
 ks param set tensorboard --env=${KSENV} logDir ${LOGDIR}
-
 ```
 
 Assuming you followed the directions above if you used GCS you can use the following value
@@ -477,18 +510,148 @@ Assuming you followed the directions above if you used GCS you can use the follo
 LOGDIR=gs://${BUCKET}/${MODEL_PATH}
 ```
 
-Then you can deploy tensorboard
+You need to point TensorBoard to GCP credentials to access GCS bucket with model.
+
+  1. Mount the secret into the pod
+
+     ```
+     ks param set --env=${KSENV} tensorboatd secret user-gcp-sa=/var/secrets
+     ```
+
+     * Setting this ksonnet parameter causes a volumeMount and volume to be added to TensorBoard
+     deployment
+     * To see this you can run
+
+       ```
+       ks show ${KSENV} -c tensorboard
+       ```
+
+     * The output should now include a volumeMount and volume section
+
+  1. Next we need to set the environment variable `GOOGLE_APPLICATION_CREDENTIALS` so that our code knows
+     where to look for the service account key.
+
+     ```
+     ks param set --env=${KSENV} tensorboard envVariables GOOGLE_APPLICATION_CREDENTIALS=/var/secrets/user-gcp-sa.json     
+     ```
+
+     * If we look at the spec for TensorBoard deployment we can see that the environment variable `GOOGLE_APPLICATION_CREDENTIALS` is set.
+
+       ```
+       ks show ${KSENV} -c tensorboard
+       ```
+       ```
+        ...
+        env:
+        ...
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /var/secrets/user-gcp-sa.json
+       ```
+
+#### Using S3
+
+Configure TensorBoard to point to your model location
+
+```
+ks param set tensorboard --env=${KSENV} logDir ${LOGDIR}
+```
+
+Assuming you followed the directions above if you used S3 you can use the following value
+
+```
+LOGDIR=s3://${BUCKET}/${MODEL_PATH}
+```
+
+You need to point TensorBoard to AWS credentials to access S3 bucket with model.
+
+  1. Pass secrets as environment variables into pod
+
+     ```
+     ks param set --env=${KSENV} tensorboard secretKeyRefs AWS_ACCESS_KEY_ID=aws-creds.awsAccessKeyID,AWS_SECRET_ACCESS_KEY=aws-creds.awsSecretAccessKey
+     ```
+
+     * Setting this ksonnet parameter causes a two new environment variables to be added to TensorBoard
+     deployment
+     * To see this you can run
+
+       ```
+       ks show ${KSENV} -c tensorboard
+       ```
+
+     * The output should now include two environment variables referencing K8s secret
+
+       ```
+        ...
+        spec:
+          containers:
+          - command:
+          ...
+            env:
+            ...
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  key: awsAccessKeyID
+                  name: aws-creds
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: awsSecretAccessKey
+                  name: aws-creds
+                  ...
+       ```
+
+  1. Next we need to set a whole bunch of S3 related environment variables so that TensorBoard
+     knows how to talk to S3
+
+     ```
+     AWSENV="S3_ENDPOINT=${S3_ENDPOINT}"
+     AWSENV="${AWSENV},AWS_ENDPOINT_URL=${AWS_ENDPOINT_URL}"     
+     AWSENV="${AWSENV},AWS_REGION=${AWS_REGION}"
+     AWSENV="${AWSENV},BUCKET_NAME=${BUCKET_NAME}"
+     AWSENV="${AWSENV},S3_USE_HTTPS=${S3_USE_HTTPS}"
+     AWSENV="${AWSENV},S3_VERIFY_SSL=${S3_VERIFY_SSL}"
+
+     ks param set --env=${KSENV} tensorboard envVariables ${AWSENV}
+     ```
+
+     * If we look at the spec for TensorBoard deployment we can see that the environment variables related to S3 are set.
+
+       ```
+       ks show ${KSENV} -c tensorboard
+       ```
+
+       ```
+        ...
+        spec:
+          containers:
+          - command:
+            ..
+            env:
+            ...
+            - name: AWS_REGION
+              value: us-west-2
+            - name: BUCKET_NAME
+              value: somebucket
+            ...
+       ```
+
+
+#### Deploying TensorBoard
+
+
+Now you can deploy TensorBoard
 
 ```
 ks apply ${KSENV} -c tensorboard
 ```
 
-To access tensorboard using port-forwarding
+To access TensorBoard using port-forwarding
 
 ```
 kubectl -n jlewi port-forward service/tensorboard-tb 8090:80
 ```
-Tensorboard can now be accessed at [http://127.0.0.1:8090](http://127.0.0.1:8090).
+TensorBoard can now be accessed at [http://127.0.0.1:8090](http://127.0.0.1:8090).
 
 
 ## Serving the model
@@ -508,18 +671,18 @@ URI; if not you can always copy it to GCS using `gsutil`.
 Check that a model was exported
 
 ```
+EXPORT_DIR=gs://${BUCKET}/${MODEL_PATH}/export
 gsutil ls -r ${EXPORT_DIR}
-
 ```
 
 The output should look something like
 
 ```
-gs://${EXPORT_DIR}/1547100373/saved_model.pb
-gs://${EXPORT_DIR}/1547100373/variables/:
-gs://${EXPORT_DIR}/1547100373/variables/
-gs://${EXPORT_DIR}/1547100373/variables/variables.data-00000-of-00001
-gs://${EXPORT_DIR}/1547100373/variables/variables.index
+${EXPORT_DIR}/1547100373/saved_model.pb
+${EXPORT_DIR}/1547100373/variables/:
+${EXPORT_DIR}/1547100373/variables/
+${EXPORT_DIR}/1547100373/variables/variables.data-00000-of-00001
+${EXPORT_DIR}/1547100373/variables/variables.index
 ```
 
 The number `1547100373` is a version number auto-generated by TensorFlow; it will vary on each run but should be monotonically increasing if you save a model to the same location as a previous location.
@@ -528,20 +691,31 @@ The number `1547100373` is a version number auto-generated by TensorFlow; it wil
 Set your model path
 
 ```
-ks param set ${ENV} mnist-deploy-gcp modelBasePath ${EXPORT_DIR}
-
+ks param set --env=${KSENV} mnist-deploy-gcp modelBasePath ${EXPORT_DIR}
 ```
 
 Deploy it
 
 ```
-ks param apply ${ENV} -c mnist-deploy-gcp
+ks apply ${KSENV} -c mnist-deploy-gcp
 ```
 
 You can check the deployment by running
 
 ```
 kubectl describe deployments mnist-deploy-gcp
+```
+
+Finally, run a service to make the deployment accessible to other pods in the cluster
+
+```
+ks apply ${KSENV} -c mnist-service
+```
+
+The service should make the `mnist-deploy-gcp` deployment accessible over port 9000
+
+```
+kubectl describe service mnist-service
 ```
 
 ### S3
@@ -559,7 +733,7 @@ The example comes with a simple web front end that can be used with your model.
 To deploy the web front end
 
 ```
-ks apply ${ENV} -c web-ui
+ks apply ${KSENV} -c web-ui
 ```
 
 ### Connecting via port forwarding
@@ -567,7 +741,9 @@ ks apply ${ENV} -c web-ui
 To connect to the web app via port-forwarding
 
 ```
-kubectl -n ${NAMESPACE} port-forward svc/web-ui 8080:80
+POD_NAME=$(kubectl get pods --selector=app=web-ui --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}')
+
+kubectl port-forward ${POD_NAME} 8080:5000  
 ```
 
 You should now be able to open up the web app at [http://localhost:8080](http://localhost:8080).

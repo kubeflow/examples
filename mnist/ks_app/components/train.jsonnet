@@ -19,29 +19,7 @@ local params = std.extVar("__ksonnet/params").components.train;
 
 local util = import "util.libsonnet";
 
-// The code currently uses environment variables to control the training.
-local trainEnv = [
-  {
-    name: "TF_MODEL_DIR",
-    value: params.modelDir,
-  },
-  {
-    name: "TF_EXPORT_DIR",
-    value: params.exportDir,
-  },
-  {
-    name: "TF_TRAIN_STEPS",
-    value: std.toString(params.trainSteps),
-  },
-  {
-    name: "TF_BATCH_SIZE",
-    value: std.toString(params.batchSize),
-  },
-  {
-    name: "TF_LEARNING_RATE",
-    value: std.toString(params.learningRate),
-  },
-];
+local trainSecrets = util.parseSecrets(params.secretKeyRefs);
 
 local secretPieces = std.split(params.secret, "=");
 local secretName = if std.length(secretPieces) > 0 then secretPieces[0] else "";
@@ -54,7 +32,14 @@ local replicaSpec = {
         "/usr/bin/python",
         "/opt/model.py",
       ],
-      env: trainEnv + util.parseEnv(params.envVariables),
+      args: [
+        "--tf-model-dir=" + params.modelDir,
+        "--tf-export-dir=" + params.exportDir,
+        "--tf-train-steps=" + params.trainSteps,
+        "--tf-batch-size=" + params.batchSize,
+        "--tf-learning-rate=" + params.learningRate,
+      ],
+      env: util.parseEnv(params.envVariables) + trainSecrets,
       image: params.image,
       name: "tensorflow",
       volumeMounts: if secretMountPath != "" then
