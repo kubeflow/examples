@@ -23,6 +23,7 @@ import json
 import logging
 import os
 import requests
+from retrying import retry
 import six
 
 from kubernetes.config import kube_config
@@ -31,6 +32,36 @@ from kubernetes import client as k8s_client
 import pytest
 
 from kubeflow.testing import util
+
+def is_retryable_result(r):
+  if r.status_code == requests.codes.NOT_FOUND:
+    message = "Request to {0} returned 404".format(r.url)
+    logging.error(message)
+    return True
+
+  return False
+
+@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000,
+       stop_max_delay=5*60*1000,
+       retry_on_result=is_retryable_result)
+def send_request(*args, **kwargs):
+  token = util.run(["gcloud", "auth", "print-access-token"])
+  if six.PY3 and hasattr(token, "decode"):
+    token = token.decode()
+  token = token.strip()
+
+  headers = {
+    "Authorization": "Bearer " + token,
+  }
+
+  if "headers" not in kwargs:
+    kwargs["headers"] = {}
+
+  kwargs["headers"].update(headers)
+
+  r = requests.post(*args, **kwargs)
+
+  return r
 
 def test_predict(master, namespace):
   app_credentials = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
@@ -49,14 +80,6 @@ def test_predict(master, namespace):
     master = host.rsplit("/", 1)[-1]
 
   service = "mnist-service"
-  token = util.run(["gcloud", "auth", "print-access-token"])
-  if six.PY3 and hasattr(token, "decode"):
-    token = token.decode()
-  token = token.strip()
-
-  headers = {
-    "Authorization": "Bearer " + token,
-  }
 
   this_dir = os.path.dirname(__file__)
   test_data = os.path.join(this_dir, "test_data", "instances.json")
@@ -68,12 +91,8 @@ def test_predict(master, namespace):
   url = ("https://{master}/api/v1/namespaces/{namespace}/services/{service}:8500"
          "/proxy/v1/models/mnist:predict").format(
            master=master, namespace=namespace, service=service)
-  r = requests.post(url, json=instances, headers=headers, verify=False)
-
-  if r.status_code == requests.codes.NOT_FOUND:
-    message = "Request to {0} returned 404".format(url)
-    logging.error(message)
-    raise RuntimeError(message)
+  logging.info("Request: %s", url)
+  r = send_request(url, json=instances, verify=False)
 
   if r.status_code != requests.codes.OK:
     msg = "Request to {0} exited with status code: {1} and content: {2}".format(
@@ -81,13 +100,16 @@ def test_predict(master, namespace):
     logging.error(msg)
     raise RuntimeError(msg)
 
-  result = json.loads(r.content)
+  content = r.content
+  if six.PY3 and hasattr(content, "decode"):
+    content = content.decode()
+  result = json.loads(content)
   assert len(result["predictions"]) == 1
   predictions = result["predictions"][0]
-  assert predictions.has_key("classes")
-  assert predictions.has_key("predictions")
+  assert "classes" in predictions
+  assert "predictions" in predictions
   assert len(predictions["predictions"]) == 10
-  logging.info("URL %s returned; %s", url, r.content)
+  logging.info("URL %s returned; %s", url, content)
 
 if __name__ == "__main__":
   pytest.main()
