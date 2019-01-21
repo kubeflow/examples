@@ -15,7 +15,7 @@
     // are not picked up by the individual components.
     // Need to see if we can find a way to fix this.
 
-    local imageTag = "v20181201-ae61193-dirty-d11191",
+    local imageTag = "v20181204-ee47a49-dirty-f4045c",
 
     "t2t-job": {
       jobType: "trainer",
@@ -121,7 +121,6 @@
       workingDir: $.components["t2t-code-search"].workingDir,
       dataDir: self.workingDir + "/data",
       functionEmbeddingsDir: self.workingDir + "/code_embeddings",
-      tokenPairsBQTable: "",
       functionEmbeddingsBQTable: "",
     },
 

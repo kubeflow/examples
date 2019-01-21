@@ -166,14 +166,17 @@ def average_gradients(model):
     param.grad.data /= size
 
 
-def run(rank, size, modelpath, gpu):
+def run(modelpath, gpu):
   """ Distributed Synchronous SGD Example """
+  rank = dist.get_rank()
   torch.manual_seed(1234)
   train_set, bsz = partition_dataset(rank)
   model = Net()
   if gpu:
     model = model.cuda()
-  model = DistributedDataParallel(model)
+    model = torch.nn.parallel.DistributedDataParallel(model)
+  else:
+    model = DistributedDataParallel(model)
   optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.5)
   model_dir = modelpath
 
@@ -213,31 +216,6 @@ def run(rank, size, modelpath, gpu):
     logging.info("CPU training time= {}".format(str(datetime.datetime.now() - time_start)))
 
 
-def init_print(rank, size, debug_print=True):
-  if not debug_print:
-    """ In case run on hundreds of nodes, you may want to mute all the nodes except master """
-    if rank > 0:
-      sys.stdout = open(os.devnull, 'w')
-      sys.stderr = open(os.devnull, 'w')
-  else:
-    # labelled print with info of [rank/size]
-    old_out = sys.stdout
-
-    class LabeledStdout:
-      def __init__(self, rank, size):
-        self._r = rank
-        self._s = size
-        self.flush = sys.stdout.flush
-
-      def write(self, x):
-        if x == '\n':
-          old_out.write(x)
-        else:
-          old_out.write('[%d/%d] %s' % (self._r, self._s, x))
-
-    sys.stdout = LabeledStdout(rank, size)
-
-
 if __name__ == "__main__":
   import argparse
   logging.basicConfig(level=logging.INFO,
@@ -261,8 +239,6 @@ if __name__ == "__main__":
       logging.info("CUDA Device Name:", torch.cuda.get_device_name(0))
       logging.info("CUDA Version:", torch.version.cuda)
     logging.info("=========================\n")
-  dist.init_process_group(backend='mpi')
-  size = dist.get_world_size()
-  rank = dist.get_rank()
-  init_print(rank, size)
-  run(rank=rank, size=size, modelpath=args.modelpath, gpu=args.gpu)
+  dist.init_process_group(backend='gloo')
+  run(modelpath=args.modelpath, gpu=args.gpu)
+  dist.destroy_process_group()

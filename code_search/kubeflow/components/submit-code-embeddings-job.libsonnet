@@ -13,6 +13,7 @@
 	  },
 	  spec: {
 	    replicas: 1,
+        backoffLimit: 0,
 	    template: {
 	      metadata: {
 	        labels: {
@@ -32,7 +33,6 @@
 	              "code_search.dataflow.cli.create_function_embeddings",
 	              "--runner=DataflowRunner",
 	              "--project=" + params.project,
-	              "--token_pairs_table=" + params.tokenPairsBQTable,
 	              "--function_embeddings_table=" + params.functionEmbeddingsBQTable,
 	              "--output_dir=" + params.functionEmbeddingsDir,
 	              "--data_dir=" + params.dataDir,

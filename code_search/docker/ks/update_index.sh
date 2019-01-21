@@ -8,22 +8,23 @@ set -ex
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null && pwd)"
 
 branch=master
+# Ksonnet Environment name. Always use pipeline
+ksEnvName="pipeline"
 
 usage() {
 	echo "Usage: update_index.sh
-	--baseGitRepo=<base git repo name>
-	--baseBranch=<base branch>
 	--appDir=<ksonnet app dir>
+	--baseBranch=<base branch>
+	--baseGitRepo=<base git repo name>
+	--botEmail=<email account of the bot that send the PR>
 	--forkGitRepo=<github repo with Argo CD hooked up>
-	--env=<ksonnet environment>
 	--indexFile=<index file>
 	--lookupFile=<lookup file>
-	--workflowId=<workflow id invoking the container>
-	--botEmail=<email account of the bot that send the PR>"
+	--workflowId=<workflow id invoking the container>"
 }
 
 # List of required parameters
-names=(baseGitRepo baseBranch appDir forkGitRepo env indexFile lookupFile workflowId botEmail)
+names=(appDir baseBranch baseGitRepo botEmail forkGitRepo indexFile lookupFile workflowId)
 
 source "${DIR}/parse_arguments.sh"
 
@@ -44,8 +45,8 @@ git fetch upstream
 git merge upstream/${baseBranch} master
 
 git checkout -b ${workflowId}
-ks param set --env=${env} search-index-server indexFile ${indexFile}
-ks param set --env=${env} search-index-server lookupFile ${lookupFile}
+ks param set --env=${ksEnvName} search-index-server indexFile ${indexFile}
+ks param set --env=${ksEnvName} search-index-server lookupFile ${lookupFile}
 git add . && git commit -m "Update the lookup and index file."
 
 FILE=$(mktemp tmp.create_pull_request.XXXX)

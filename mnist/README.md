@@ -1,51 +1,43 @@
-# Training MNIST using Kubeflow, S3, and Argo.
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
-This example guides you through the process of taking an example model, modifying it to run better within Kubeflow, and serving the resulting trained model. We will be using Argo to manage the workflow, Tensorflow's S3 support for saving model training info, Tensorboard to visualize the training, and Kubeflow to deploy the Tensorflow operator and serve the model.
+- [Training MNIST](#training-mnist)
+  - [Prerequisites](#prerequisites)
+    - [Kubernetes Cluster Environment](#kubernetes-cluster-environment)
+    - [Local Setup](#local-setup)
+  - [Modifying existing examples](#modifying-existing-examples)
+    - [Prepare model](#prepare-model)
+    - [Build and push model image.](#build-and-push-model-image)
+  - [Preparing your Kubernetes Cluster](#preparing-your-kubernetes-cluster)
+    - [Training your model](#training-your-model)
+      - [Local storage](#local-storage)
+      - [Using GCS](#using-gcs)
+      - [Using S3](#using-s3)
+  - [Monitoring](#monitoring)
+    - [Tensorboard](#tensorboard)
+  - [Using Tensorflow serving](#using-tensorflow-serving)
+  - [Conclusion and Next Steps](#conclusion-and-next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+# Training MNIST
+
+This example guides you through the process of taking an example model, modifying it to run better within Kubeflow, and serving the resulting trained model.
 
 ## Prerequisites
 
 Before we get started there a few requirements.
 
-### Kubernetes Cluster Environment
+### Deploy Kubeflow
 
-Your cluster must:
-
-- Be at least version 1.9
-- Have access to an S3-compatible object store ([Amazon S3](https://aws.amazon.com/s3/), [Google Storage](https://cloud.google.com/storage/docs/interoperability), [Minio](https://www.minio.io/kubernetes.html))
-- Contain 3 nodes of at least 8 cores and 16 GB of RAM.
-
-If using GKE, the following will provision a cluster with the required features:
-
-```
-export CLOUDSDK_CONTAINER_USE_CLIENT_CERTIFICATE=True
-gcloud alpha container clusters create ${USER} --enable-kubernetes-alpha --machine-type=n1-standard-8 --num-nodes=3 --disk-size=200 --zone=us-west1-a --cluster-version=1.9.3-gke.0 --image-type=UBUNTU
-```
-
-If using Azure, the following will provision a cluster with the required features, [using the az cli](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest):
-
-```
-# Create a resource group
-az group create -n kubeflowrg -l eastus
-# Deploy the cluster
-az aks create -n kubeflowaks -g kubeflowrg -l eastus -k 1.9.6 -c 3 -s Standard_NC6
-# Authentication into the cluster
-az aks get-credentials -n kubeflowaks -g kubeflowrg
-```
-
-NOTE: You must be a Kubernetes admin to follow this guide. If you are not an admin, please contact your local cluster administrator for a client cert, or credentials to pass into the following commands:
-
-```
-$ kubectl config set-credentials <username> --username=<admin_username> --password=<admin_password>
-$ kubectl config set-context <context_name> --cluster=<cluster_name> --user=<username> --namespace=<namespace>
-$ kubectl config use-context <context_name>
-```
+Follow the [Getting Started Guide](https://www.kubeflow.org/docs/started/getting-started/) to deploy Kubeflow
 
 ### Local Setup
 
 You also need the following command line tools:
 
 - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
-- [argo](https://github.com/argoproj/argo/blob/master/demo.md#1-download-argo)
 - [ksonnet](https://ksonnet.io/#get-started)
 
 To run the client at the end of the example, you must have [requirements.txt](requirements.txt) intalled in your active python environment.
@@ -54,11 +46,7 @@ To run the client at the end of the example, you must have [requirements.txt](re
 pip install -r requirements.txt
 ```
 
-NOTE: These instructions rely on Github, and may cause issues if behind a firewall with many Github users. Make sure you [generate and export this token](https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/):
-
-```
-export GITHUB_TOKEN=xxxxxxxx
-```
+NOTE: These instructions rely on Github, and may cause issues if behind a firewall with many Github users. 
 
 ## Modifying existing examples
 
@@ -93,276 +81,505 @@ With our data and workloads ready, now the cluster must be prepared. We will be 
 
 In the following instructions we will install our required components to a single namespace.  For these instructions we will assume the chosen namespace is `tfworkflow`:
 
-### Deploying Tensorflow Operator and Argo.
+### Training your model
 
-We are using the Tensorflow operator to automate the deployment of our distributed model training, and Argo to create the overall training pipeline. The easiest way to install these components on your Kubernetes cluster is by using Kubeflow's ksonnet prototypes.
+#### Local storage
 
-```
-NAMESPACE=tfworkflow
-APP_NAME=my-kubeflow
-ks init ${APP_NAME}
-cd ${APP_NAME}
-
-ks registry add kubeflow github.com/kubeflow/kubeflow/tree/v0.2.4/kubeflow
-
-ks pkg install kubeflow/core@v0.2.4
-ks pkg install kubeflow/argo
-
-# Deploy TF Operator and Argo
-kubectl create namespace ${NAMESPACE}
-ks generate core kubeflow-core --name=kubeflow-core --namespace=${NAMESPACE}
-ks generate argo kubeflow-argo --name=kubeflow-argo --namespace=${NAMESPACE}
-
-ks apply default -c kubeflow-core
-ks apply default -c kubeflow-argo
-
-# Switch context for the rest of the example
-kubectl config set-context $(kubectl config current-context) --namespace=${NAMESPACE}
-cd -
-
-# Create a user for our workflow
-kubectl apply -f tf-user.yaml
-```
-
-You can check to make sure the components have deployed:
+Let's start by runing the training job on Kubeflow and storing the model in a directory local to the pod e.g. '/tmp'.
+This is useful as a smoke test to ensure everything works. Since `/tmp` is not a filesystem external to the container, all data
+is lost once the job finishes. So to make the model available after the job finishes we will need to use an external filesystem
+like GCS or S3 as discussed in the next section.
 
 ```
-$ kubectl get pods -l name=tf-job-operator
-NAME                              READY     STATUS    RESTARTS   AGE
-tf-job-operator-78757955b-2glvj   1/1       Running   0          1m
-
-$ kubectl get pods -l app=workflow-controller
-NAME                                   READY     STATUS    RESTARTS   AGE
-workflow-controller-7d8f4bc5df-4zltg   1/1       Running   0          1m
-
-$ kubectl get crd
-NAME                    AGE
-tfjobs.kubeflow.org     1m
-workflows.argoproj.io   1m
-
-$ argo list
-NAME   STATUS   AGE   DURATION
+KSENV=local
+cd ks_app
+ks env add ${KSENV}
 ```
 
-### Creating secrets for our workflow and setting S3 variables.
-
-For fetching and uploading data, our workflow requires S3 credentials and variables. These credentials will be provided as kubernetes secrets, and the variables will be passed into the workflow. Modify the below values to suit your environment.
+Give the job a name to indicate it is running locally
 
 ```
-export S3_ENDPOINT=s3.us-west-2.amazonaws.com  #replace with your s3 endpoint in a host:port format, e.g. minio:9000
-export AWS_ENDPOINT_URL=https://${S3_ENDPOINT} #use http instead of https for default minio installs
-export AWS_ACCESS_KEY_ID=xxxxx
-export AWS_SECRET_ACCESS_KEY=xxxxx
-export AWS_REGION=us-west-2
-export BUCKET_NAME=mybucket
-export S3_USE_HTTPS=1 #set to 0 for default minio installs
-export S3_VERIFY_SSL=1 #set to 0 for defaul minio installs
-
-kubectl create secret generic aws-creds --from-literal=awsAccessKeyID=${AWS_ACCESS_KEY_ID} \
- --from-literal=awsSecretAccessKey=${AWS_SECRET_ACCESS_KEY}
+ks param set --env=${KSENV} train name mnist-train-local
 ```
 
-## Defining your training workflow
-
-This is the bulk of the work, let's walk through what is needed:
-
-1. Train the model
-1. Export the model
-1. Serve the model
-
-Now let's look at how this is represented in our [example workflow](model-train.yaml)
-
-The argo workflow can be daunting, but basically our steps above extrapolate as follows:
-
-1. `get-workflow-info`: Generate and set variables for consumption in the rest of the pipeline.
-1. `tensorboard`: Tensorboard is spawned, configured to watch the S3 URL for the training output.
-1. `train-model`: A TFJob is spawned taking in variables such as number of workers, what path the datasets are at, which model container image, etc. The model is exported at the end.
-1. `serve-model`: Optionally, the model is served.
-
-With our workflow defined, we can now execute it.
-
-## Submitting your training workflow
-
-First we need to set a few variables in our workflow. Make sure to set your docker registry or remove the `IMAGE` parameters in order to use our defaults:
+You can now submit the job 
 
 ```
-DOCKER_BASE_URL=docker.io/elsonrodriguez # Put your docker registry here
-export S3_DATA_URL=s3://${BUCKET_NAME}/data/mnist/
-export S3_TRAIN_BASE_URL=s3://${BUCKET_NAME}/models
-export JOB_NAME=myjob-$(uuidgen  | cut -c -5 | tr '[:upper:]' '[:lower:]')
-export TF_MODEL_IMAGE=${DOCKER_BASE_URL}/mytfmodel:1.7
-export TF_WORKER=3
-export MODEL_TRAIN_STEPS=200
+ks apply ${KSENV} -c train
 ```
 
-Next, submit your workflow.
+And you can check the job
 
 ```
-argo submit model-train.yaml -n ${NAMESPACE} --serviceaccount tf-user \
-    -p aws-endpoint-url=${AWS_ENDPOINT_URL} \
-    -p s3-endpoint=${S3_ENDPOINT} \
-    -p aws-region=${AWS_REGION} \
-    -p tf-model-image=${TF_MODEL_IMAGE} \
-    -p s3-data-url=${S3_DATA_URL} \
-    -p s3-train-base-url=${S3_TRAIN_BASE_URL} \
-    -p job-name=${JOB_NAME} \
-    -p tf-worker=${TF_WORKER} \
-    -p model-train-steps=${MODEL_TRAIN_STEPS} \
-    -p s3-use-https=${S3_USE_HTTPS} \
-    -p s3-verify-ssl=${S3_VERIFY_SSL} \
-    -p namespace=${NAMESPACE}
+kubectl get tfjobs -o yaml mnist-train-local
 ```
 
-Your training workflow should now be executing.
+And to check the logs 
 
-You can verify and keep track of your workflow using the argo commands:
 ```
-$ argo list
-NAME                STATUS    AGE   DURATION
-tf-workflow-h7hwh   Running   1h    1h
+kubectl logs mnist-train-local-chief-0
+```
 
-$ argo get tf-workflow-h7hwh
+Storing the model in a directory inside the container isn't useful because the directory is
+lost as soon as the pod is deleted.
+
+So in the next sections we cover saving the model on a suitable filesystem like GCS or S3.
+
+#### Using GCS
+
+In this section we describe how to save the model to Google Cloud Storage (GCS).
+
+Storing the model in GCS has the advantages
+
+* The model is readily available after the job finishes
+* We can run distributed training
+   
+  * Distributed training requires a storage system accessible to all the machines
+
+Lets start by creating an environment to store parameters particular to writing the model to GCS
+and running distributed.
+
+```
+KSENV=distributed
+cd ks_app
+ks env add ${KSENV}
+```
+
+Give the job a different name (to distinguish it from your job which didn't use GCS)
+
+```
+ks param set --env=${KSENV} train name mnist-train-dist
+```
+
+Next we configure it to run distributed by setting the number of parameter servers and workers to use.
+
+```
+ks param set --env=${KSENV} train numPs 1
+ks param set --env=${KSENV} train numWorkers 2
+```
+Now we need to configure parameters telling the code to save the model to GCS.
+
+```
+ks param set --env=${KSENV} train modelDir gs://${BUCKET}/${MODEL_PATH}
+ks param set --env=${KSENV} train exportDir gs://${BUCKET}/${MODEL_PATH}/export
+```
+
+In order to write to GCS we need to supply the TFJob with GCP credentials. We do
+this by telling our training code to use a [Google service account](https://cloud.google.com/docs/authentication/production#obtaining_and_providing_service_account_credentials_manually).
+
+If you followed the [getting started guide for GKE](https://www.kubeflow.org/docs/started/getting-started-gke/) 
+then a number of steps have already been performed for you
+
+  1. We created a Google service account named `${DEPLOYMENT}-user`
+
+     * You can run the following command to list all service accounts in your project
+
+       ```
+       gcloud --project=${PROJECT} iam service-accounts list
+       ```
+
+  1. We stored the private key for this account in a K8s secret named `user-gcp-sa`
+
+     * To see the secrets in your cluster
+     
+       ```
+       kubectl get secrets
+       ```
+
+  1. We granted this service account permission to read/write GCS buckets in this project
+
+     * To see the IAM policy you can do
+
+       ```
+       gcloud projects get-iam-policy ${PROJECT} --format=yaml
+       ```
+
+     * The output should look like
+
+       ```
+        bindings:
+        ...
+        - members:
+          - serviceAccount:${DEPLOYMENT}-user@${PROJEC}.iam.gserviceaccount.com
+            ...
+          role: roles/storage.admin
+          ...
+        etag: BwV_BqSmSCY=
+        version: 1
+      ```
+To use this service account we perform the following steps
+
+  1. Mount the secret into the pod
+
+     ```
+     ks param set --env=${KSENV} train secret user-gcp-sa=/var/secrets
+     ```
+
+     * Setting this ksonnet parameter causes a volumeMount and volume to be added to your TFJob
+     * To see this you can run
+
+       ```
+       ks show ${KSENV} -c train
+       ```
+
+     * The output should now include a volumeMount and volume section
+
+       ```
+apiVersion: kubeflow.org/v1beta1
+kind: TFJob
+metadata:
+  ...
+spec:
+  tfReplicaSpecs:
+    Chief:
+      ...
+      template:
+        ...
+        spec:
+          containers:
+          - command:
+            ...
+            volumeMounts:
+            - mountPath: /var/secrets
+              name: user-gcp-sa
+              readOnly: true
+            ...
+          volumes:
+          - name: user-gcp-sa
+            secret:
+              secretName: user-gcp-sa
+       ...
+       ```
+
+  1. Next we need to set the environment variable `GOOGLE_APPLICATION_CREDENTIALS` so that our code knows
+     where to look for the service account key.
+
+     ```
+     ks param set --env=${KSENV} train envVariables GOOGLE_APPLICATION_CREDENTIALS=/var/secrets/user-gcp-sa.json     
+     ```
+
+     * If we look at the spec for our job we can see that the environment variable `GOOGLE_APPLICATION_CREDENTIALS` is set.
+
+       ```
+        ks show ${KSENV} -c train
+
+        apiVersion: kubeflow.org/v1beta1
+        kind: TFJob
+        metadata:
+          ...
+        spec:
+          tfReplicaSpecs:
+            Chief:
+              replicas: 1
+              template:
+                spec:
+                  containers:
+                  - command:
+                    ..
+                    env:
+                    ...
+                    - name: GOOGLE_APPLICATION_CREDENTIALS
+                      value: /var/secrets/user-gcp-sa.json
+                    ...
+                  ...
+            ...
+       ```
+
+
+You can now submit the job
+
+```
+ks apply ${KSENV} -c train
+```
+
+And you can check the job
+
+```
+kubectl get tfjobs -o yaml mnist-train-dist
+```
+
+And to check the logs 
+
+```
+kubectl logs mnist-train-dist-chief-0
+```
+
+
+#### Using S3
+
+**Note** This example isn't working on S3 yet. There is an open issue [#466](https://github.com/kubeflow/examples/issues/466) 
+to fix that.
+
+To use S3 we need we need to configure TensorFlow to use S3 credentials and variables. These credentials will be provided as kubernetes secrets, and the variables will be passed in as environment variables. Modify the below values to suit your environment.
+
+Give the job a different name (to distinguish it from your job which didn't use GCS)
+
+```
+ks param set --env=${KSENV} train name mnist-train-dist
+```
+
+Next we configure it to run distributed by setting the number of parameter servers and workers to use.
+
+```
+ks param set --env=${KSENV} train numPs 1
+ks param set --env=${KSENV} train numWorkers 2
+```
+Now we need to configure parameters telling the code to save the model to S3.
+
+```
+ks param set --env=${KSENV} train modelDir ${S3_MODEL_PATH_URI}
+ks param set --env=${KSENV} train exportDir ${S3_MODEL_EXPORT_URI}
+```
+
+In order to write to S3 we need to supply the TensorFlow code with AWS credentials we also need to set
+various environment variables configuring access to S3.
+
+  1. Define a bunch of environment variables corresponding to your S3 settings; these will be used in subsequent steps
+
+     ```
+     export S3_ENDPOINT=s3.us-west-2.amazonaws.com  #replace with your s3 endpoint in a host:port format, e.g. minio:9000
+     export AWS_ENDPOINT_URL=https://${S3_ENDPOINT} #use http instead of https for default minio installs
+     export AWS_ACCESS_KEY_ID=xxxxx
+     export AWS_SECRET_ACCESS_KEY=xxxxx
+     export AWS_REGION=us-west-2
+     export BUCKET_NAME=mybucket
+     export S3_USE_HTTPS=1 #set to 0 for default minio installs
+     export S3_VERIFY_SSL=1 #set to 0 for defaul minio installs 
+     ```
+
+  1. Create a K8s secret containing your AWS credentials
+
+     ```
+     kubectl create secret generic aws-creds --from-literal=awsAccessKeyID=${AWS_ACCESS_KEY_ID} \
+       --from-literal=awsSecretAccessKey=${AWS_SECRET_ACCESS_KEY}
+     ```
+  
+  1. Mount the secret into the pod
+
+     ```
+     ks param set --env=${KSENV} train secret aws-creds=/var/secrets
+     ```
+
+     * Setting this ksonnet parameter causes a volumeMount and volume to be added to your TFJob
+     * To see this you can run
+
+       ```
+       ks show ${KSENV} -c train
+       ```
+
+     * The output should now include a volumeMount and volume section
+
+       ```
+apiVersion: kubeflow.org/v1beta1
+kind: TFJob
+metadata:
+  ...
+spec:
+  tfReplicaSpecs:
+    Chief:
+      ...
+      template:
+        ...
+        spec:
+          containers:
+          - command:
+            ...
+            volumeMounts:
+            - mountPath: /var/secrets
+              name: aws-creds
+              readOnly: true
+            ...
+          volumes:
+          - name: aws-creds
+            secret:
+              secretName: aws-creds
+       ...
+       ```
+  
+  1. Next we need to set a whole bunch of S3 related environment variables so that TensorFlow
+     knows how to talk to S3
+
+     ```
+     AWSENV="S3_ENDPOINT=${S3_ENDPOINT}"
+     AWSENV="${AWSENV},AWS_ENDPOINT_URL=${AWS_ENDPOINT_URL}"     
+     AWSENV="${AWSENV},AWS_REGION=${AWS_REGION}"
+     AWSENV="${AWSENV},BUCKET_NAME=${BUCKET_NAME}"
+     AWSENV="${AWSENV},S3_USE_HTTPS=${S3_USE_HTTPS}"
+     AWSENV="${AWSENV},S3_VERIFY_SSL=${S3_VERIFY_SSL}"
+
+     ks param set --env=${KSENV} train envVariables ${AWSENV}
+     ```
+
+     * If we look at the spec for our job we can see that the environment variable `GOOGLE_APPLICATION_CREDENTIALS` is set.
+
+       ```
+        ks show ${KSENV} -c train
+
+        apiVersion: kubeflow.org/v1beta1
+        kind: TFJob
+        metadata:
+          ...
+        spec:
+          tfReplicaSpecs:
+            Chief:
+              replicas: 1
+              template:
+                spec:
+                  containers:
+                  - command:
+                    ..
+                    env:
+                    ...
+                    - name: AWS_BUCKET
+                      value: somebucket
+                    ...
+                  ...
+            ...
+       ```
+
+
+You can now submit the job
+
+```
+ks apply ${KSENV} -c train
+```
+
+And you can check the job
+
+```
+kubectl get tfjobs -o yaml mnist-train-dist
+```
+
+And to check the logs 
+
+```
+kubectl logs mnist-train-dist-chief-0
 ```
 
 ## Monitoring
 
 There are various ways to monitor workflow/training job. In addition to using `kubectl` to query for the status of `pods`, some basic dashboards are also available.
 
-### Argo UI
-
-The Argo UI is useful for seeing what stage your worfklow is in:
-
-```
-PODNAME=$(kubectl get pod -l app=argo-ui -n${NAMESPACE} -o jsonpath='{.items[0].metadata.name}')
-kubectl port-forward ${PODNAME} 8001:8001
-```
-
-You should now be able to visit [http://127.0.0.1:8001](http://127.0.0.1:8001) to see the status of your workflows.
-
 ### Tensorboard
 
-Tensorboard is deployed just before training starts. To connect:
+TODO: This section needs to be updated
+
+Configure TensorBoard to point to your model location
 
 ```
-PODNAME=$(kubectl get pod -l app=tensorboard-${JOB_NAME} -o jsonpath='{.items[0].metadata.name}')
-kubectl port-forward ${PODNAME} 6006:6006
-```
-
-Tensorboard can now be accessed at [http://127.0.0.1:6006](http://127.0.0.1:6006).
-
-## Using Tensorflow serving
-
-By default the workflow deploys our model via Tensorflow Serving. Included in this example is a client that can query your model and provide results:
+ks param set tensorboard --env=${KSENV} logDir ${LOGDIR}
 
 ```
-POD_NAME=$(kubectl get pod -l=app=mnist-${JOB_NAME} -o jsonpath='{.items[0].metadata.name}')
-kubectl port-forward ${POD_NAME} 9000:9000 &
-TF_MNIST_IMAGE_PATH=data/7.png python mnist_client.py
-```
 
-This should result in output similar to this, depending on how well your model was trained:
-```
-outputs {
-  key: "classes"
-  value {
-    dtype: DT_UINT8
-    tensor_shape {
-      dim {
-        size: 1
-      }
-    }
-    int_val: 7
-  }
-}
-outputs {
-  key: "predictions"
-  value {
-    dtype: DT_FLOAT
-    tensor_shape {
-      dim {
-        size: 1
-      }
-      dim {
-        size: 10
-      }
-    }
-    float_val: 0.0
-    float_val: 0.0
-    float_val: 0.0
-    float_val: 0.0
-    float_val: 0.0
-    float_val: 0.0
-    float_val: 0.0
-    float_val: 1.0
-    float_val: 0.0
-    float_val: 0.0
-  }
-}
-
-
-............................
-............................
-............................
-............................
-............................
-............................
-............................
-..............@@@@@@........
-..........@@@@@@@@@@........
-........@@@@@@@@@@@@........
-........@@@@@@@@.@@@........
-........@@@@....@@@@........
-................@@@@........
-...............@@@@.........
-...............@@@@.........
-...............@@@..........
-..............@@@@..........
-..............@@@...........
-.............@@@@...........
-.............@@@............
-............@@@@............
-............@@@.............
-............@@@.............
-...........@@@..............
-..........@@@@..............
-..........@@@@..............
-..........@@................
-............................
-Your model says the above number is... 7!
-```
-
-You can also omit `TF_MNIST_IMAGE_PATH`, and the client will pick a random number from the mnist test data. Run it repeatedly and see how your model fares!
-
-### Disabling Serving
-
-Model serving can be turned off by passing in `-p model-serving=false` to the `model-train.yaml` workflow. Then if you wish to serve your model after training, use the `model-deploy.yaml` workflow. Simply pass in the desired finished argo workflow as an argument:
+Assuming you followed the directions above if you used GCS you can use the following value
 
 ```
-WORKFLOW=<the workflowname>
-argo submit model-deploy.yaml -n ${NAMESPACE} -p workflow=${WORKFLOW} --serviceaccount=tf-user
+LOGDIR=gs://${BUCKET}/${MODEL_PATH}
 ```
 
-## Submitting new argo jobs
-
-If you want to rerun your workflow from scratch, then you will need to provide a new `job-name` to the argo workflow. For example:
+Then you can deploy tensorboard
 
 ```
-#We're re-using previous variables except JOB_NAME
-export JOB_NAME=myawesomejob
+ks apply ${KSENV} -c tensorboard
+```
 
-argo submit model-train.yaml -n ${NAMESPACE} --serviceaccount tf-user \
-    -p aws-endpoint-url=${AWS_ENDPOINT_URL} \
-    -p s3-endpoint=${S3_ENDPOINT} \
-    -p aws-region=${AWS_REGION} \
-    -p tf-model-image=${TF_MODEL_IMAGE} \
-    -p s3-data-url=${S3_DATA_URL} \
-    -p s3-train-base-url=${S3_TRAIN_BASE_URL} \
-    -p job-name=${JOB_NAME} \
-    -p tf-worker=${TF_WORKER} \
-    -p model-train-steps=${MODEL_TRAIN_STEPS} \
-    -p namespace=${NAMESPACE}
+To access tensorboard using port-forwarding
+
+```
+kubectl -n jlewi port-forward service/tensorboard-tb 8090:80
+```
+Tensorboard can now be accessed at [http://127.0.0.1:8090](http://127.0.0.1:8090).
+
+
+## Serving the model
+
+The model code will export the model in saved model format which is suitable for serving with TensorFlow serving.
+
+To serve the model follow the instructions below. The instructins vary slightly based on where you are storing your
+model (e.g. GCS, S3, PVC). Depending on the storage system we provide different ksonnet components as a convenience
+for setting relevant environment variables.
+
+
+### GCS
+
+Here we show to serve the model when it is stored on GCS. This assumes that when you trained the model you set `exportDir` to a GCS
+URI; if not you can always copy it to GCS using `gsutil`.
+
+Check that a model was exported
+
+```
+gsutil ls -r ${EXPORT_DIR}
+
+```
+
+The output should look something like
+
+```
+gs://${EXPORT_DIR}/1547100373/saved_model.pb
+gs://${EXPORT_DIR}/1547100373/variables/:
+gs://${EXPORT_DIR}/1547100373/variables/
+gs://${EXPORT_DIR}/1547100373/variables/variables.data-00000-of-00001
+gs://${EXPORT_DIR}/1547100373/variables/variables.index
+```
+
+The number `1547100373` is a version number auto-generated by TensorFlow; it will vary on each run but should be monotonically increasing if you save a model to the same location as a previous location.
+
+
+Set your model path
+
+```
+ks param set ${ENV} mnist-deploy-gcp modelBasePath ${EXPORT_DIR}
+
+```
+
+Deploy it
+
+```
+ks param apply ${ENV} -c mnist-deploy-gcp
+```
+
+You can check the deployment by running
+
+```
+kubectl describe deployments mnist-deploy-gcp
+```
+
+### S3
+
+TODO: Add instructions
+
+### PVC
+
+TODO: Add instructions
+
+## Web Front End
+
+The example comes with a simple web front end that can be used with your model.
+
+To deploy the web front end
+
+```
+ks apply ${ENV} -c web-ui
+```
+
+### Connecting via port forwarding
+
+To connect to the web app via port-forwarding
+
+```
+kubectl -n ${NAMESPACE} port-forward svc/web-ui 8080:80
+```
+
+You should now be able to open up the web app at [http://localhost:8080](http://localhost:8080).
+
+### Using IAP on GCP
+
+If you are using GCP and have set up IAP then you can access the web UI at
+
+```
+https://${DEPLOYMENT}.endpoints.${PROJECT}.cloud.goog/${NAMESPACE}/mnist/
 ```
 
 ## Conclusion and Next Steps
 
-This is an example of what your machine learning pipeline can look like. Feel free to play with the tunables and see if you can increase your model's accuracy (increasing `model-train-steps` can go a long way).
+This is an example of what your machine learning can look like. Feel free to play with the tunables and see if you can increase your model's accuracy (increasing `model-train-steps` can go a long way).

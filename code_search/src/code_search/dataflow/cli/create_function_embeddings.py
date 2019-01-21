@@ -6,6 +6,7 @@ import apache_beam as beam
 import code_search.dataflow.cli.arguments as arguments
 from code_search.dataflow.transforms import bigquery
 import code_search.dataflow.transforms.github_bigquery as gh_bq
+import code_search.dataflow.transforms.github_dataset as github_dataset
 import code_search.dataflow.transforms.function_embeddings as func_embed
 import code_search.dataflow.do_fns.dict_to_csv as dict_to_csv
 
@@ -30,12 +31,21 @@ def create_function_embeddings(argv=None):
 
   pipeline = beam.Pipeline(options=pipeline_opts)
 
-  token_pairs_query = gh_bq.ReadTransformedGithubDatasetQuery(
-    args.token_pairs_table)
-  token_pairs_source = beam.io.BigQuerySource(
-    query=token_pairs_query.query_string, use_standard_sql=True)
-  embeddings = (pipeline
-    | "Read Transformed Github Dataset" >> beam.io.Read(token_pairs_source)
+  if args.token_pairs_table:
+    token_pairs_query = gh_bq.ReadTransformedGithubDatasetQuery(
+      args.token_pairs_table)
+    token_pairs_source = beam.io.BigQuerySource(
+      query=token_pairs_query.query_string, use_standard_sql=True)
+    token_pairs = (pipeline
+      | "Read Transformed Github Dataset" >> beam.io.Read(token_pairs_source)
+    )
+  else:
+    token_pairs = (pipeline
+      | "Read Github Dataset" >> gh_bq.ReadGithubDataset(args.project)
+      | "Transform Github Dataset" >> github_dataset.TransformGithubDataset(None, None)
+    )
+
+  embeddings = (token_pairs
     | "Compute Function Embeddings" >> func_embed.FunctionEmbeddings(args.problem,
                                                                      args.data_dir,
                                                                      args.saved_model_dir)
@@ -59,7 +69,7 @@ def create_function_embeddings(argv=None):
   )
 
   (embeddings  # pylint: disable=expression-not-assigned
-    | "Format for CSV Write" >> beam.ParDo(dict_to_csv.DictToCSVString(
+    | "Format for Embeddings CSV Write" >> beam.ParDo(dict_to_csv.DictToCSVString(
         ['nwo', 'path', 'function_name', 'lineno', 'original_function', 'function_embedding']))
     | "Write Embeddings to CSV" >> beam.io.WriteToText('{}/func-index'.format(args.output_dir),
                                                        file_name_suffix='.csv',

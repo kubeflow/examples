@@ -44,22 +44,6 @@ local tfjob = {
           },
         },
       },
-      Ps: {
-        template: {
-          spec: {
-            containers: [
-              {
-                args: args,
-                image: params.cpuImage,
-                name: "tensorflow",
-                workingDir: "/opt/workdir",
-              },
-            ],
-            restartPolicy: "OnFailure",
-          },
-        },
-        tfReplicaType: "PS",
-      },
     },
   },
 };

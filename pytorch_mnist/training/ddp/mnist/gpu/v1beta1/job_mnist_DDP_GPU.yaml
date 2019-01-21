@@ -1,0 +1,46 @@
+apiVersion: "kubeflow.org/v1beta1"
+kind: "PyTorchJob"
+metadata:
+  name: "pytorch-mnist-ddp-gpu"
+spec:
+  pytorchReplicaSpecs:
+    Master:
+      replicas: 1
+      restartPolicy: OnFailure
+      template:
+        spec:
+          containers:
+            - name: pytorch
+              image: gcr.io/kubeflow-examples/pytorch-mnist-ddp-gpu
+              volumeMounts:
+              - mountPath: /mnt/kubeflow-gcfs
+                name: kubeflow-gcfs
+              resources:
+                limits:
+                  nvidia.com/gpu: 1
+          volumes:
+            - name: kubeflow-gcfs
+              persistentVolumeClaim:
+                claimName: kubeflow-gcfs
+                readOnly: false
+
+    Worker:
+      replicas: 3
+      restartPolicy: OnFailure
+      template:
+        spec:
+          containers:
+            - name: pytorch
+              image: gcr.io/kubeflow-examples/pytorch-mnist-ddp-gpu
+              volumeMounts:
+              - mountPath: /mnt/kubeflow-gcfs
+                name: kubeflow-gcfs
+              resources: 
+                limits:
+                  nvidia.com/gpu: 1
+          volumes:
+            - name: kubeflow-gcfs
+              persistentVolumeClaim:
+                claimName: kubeflow-gcfs
+                readOnly: false
+

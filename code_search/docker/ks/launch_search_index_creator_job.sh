@@ -17,26 +17,26 @@ component="search-index-creator"
 
 usage() {
 	echo "Usage: launch_search_index_creator_job.sh
-	--workflowId=<workflow id invoking the container>
+	--cluster=<cluster to deploy job to>
+	--functionEmbeddingsDir=<input function embedding dir>
 	--indexFile=<index file>
 	--lookupFile=<lookup file>
-	--functionEmbeddingsDir=<input function embedding dir>
-	--timeout=<timeout>
 	--namespace=<kubernetes namespace>
-	--cluster=<cluster to deploy job to>"
+	--timeout=<timeout>
+	--workflowId=<workflow id invoking the container>"
 }
 
 # List of required parameters
-names=(workflowId indexFile lookupFile dataDir namespace cluster)
+names=(cluster functionEmbeddingsDir indexFile lookupFile namespace workflowId)
 
 source "${DIR}/parse_arguments.sh"
 source "${DIR}/initialize_kubectl.sh"
 
 # Apply parameters
 ks param set ${component} functionEmbeddingsDir ${functionEmbeddingsDir} --env ${ksEnvName}
+ks param set ${component} indexFile ${indexFile} --env ${ksEnvName}
 ks param set ${component} jobNameSuffix ${workflowId} --env ${ksEnvName}
 ks param set ${component} lookupFile ${lookupFile} --env ${ksEnvName}
-ks param set ${component} indexFile ${indexFile} --env ${ksEnvName}
 
 ks show ${ksEnvName} -c "${component}"
 ks apply ${ksEnvName} -c "${component}"

@@ -18,6 +18,7 @@
     //tokenPairsBQTable: self.project,
     //functionEmbeddingsBQTable: "someothervalue",
     tokenPairsBQTable: self.project + ":" + self.bqDataset + ".token_pairs",
+    failedTokenizeBQTable: self.project + ":" + self.bqDataset + ".failed_tokenize",
     jobNameSuffix: "20181201-1530",
     bqSuffix: std.strReplace(self.jobNameSuffix, "-", "_"),
     functionEmbeddingsBQTable: self.project + ":" + self.bqDataset + ".code_embeddings_" + self.bqSuffix,
@@ -34,7 +35,5 @@
     name: "pipeline",
     problem: "kf_github_function_docstring",
     project: "code-search-demo",
-    bqDataset: "code_search",
-    tokenPairsBQTable: self.project + ":" + self.bqDataset + ".token_pairs",
   },
 }

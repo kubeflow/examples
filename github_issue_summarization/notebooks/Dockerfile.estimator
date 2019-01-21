@@ -1,7 +1,9 @@
 # TODO(jlewi): Can we merge with Dockerfile?
-# This Dockerfile is used for training with TF.Estimator.
+# This Dockerfile is used for training.
 # We can probably use the same notebook Docker image if
-# we just upgrade the notebook version.
+# we just upgrade the notebook version. The conda environments
+# however complicate things so it might be simpler just to
+# have a separate image.
 FROM python:3.6
 
 # TODO(jlewi): We should probably pin version of TF and other libraries.
@@ -12,11 +14,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install unzip
 RUN mkdir /issues
 WORKDIR /issues
-COPY notebooks/train.py /issues
-COPY notebooks/trainer.py /issues
-COPY notebooks/seq2seq_utils.py /issues
-COPY ks-kubeflow/components/download_data.sh /issues
-RUN chmod +x /issues/download_data.sh
+COPY ./ /issues/
 RUN mkdir /model
 RUN mkdir /data
 

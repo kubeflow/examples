@@ -17,8 +17,8 @@ spec:
     # with the web app components is checked in.
     # repoURL: https://github.com/kubeflow/examples.git
     # targetRevision: HEAD
-    repoURL: https://github.com/jlewi/examples.git
-    targetRevision: cs_demo_argo_cd
+    repoURL: https://github.com/kubeflow/examples.git
+    targetRevision: master
   syncPolicy:
     automated:
       prune: True

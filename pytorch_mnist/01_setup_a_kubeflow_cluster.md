@@ -101,4 +101,4 @@ workflow-controller-59c7967f59-df424             1/1       Running     0        
 *   We deployed the Kubeflow components to our kubernetes cluster
 *   We created a persistent disk using Google Filestore for storing our trained model
 
-*Next*: [Training the model](02_training_the_model.md)
+*Next*: [Training the model](02_distributed_training.md)
