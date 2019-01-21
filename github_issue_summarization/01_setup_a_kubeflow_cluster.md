@@ -40,7 +40,7 @@ Kubeflow](https://github.com/kubeflow/kubeflow/blob/master/user_guide.md#deploy-
     *   If you run into
         [RBAC permissions issues](https://github.com/kubeflow/kubeflow/blob/master/user_guide.md#rbac-clusters)
         running `ks apply` commands, be sure you have created a `cluster-admin` ClusterRoleBinding for your username.
-*    [Setup a persistent disk](https://www.kubeflow.org/docs/guides/advanced/)
+*    [Setup a persistent disk](https://www.kubeflow.org/docs/other-guides/advanced/)
     *   We need a shared persistent disk to store our training data since
         containers' filesystems are ephemeral and don't have a lot of storage space.
     *   For this example, provision a `10GB` cluster-wide shared NFS mount with the
