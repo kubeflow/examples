@@ -12,6 +12,7 @@
       numPs: 0,
       numWorkers: 0,
       secret: '',
+      secretKeyRefs: '',
       trainSteps: 200,
     },
     "mnist-deploy-gcp": {

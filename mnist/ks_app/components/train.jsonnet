@@ -43,6 +43,28 @@ local trainEnv = [
   },
 ];
 
+// AWS Access/Secret keys
+local awsSecretKeyRefs = util.parseSecret(params.secretKeyRefs);
+local awsAccessKeyId = if std.length(awsSecretKeyRefs) > 0 then awsSecretKeyRefs[0] else "";
+local awsSecretAccessKey = if std.length(awsSecretKeyRefs) > 1 then awsSecretKeyRefs[1] else "";
+
+local awsEnv = [
+  {
+    name: "AWS_ACCESS_KEY_ID",
+    valueFrom: {
+      secretKeyRef:  
+        awsAccessKeyId
+    }
+  },
+  {
+    name: "AWS_SECRET_ACCESS_KEY",
+    valueFrom: {
+      secretKeyRef:
+        awsSecretAccessKey
+    }
+  }
+];
+
 local secretPieces = std.split(params.secret, "=");
 local secretName = if std.length(secretPieces) > 0 then secretPieces[0] else "";
 local secretMountPath = if std.length(secretPieces) > 1 then secretPieces[1] else "";
@@ -54,7 +76,7 @@ local replicaSpec = {
         "/usr/bin/python",
         "/opt/model.py",
       ],
-      env: trainEnv + util.parseEnv(params.envVariables),
+      env: trainEnv + util.parseEnv(params.envVariables) + awsEnv,
       image: params.image,
       name: "tensorflow",
       volumeMounts: if secretMountPath != "" then
