@@ -1,7 +1,7 @@
 // Test workflow for XGBoost Housing example.
 //
 local env = std.extVar("__ksonnet/environments");
-local overrides = std.extVar("__ksonnet/params").components.xgboost_ames_housing;
+local overrides = std.extVar("__ksonnet/params").components.xgboost-ames-housing;
 
 local k = import "k.libsonnet";
 local util = import "util.libsonnet";
