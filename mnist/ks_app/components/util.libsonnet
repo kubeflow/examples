@@ -7,11 +7,16 @@
       value: v[1],
     },
 
-  // convert a list of two items into a map representing a secret name and key
+  // convert a list of two items into a map representing an env variable referencing k8s secret
   listToSecretMap:: function(v)
     {
       name: v[0],
-      key: v[1],
+        valueFrom: {
+          secretKeyRef: {
+            name: std.split(v[1], ".")[0],
+            key: std.split(v[1], ".")[1],
+          }
+        }
     },
 
   // Function to turn comma separated list of environment variables into a dictionary.
@@ -24,12 +29,12 @@
       )
     else [],
 
-  // Function to turn comma separated list of secret names and keys into a dictionary.
-  parseSecret:: function(v)
+  // Function to turn comma separated list of env variables referencing secrets into a dictionary.
+  parseSecrets:: function(v)
     local pieces = std.split(v, ",");
     if v != "" && std.length(pieces) > 0 then
       std.map(
-        function(i) $.listToSecretMap(std.split(i, ".")),
+        function(i) $.listToSecretMap(std.split(i, "=")),
         std.split(v, ",")
       )
     else [],
