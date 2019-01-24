@@ -42,7 +42,7 @@ workflows:
   # E2E test for code_search example
   - app_dir: kubeflow/examples/test/workflows
     component: xgboost_ames_housing
-    name: xgboost_ames_housing
+    name: xgboost
     job_types:
     - periodic
     - presubmit

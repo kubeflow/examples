@@ -1,7 +1,7 @@
 // Test workflow for XGBoost Housing example.
 //
 local env = std.extVar("__ksonnet/environments");
-local overrides = std.extVar("__ksonnet/params").components.mnist;
+local overrides = std.extVar("__ksonnet/params").components.xgboost_ames_housing;
 
 local k = import "k.libsonnet";
 local util = import "util.libsonnet";
@@ -81,13 +81,13 @@ local imageTag = "build-" + prowDict["BUILD_ID"];
 local trainerImage = imageBase + "/model:" + imageTag;
 
 // Directory where model should be stored.
-local modelDir = "gs://" + params.modelBucket + "/mnist/models/" + prowDict["BUILD_ID"];
+local modelDir = "gs://" + params.modelBucket + "/xgboost_ames_housing/models/" + prowDict["BUILD_ID"];
 
 // value of KUBECONFIG environment variable. This should be  a full path.
 local kubeConfig = testDir + "/.kube/kubeconfig";
 
 // Namespace where tests should run
-local testNamespace = "mnist-" + prowDict["BUILD_ID"];
+local testNamespace = "xgboost-ames-housing-" + prowDict["BUILD_ID"];
 
 // The directory within the kubeflow_testing submodule containing
 // py scripts to use.
@@ -97,7 +97,7 @@ local tfOperatorPy = srcRootDir + "/kubeflow/tf-operator";
 // Workflow template is the name of the workflow template; typically the name of the ks component.
 // This is used as a label to make it easy to identify all Argo workflows created from a given
 // template.
-local workflow_template = "mnist";
+local workflow_template = "xgboost_ames_housing";
 
 // Build template is a template for constructing Argo step templates.
 //
@@ -303,31 +303,44 @@ local dagTemplates = [
   }, // create-namespace
   {
     template: buildTemplate {
-      name: "deploy-test",
-      command: [
-      "ks",
+      name: "deploy-seldon",
+      command: util.buildCommand([[
+      "ks-13",
       "generate",
       "seldon-serve-simple-v1alpha2",
-      "xgboost-ames",
-      "--name=xgboost-ames",
-      "--image=gcr.io/" + params.kfProject + "/housingserve:latest",
-      "--namespace=" + testNamespace,
+      "xgboost-ames-" + prowDict["BUILD_ID"],
+      "--name=xgboost-ames-" + prowDict["BUILD_ID"],
+      "--image=" + imageBase + ":" + imageTag,
       "--replicas=1",
-      ])],
-      workingDir: srcDir + "/xgboost_ames_housing",
+      ],
+      [
+      "ks-13",
+      "apply",
+      "default",
+      "-c",
+      "xgboost-ames-" + prowDict["BUILD_ID"],
+      ]]),
+      workingDir: srcDir + "/xgboost_ames_housing/ks_app",
     },
-    dependencies: ["get-kubeconfig"],
-  },  // deploy-test
+    dependencies: ["build-images"],
+  },  // deploy-seldon
   {
     template: buildTemplate {
       name: "predict-test",
       command: [
+        "pytest",
+        "predict_test.py",
+        "-s",
+        // Test timeout in seconds.
+        "--timeout=500",
+        "--junitxml=" + artifactsDir + "/junit_predict-test.xml",
+        "--namespace=kubeflow",
+        "--service=xgboost-ames-" + prowDict["BUILD_ID"],
       ],
-      workingDir: srcDir + "/xgboost_ames_housing",
+      workingDir: srcDir + "/xgboost_ames_housing/test",
     },
-    dependencies: ["deploy-test"],
-  },  // deploy-test
-  // TODO(jlewi): We should add a non-distributed test that just uses the default values.
+    dependencies: ["deploy-seldon"],
+  },  // predict-test
 ];
 
 // Dag defines the tasks in the graph
@@ -387,6 +400,20 @@ local exitTemplates =
         ],
       },  // copy-artifacts,
     },
+    {
+      // Delete the seldon deployment
+      template: buildTemplate {
+        name: "delete-seldon-deployment",
+        command: [
+          "ks-13",
+          "delete",
+          "default",
+          "-c",
+          "xgboost-ames-" + prowDict["BUILD_ID"],
+        ],
+        workingDir: srcDir + "/xgboost_ames_housing/ks_app",
+      },
+    }, // delete-seldon-deployment
     {
       // Delete the test directory in NFS.
       // TODO(https://github.com/kubeflow/testing/issues/256): Use an external process to do this.
