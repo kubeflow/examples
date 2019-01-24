@@ -1,7 +1,7 @@
 // Test workflow for XGBoost Housing example.
 //
 local env = std.extVar("__ksonnet/environments");
-local overrides = std.extVar("__ksonnet/params").components.mnist;
+local overrides = std.extVar("__ksonnet/params").components.xgboost_ames_housing;
 
 local k = import "k.libsonnet";
 local util = import "util.libsonnet";
@@ -81,13 +81,13 @@ local imageTag = "build-" + prowDict["BUILD_ID"];
 local trainerImage = imageBase + "/model:" + imageTag;
 
 // Directory where model should be stored.
-local modelDir = "gs://" + params.modelBucket + "/mnist/models/" + prowDict["BUILD_ID"];
+local modelDir = "gs://" + params.modelBucket + "/xgboost_ames_housing/models/" + prowDict["BUILD_ID"];
 
 // value of KUBECONFIG environment variable. This should be  a full path.
 local kubeConfig = testDir + "/.kube/kubeconfig";
 
 // Namespace where tests should run
-local testNamespace = "mnist-" + prowDict["BUILD_ID"];
+local testNamespace = "xgboost_ames_housing-" + prowDict["BUILD_ID"];
 
 // The directory within the kubeflow_testing submodule containing
 // py scripts to use.
@@ -97,7 +97,7 @@ local tfOperatorPy = srcRootDir + "/kubeflow/tf-operator";
 // Workflow template is the name of the workflow template; typically the name of the ks component.
 // This is used as a label to make it easy to identify all Argo workflows created from a given
 // template.
-local workflow_template = "mnist";
+local workflow_template = "xgboost_ames_housing";
 
 // Build template is a template for constructing Argo step templates.
 //
@@ -308,8 +308,8 @@ local dagTemplates = [
       "ks",
       "generate",
       "seldon-serve-simple-v1alpha2",
-      "xgboost-ames",
-      "--name=xgboost-ames",
+      "xgboost-ames-" + prowDict["BUILD_ID"],
+      "--name=xgboost-ames-" + prowDict["BUILD_ID"],
       "--image=gcr.io/" + params.kfProject + "/housingserve:latest",
       "--namespace=" + testNamespace,
       "--replicas=1",
@@ -320,10 +320,6 @@ local dagTemplates = [
       "default",
       "-c",
       "xgboost-ames",
-      ],
-      [
-      "return",
-      "12",
       ]],
       workingDir: srcDir + "/xgboost_ames_housing",
     },
@@ -333,11 +329,19 @@ local dagTemplates = [
     template: buildTemplate {
       name: "predict-test",
       command: [
+        "pytest",
+        "predict_test.py",
+        "-s",
+        // Test timeout in seconds.
+        "--timeout=500",
+        "--junitxml=" + artifactsDir + "/junit_predict-test.xml",
+        "--namespace=" + testNamespace,
+        "--service=xgboost-ames-" + prowDict["BUILD_ID"],
       ],
-      workingDir: srcDir + "/xgboost_ames_housing",
+      workingDir: srcDir + "/xgboost_ames_housing/test",
     },
     dependencies: ["deploy-test"],
-  },  // deploy-test
+  },  // predict-test
   // TODO(jlewi): We should add a non-distributed test that just uses the default values.
 ];
 
