@@ -1,7 +1,7 @@
 // Test workflow for XGBoost Housing example.
 //
 local env = std.extVar("__ksonnet/environments");
-local overrides = std.extVar("__ksonnet/params").components.xgboost_ames_housing;
+local overrides = std.extVar("__ksonnet/params").components.xgboost-ames-housing;
 
 local k = import "k.libsonnet";
 local util = import "util.libsonnet";
@@ -76,18 +76,18 @@ local srcDir = srcRootDir + "/" + prowDict.REPO_OWNER + "/" + prowDict.REPO_NAME
 
 // These variables control where the docker images get pushed and what 
 // tag to use
-local imageBase = "gcr.io/kubeflow-ci/xgboost_ames_housing";
+local imageBase = "gcr.io/kubeflow-ci/xgboost-ames-housing";
 local imageTag = "build-" + prowDict["BUILD_ID"];
 local trainerImage = imageBase + "/model:" + imageTag;
 
 // Directory where model should be stored.
-local modelDir = "gs://" + params.modelBucket + "/xgboost_ames_housing/models/" + prowDict["BUILD_ID"];
+local modelDir = "gs://" + params.modelBucket + "/xgboost-ames-housing/models/" + prowDict["BUILD_ID"];
 
 // value of KUBECONFIG environment variable. This should be  a full path.
 local kubeConfig = testDir + "/.kube/kubeconfig";
 
 // Namespace where tests should run
-local testNamespace = "xgboost_ames_housing-" + prowDict["BUILD_ID"];
+local testNamespace = "xgboost-ames-housing-" + prowDict["BUILD_ID"];
 
 // The directory within the kubeflow_testing submodule containing
 // py scripts to use.
@@ -97,7 +97,7 @@ local tfOperatorPy = srcRootDir + "/kubeflow/tf-operator";
 // Workflow template is the name of the workflow template; typically the name of the ks component.
 // This is used as a label to make it easy to identify all Argo workflows created from a given
 // template.
-local workflow_template = "xgboost_ames_housing";
+local workflow_template = "xgboost-ames-housing";
 
 // Build template is a template for constructing Argo step templates.
 //
@@ -319,7 +319,7 @@ local dagTemplates = [
       "apply",
       "default",
       "-c",
-      "xgboost-ames",
+      "xgboost-ames" + prowDict["BUILD_ID"],
       ]],
       workingDir: srcDir + "/xgboost_ames_housing",
     },
