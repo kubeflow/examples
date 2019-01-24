@@ -24,7 +24,7 @@
       namespace: "kubeflow-test-infra",
       prow_env: "BUILD_NUMBER=997a,BUILD_ID=997a,JOB_NAME=kubeflow-examples-presubmit-test,JOB_TYPE=presubmit,PULL_NUMBER=374,REPO_NAME=examples,REPO_OWNER=kubeflow",
     },
-    xgboost-ames-housing: {
+    xgboost_ames_housing: {
       bucket: "kubeflow-ci_temp",
       name: "kubeflow-xgboost-ames-housing",
       namespace: "kubeflow-test-infra",
