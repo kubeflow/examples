@@ -39,7 +39,7 @@ build-s2i-image:
 # Build a serving image in a s2i image, which can be built in the above step.
 build-seldon-image:IMG?=gcr.io/kubeflow-examples/xgboost_ames_housing_seldon
 build-seldon-image:TAG?=latest
-build-seldon-image:SOURCE=../seldon_serve
+build-seldon-image:SOURCE?=../seldon_serve
 build-seldon-image:
 	@echo IMG=$(IMG)
 	@echo GIT_VERSION=$(GIT_VERSION)
