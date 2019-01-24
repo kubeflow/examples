@@ -1,4 +1,4 @@
-"""Test mnist_client.
+"""Test xgboost_ames_housing.
 
 This file tests that we can send predictions to the model
 using REST.
@@ -105,11 +105,7 @@ def test_predict(master, namespace, service):
   if six.PY3 and hasattr(content, "decode"):
     content = content.decode()
   result = json.loads(content)
-  assert len(result["predictions"]) == 1
-  predictions = result["predictions"][0]
-  assert "classes" in predictions
-  assert "predictions" in predictions
-  assert len(predictions["predictions"]) == 10
+  assert result["data"]["tensor"]["values"] == [97522.359375, 97522.359375]
   logging.info("URL %s returned; %s", url, content)
 
 if __name__ == "__main__":
