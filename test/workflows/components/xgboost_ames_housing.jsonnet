@@ -314,6 +314,17 @@ local dagTemplates = [
       "--namespace=" + testNamespace,
       "--replicas=1",
       ],
+      [
+      "ks",
+      "apply",
+      "default",
+      "-c",
+      "xgboost-ames",
+      ],
+      [
+      "return",
+      "12",
+      ],
       workingDir: srcDir + "/xgboost_ames_housing",
     },
     dependencies: ["get-kubeconfig"],
