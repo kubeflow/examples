@@ -319,7 +319,7 @@ local dagTemplates = [
       "apply",
       "default",
       "-c",
-      "xgboost-ames" + prowDict["BUILD_ID"],
+      "xgboost-ames-" + prowDict["BUILD_ID"],
       ]],
       workingDir: srcDir + "/xgboost_ames_housing",
     },
