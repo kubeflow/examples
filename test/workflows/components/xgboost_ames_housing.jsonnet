@@ -313,7 +313,7 @@ local dagTemplates = [
       "--image=gcr.io/" + params.kfProject + "/housingserve:latest",
       "--namespace=" + testNamespace,
       "--replicas=1",
-      ])],
+      ],
       workingDir: srcDir + "/xgboost_ames_housing",
     },
     dependencies: ["get-kubeconfig"],
