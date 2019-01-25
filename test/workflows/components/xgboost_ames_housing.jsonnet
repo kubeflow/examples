@@ -303,7 +303,7 @@ local dagTemplates = [
   }, // create-namespace
   {
     template: buildTemplate {
-      name: "deploy-test",
+      name: "deploy-seldon",
       command: util.buildCommand([[
         "ks",
         "init",
@@ -319,7 +319,7 @@ local dagTemplates = [
       "seldon-serve-simple-v1alpha2",
       "xgboost-ames-" + prowDict["BUILD_ID"],
       "--name=xgboost-ames-" + prowDict["BUILD_ID"],
-      "--image=gcr.io/" + params.kfProject + "/housingserve:latest",
+      "--image=" + imageBase + ":" + imageTag,
       "--namespace=" + testNamespace,
       "--replicas=1",
       ],
@@ -332,7 +332,7 @@ local dagTemplates = [
       ]]),
       workingDir: srcDir + "/xgboost_ames_housing",
     },
-    dependencies: ["get-kubeconfig"],
+    dependencies: ["build-images"],
   },  // deploy-test
   {
     template: buildTemplate {
