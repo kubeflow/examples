@@ -312,7 +312,7 @@ local dagTemplates = [
       [
       "cd",
       "deploy-app",
-      ]
+      ],
       [
       "ks",
       "generate",
