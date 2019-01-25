@@ -89,8 +89,8 @@ def test_predict(master, namespace, service):
 
   # We proxy the request through the APIServer so that we can connect
   # from outside the cluster.
-  url = ("https://{master}/api/v1/namespaces/{namespace}/services/{service}:8080"
-         "/seldon/xgboost-ames/api/v0.1/predictions").format(
+  url = ("https://{master}/api/v1/namespaces/{namespace}/services/{service}:8000"
+         "/proxy/api/v0.1/predictions").format(
            master=master, namespace=namespace, service=service)
   logging.info("Request: %s", url)
   r = send_request(url, json=instances, verify=False)
