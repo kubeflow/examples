@@ -87,7 +87,7 @@ local modelDir = "gs://" + params.modelBucket + "/xgboost_ames_housing/models/" 
 local kubeConfig = testDir + "/.kube/kubeconfig";
 
 // Namespace where tests should run
-local testNamespace = "xgboost_ames_housing-" + prowDict["BUILD_ID"];
+local testNamespace = "xgboost-ames-housing-" + prowDict["BUILD_ID"];
 
 // The directory within the kubeflow_testing submodule containing
 // py scripts to use.
