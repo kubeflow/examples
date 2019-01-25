@@ -4,14 +4,14 @@ environments:
     destination:
       namespace: kubeflow
       server: https://35.227.112.162
-    k8sVersion: v1.8.0
+    k8sVersion: v1.11.6
     path: default
 kind: ksonnet.io/app
 libraries:
   seldon-core/seldon-core:
     name: seldon-core
     registry: seldon-core
-    version: 714fa9812e722b8d62982293d133c114be3d2ab3
+    version: fca2cfd3d67d8d0acfcf900ca3eb2cd48b38b43d
 name: ks_app
 registries:
   incubator:
