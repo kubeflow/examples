@@ -304,7 +304,7 @@ local dagTemplates = [
   {
     template: buildTemplate {
       name: "deploy-test",
-      command: [[
+      command: util.buildCommand([[
       "ks",
       "generate",
       "seldon-serve-simple-v1alpha2",
@@ -320,7 +320,7 @@ local dagTemplates = [
       "default",
       "-c",
       "xgboost-ames-" + prowDict["BUILD_ID"],
-      ]],
+      ]]),
       workingDir: srcDir + "/xgboost_ames_housing",
     },
     dependencies: ["get-kubeconfig"],
