@@ -333,7 +333,7 @@ local dagTemplates = [
       workingDir: srcDir + "/xgboost_ames_housing",
     },
     dependencies: ["build-images"],
-  },  // deploy-test
+  },  // deploy-seldon
   {
     template: buildTemplate {
       name: "predict-test",
@@ -349,7 +349,7 @@ local dagTemplates = [
       ],
       workingDir: srcDir + "/xgboost_ames_housing/test",
     },
-    dependencies: ["deploy-test"],
+    dependencies: ["deploy-seldon"],
   },  // predict-test
   // TODO(jlewi): We should add a non-distributed test that just uses the default values.
 ];
