@@ -307,9 +307,6 @@ kubectl logs mnist-train-dist-chief-0
 
 #### Using S3
 
-**Note** This example isn't working on S3 yet. There is an open issue [#466](https://github.com/kubeflow/examples/issues/466) 
-to fix that.
-
 To use S3 we need we need to configure TensorFlow to use S3 credentials and variables. These credentials will be provided as kubernetes secrets, and the variables will be passed in as environment variables. Modify the below values to suit your environment.
 
 Give the job a different name (to distinguish it from your job which didn't use GCS)
