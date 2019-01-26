@@ -351,7 +351,6 @@ local dagTemplates = [
     },
     dependencies: ["deploy-seldon"],
   },  // predict-test
-  // TODO(jlewi): We should add a non-distributed test that just uses the default values.
 ];
 
 // Dag defines the tasks in the graph
