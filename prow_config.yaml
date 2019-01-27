@@ -46,7 +46,6 @@ workflows:
     component: xgboost_ames_housing
     name: xgboost
     job_types:
-    - periodic
     - presubmit
     - postsubmit
     include_dirs:
