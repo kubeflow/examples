@@ -40,17 +40,17 @@ workflows:
     - github_issue_summarization/*
     -
 # Build-Test and Image Release workflows for Pytorch nmist example.
-# The workflows below are related to building our Docker images and run tests during the presubmit jobs.
+# The workflows below are related to building our Docker images and run tests during one presubmit job.
 # We have separate postsubmit jobs to push/release images in the Examples repository
 
   # E2E test for pytorch mnist example
   - app_dir: kubeflow/examples/test/workflows
-    component: pytorch-mnist-webui-build
+    component: pytorch-mnist-build-test
     name: mnist-webui
     job_types:
     - presubmit
     include_dirs:
-    - pytorch_mnist/web-ui/*
+    - pytorch_mnist/*
 
   # The postsubmit run publishes the docker images to gcr.io/kubeflow-examples
   - app_dir: kubeflow/examples/test/workflows
@@ -63,15 +63,6 @@ workflows:
     include_dirs:
     - pytorch_mnist/web-ui/*
 
-  # E2E test for pytorch mnist example
-  - app_dir: kubeflow/examples/test/workflows
-    component: pytorch-mnist-cpu-build
-    name: mnist-cpu
-    job_types:
-    - presubmit
-    include_dirs:
-    - pytorch_mnist/training/ddp/mnist/*
-
   # The postsubmit run publishes the docker images to gcr.io/kubeflow-examples
   - app_dir: kubeflow/examples/test/workflows
     component: pytorch-mnist-cpu-release
@@ -80,15 +71,6 @@ workflows:
     - postsubmit
     params:
       registry: "gcr.io/kubeflow-examples"
-    include_dirs:
-    - pytorch_mnist/training/ddp/mnist/*
-
-  # E2E test for pytorch mnist example
-  - app_dir: kubeflow/examples/test/workflows
-    component: pytorch-mnist-gpu-build
-    name: mnist-gpu
-    job_types:
-    - presubmit
     include_dirs:
     - pytorch_mnist/training/ddp/mnist/*
 
@@ -102,15 +84,6 @@ workflows:
       registry: "gcr.io/kubeflow-examples"
     include_dirs:
     - pytorch_mnist/training/ddp/mnist/*
-
-  # E2E test for pytorch mnist example
-  - app_dir: kubeflow/examples/test/workflows
-    component: pytorch-mnist-serve-build
-    name: mnist-serve
-    job_types:
-    - presubmit
-    include_dirs:
-    - pytorch_mnist/serving/*
 
   # The postsubmit run publishes the docker images to gcr.io/kubeflow-examples
   - app_dir: kubeflow/examples/test/workflows
