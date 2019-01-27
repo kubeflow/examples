@@ -24,6 +24,12 @@
       namespace: "kubeflow-test-infra",
       prow_env: "BUILD_NUMBER=997a,BUILD_ID=997a,JOB_NAME=kubeflow-examples-presubmit-test,JOB_TYPE=presubmit,PULL_NUMBER=374,REPO_NAME=examples,REPO_OWNER=kubeflow",
     },
+    pytorch_mnist: {
+          bucket: "kubeflow-ci_temp",
+          name: "kubeflow-pytorch_mnist",
+          namespace: "kubeflow-test-infra",
+          prow_env: "BUILD_NUMBER=997a,BUILD_ID=997a,JOB_NAME=kubeflow-examples-presubmit-test,JOB_TYPE=presubmit,PULL_NUMBER=374,REPO_NAME=examples,REPO_OWNER=kubeflow",
+        },
     workflows: {
       bucket: "kubeflow-ci_temp",
       name: "kubeflow-examples-presubmit-test-374-6e32",
