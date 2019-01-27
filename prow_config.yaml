@@ -38,40 +38,41 @@ workflows:
     - postsubmit
     include_dirs:
     - github_issue_summarization/*
-# Image Auto Release workflows.
-# The workflows below are related to auto building our Docker images.
-# We have separate pre/postsubmit jobs because we want to use different
-# registries
+    -
+# Build-Test and Image Release workflows for Pytorch nmist example.
+# The workflows below are related to building our Docker images and run tests during the presubmit jobs.
+# We have separate postsubmit jobs to push/release images in the Examples repository
+
+  # E2E test for pytorch mnist example
+  - app_dir: kubeflow/examples/test/workflows
+    component: pytorch-mnist-webui-build
+    name: mnist-webui
+    job_types:
+    - presubmit
+    include_dirs:
+    - pytorch_mnist/web-ui/*
+
+  # The postsubmit run publishes the docker images to gcr.io/kubeflow-examples
   - app_dir: kubeflow/examples/test/workflows
     component: pytorch-mnist-webui-release
     name: mnist-webui
     job_types:
-    - presubmit
-    params:
-      registry: "gcr.io/kubeflow-ci"
-    include_dirs:
-    - pytorch_mnist/web-ui/*
-# The postsubmit run publishes the docker images to gcr.io/kubeflow-examples
-  - app_dir: kubeflow/examples/test/workflows
-    component: pytorch-mnist-webui-release
-    name: mnist-webui
-    job_types:
     - postsubmit
     params:
       registry: "gcr.io/kubeflow-examples"
     include_dirs:
     - pytorch_mnist/web-ui/*
 
+  # E2E test for pytorch mnist example
   - app_dir: kubeflow/examples/test/workflows
-    component: pytorch-mnist-cpu-release
+    component: pytorch-mnist-cpu-build
     name: mnist-cpu
     job_types:
     - presubmit
-    params:
-      registry: "gcr.io/kubeflow-ci"
     include_dirs:
     - pytorch_mnist/training/ddp/mnist/*
-# The postsubmit run publishes the docker images to gcr.io/kubeflow-examples
+
+  # The postsubmit run publishes the docker images to gcr.io/kubeflow-examples
   - app_dir: kubeflow/examples/test/workflows
     component: pytorch-mnist-cpu-release
     name: mnist-cpu
@@ -82,16 +83,16 @@ workflows:
     include_dirs:
     - pytorch_mnist/training/ddp/mnist/*
 
+  # E2E test for pytorch mnist example
   - app_dir: kubeflow/examples/test/workflows
-    component: pytorch-mnist-gpu-release
+    component: pytorch-mnist-gpu-build
     name: mnist-gpu
     job_types:
     - presubmit
-    params:
-      registry: "gcr.io/kubeflow-ci"
     include_dirs:
     - pytorch_mnist/training/ddp/mnist/*
-# The postsubmit run publishes the docker images to gcr.io/kubeflow-examples
+
+  # The postsubmit run publishes the docker images to gcr.io/kubeflow-examples
   - app_dir: kubeflow/examples/test/workflows
     component: pytorch-mnist-gpu-release
     name: mnist-gpu
@@ -102,16 +103,16 @@ workflows:
     include_dirs:
     - pytorch_mnist/training/ddp/mnist/*
 
+  # E2E test for pytorch mnist example
   - app_dir: kubeflow/examples/test/workflows
-    component: pytorch-mnist-serve-release
+    component: pytorch-mnist-serve-build
     name: mnist-serve
     job_types:
     - presubmit
-    params:
-      registry: "gcr.io/kubeflow-ci"
     include_dirs:
     - pytorch_mnist/serving/*
-# The postsubmit run publishes the docker images to gcr.io/kubeflow-examples
+
+  # The postsubmit run publishes the docker images to gcr.io/kubeflow-examples
   - app_dir: kubeflow/examples/test/workflows
     component: pytorch-mnist-serve-release
     name: mnist-serve
