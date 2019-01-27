@@ -45,8 +45,8 @@ workflows:
 
   # E2E test for pytorch mnist example
   - app_dir: kubeflow/examples/test/workflows
-    component: pytorch-mnist-build-test
-    name: mnist-webui
+    component: pytorch_mnist
+    name: pytorch_mnist
     job_types:
     - presubmit
     include_dirs:
