@@ -38,7 +38,6 @@ workflows:
     - postsubmit
     include_dirs:
     - github_issue_summarization/*
-    -
 
   # E2E test for pytorch mnist example
   - app_dir: kubeflow/examples/test/workflows
