@@ -23,7 +23,7 @@
 # IMG is the base path for images..
 # Individual images will be
 # $(IMG)/$(NAME):$(TAG)
-IMG ?= gcr.io/kubeflow-examples/mnist
+IMG ?= gcr.io/kubeflow-examples/pytorch-mnist
 
 # List any changed  files. We only include files in the notebooks directory.
 # because that is the code in the docker image.
