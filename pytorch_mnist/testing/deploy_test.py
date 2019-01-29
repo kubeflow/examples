@@ -56,7 +56,7 @@ class MnistDeployTest(test_util.TestCase):
     api_client = k8s_client.ApiClient()
 
     # Apply the components
-    for component in ["mnist-deploy-gcp", "mnist-service"]:
+    for component in ["serving_model"]:
       # Setup the ksonnet app
       ks_util.setup_ks_app(self.app_dir, self.env, self.namespace, component,
                            self.params)
