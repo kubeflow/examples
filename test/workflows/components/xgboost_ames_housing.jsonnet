@@ -305,11 +305,6 @@ local dagTemplates = [
     template: buildTemplate {
       name: "deploy-seldon",
       command: util.buildCommand([[
-      "ks",
-      "init",
-      "ks_app",
-      ],
-      [
       "cd",
       "ks_app",
       ],
