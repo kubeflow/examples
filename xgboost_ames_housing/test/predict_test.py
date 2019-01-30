@@ -57,7 +57,7 @@ def send_request(*args, **kwargs):
 
   if r.status_code != requests.codes.OK:
     msg = "Request to {0} exited with status code: {1} and content: {2}".format(
-      url, r.status_code, r.content)
+      *args, r.status_code, r.content)
     logging.error(msg)
     raise RuntimeError(msg)
 
