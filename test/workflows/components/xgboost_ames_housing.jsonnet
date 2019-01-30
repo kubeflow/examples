@@ -335,7 +335,7 @@ local dagTemplates = [
         "--timeout=500",
         "--junitxml=" + artifactsDir + "/junit_predict-test.xml",
         "--namespace=kubeflow",
-        "--service=xgboost-ames-" + prowDict["BUILD_ID"],
+        "--service=xgboost-ames-1285",
       ],
       workingDir: srcDir + "/xgboost_ames_housing/test",
     },
