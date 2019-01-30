@@ -305,17 +305,12 @@ local dagTemplates = [
     template: buildTemplate {
       name: "deploy-seldon",
       command: util.buildCommand([[
-      "cd",
-      "ks_app",
-      ],
-      [
       "ks-13",
       "generate",
       "seldon-serve-simple-v1alpha2",
       "xgboost-ames-" + prowDict["BUILD_ID"],
       "--name=xgboost-ames-" + prowDict["BUILD_ID"],
       "--image=" + imageBase + ":" + imageTag,
-      "--namespace=" + testNamespace,
       "--replicas=1",
       ],
       [
@@ -325,7 +320,7 @@ local dagTemplates = [
       "-c",
       "xgboost-ames-" + prowDict["BUILD_ID"],
       ]]),
-      workingDir: srcDir + "/xgboost_ames_housing",
+      workingDir: srcDir + "/xgboost_ames_housing/ks_app",
     },
     dependencies: ["build-images"],
   },  // deploy-seldon
