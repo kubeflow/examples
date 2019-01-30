@@ -34,17 +34,8 @@ import pytest
 
 from kubeflow.testing import util
 
-def is_retryable_result(r):
-  if r.status_code == requests.codes.NOT_FOUND or r.status_code == requests.codes.SERVICE_UNAVAILABLE:
-    message = "Request to {0} returned {1}".format(r.url, r.status_code)
-    logging.error(message)
-    return True
-
-  return False
-
 @retry(wait_exponential_multiplier=10000, wait_exponential_max=100000,
-       stop_max_delay=5*60*1000,
-       retry_on_result=is_retryable_result)
+       stop_max_delay=10*60*1000)
 def send_request(*args, **kwargs):
   # We don't use util.run because that ends up including the access token
   # in the logs
