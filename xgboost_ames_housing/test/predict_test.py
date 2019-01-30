@@ -42,7 +42,7 @@ def is_retryable_result(r):
 
   return False
 
-@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000,
+@retry(wait_exponential_multiplier=10000, wait_exponential_max=100000,
        stop_max_delay=5*60*1000,
        retry_on_result=is_retryable_result)
 def send_request(*args, **kwargs):
