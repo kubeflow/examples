@@ -401,6 +401,20 @@ local exitTemplates =
       },  // copy-artifacts,
     },
     {
+      // Delete the seldon deployment
+      template: buildTemplate {
+        name: "delete-seldon-deployment",
+        command: [
+          "ks-13",
+          "delete",
+          "default",
+          "-c",
+          "xgboost-ames-" + prowDict["BUILD_ID"],
+        ],
+        workingDir: srcDir + "/xgboost_ames_housing/ks_app",
+      },  // delete-seldon-deployment,
+    },
+    {
       // Delete the test directory in NFS.
       // TODO(https://github.com/kubeflow/testing/issues/256): Use an external process to do this.
       template:
