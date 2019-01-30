@@ -55,6 +55,12 @@ def send_request(*args, **kwargs):
 
   r = requests.post(*args, **kwargs)
 
+  if r.status_code != requests.codes.OK:
+    msg = "Request to {0} exited with status code: {1} and content: {2}".format(
+      url, r.status_code, r.content)
+    logging.error(msg)
+    raise RuntimeError(msg)
+
   return r
 
 def test_predict(master, namespace, service):
@@ -85,13 +91,6 @@ def test_predict(master, namespace, service):
            master=master, namespace=namespace, service=service)
   logging.info("Request: %s", url)
   r = send_request(url, json=instances, verify=False)
-
-  if r.status_code != requests.codes.OK:
-    msg = "Request to {0} exited with status code: {1} and content: {2}".format(
-      url, r.status_code, r.content)
-    logging.error(msg)
-    raise RuntimeError(msg)
-
   content = r.content
   if six.PY3 and hasattr(content, "decode"):
     content = content.decode()
