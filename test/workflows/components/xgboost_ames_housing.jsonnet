@@ -335,12 +335,27 @@ local dagTemplates = [
         "--timeout=500",
         "--junitxml=" + artifactsDir + "/junit_predict-test.xml",
         "--namespace=kubeflow",
-        "--service=xgboost-ames-1285",
+        "--service=xgboost-ames-" + prowDict["BUILD_ID"],
       ],
       workingDir: srcDir + "/xgboost_ames_housing/test",
     },
     dependencies: ["deploy-seldon"],
   },  // predict-test
+  {
+    // Delete the seldon deployment
+    template: buildTemplate {
+      name: "delete-seldon-deployment",
+      command: [
+        "ks-13",
+        "delete",
+        "default",
+        "-c",
+        "xgboost-ames-" + prowDict["BUILD_ID"],
+      ],
+      workingDir: srcDir + "/xgboost_ames_housing/ks_app",
+    },
+    dependencies: ["predict-test"],
+  }, // delete-seldon-deployment
 ];
 
 // Dag defines the tasks in the graph
@@ -399,20 +414,6 @@ local exitTemplates =
           "--bucket=" + bucket,
         ],
       },  // copy-artifacts,
-    },
-    {
-      // Delete the seldon deployment
-      template: buildTemplate {
-        name: "delete-seldon-deployment",
-        command: [
-          "ks-13",
-          "delete",
-          "default",
-          "-c",
-          "xgboost-ames-" + prowDict["BUILD_ID"],
-        ],
-        workingDir: srcDir + "/xgboost_ames_housing/ks_app",
-      },  // delete-seldon-deployment,
     },
     {
       // Delete the test directory in NFS.
