@@ -309,7 +309,7 @@ local dagTemplates = [
       "ks_app",
       ],
       [
-      "ks",
+      "ks-13",
       "generate",
       "seldon-serve-simple-v1alpha2",
       "xgboost-ames-" + prowDict["BUILD_ID"],
@@ -319,7 +319,7 @@ local dagTemplates = [
       "--replicas=1",
       ],
       [
-      "ks",
+      "ks-13",
       "apply",
       "default",
       "-c",
