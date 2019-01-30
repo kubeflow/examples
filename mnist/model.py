@@ -21,27 +21,52 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import argparse
 import json
 import os
 import sys
 import numpy as np
 import tensorflow as tf
 
-# Configure model options
-# TODO(jlewi): Why environment variables and not command line arguments?
-TF_DATA_DIR = os.getenv("TF_DATA_DIR", "/tmp/data/")
-TF_MODEL_DIR = os.getenv("TF_MODEL_DIR", None)
-TF_EXPORT_DIR = os.getenv("TF_EXPORT_DIR", "mnist/")
-TF_MODEL_TYPE = os.getenv("TF_MODEL_TYPE", "CNN")
-TF_TRAIN_STEPS = int(os.getenv("TF_TRAIN_STEPS", 200))
-TF_BATCH_SIZE = int(os.getenv("TF_BATCH_SIZE", 100))
-TF_LEARNING_RATE = float(os.getenv("TF_LEARNING_RATE", 0.01))
-
 N_DIGITS = 10  # Number of digits.
 X_FEATURE = 'x'  # Name of the input feature.
 
 
-def conv_model(features, labels, mode):
+def parse_arguments():
+  parser = argparse.ArgumentParser()
+  parser.add_argument('--tf-data-dir',
+                      type=str,
+                      default='/tmp/data/',
+                      help='GCS path or local path of training data.')
+  parser.add_argument('--tf-model-dir',
+                      type=str,
+                      help='GCS path or local directory.')
+  parser.add_argument('--tf-export-dir',
+                      type=str,
+                      default='mnist/',
+                      help='GCS path or local directory to export model')
+  parser.add_argument('--tf-model-type',
+                      type=str,
+                      default='CNN',
+                      help='Tensorflow model type for training.')
+  parser.add_argument('--tf-train-steps',
+                      type=int,
+                      default=200,
+                      help='The number of training steps to perform.')
+  parser.add_argument('--tf-batch-size',
+                      type=int,
+                      default=100,
+                      help='The number of batch size during training')
+  parser.add_argument('--tf-learning-rate',
+                      type=float,
+                      default=0.01,
+                      help='Learning rate for training.')
+
+  args = parser.parse_args()
+  return args
+
+
+def conv_model(features, labels, mode, params):
   """2-layer convolution model."""
   # Reshape feature to 4d tensor with 2nd and 3rd dimensions being
   # image width and height final dimension being the number of color channels.
@@ -101,7 +126,7 @@ def conv_model(features, labels, mode):
   # Create training op.
   if mode == tf.estimator.ModeKeys.TRAIN:
     optimizer = tf.train.GradientDescentOptimizer(
-        learning_rate=TF_LEARNING_RATE)
+        learning_rate=params["learning_rate"])
     train_op = optimizer.minimize(loss, global_step=tf.train.get_global_step())
     return tf.estimator.EstimatorSpec(mode, loss=loss, train_op=train_op)
 
@@ -127,6 +152,8 @@ def linear_serving_input_receiver_fn():
 def main(_):
   tf.logging.set_verbosity(tf.logging.INFO)
 
+  args = parse_arguments()
+
   tf_config = os.environ.get('TF_CONFIG', '{}')
   tf.logging.info("TF_CONFIG %s", tf_config)
   tf_config_json = json.loads(tf_config)
@@ -144,11 +171,11 @@ def main(_):
     tf.logging.info("Will not export model")
 
   # Download and load MNIST dataset.
-  mnist = tf.contrib.learn.datasets.DATASETS['mnist'](TF_DATA_DIR)
+  mnist = tf.contrib.learn.datasets.DATASETS['mnist'](args.tf_data_dir)
   train_input_fn = tf.estimator.inputs.numpy_input_fn(
       x={X_FEATURE: mnist.train.images},
       y=mnist.train.labels.astype(np.int32),
-      batch_size=TF_BATCH_SIZE,
+      batch_size=args.tf_batch_size,
       num_epochs=None,
       shuffle=True)
   test_input_fn = tf.estimator.inputs.numpy_input_fn(
@@ -158,34 +185,36 @@ def main(_):
       shuffle=False)
 
   training_config = tf.estimator.RunConfig(
-      model_dir=TF_MODEL_DIR, save_summary_steps=100, save_checkpoints_steps=1000)
+      model_dir=args.tf_model_dir, save_summary_steps=100, save_checkpoints_steps=1000)
 
-  if TF_MODEL_TYPE == "LINEAR":
+  if args.tf_model_type == "LINEAR":
     # Linear classifier.
     feature_columns = [
         tf.feature_column.numeric_column(
             X_FEATURE, shape=mnist.train.images.shape[1:])]
     classifier = tf.estimator.LinearClassifier(
         feature_columns=feature_columns, n_classes=N_DIGITS,
-        model_dir=TF_MODEL_DIR, config=training_config)
+        model_dir=args.tf_model_dir, config=training_config)
     # TODO(jlewi): Should it be linear_serving_input_receiver_fn here?
     serving_fn = cnn_serving_input_receiver_fn
     export_final = tf.estimator.FinalExporter(
-        TF_EXPORT_DIR, serving_input_receiver_fn=cnn_serving_input_receiver_fn)
+        args.tf_export_dir, serving_input_receiver_fn=cnn_serving_input_receiver_fn)
 
-  elif TF_MODEL_TYPE == "CNN":
+  elif args.tf_model_type == "CNN":
     # Convolutional network
+    model_params = {"learning_rate": args.tf_learning_rate}
     classifier = tf.estimator.Estimator(
-        model_fn=conv_model, model_dir=TF_MODEL_DIR, config=training_config)
+        model_fn=conv_model, model_dir=args.tf_model_dir,
+        config=training_config, params=model_params)
     serving_fn = cnn_serving_input_receiver_fn
     export_final = tf.estimator.FinalExporter(
-        TF_EXPORT_DIR, serving_input_receiver_fn=cnn_serving_input_receiver_fn)
+        args.tf_export_dir, serving_input_receiver_fn=cnn_serving_input_receiver_fn)
   else:
-    print("No such model type: %s" % TF_MODEL_TYPE)
+    print("No such model type: %s" % args.tf_model_type)
     sys.exit(1)
 
   train_spec = tf.estimator.TrainSpec(
-        input_fn=train_input_fn, max_steps=TF_TRAIN_STEPS)
+        input_fn=train_input_fn, max_steps=args.tf_train_steps)
   eval_spec = tf.estimator.EvalSpec(input_fn=test_input_fn,
                                       steps=1,
                                       exporters=export_final,
@@ -197,7 +226,7 @@ def main(_):
 
   if is_chief:
     print("Export saved model")
-    classifier.export_savedmodel(TF_EXPORT_DIR, serving_input_receiver_fn=serving_fn)
+    classifier.export_savedmodel(args.tf_export_dir, serving_input_receiver_fn=serving_fn)
     print("Done exporting the model")
 
 if __name__ == '__main__':
