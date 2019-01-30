@@ -334,7 +334,7 @@ local dagTemplates = [
         // Test timeout in seconds.
         "--timeout=500",
         "--junitxml=" + artifactsDir + "/junit_predict-test.xml",
-        "--namespace=" + testNamespace,
+        "--namespace=kubeflow",
         "--service=xgboost-ames-" + prowDict["BUILD_ID"],
       ],
       workingDir: srcDir + "/xgboost_ames_housing/test",
