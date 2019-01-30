@@ -35,7 +35,7 @@ import pytest
 from kubeflow.testing import util
 
 def is_retryable_result(r):
-  if r.status_code == requests.codes.NOT_FOUND or r.status_code == requests.code.SERVICE_UNAVAILABLE
+  if r.status_code == requests.codes.NOT_FOUND or r.status_code == requests.codes.SERVICE_UNAVAILABLE:
     message = "Request to {0} returned {1}".format(r.url, r.status_code)
     logging.error(message)
     return True
