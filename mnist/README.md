@@ -307,9 +307,6 @@ kubectl logs mnist-train-dist-chief-0
 
 #### Using S3
 
-**Note** This example isn't working on S3 yet. There is an open issue [#466](https://github.com/kubeflow/examples/issues/466) 
-to fix that.
-
 To use S3 we need we need to configure TensorFlow to use S3 credentials and variables. These credentials will be provided as kubernetes secrets, and the variables will be passed in as environment variables. Modify the below values to suit your environment.
 
 Give the job a different name (to distinguish it from your job which didn't use GCS)
@@ -354,47 +351,50 @@ various environment variables configuring access to S3.
        --from-literal=awsSecretAccessKey=${AWS_SECRET_ACCESS_KEY}
      ```
   
-  1. Mount the secret into the pod
+  1. Pass secrets as environment variables into pod
 
      ```
-     ks param set --env=${KSENV} train secret aws-creds=/var/secrets
+     ks param set --env=${KSENV} train secretKeyRefs AWS_ACCESS_KEY_ID=aws-creds.awsAccessKeyID,AWS_SECRET_ACCESS_KEY=aws-creds.awsSecretAccessKey
      ```
 
-     * Setting this ksonnet parameter causes a volumeMount and volume to be added to your TFJob
+     * Setting this ksonnet parameter causes a two new environment variables to be added to your TFJob
      * To see this you can run
 
        ```
        ks show ${KSENV} -c train
        ```
 
-     * The output should now include a volumeMount and volume section
+     * The output should now include two environment variables referencing K8s secret
 
        ```
-apiVersion: kubeflow.org/v1beta1
-kind: TFJob
-metadata:
-  ...
-spec:
-  tfReplicaSpecs:
-    Chief:
-      ...
-      template:
+        apiVersion: kubeflow.org/v1beta1
+        kind: TFJob
+        metadata:
         ...
         spec:
-          containers:
-          - command:
+          tfReplicaSpecs:
+            Chief:
             ...
-            volumeMounts:
-            - mountPath: /var/secrets
-              name: aws-creds
-              readOnly: true
+            template:
             ...
-          volumes:
-          - name: aws-creds
-            secret:
-              secretName: aws-creds
-       ...
-       ```
+            spec:
+              containers:
+              - command:
+              ...
+                env:
+                ...
+                - name: AWS_ACCESS_KEY_ID
+                  valueFrom:
+                    secretKeyRef:
+                      key: awsAccessKeyID
+                      name: aws-creds
+                - name: AWS_SECRET_ACCESS_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      key: awsSecretAccessKey
+                      name: aws-creds
+                      ...
+      ```
   
   1. Next we need to set a whole bunch of S3 related environment variables so that TensorFlow
      knows how to talk to S3
