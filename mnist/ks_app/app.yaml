@@ -1,17 +1,4 @@
 apiVersion: 0.3.0
-environments:
-  jlewi:
-    destination:
-      namespace: jlewi
-      server: https://35.196.210.94
-    k8sVersion: v1.11.5
-    path: jlewi
-  test-env-d5e3:
-    destination:
-      namespace: jlewi
-      server: https://35.196.210.94
-    k8sVersion: v1.11.5
-    path: test-env-d5e3
 kind: ksonnet.io/app
 libraries:
   kubeflow/tf-serving:
