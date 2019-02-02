@@ -1,0 +1,35 @@
+{
+  "environment": "web",
+  "source": "1qtz_WCZ6KDvH4k3ten97gyyuf4rMlGmh61aGROD-oKo",
+  "format": "md",
+  "prefix": "../../",
+  "mainga": "UA-49880327-14",
+  "updated": "2019-02-01T22:03:07Z",
+  "id": "kubeflow-introduction",
+  "duration": 26,
+  "title": "Introduction to Kubeflow on Google Kubernetes Engine",
+  "author": "sanche",
+  "summary": "This lab will serve as an introduction to Kubeflow, an open-source project which aims to make running ML workloads on Kubernetes simple, portable and scalable. You will learn how to train and serve a simple TensorFlow model, and then how to deploy a web interface to interact with the model through your web browser.",
+  "theme": "cloud",
+  "status": [
+    "published"
+  ],
+  "category": [
+    "Cloud",
+    "Machine Learning",
+    "TensorFlow"
+  ],
+  "tags": [
+    "cloudai",
+    "io2018",
+    "ischp",
+    "kiosk",
+    "supercomputing",
+    "tag-cloud",
+    "tag-ml-and-ai",
+    "twilio-signal",
+    "web"
+  ],
+  "feedback": "https://github.com/kubeflow/examples/issues",
+  "url": "kubeflow-introduction"
+}

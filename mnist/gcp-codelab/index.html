@@ -1,0 +1,370 @@
+
+<!doctype html>
+
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <meta name="theme-color" content="#4F7DC9">
+  <meta charset="UTF-8">
+  <title>Introduction to Kubeflow on Google Kubernetes Engine</title>
+  <script src="../../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+  <link rel="import" href="../../elements/codelab.html">
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Code+Pro:400|Roboto:400,300,400italic,500,700|Roboto+Mono">
+  <style is="custom-style">
+    body {
+      font-family: "Roboto",sans-serif;
+      background: var(--google-codelab-background, #F8F9FA);
+    }
+  </style>
+  
+</head>
+<body unresolved class="fullbleed">
+
+  <google-codelab title="Introduction to Kubeflow on Google Kubernetes Engine"
+                  environment="web"
+                  feedback-link="https://github.com/kubeflow/examples/issues">
+    
+      <google-codelab-step label="Introduction" duration="0">
+        <p><img alt="924adc62741d034d.png" style="max-width: 195.50px" src="img/924adc62741d034d.png"></p>
+<p>As datasets continue to expand and models grow become complex, distributing machine learning (ML) workloads across multiple nodes is becoming more attractive. Unfortunately, breaking up and distributing a workload can add both computational overhead, and a great deal more complexity to the system. Data scientists should be able to focus on ML problems, not DevOps.</p>
+<p>Fortunately, distributed workloads are becoming easier to manage, thanks to  <a href="https://kubernetes.io/" target="_blank">Kubernetes</a>. Kubernetes is a mature, production ready platform that gives developers a simple API to deploy programs to a cluster of machines as if they were a single piece of hardware. Using Kubernetes, computational resources can be added or removed as desired, and the same cluster can be used to both train and serve ML models.</p>
+<p>This codelab will serve as an introduction to  <a href="http://www.kubeflow.org" target="_blank">Kubeflow</a>, an open-source project which aims to make running ML workloads on Kubernetes simple, portable and scalable. Kubeflow adds some resources to your cluster to assist with a variety of tasks, including training and serving models and running  <a href="http://jupyter.org/" target="_blank">Jupyter Notebooks</a>. It also extends the Kubernetes API by adding new  <a href="https://kubernetes.io/docs/tasks/access-kubernetes-api/extend-api-custom-resource-definitions/" target="_blank">Custom Resource Definitions (CRDs)</a> to your cluster, so machine learning workloads can be treated as first-class citizens by Kubernetes.</p>
+<h2><strong>What You&#39;ll Build</strong></h2>
+<h2><img alt="4536ac27b658b770.png" style="max-width: 624.00px" src="img/4536ac27b658b770.png"></h2>
+<p>This codelab will describe how to train and serve a TensorFlow model, and then how to deploy a web interface to allow users to interact with the model over the public internet. You will build a classic handwritten digit recognizer using the MNIST dataset.</p>
+<p>The purpose of this codelab is to get a brief overview of how to interact with Kubeflow. To keep things simple, use CPU-only training, and only make use of a single node for training. Kubeflow&#39;s  <a href="https://www.kubeflow.org/docs/started/getting-started/" target="_blank">documentation</a> has more information when you are ready to explore further.</p>
+<p><img alt="dcc9c2ad993627f4.png" style="max-width: 624.00px" src="img/dcc9c2ad993627f4.png"></p>
+<h2 class="checklist"><strong>What You&#39;ll Learn</strong></h2>
+<ul class="checklist">
+<li>How to set up a Kubeflow cluster on GCP</li>
+<li>How to package a TensorFlow program in a container, and upload it to Google Container Registry</li>
+<li>How to submit a Tensorflow training job, and save the resulting model to Google Cloud Storage</li>
+<li>How to serve and interact with a trained model</li>
+</ul>
+<h2><strong>What You&#39;ll Need</strong></h2>
+<ul>
+<li>An active  <a href="https://cloud.google.com/resource-manager/docs/creating-managing-projects" target="_blank">GCP project</a></li>
+<li>Access to the Google Cloud Shell, available in the  <a href="https://console.cloud.google.com/home/dashboard" target="_blank">Google Cloud Console</a></li>
+<li>If you&#39;d prefer to complete the codelab on a local machine, you&#39;ll need to have  <a href="https://cloud.google.com/sdk/gcloud/" target="_blank">gcloud</a>,  <a href="https://kubernetes.io/docs/tasks/tools/install-kubectl/#download-as-part-of-the-google-cloud-sdk" target="_blank">kubectl</a>, and  <a href="https://www.docker.com/community-edition" target="_blank">docker</a> installed</li>
+</ul>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Getting Started" duration="10">
+        <h2><strong>Downloading the Project Files</strong></h2>
+<p>The first step is to download a copy of the Kubeflow examples repository, which hosts the code we will be deploying. This codelab can be completed on a local machine, or through  <a href="https://cloud.google.com/shell/" target="_blank">Google Cloud Shell</a>:</p>
+<p>[](http://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/kubeflow/examples&amp;page=editor)</p>
+<p>[](https://github.com/kubeflow/examples/archive/master.zip)</p>
+<h2>Enabling Boost Mode (Cloud Shell Only)</h2>
+<h2><strong>Setting Environment Variables</strong></h2>
+<p>Before we can start, we should set up a few environment variables we will be using through the course of the codelab. The first is the  <a href="https://cloud.google.com/resource-manager/docs/creating-managing-projects" target="_blank">project ID</a>, which denotes which GCP project we will be using</p>
+<pre><code>// available project ids can be listed with the following command:
+// gcloud projects list
+PROJECT_ID=&lt;YOUR_CHOSEN_PROJECT_ID&gt;
+
+gcloud config set project $PROJECT_ID
+</code></pre>
+<p>We also need to provide the  <a href="https://cloud.google.com/compute/docs/regions-zones/" target="_blank">zone</a> we want to use</p>
+<pre><code>ZONE=us-central1-a
+</code></pre>
+<p>Next, we will set the Kubeflow deployment name. For this codelab, we will simply use &#34;mnist-deployment&#34;</p>
+<pre><code>DEPLOYMENT_NAME=mnist-deployment
+</code></pre>
+<p>We will be working out of the &#34; <em>mnist&#34;</em>  directory of the repository, so change to the proper directory and set an environment variable</p>
+<pre><code>cd ~/examples/mnist
+WORKING_DIR=$(pwd)
+</code></pre>
+<h2><strong>Enabling the API</strong></h2>
+<p>Before using Google Kubernetes Engine (GKE), you must enable the API for your project through the  <a href="https://console.cloud.google.com/apis/library/container.googleapis.com" target="_blank">Google Cloud Platform Console</a>.</p>
+<h2><strong>Setting up a Kubeflow Cluster</strong></h2>
+<p>The simplest way to deploy a Kubeflow enabled cluster is through the Kubeflow Click to Deploy web interface at  <a href="https://deploy.kubeflow.cloud/#/deploy" target="_blank">deploy.kubeflow.cloud</a>. Simply enter your project ID, deployment name, and zone, and then press the &#34;Create Deployment&#34; button. All necessary resources will be provisioned automatically</p>
+<p>[](https://deploy.kubeflow.cloud/)</p>
+<p>Fill in the following values in the resulting form:</p>
+<ul>
+<li><strong>Project</strong>: Enter your GCP $PROJECT_ID in the top field</li>
+<li><strong>Deployment name</strong>: Set the default value to <strong>kubeflow</strong>. Alternatively, set $DEPLOYMENT_NAME to a different value and use it here. Note that this value must be unique within the project.</li>
+<li><strong>GKE Zone</strong>: Use the value you have set for $ZONE, selecting it from the pulldown.</li>
+<li><strong>Kubeflow Version</strong>: v0.4.1</li>
+<li>Check the <strong>Skip IAP</strong> box</li>
+</ul>
+<p><img alt="402308aca0694a51.png" style="max-width: 478.50px" src="img/402308aca0694a51.png"></p>
+<p>The resources created here will be controlled by the  <a href="https://console.cloud.google.com/dm" target="_blank">GCP Deployment Manager</a>. Here, you can see the current status of the deployment and manage everything in one place.</p>
+<p><img alt="4fd5cb2702c8472f.png" style="max-width: 624.00px" src="img/4fd5cb2702c8472f.png"></p>
+<p>When the cluster is fully set up, you can connect your local kubectl session to it:</p>
+<pre><code>gcloud container clusters get-credentials \
+    $DEPLOYMENT_NAME --zone $ZONE --project $PROJECT_ID
+</code></pre>
+<p>Switch to the  <em>kubeflow</em>  namespace to see the resources that were pre-installed on the Kubeflow cluster</p>
+<pre><code>kubectl config set-context $(kubectl config current-context) --namespace=kubeflow
+</code></pre>
+<p>You should now be able to interact with your cluster through the  <a href="https://kubernetes.io/docs/reference/kubectl/overview/" target="_blank">kubectl command</a></p>
+<pre><code>kubectl get pods
+</code></pre>
+<p><br><br>Note: Alternatively, a cluster can be set up through the command line using the kfctl command. This process is described in the  [Kubernetes Engine for Kubeflow Getting Started doc](https://www.kubeflow.org/docs/started/getting-started-gke/).<br></p>
+<h2><strong>Creating a ksonnet Project</strong></h2>
+<p>Kubeflow makes use of  <a href="https://ksonnet.io/" target="_blank">ksonnet</a> to help manage deployments. ksonnet is a templating engine that acts as another layer on top of  <em>kubectl</em> . While Kubernetes is typically managed with static YAML files, ksonnet allows you to create parameters that can be swapped out for different environments, which is a useful feature for complex machine learning workloads</p>
+<p><img alt="79510abb19809cc2.png" style="max-width: 624.00px" src="img/79510abb19809cc2.png"></p>
+<p>If you don&#39;t have ksonnet&#39;s ks command installed, download it and add it to your path (if it&#39;s already installed on your system, you can skip this step)</p>
+<pre><code>// download ksonnet for linux (including Cloud Shell)
+// for macOS, use ks_0.13.0_darwin_amd64
+KS_VER=ks_0.13.0_linux_amd64
+
+//download tar of ksonnet
+wget --no-check-certificate \
+    https://github.com/ksonnet/ksonnet/releases/download/v0.13.0/$KS_VER.tar.gz
+
+//unpack file
+tar -xvf $KS_VER.tar.gz
+
+//add ks command to path
+PATH=$PATH:$(pwd)/$KS_VER
+</code></pre>
+<p>Ksonnet resources are managed in a single project directory, just like git. To create our ksonnet project directory, we will use  <em>ks init</em> :</p>
+<pre><code>KS_NAME=my_ksonnet_app
+ks init $KS_NAME
+cd $KS_NAME
+</code></pre>
+<p><br><br>Note: typically, your ksonnet directory will be checked into your version control repository along with the rest of your code. <br></p>
+<p>If you look inside the new  <code>my_ksonnet_app</code>  project directory, you should see an app.yaml file, along with four directories. One directory is  <em>environments</em> , which was automatically populated with information about how to attach to your Kubernetes cluster. You can list information about the default environment with the following command</p>
+<pre><code>ks env list
+</code></pre>
+<p>Another folder within your ksonnet project is  <em>components</em> , which holds a set of jsonnet files that represent Kubernetes resources that can be deployed to the cluster. For now it is mostly empty. For the purpose of the codelab, we will add some  <a href="https://github.com/kubeflow/examples/tree/master/mnist/ks_app/components" target="_blank">pre-written components</a> to train and serve a Tensorflow model:</p>
+<pre><code>cp $WORKING_DIR/ks_app/components/* $WORKING_DIR/$KS_NAME/components
+</code></pre>
+<p>You will now have a number of ksonnet components that are ready to be customized and deployed. You can list them using the  <em>ks</em>  command</p>
+<pre><code>ks component list
+</code></pre>
+<p>Now,  add some Kubeflow resources to your local ksonnet project</p>
+<pre><code>VERSION=v0.4.1
+ks registry add kubeflow \
+    github.com/kubeflow/kubeflow/tree/${VERSION}/kubeflow
+ks pkg install kubeflow/tf-serving@${VERSION}
+</code></pre>
+<p><br><br>**About Components**<br><br>[Components](https://github.com/ksonnet/ksonnet/blob/master/docs/concepts.md#component) are the basic unit of deployment in  [ksonnet](https://ksonnet.io/). A component is a single  [jsonnet](https://jsonnet.org/) template file representing a set of Kubernetes resources that should be deployed together. Each component typically has a set of parameters that can be modified, making it reusable in different contexts. Parameters can be set to different values for different  [environments](https://github.com/ksonnet/ksonnet/blob/master/docs/concepts.md#environment). The components we are using for this codelab can be  [found here](https://github.com/kubeflow/examples/tree/master/mnist/ks_app/components)<br></p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Training" duration="10">
+        <p>The code for our Tensorflow project can be found in the  <a href="https://github.com/kubeflow/examples/blob/master/mnist/model.py" target="_blank">model.py</a> * * file in the examples repository.  <em>model.py</em>  defines a fairly straight-forward Tensorflow training program, with no special modifications for Kubeflow. After training is complete, it will attempt to upload the trained model to a path we input. For the purpose of this codelab, we will create and use a  <a href="https://console.cloud.google.com/storage/" target="_blank">Google Cloud Storage (GCS)</a> bucket to hold the trained model.</p>
+<h2><strong>Setting up a Storage Bucket</strong></h2>
+<p>Our next step is to create a storage bucket on  <a href="https://cloud.google.com/storage/" target="_blank">Google Cloud Storage</a> to hold our trained model. Note that the name you choose for your bucket must be unique across all of GCS.</p>
+<pre><code>// bucket name can be anything, but must be unique across all projects
+BUCKET_NAME=$KS_NAME-$PROJECT_ID
+
+// create the GCS bucket
+gsutil mb gs://$BUCKET_NAME/
+</code></pre>
+<h2><strong>Building the Container</strong></h2>
+<p><img alt="54e5f5dd24560b69.png" style="max-width: 624.00px" src="img/54e5f5dd24560b69.png"></p>
+<p>To deploy our code to Kubernetes, we have to first build our local project into a container:</p>
+<pre><code>//set the path on GCR you want to push the image to
+TRAIN_PATH=us.gcr.io/$PROJECT_ID/kubeflow-train
+
+//build the tensorflow model into a container
+//container is tagged with its eventual path on GCR, but it stays local for now
+docker build $WORKING_DIR -t $TRAIN_PATH -f $WORKING_DIR/Dockerfile.model
+</code></pre>
+<p>Now, test the new container image locally to make sure everything is working as expected</p>
+<pre><code>docker run -it $TRAIN_PATH
+</code></pre>
+<p>You should see training logs start appearing in your console:</p>
+<p><img alt="1b71dffe3bc42eb5.png" style="max-width: 624.00px" src="img/1b71dffe3bc42eb5.png"></p>
+<p>If you&#39;re seeing logs, that means training is working and you can terminate the container with Ctrl+c. Now that you know that the container can run locally, you can safely upload it to  <a href="https://console.cloud.google.com/gcr" target="_blank">Google Container Registry (GCR)</a> so you can run it on your cluster.</p>
+<pre><code>//allow docker to access our GCR registry
+gcloud auth configure-docker --quiet
+
+//push container to GCR
+docker push $TRAIN_PATH
+</code></pre>
+<p>You should now see your new container listed on the <a href="https://console.cloud.google.com/gcr" target="_blank"> GCR console</a>. If you make changes to your code and want to push up a new version, simply update the VERSION_TAG and follow through the previous steps again.</p>
+<h2><strong>Training on the Cluster</strong></h2>
+<h2><img alt="592dfcb8ad425470.png" style="max-width: 624.00px" src="img/592dfcb8ad425470.png"></h2>
+<p>Finally, we can run the training job on the cluster. We can do this using the  <a href="https://github.com/kubeflow/examples/blob/master/mnist/ks_app/components/train.jsonnet" target="_blank">train</a> component we added to our ksonnet project earlier. Before we can deploy it, we must set some parameters to point to our training image and storage bucket</p>
+<pre><code>//set the parameters for this job
+ks param set train image $TRAIN_PATH
+ks param set train name &#34;my-train-1&#34;
+ks param set train modelDir gs://${BUCKET_NAME}
+ks param set train exportDir gs://${BUCKET_NAME}/export
+</code></pre>
+<p>One thing to keep in mind is that our python training code has to have permissions to read/write to the storage bucket we set up. Kubeflow solves this by creating a  <a href="https://cloud.google.com/iam/docs/understanding-service-accounts" target="_blank">service account</a> within your project as a part of the deployment. You can verify this by listing your service accounts:</p>
+<pre><code>gcloud --project=$PROJECT_ID iam service-accounts list | grep $DEPLOYMENT_NAME
+</code></pre>
+<p>This service account should be automatically granted the right permissions to read and write to our storage bucket. Kubeflow also added a  <a href="https://kubernetes.io/docs/concepts/configuration/secret/" target="_blank">Kubernetes secret</a> called &#34;user-gcp-sa&#34; to our cluster, containing the credentials needed to authenticate as this service account within our cluster:</p>
+<pre><code>kubectl describe secret user-gcp-sa
+</code></pre>
+<p>To access our storage bucket from inside our train container, we just need to set the  <a href="https://cloud.google.com/docs/authentication/getting-started" target="_blank">GOOGLE_APPLICATION_CREDENTIALS</a>  environment variable to point to the json file contained in the secret. Luckily, the train.jsonnet component is already set up to do this for us, we just have to set two more parameters:</p>
+<pre><code>ks param set train secret user-gcp-sa=/var/secrets
+ks param set train envVariables \
+    GOOGLE_APPLICATION_CREDENTIALS=/var/secrets/user-gcp-sa.json
+</code></pre>
+<p>Now that all the parameters are set, we can deploy the training job to the cluster:</p>
+<pre><code>ks apply default -c train
+</code></pre>
+<p><br><br>If this command is hanging for you in Cloud Shell, make sure you&#39;ve  [enabled Boost Mode](https://cloud.google.com/shell/docs/features#boost_mode) for extra compute power<br></p>
+<p>After applying the component, there should be a new tf-job on the cluster called  <em>my-train-1-chief-0</em> . You can use  *kubectl * to query some information about the job, including its current state.</p>
+<pre><code>kubectl describe tfjob
+</code></pre>
+<p>For even more information, you can retrieve the python logs from the pod that&#39;s running the container itself (after the container has finished initializing):</p>
+<pre><code>kubectl logs -f my-train-1-chief-0
+</code></pre>
+<p>When training is complete, you should see the model data pushed into your  <a href="https://console.cloud.google.com/storage" target="_blank">GCS bucket</a>. <img alt="99f2d1749a22e596.png" style="max-width: 624.00px" src="img/99f2d1749a22e596.png"></p>
+<p><br><br>Note: The model is actually saving two outputs:<br><br>1) a set of  [checkpoints](https://www.tensorflow.org/guide/checkpoints) to resume training later if desired<br><br>2) A directory called  *export,*  which holds the model in a format that can be read by a  [TensorFlow Serving](https://www.tensorflow.org/serving/serving_basic) component<br></p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Serving" duration="1">
+        <p><img alt="cc5d49c6f430d718.png" style="max-width: 624.00px" src="img/cc5d49c6f430d718.png"></p>
+<p>Now that you have a trained model, it&#39;s time to put it in a server so it can be used to handle requests. To do this, we&#39;ll use two more components from the repository, called mnist-deploy-gcp and mnist-service</p>
+<p>The  <a href="https://github.com/kubeflow/examples/blob/master/mnist/ks_app/components/mnist-deploy-gcp.jsonnet" target="_blank">mnist-deploy-gcp</a> component contains a  <a href="https://www.tensorflow.org/versions/r1.1/deploy/tfserve" target="_blank">TensorFlow Serving</a> implementation. We simply need to point the component to our GCS bucket where the model data is stored, and it will spin up a server to handle requests. Unlike the  <em>tf-job</em> , no custom container is required for the server process. Instead, all the information the server needs is stored in the model file</p>
+<pre><code>ks param set mnist-deploy-gcp modelBasePath gs://${BUCKET_NAME}/export
+ks param set mnist-deploy-gcp modelName mnist
+ks apply default -c mnist-deploy-gcp
+</code></pre>
+<p>To verify the server started successfully, you can check its logs. You should see that it found your bucket and is waiting for requests</p>
+<pre><code>kubectl logs -l app=mnist
+</code></pre>
+<p>Although we now have a server running as a  <a href="https://kubernetes.io/docs/concepts/workloads/controllers/deployment/" target="_blank">deployment</a> within the cluster, it&#39;s inaccessible to other pods without adding an associated   <a href="https://kubernetes.io/docs/concepts/services-networking/service/" target="_blank">service</a>. We can do so by deploying the  <em>mnist-serve</em>  component, which simply creates a  <a href="https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types" target="_blank">ClusterIP</a> service associated with the  <em>mnist-deploy-gcp</em>  deployment.</p>
+<pre><code>ks apply default -c mnist-service
+</code></pre>
+<p>If you describe the new service, you&#39;ll see it&#39;s listening for connections within the cluster on port 9000</p>
+<pre><code>kubectl describe service mnist-service
+</code></pre>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Deploying the UI" duration="5">
+        <p><img alt="7b9b1f3166b67b4c.png" style="max-width: 624.00px" src="img/7b9b1f3166b67b4c.png"></p>
+<p>Now that we have a trained model in our bucket, and a Tensorflow server hosting it, we can deploy the final piece of our system: a web interface to interact with our model. The code for this is stored in the  <a href="https://github.com/kubeflow/examples/tree/master/mnist/web-ui" target="_blank">web-ui</a> directory of the repository.</p>
+<p>The web page for this task is fairly basic; it consists of a simple flask server hosting HTML/CSS/Javascript files. The flask script makes use of  <a href="https://github.com/kubeflow/examples/blob/master/mnist/web-ui/mnist_client.py" target="_blank">mnist_client.py</a>, which contains the following python code to interact with the TensorFlow server through  <a href="https://grpc.io/" target="_blank">gRPC</a>:</p>
+<pre><code>from grpc.beta import implementations
+from tensorflow_serving.apis import predict_pb2
+from tensorflow_serving.apis import prediction_service_pb2 as psp
+
+# create gRPC stub
+channel = implementations.insecure_channel(server_host, server_port)
+stub = psp.beta_create_PredictionService_stub(channel)
+
+# build request
+request = predict_pb2.PredictRequest()
+request.model_spec.name = server_name
+request.model_spec.signature_name = &#39;serving_default&#39;
+request.inputs[&#39;x&#39;].CopyFrom(
+    tf.contrib.util.make_tensor_proto(image, shape=image.shape))
+
+# retrieve results
+result = stub.Predict(request, timeout)
+resultVal = result.outputs[&#34;classes&#34;].int_val[0]
+scores = result.outputs[&#39;predictions&#39;].float_val
+version = result.outputs[&#34;classes&#34;].int_val[0]
+</code></pre>
+<h2><strong>Building the Container</strong></h2>
+<p>Like in the training step, we have to build a container from our code before we can deploy it on the cluster:</p>
+<pre><code>// set the path on GCR you want to push the image to
+UI_PATH=us.gcr.io/$PROJECT_ID/kubeflow-web-ui
+
+// build the web-ui directory
+docker build $WORKING_DIR/web-ui -t $UI_PATH
+
+// allow docker to access our GCR registry
+gcloud auth configure-docker --quiet
+
+// push the container to GCR
+docker push $UI_PATH
+</code></pre>
+<p>Set parameters and deploy to the cluster</p>
+<pre><code>// set parameters
+ks param set web-ui image $UI_PATH
+ks param set web-ui type LoadBalancer
+
+// apply to cluster
+ks apply default -c web-ui
+</code></pre>
+<h2><strong>Accessing the UI</strong></h2>
+<p>The  <em>web-ui</em>  service is deployed using the type  <a href="https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types" target="_blank">LoadBalancer</a>, unlike our previous  *mnist-service, * which was  <a href="https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types" target="_blank">ClusterIP</a><em>.</em>  This means that while  *mnist-service * is only accessible to other pods within our cluster,  <em>web-ui</em>  is exposed to the public internet.</p>
+<p>You can find the IP address assigned to the service using  <em>kubectl</em></p>
+<pre><code>kubectl get service web-ui
+</code></pre>
+<p><img alt="b194b370453a38eb.png" style="max-width: 624.00px" src="img/b194b370453a38eb.png"></p>
+<p><br><br>Note: It may take a few minutes for the IP address to appear<br></p>
+<p>If you enter the IP address in a web browser, you should be presented with the web interface.</p>
+<p><img alt="ce4114418d5d92b5.png" style="max-width: 624.00px" src="img/ce4114418d5d92b5.png"></p>
+<p>Keep in mind that the web interface doesn&#39;t do much on its own, it&#39;s simply a basic HTML/JS wrapper around the  <a href="https://www.tensorflow.org/serving/" target="_blank">Tensorflow Serving</a> component, which performs the actual predictions. To emphasize this, the web interface allows you to manually connect with the serving instance located in the cluster. It has three fields:</p>
+<p><strong>Model Name:</strong> mnist</p>
+<ul>
+<li>The model name associated with the Tensorflow Serving component</li>
+<li>We configured this when we set the modelName parameter for the  *mnist-deploy-gcp * component</li>
+</ul>
+<p><strong>Server Address:</strong> mnist-service</p>
+<ul>
+<li>The IP address or DNS name of the server</li>
+<li>Because Kubernetes has an  <a href="https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/" target="_blank">internal DNS service</a>, we can enter the service name here</li>
+</ul>
+<p><strong>Port:</strong> 9000</p>
+<ul>
+<li>The port the server is listening on</li>
+<li>Kubeflow sets this to 9000 by default</li>
+</ul>
+<p>These three fields uniquely define your model server. If you deploy multiple serving components, you should be able to switch between them using the web interface. Feel free to experiment</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Clean Up" duration="0">
+        <p><img alt="28c74af1903e1910.png" style="max-width: 285.50px" src="img/28c74af1903e1910.png"></p>
+<p>When you&#39;re done with the codelab, it&#39;s a good idea to remove the resources you created to avoid any charges:</p>
+<p>Delete the cluster and other resources provisioned by Kubeflow:</p>
+<pre><code>gcloud deployment-manager deployments delete $DEPLOYMENT_NAME
+</code></pre>
+<p>Delete the Google Cloud Storage bucket:</p>
+<pre><code>gsutil rm -r gs://$BUCKET_NAME
+</code></pre>
+<p>Delete the container images uploaded to Google Container Registry:</p>
+<pre><code>//find the digest id for each container image
+gcloud container images list-tags us.gcr.io/$PROJECT_ID/kubeflow-train
+gcloud container images list-tags us.gcr.io/$PROJECT_ID/kubeflow-web-ui
+
+//delete each image
+gcloud container images delete us.gcr.io/$PROJECT_ID/kubeflow-web-ui:$DIGEST_ID
+gcloud container images delete us.gcr.io/$PROJECT_ID/kubeflow-train:$DIGEST_ID
+</code></pre>
+<p>Resources can also be deleted directly through the  <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console UI</a>.</p>
+
+
+      </google-codelab-step>
+    
+  </google-codelab>
+
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-49880327-14', 'auto');
+
+    (function() {
+      var gaCodelab = '';
+      if (gaCodelab) {
+        ga('create', gaCodelab, 'auto', {name: 'codelab'});
+      }
+
+      var gaView;
+      var parts = location.search.substring(1).split('&');
+      for (var i = 0; i < parts.length; i++) {
+        var param = parts[i].split('=');
+        if (param[0] === 'viewga') {
+          gaView = param[1];
+          break;
+        }
+      }
+      if (gaView && gaView !== gaCodelab) {
+        ga('create', gaView, 'auto', {name: 'view'});
+      }
+    })();
+  </script>
+
+</body>
+</html>
