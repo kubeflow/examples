@@ -227,8 +227,11 @@ class Seq2Seq_Inference(object):
     self.pp_body = encoder_preprocessor
     self.pp_title = decoder_preprocessor
     self.seq2seq_model = seq2seq_model
+    self.seq2seq_model._make_predict_function() # pylint: disable=protected-access
     self.encoder_model = extract_encoder_model(seq2seq_model)
+    self.encoder_model._make_predict_function() # pylint: disable=protected-access
     self.decoder_model = extract_decoder_model(seq2seq_model)
+    self.decoder_model._make_predict_function() # pylint: disable=protected-access
     self.default_max_len_title = self.pp_title.padding_maxlen
     self.nn = None
     self.rec_df = None

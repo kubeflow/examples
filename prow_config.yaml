@@ -22,6 +22,7 @@ workflows:
     component: mnist
     name: mnist
     job_types:
+    - periodic
     - presubmit
     - postsubmit
     include_dirs:
@@ -32,6 +33,7 @@ workflows:
     component: gis
     name: gis
     job_types:
+    - periodic
     - presubmit
     - postsubmit
     include_dirs:

@@ -329,9 +329,6 @@ kubectl logs -f mnist-train-dist-chief-0
 
 #### Using S3
 
-**Note** This example isn't working on S3 yet. There is an open issue [#466](https://github.com/kubeflow/examples/issues/466) 
-to fix that.
-
 To use S3 we need we need to configure TensorFlow to use S3 credentials and variables. These credentials will be provided as kubernetes secrets, and the variables will be passed in as environment variables. Modify the below values to suit your environment.
 
 Give the job a different name (to distinguish it from your job which didn't use GCS)
@@ -376,20 +373,20 @@ various environment variables configuring access to S3.
        --from-literal=awsSecretAccessKey=${AWS_SECRET_ACCESS_KEY}
      ```
   
-  1. Mount the secret into the pod
+  1. Pass secrets as environment variables into pod
 
      ```
-     ks param set --env=${KSENV} train secret aws-creds=/var/secrets
+     ks param set --env=${KSENV} train secretKeyRefs AWS_ACCESS_KEY_ID=aws-creds.awsAccessKeyID,AWS_SECRET_ACCESS_KEY=aws-creds.awsSecretAccessKey
      ```
 
-     * Setting this ksonnet parameter causes a volumeMount and volume to be added to your TFJob
+     * Setting this ksonnet parameter causes a two new environment variables to be added to your TFJob
      * To see this you can run
 
        ```
        ks show ${KSENV} -c train
        ```
 
-     * The output should now include a volumeMount and volume section
+     * The output should now include two environment variables referencing K8s secret
 
        ```
        apiVersion: kubeflow.org/v1beta1
