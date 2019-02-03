@@ -97,7 +97,7 @@ local ptOperatorPy = srcRootDir + "/kubeflow/pytorch-operator";
 // Workflow template is the name of the workflow template; typically the name of the ks component.
 // This is used as a label to make it easy to identify all Argo workflows created from a given
 // template.
-local workflow_template = "pytorch_mnist";
+local workflow_template = "pytorch-mnist";
 
 // Build template is a template for constructing Argo step templates.
 //
