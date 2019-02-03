@@ -87,7 +87,7 @@ local modelDir = "gs://" + params.modelBucket + "/pytorch_mnist/models/" + prowD
 local kubeConfig = testDir + "/.kube/kubeconfig";
 
 // Namespace where tests should run
-local testNamespace = "pytorch_mnist-" + prowDict["BUILD_ID"];
+local testNamespace = "pytorch-mnist-" + prowDict["BUILD_ID"];
 
 // The directory within the kubeflow_testing submodule containing
 // py scripts to use.
@@ -97,7 +97,7 @@ local ptOperatorPy = srcRootDir + "/kubeflow/pytorch-operator";
 // Workflow template is the name of the workflow template; typically the name of the ks component.
 // This is used as a label to make it easy to identify all Argo workflows created from a given
 // template.
-local workflow_template = "pytorch-mnist";
+local workflow_template = "pytorch_mnist";
 
 // Build template is a template for constructing Argo step templates.
 //
