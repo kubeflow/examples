@@ -321,7 +321,7 @@ local dagTemplates = [
           "envVariables=GOOGLE_APPLICATION_CREDENTIALS=/var/secrets/user-gcp-sa.json",
           "secret=user-gcp-sa=/var/secrets",
       ])],
-      // This test only we need to add tfOperatorPy.
+      // This test only we need to add ptOperatorPy.
       // We don't want to add it to the other steps because
       // of a top level path conflict see
       // https://github.com/kubeflow/tf-operator/issues/914
@@ -342,11 +342,11 @@ local dagTemplates = [
           "modelBasePath=" + modelDir,
           "exportDir=" + modelDir,
       ])],
-      // This test only we need to add tfOperatorPy.
+      // This test only we need to add ptOperatorPy.
       // We don't want to add it to the other steps because
       // of a top level path conflict see
       // https://github.com/kubeflow/tf-operator/issues/914
-      pythonPath: kubeflowTestingPy + ":" + tfOperatorPy,
+      pythonPath: kubeflowTestingPy + ":" + ptOperatorPy,
       workingDir: srcDir + "/pytorch_mnist/testing",
     },
     dependencies: ["pytorchjob-test"],
