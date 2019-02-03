@@ -194,7 +194,7 @@ local dagTemplates = [
       env_vars: [{
         name: "EXTRA_REPOS",
         // TODO(jlewi): Pin to commit on master when #281 is checked in.
-        value: "kubeflow/testing@HEAD:281;kubeflow/tf-operator@HEAD",
+        value: "kubeflow/testing@HEAD:281;kubeflow/pytorch-operator@HEAD",
       }],
     },
     dependencies: null,
@@ -325,7 +325,7 @@ local dagTemplates = [
       // We don't want to add it to the other steps because
       // of a top level path conflict see
       // https://github.com/kubeflow/tf-operator/issues/914
-      pythonPath: kubeflowTestingPy + ":" + tfOperatorPy,
+      pythonPath: kubeflowTestingPy + ":" + ptOperatorPy,
       workingDir: srcDir + "/pytorch_mnist/testing",
     },
     dependencies: ["build-images", "create-namespace"],
