@@ -76,11 +76,17 @@
            ],
   },
 
-  local modelSteps = subGraphTemplate {
-    name: "model",
-    dockerFile: "./Dockerfile.model",
-    contextDir: "."
-  },
+  local trainCPUSteps = subGraphTemplate {
+      name: "trainCPU",
+      dockerFile: "./training/ddp/mnist/Dockerfile.traincpu",
+      contextDir: "./training/ddp/mnist"
+    },
+
+  local trainGPUSteps = subGraphTemplate {
+        name: "trainGPU",
+        dockerFile: "./training/ddp/mnist/Dockerfile.traingpu",
+        contextDir: "./training/ddp/mnist"
+      },
 
   local ksonnetSteps = subGraphTemplate {
     name: "ksonnet",
@@ -94,6 +100,6 @@
     contextDir: "./web-ui"
   },
 
-  steps: modelSteps.steps + ksonnetSteps.steps + uiSteps.steps,
-  images: modelSteps.images + ksonnetSteps.images + uiSteps.images,
+  steps: trainCPUSteps.steps + trainGPUSteps.steps + ksonnetSteps.steps + uiSteps.steps,
+  images: trainCPUSteps.images +trainGPUSteps.images + ksonnetSteps.images + uiSteps.images,
 }
