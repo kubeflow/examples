@@ -17,7 +17,7 @@ local defaultParams = {
   // Default step image:
   stepImage: "gcr.io/kubeflow-ci/test-worker/test-worker:v20190116-b7abb8d-e3b0c4",
 
-  // Which Kubeflow cluster to use for running TFJobs on.
+  // Which Kubeflow cluster to use for running PytorchJobs on.
   kfProject: "kubeflow-ci",
   kfZone: "us-east1-d",
   kfCluster: "kf-v0-4-n00",
@@ -92,7 +92,7 @@ local testNamespace = "pytorch_mnist-" + prowDict["BUILD_ID"];
 // The directory within the kubeflow_testing submodule containing
 // py scripts to use.
 local kubeflowTestingPy = srcRootDir + "/kubeflow/testing/py";
-local tfOperatorPy = srcRootDir + "/kubeflow/tf-operator";
+local ptOperatorPy = srcRootDir + "/kubeflow/pytorch-operator";
 
 // Workflow template is the name of the workflow template; typically the name of the ks component.
 // This is used as a label to make it easy to identify all Argo workflows created from a given
@@ -301,12 +301,12 @@ local dagTemplates = [
     dependencies: ["get-kubeconfig"],
   }, // create-namespace
   {
-    // Run the python test for TFJob
+    // Run the python test for PytprchJob
     template: buildTemplate {
-      name: "tfjob-test",
+      name: "pytorchjob-test",
       command: [
         "python",
-        "tfjob_test.py",
+        "pytorchjob_test.py",
         "--artifacts_path=" + artifactsDir,
         "--params=" + std.join(",", [
           "name=pytorch_mnist-test-" + prowDict["BUILD_ID"], 
@@ -329,7 +329,7 @@ local dagTemplates = [
       workingDir: srcDir + "/pytorch_mnist/testing",
     },
     dependencies: ["build-images", "create-namespace"],
-  },  // tfjob-test
+  },  // pytorchjob-test
   {   
     template: buildTemplate {
       name: "deploy-test",
@@ -349,7 +349,7 @@ local dagTemplates = [
       pythonPath: kubeflowTestingPy + ":" + tfOperatorPy,
       workingDir: srcDir + "/pytorch_mnist/testing",
     },
-    dependencies: ["tfjob-test"],
+    dependencies: ["pytorchjob-test"],
   },  // deploy-test
   {
     template: buildTemplate {
