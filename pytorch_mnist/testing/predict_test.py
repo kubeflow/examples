@@ -1,7 +1,7 @@
 """Test mnist_client.
 
 This file tests that we can send predictions to the model
-using REST.
+using gRPC.
 
 It is an integration test as it depends on having access to
 a deployed model.
@@ -34,6 +34,7 @@ import pytest
 
 from kubeflow.testing import util
 
+# TODO(dsdinter) refactor to call through gRPC instead
 def is_retryable_result(r):
   if r.status_code == requests.codes.NOT_FOUND:
     message = "Request to {0} returned 404".format(r.url)
@@ -42,6 +43,7 @@ def is_retryable_result(r):
 
   return False
 
+# TODO(dsdinter) refactor to call through gRPC instead
 @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000,
        stop_max_delay=5*60*1000,
        retry_on_result=is_retryable_result)
@@ -66,6 +68,8 @@ def send_request(*args, **kwargs):
 
   return r
 
+
+# TODO(dsdinter) refactor to call through gRPC instead
 def test_predict(master, namespace, service):
   app_credentials = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
   if app_credentials:
