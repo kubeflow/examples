@@ -48,6 +48,8 @@ all: build
 CURRENT_DIR := $(shell pwd)
 
 build-seldon-image:
+	# Wait for the Docker daemon to be available.
+	until docker ps; do sleep 3; done
 	cd ./serving/seldon-wrapper
 	docker run -v .:/my_model seldonio/core-python-wrapper:0.7 /my_model mnistddpserving ${TAG} ${IMG} --grpc --force
 	cd $(CURRENT_DIR)
