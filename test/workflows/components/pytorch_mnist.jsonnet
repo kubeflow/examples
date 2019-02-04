@@ -76,7 +76,7 @@ local srcDir = srcRootDir + "/" + prowDict.REPO_OWNER + "/" + prowDict.REPO_NAME
 
 // These variables control where the docker images get pushed and what 
 // tag to use
-local imageBase = "gcr.io/kubeflow-ci/pytorch_mnist";
+local imageBase = "gcr.io/kubeflow-ci/pytorch-mnist";
 local imageTag = "build-" + prowDict["BUILD_ID"];
 local trainerImage = imageBase + "/model:" + imageTag;
 
@@ -97,7 +97,7 @@ local ptOperatorPy = srcRootDir + "/kubeflow/pytorch-operator";
 // Workflow template is the name of the workflow template; typically the name of the ks component.
 // This is used as a label to make it easy to identify all Argo workflows created from a given
 // template.
-local workflow_template = "pytorch_mnist";
+local workflow_template = "pytorch-mnist";
 
 // Build template is a template for constructing Argo step templates.
 //
