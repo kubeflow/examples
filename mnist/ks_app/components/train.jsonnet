@@ -43,7 +43,6 @@ local trainEnv = [
   },
 ];
 
-// AWS Access/Secret keys
 local trainSecrets = util.parseSecrets(params.secretKeyRefs);
 
 local secretPieces = std.split(params.secret, "=");

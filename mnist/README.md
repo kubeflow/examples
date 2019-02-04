@@ -251,7 +251,7 @@ spec:
        ...
        ```
 
-  1. Next we need to set the environment variable `GOOGLE_APPLICATION_CREDENTIALS` so that our code knows
+  2. Next we need to set the environment variable `GOOGLE_APPLICATION_CREDENTIALS` so that our code knows
      where to look for the service account key.
 
      ```
@@ -307,9 +307,18 @@ kubectl logs mnist-train-dist-chief-0
 
 #### Using S3
 
-To use S3 we need we need to configure TensorFlow to use S3 credentials and variables. These credentials will be provided as kubernetes secrets, and the variables will be passed in as environment variables. Modify the below values to suit your environment.
+To use S3 we need we need to configure TensorFlow to use S3 credentials and variables. These credentials will be provided as kubernetes secrets and the variables will be passed in as environment variables. Modify the below values to suit your environment.
 
-Give the job a different name (to distinguish it from your job which didn't use GCS)
+Lets start by creating an environment to store parameters particular to writing the model to S3
+and running distributed.
+
+```
+KSENV=distributed
+cd ks_app
+ks env add ${KSENV}
+```
+
+Give the job a different name (to distinguish it from your job which didn't use S3)
 
 ```
 ks param set --env=${KSENV} train name mnist-train-dist
@@ -344,14 +353,14 @@ various environment variables configuring access to S3.
      export S3_VERIFY_SSL=1 #set to 0 for defaul minio installs 
      ```
 
-  1. Create a K8s secret containing your AWS credentials
+  2. Create a K8s secret containing your AWS credentials
 
      ```
      kubectl create secret generic aws-creds --from-literal=awsAccessKeyID=${AWS_ACCESS_KEY_ID} \
        --from-literal=awsSecretAccessKey=${AWS_SECRET_ACCESS_KEY}
      ```
   
-  1. Pass secrets as environment variables into pod
+  3. Pass secrets as environment variables into pod
 
      ```
      ks param set --env=${KSENV} train secretKeyRefs AWS_ACCESS_KEY_ID=aws-creds.awsAccessKeyID,AWS_SECRET_ACCESS_KEY=aws-creds.awsSecretAccessKey
@@ -396,7 +405,7 @@ various environment variables configuring access to S3.
                       ...
       ```
   
-  1. Next we need to set a whole bunch of S3 related environment variables so that TensorFlow
+  4. Next we need to set a whole bunch of S3 related environment variables so that TensorFlow
      knows how to talk to S3
 
      ```
@@ -410,7 +419,8 @@ various environment variables configuring access to S3.
      ks param set --env=${KSENV} train envVariables ${AWSENV}
      ```
 
-     * If we look at the spec for our job we can see that the environment variable `GOOGLE_APPLICATION_CREDENTIALS` is set.
+     * If we look at the spec for our job we can see that the environment variables related 
+     to S3 are set.
 
        ```
         ks show ${KSENV} -c train
@@ -430,7 +440,9 @@ various environment variables configuring access to S3.
                     ..
                     env:
                     ...
-                    - name: AWS_BUCKET
+                    - name: AWS_REGION
+                      value: us-west-2
+                    - name: BUCKET_NAME
                       value: somebucket
                     ...
                   ...
@@ -462,13 +474,12 @@ There are various ways to monitor workflow/training job. In addition to using `k
 
 ### Tensorboard
 
-TODO: This section needs to be updated
+#### Using GCS
 
 Configure TensorBoard to point to your model location
 
 ```
 ks param set tensorboard --env=${KSENV} logDir ${LOGDIR}
-
 ```
 
 Assuming you followed the directions above if you used GCS you can use the following value
@@ -477,18 +488,148 @@ Assuming you followed the directions above if you used GCS you can use the follo
 LOGDIR=gs://${BUCKET}/${MODEL_PATH}
 ```
 
-Then you can deploy tensorboard
+You need to point TensorBoard to GCP credentials to access GCS bucket with model.
+
+  1. Mount the secret into the pod
+
+     ```
+     ks param set --env=${KSENV} tensorboatd secret user-gcp-sa=/var/secrets
+     ```
+
+     * Setting this ksonnet parameter causes a volumeMount and volume to be added to TensorBoard
+     deployment
+     * To see this you can run
+
+       ```
+       ks show ${KSENV} -c tensorboard
+       ```
+
+     * The output should now include a volumeMount and volume section
+
+  2. Next we need to set the environment variable `GOOGLE_APPLICATION_CREDENTIALS` so that our code knows
+     where to look for the service account key.
+
+     ```
+     ks param set --env=${KSENV} tensorboard envVariables GOOGLE_APPLICATION_CREDENTIALS=/var/secrets/user-gcp-sa.json     
+     ```
+
+     * If we look at the spec for TensorBoard deployment we can see that the environment variable `GOOGLE_APPLICATION_CREDENTIALS` is set.
+
+       ```
+       ks show ${KSENV} -c tensorboard
+       ```
+       ```
+        ...
+        env:
+        ...
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /var/secrets/user-gcp-sa.json
+       ```
+
+#### Using S3
+
+Configure TensorBoard to point to your model location
+
+```
+ks param set tensorboard --env=${KSENV} logDir ${LOGDIR}
+```
+
+Assuming you followed the directions above if you used S3 you can use the following value
+
+```
+LOGDIR=s3://${BUCKET}/${MODEL_PATH}
+```
+
+You need to point TensorBoard to AWS credentials to access S3 bucket with model.
+
+  1. Pass secrets as environment variables into pod
+
+     ```
+     ks param set --env=${KSENV} tensorboard secretKeyRefs AWS_ACCESS_KEY_ID=aws-creds.awsAccessKeyID,AWS_SECRET_ACCESS_KEY=aws-creds.awsSecretAccessKey
+     ```
+
+     * Setting this ksonnet parameter causes a two new environment variables to be added to TensorBoard
+     deployment
+     * To see this you can run
+
+       ```
+       ks show ${KSENV} -c tensorboard
+       ```
+
+     * The output should now include two environment variables referencing K8s secret
+
+       ```
+        ...
+        spec:
+          containers:
+          - command:
+          ...
+            env:
+            ...
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  key: awsAccessKeyID
+                  name: aws-creds
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: awsSecretAccessKey
+                  name: aws-creds
+                  ...
+       ```
+
+  2. Next we need to set a whole bunch of S3 related environment variables so that TensorBoard
+     knows how to talk to S3
+
+     ```
+     AWSENV="S3_ENDPOINT=${S3_ENDPOINT}"
+     AWSENV="${AWSENV},AWS_ENDPOINT_URL=${AWS_ENDPOINT_URL}"     
+     AWSENV="${AWSENV},AWS_REGION=${AWS_REGION}"
+     AWSENV="${AWSENV},BUCKET_NAME=${BUCKET_NAME}"
+     AWSENV="${AWSENV},S3_USE_HTTPS=${S3_USE_HTTPS}"
+     AWSENV="${AWSENV},S3_VERIFY_SSL=${S3_VERIFY_SSL}"
+
+     ks param set --env=${KSENV} tensorboard envVariables ${AWSENV}
+     ```
+
+     * If we look at the spec for TensorBoard deployment we can see that the environment variables related to S3 are set.
+
+       ```
+       ks show ${KSENV} -c tensorboard
+       ```
+
+       ```
+        ...
+        spec:
+          containers:
+          - command:
+            ..
+            env:
+            ...
+            - name: AWS_REGION
+              value: us-west-2
+            - name: BUCKET_NAME
+              value: somebucket
+            ...
+       ```
+
+
+#### Deploying TensorBoard
+
+
+Now you can deploy TensorBoard
 
 ```
 ks apply ${KSENV} -c tensorboard
 ```
 
-To access tensorboard using port-forwarding
+To access TensorBoard using port-forwarding
 
 ```
 kubectl -n jlewi port-forward service/tensorboard-tb 8090:80
 ```
-Tensorboard can now be accessed at [http://127.0.0.1:8090](http://127.0.0.1:8090).
+TensorBoard can now be accessed at [http://127.0.0.1:8090](http://127.0.0.1:8090).
 
 
 ## Serving the model

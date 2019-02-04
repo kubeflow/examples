@@ -4,6 +4,8 @@
 local env = std.extVar("__ksonnet/environments");
 local params = std.extVar("__ksonnet/params").components.tensorboard;
 
+local util = import "util.libsonnet";
+
 local k = import "k.libsonnet";
 
 local name = params.name;
@@ -49,6 +51,12 @@ local service = {
   },
 };
 
+local tbSecrets = util.parseSecrets(params.secretKeyRefs);
+
+local secretPieces = std.split(params.secret, "=");
+local secretName = if std.length(secretPieces) > 0 then secretPieces[0] else "";
+local secretMountPath = if std.length(secretPieces) > 1 then secretPieces[1] else "";
+
 local deployment = {
   apiVersion: "apps/v1beta1",
   kind: "Deployment",
@@ -82,29 +90,27 @@ local deployment = {
                 containerPort: 80,
               },
             ],
-            env: [
+            env: util.parseEnv(params.envVariables) + tbSecrets,
+            volumeMounts: if secretMountPath != "" then
+            [
               {
-                name: "GOOGLE_APPLICATION_CREDENTIALS",
-                value: "/secret/gcp-credentials/user-gcp-sa.json",
+                name: secretName,
+                mountPath: secretMountPath,
+                readOnly: true,
               },
-            ],
-            volumeMounts: [
-              {
-                mountPath: "/secret/gcp-credentials",
-                name: "gcp-credentials",
-              },
-            ],
+            ] else [],
           },
         ],
-
-        volumes: [
-          {
-            name: "gcp-credentials",
-            secret: {
-              secretName: "user-gcp-sa",
-            },
-          },
-        ],
+        volumes:
+          if secretName != "" then
+            [
+              {
+                name: secretName,
+                secret: {
+                  secretName: secretName,
+                },
+              },
+            ] else [],
       },
     },
   },
