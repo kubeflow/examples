@@ -48,8 +48,9 @@ all: build
 CURRENT_DIR := $(shell pwd)
 
 build-seldon-image:
-    cd serving/seldon-wrapper
+    cd ./serving/seldon-wrapper
     docker run -v .:/my_model seldonio/core-python-wrapper:0.7 /my_model mnistddpserving ${TAG} ${IMG} --grpc --force
+    cd $(CURRENT_DIR)
 
 # Build the GCB workflow
 build-gcb-spec:
