@@ -93,7 +93,7 @@ The model is exported to the location `/tmp/ames/housing.dat`. We will use [Seld
  * `requirements.txt`
 
 ## Model Serving Locally
-We are going to use [seldon-core](https://github.com/SeldonIO/seldon-core/) to serve the model. [HoussingServe.py](seldon_serve/HousingServe.py) contains the code to serve the model. You can find seldon core model wrapping details [here](https://github.com/SeldonIO/seldon-core/blob/master/docs/wrappers/python.md). The seldon-core microservice image can be built by the following command.
+We are going to use [seldon-core](https://github.com/SeldonIO/seldon-core/) to serve the model. [HousingServe.py](seldon_serve/HousingServe.py) contains the code to serve the model. You can find seldon core model wrapping details [here](https://github.com/SeldonIO/seldon-core/blob/master/docs/wrappers/python.md). The seldon-core microservice image can be built by the following command.
 
 ```
 cd seldon_serve && s2i build . seldonio/seldon-core-s2i-python2:0.4 gcr.io/${PROJECT_ID}/housingserve:latest --loglevel=3
