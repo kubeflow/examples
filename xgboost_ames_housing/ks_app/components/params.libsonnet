@@ -14,5 +14,13 @@
       withApife: "false",
       withRbac: "true",
     },
+    "xgboost": {
+      endpoint: "REST",
+      image: "image-path",
+      imagePullSecret: "null",
+      name: "xgboost",
+      pvcName: "null",
+      replicas: 1,
+    },
   },
 }
