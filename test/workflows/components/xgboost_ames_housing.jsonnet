@@ -411,6 +411,9 @@ local exitTemplates =
     },
     {
       // Delete the seldon deployment
+      // TODO(zhenghuiwang): Seldon doesn't deploy seldon deployments into a different
+      // namespace (https://github.com/kubeflow/kubeflow/issues/1712). After this
+      // issue is fixed, we don't need to use `ks delete`.
       template: buildTemplate {
         name: "delete-seldon-deployment",
         command: [
