@@ -18,9 +18,9 @@ Manually running the test
 
 import os
 
-import mnist_client
-
 from py import test_runner #pylint: disable=no-name-in-module
+
+import mnist_client
 
 from kubeflow.testing import test_util
 
