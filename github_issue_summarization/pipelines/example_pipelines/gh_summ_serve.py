@@ -20,24 +20,24 @@ import kfp.dsl as dsl
   description='Demonstrate Tensor2Tensor-based training and TF-Serving'
 )
 def gh_summ(
-  project: dsl.PipelineParam=dsl.PipelineParam(name='project', value='YOUR_PROJECT_HERE'),
-  github_token: dsl.PipelineParam=dsl.PipelineParam(name='github-token', value='YOUR_GITHUB_TOKEN_HERE'),
-  working_dir: dsl.PipelineParam=dsl.PipelineParam(name='working-dir', value='YOUR_GCS_DIR_HERE'),
+  github_token: dsl.PipelineParam = dsl.PipelineParam(
+      name='github-token', value='YOUR_GITHUB_TOKEN_HERE'),
   ):
 
 
   serve = dsl.ContainerOp(
-      name = 'serve',
-      image = 'gcr.io/google-samples/ml-pipeline-kubeflow-tfserve',
-      arguments = ["--model_name", 'ghsumm-%s' % ('{{workflow.name}}',),
-          "--model_path", 'gs://aju-dev-demos-codelabs/kubecon/example_t2t_model/model_output/export'
+      name='serve',
+      image='gcr.io/google-samples/ml-pipeline-kubeflow-tfserve',
+      arguments=["--model_name", 'ghsumm-%s' % ('{{workflow.name}}',),
+          "--model_path",
+          'gs://aju-dev-demos-codelabs/kubecon/example_t2t_model/model_output/export'
           ]
       )
 
   webapp = dsl.ContainerOp(
-      name = 'webapp',
-      image = 'gcr.io/google-samples/ml-pipeline-webapp-launcher',
-      arguments = ["--model_name", 'ghsumm-%s' % ('{{workflow.name}}',),
+      name='webapp',
+      image='gcr.io/google-samples/ml-pipeline-webapp-launcher',
+      arguments=["--model_name", 'ghsumm-%s' % ('{{workflow.name}}',),
           "--github_token", github_token]
 
       )

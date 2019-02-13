@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM tensorflow/tensorflow:latest
+FROM tensorflow/tensorflow:1.12.0
 
 RUN apt-get update -y
 

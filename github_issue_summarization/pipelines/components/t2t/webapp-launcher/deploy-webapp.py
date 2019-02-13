@@ -46,8 +46,8 @@ def main():
   args_dict = vars(args)
 
   if args.cluster and args.zone:
-    cluster = args_dict.pop('cluster')
-    zone = args_dict.pop('zone')
+    cluster = args_dict.pop('cluster')  #pylint: disable=unused-variable
+    zone = args_dict.pop('zone')  #pylint: disable=unused-variable
   else:
     # Get cluster name and zone from metadata
     metadata_server = "http://metadata/computeMetadata/v1/instance/"

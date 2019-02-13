@@ -50,14 +50,14 @@ hparams_name = os.getenv('HPARAMS', 'transformer_prepend')
 data_dir = os.getenv('DATADIR', 'gs://aju-dev-demos-codelabs/kubecon/t2t_data_gh_all/')
 github_token = os.getenv('GH_TOKEN', 'xxx')
 
-server = os.getenv('TFSERVING_HOST', 'ghsumm.kubeflow')
-print("using server: %s" % server)
-servable_name = os.getenv('TF_SERVABLE_NAME', 'ghsumm')
-print("using model servable name: %s" % servable_name)
+SERVER = os.getenv('TFSERVING_HOST', 'ghsumm.kubeflow')
+print("using server: %s" % SERVER)
+SERVABLE_NAME = os.getenv('TF_SERVABLE_NAME', 'ghsumm')
+print("using model servable name: %s" % SERVABLE_NAME)
 
 SAMPLE_ISSUES = './github_issues_sample.csv'
 
-SERVER_URL = 'http://' + server + ':8500/v1/models/' + servable_name + ':predict'
+SERVER_URL = 'http://' + SERVER + ':8500/v1/models/' + SERVABLE_NAME + ':predict'
 
 def get_issue_body(issue_url):
   issue_url = re.sub('.*github.com/', 'https://api.github.com/repos/',
@@ -98,9 +98,7 @@ def summary():
   global problem
   if problem is None:
     init()
-  request_fn = make_tfserving_rest_request_fn(
-      servable_name=servable_name,
-      server=server)
+  request_fn = make_tfserving_rest_request_fn()
 
   if request.method == 'POST':
     issue_text = request.form["issue_text"]
@@ -130,7 +128,7 @@ def init():
   hparams = tf.contrib.training.HParams(data_dir=os.path.expanduser(data_dir))
   problem.get_hparams(hparams)
 
-def make_tfserving_rest_request_fn(servable_name, server):  #pylint: disable=unused-argument
+def make_tfserving_rest_request_fn():
   """Wraps function to make CloudML Engine requests with runtime args."""
 
   def _make_tfserving_rest_request_fn(examples):
