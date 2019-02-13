@@ -1,8 +1,8 @@
 # Serving the model
 
-We are going to use [seldon-core](https://github.com/SeldonIO/seldon-core) to serve the model. [IssueSummarization.py](notebooks/IssueSummarization.py) contains the code for this model. We will wrap this class into a seldon-core microservice which we can then deploy as a REST or GRPC API server.
+We are going to use [Seldon Core](https://github.com/SeldonIO/seldon-core) to serve the model. [IssueSummarization.py](notebooks/IssueSummarization.py) contains the code for this model. We will wrap this class into a seldon-core microservice which we can then deploy as a REST or GRPC API server.
 
-> The model is written in Keras and when exported as a TensorFlow model seems to be incompatible with TensorFlow Serving. So we're using seldon-core to serve this model since seldon-core allows you to serve any arbitrary model. More details [here](https://github.com/kubeflow/examples/issues/11#issuecomment-371005885).
+> The model is written in Keras and when exported as a TensorFlow model seems to be incompatible with TensorFlow Serving. So we're using Seldon Core to serve this model since seldon-core allows you to serve any arbitrary model. More details [here](https://github.com/kubeflow/examples/issues/11#issuecomment-371005885).
 
 #  Building a model server
 
@@ -14,41 +14,59 @@ You have two options for getting a model server
   * So you can just run this image to get a pre-trained model
   * Serving your own model using this server is discussed below
 
-1. You can build your own model server as discussed below
+1. You can build your own model server as discussed below. For this you will need to install the [Source2Image executable s2i](https://github.com/openshift/source-to-image).
 
 
-## Wrap the model into a seldon-core microservice
+## Wrap the model into a Seldon Core microservice
 
-cd into the notebooks directory and run the following docker command. This will create a build/ directory.
+Set a couple of environment variables to specify the GCP Project and the TAG you want to build the image for:
+
+```
+PROJECT=my-gcp-project
+TAG=0.1
+```
+
+cd into the notebooks directory and run the following command (you will need [s2i](https://github.com/openshift/source-to-image) installed):
 
 ```
 cd notebooks/
-docker run -v $(pwd):/my_model seldonio/core-python-wrapper:0.7 /my_model IssueSummarization 0.1 gcr.io --base-image=python:3.6 --image-name=gcr-repository-name/issue-summarization
+make build-model-image PROJECT=${PROJECT} TAG=${TAG}
 ```
 
-The build/ directory contains all the necessary files to build the seldon-core microservice image
+This will use [S2I](https://github.com/openshift/source-to-image)  to wrap the inference code in `IssueSummarization.py` so it can be run and managed by Seldon Core.
+
+
+Now you should see an image named `gcr.io/<gcr-repository-name>/issue-summarization:0.1` in your docker images. To test the model, you can run it locally using:
 
 ```
-cd build/
-./build_image.sh
+make start-docker-model-image PROJECT=${PROJECT} TAG=${TAG}
 ```
 
-Now you should see an image named `gcr.io/gcr-repository-name/issue-summarization:0.1` in your docker images. To test the model, you can run it locally using
+To send an example payload to the server run:
 
-`docker run -p 5000:5000 gcr.io/gcr-repository-name/issue-summarization:0.1`
+```
+make test-model-image_local
+```
 
-You can push the image by running `gcloud docker -- push gcr.io/gcr-repository-name/issue-summarization:0.1`
+or you can run a curl command explicitly such as:
+
+```
+curl -g http://localhost:5000/predict --data-urlencode 'json={"data":{"ndarray":[["try to stop flask from using multiple threads"]]}}'
+```
+
+To stop the running server run:
+
+```
+make stop-docker-model-image
+```
+
+You can push the image by running:
+
+```
+make push-model-image PROJECT=${PROJECT} TAG=${TAG}
+```
 
 > You can find more details about wrapping a model with seldon-core [here](https://github.com/SeldonIO/seldon-core/blob/master/docs/wrappers/python.md)
-
-### Storing a model in the Docker image
-
-If you want to store a copy of the model in the Docker image make sure the following files are available in the directory in which you run
-the commands in the previous steps. These files are produced by the [training](training_the_model.md) step in your `notebooks` directory:
-
-* `seq2seq_model_tutorial.h5` - the keras model
-* `body_pp.dpkl` - the serialized body preprocessor
-* `title_pp.dpkl` - the serialized title preprocessor
 
 
 # Deploying the model to your kubernetes cluster
@@ -83,12 +101,25 @@ Now that you have seldon core deployed, you can deploy the model using the
 ```bash
 ks generate seldon-serve-simple-v1alpha2 issue-summarization-model \
   --name=issue-summarization \
-  --image=gcr.io/gcr-repository-name/issue-summarization:0.1 \
-  --namespace=${NAMESPACE} \
+  --image=gcr.io/${PROJECT}/issue-summarization-model:${TAG} \
   --replicas=2
 ks apply ${KF_ENV} -c issue-summarization-model
 ```
 
+The model can take quite some time to become ready due to the loading times of the models and may be restarted if it fails the default liveness probe. If this happens you can add a custom livenessProbe to the issue-summarization.jsonnet file. Add the below to the container section:
+
+```
+   "livenessProbe": {
+      "failureThreshold": 3,
+      "initialDelaySeconds": 30,
+      "periodSeconds": 5,
+      "successThreshold": 1,
+         "handler" : {
+	    "tcpSocket": {
+               "port": "http"
+             }
+      },
+```
 
 # Sample request and response
 
