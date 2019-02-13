@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    getambassador.io/config: |-
+      ---
+      apiVersion: ambassador/v0
+      kind:  Mapping
+      name: webapp-MODEL_NAME
+      prefix: /webapp/
+      rewrite: /
+      timeout_ms: 1200000
+      service: MODEL_NAME-webappsvc.KUBEFLOW_NAMESPACE:80
+  name: MODEL_NAME-webappsvc
+  labels:
+    app: ghsumm
+    role: frontend
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: "http-server"
+  selector:
+    app: ghsumm
+    role: frontend
+
+---
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: MODEL_NAME-webapp
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: ghsumm
+        role: frontend
+    spec:
+      containers:
+      - name: MODEL_NAME-webapp
+        image: gcr.io/google-samples/ml-pipeline-t2tapp
+        # resources:
+        #   limits:
+        #     nvidia.com/gpu: 1
+        imagePullPolicy: Always
+        env:
+        - name: TFSERVING_HOST
+          value: MODEL_NAME.KUBEFLOW_NAMESPACE
+        - name: TF_SERVABLE_NAME
+          value: MODEL_NAME
+        - name: GH_TOKEN
+          value: GITHUB_TOKEN
+        - name: DATADIR
+          value: DATA_DIR
+        ports:
+        - name: http-server
+          containerPort: 8080
