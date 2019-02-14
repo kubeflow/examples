@@ -404,16 +404,18 @@ various environment variables configuring access to S3.
                  containers:
                  - command:
                    ...
-                   volumeMounts:
-                   - mountPath: /var/secrets
-                     name: aws-creds
-                     readOnly: true
+                   env:
+                   - name: AWS_ACCESS_KEY_ID
+                     valueFrom:
+                       secretKeyRef:
+                         key: awsAccessKeyID
+                         name: aws-creds
+                   - name: AWS_SECRET_ACCESS_KEY
+                     valueFrom:
+                       secretKeyRef:
+                         key: awsSecretAccessKey
+                         name: aws-creds
                    ...
-                 volumes:
-                 - name: aws-creds
-                   secret:
-                     secretName: aws-creds
-             ...
        ```
   
   1. Next we need to set a whole bunch of S3 related environment variables so that TensorFlow
