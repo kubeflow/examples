@@ -68,7 +68,6 @@
                waitFor: if useImageCache then ["pull-" + template.name] else ["-"],
              },
              {
-               local cacheList = if useImageCache then ["--cache-from=" + imageLatest] else [],
                id: "build-" + template.name,
                name: "gcr.io/cloud-builders/docker",
                args: [
@@ -77,7 +76,6 @@
                        image,
                        rootDir + template.contextDir + "/build"
                      ],
-                     cacheList,
                waitFor: ["wrap-" + template.name],
              },
              {
