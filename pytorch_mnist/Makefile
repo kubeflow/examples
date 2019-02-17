@@ -31,7 +31,7 @@ IMG ?= gcr.io/kubeflow-examples/pytorch-mnist
 CHANGED_FILES := $(shell git diff-files --relative=mnist/)
 
 # Whether to use cached images with GCB
-USE_IMAGE_CACHE ?= false
+USE_IMAGE_CACHE ?= true
 
 ifeq ($(strip $(CHANGED_FILES)),)
 # Changed files is empty; not dirty
