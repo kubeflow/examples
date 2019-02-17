@@ -51,9 +51,6 @@
     steps: pullStep + if template.seldon then
            [
              {
-               local buildArgList = if template.buildArg != null then ["--build-arg", template.buildArg] else [],
-               local cacheList = if useImageCache then ["--cache-from=" + imageLatest] else [],
-
                id: "wrap-" + template.name,
                name: "gcr.io/cloud-builders/docker",
                args: [
@@ -67,12 +64,11 @@
                        std.extVar("imageBase"),
                        "--grpc",
                        "--force"
-                     ]
-                     + buildArgList
-                     + cacheList,
+                     ],
                waitFor: if useImageCache then ["pull-" + template.name] else ["-"],
              },
              {
+               local cacheList = if useImageCache then ["--cache-from=" + imageLatest] else [],
                id: "build-" + template.name,
                name: "gcr.io/cloud-builders/docker",
                args: [
@@ -81,6 +77,7 @@
                        image,
                        rootDir + template.contextDir + "/build"
                      ],
+                     cacheList,
                waitFor: ["wrap-" + template.name],
              },
              {
