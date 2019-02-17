@@ -71,6 +71,7 @@
                waitFor: if useImageCache then ["pull-" + template.name] else ["-"],
              },
              {
+               id: "build-" + template.name,
                name: "gcr.io/cloud-builders/docker",
                args: [
                        "build",
