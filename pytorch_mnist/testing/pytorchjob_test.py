@@ -24,17 +24,15 @@ Manually running the test
      --params=numTrainSteps=10,batchSize=10,...
 """
 
-import json
 import logging
 import os
 
-from kubernetes import client as k8s_client
-from py import tf_job_client
 from py import test_runner
 
 from kubeflow.testing import ks_util
 from kubeflow.testing import test_util
 from kubeflow.testing import util
+
 
 class PytorchJobTest(test_util.TestCase):
   def __init__(self, args):
@@ -57,12 +55,12 @@ class PytorchJobTest(test_util.TestCase):
     # We repeat the test multiple times.
     # This ensures that if we delete the job we can create a new job with the
     # same name.
-    api_client = k8s_client.ApiClient()
+    # api_client = k8s_client.ApiClient()
 
     # Apply the components
     # TODO(dsdinter) we should test v1alpha2 in k3.5 cluster as well
     for component in ["train_model_CPU_v1beta1", "train_model_GPU_v1beta1"]:
-      # Setup the ksonnet app
+        # Setup the ksonnet app
       ks_util.setup_ks_app(self.app_dir, self.env, self.namespace, component,
                            self.params)
 
@@ -100,6 +98,7 @@ class PytorchJobTest(test_util.TestCase):
     # We don't delete the jobs. We rely on TTLSecondsAfterFinished
     # to delete old jobs. Leaving jobs around should make it
     # easier to debug.
+
 
 if __name__ == "__main__":
   test_runner.main(module=__name__)

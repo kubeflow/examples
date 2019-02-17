@@ -1,5 +1,6 @@
 import pytest
 
+
 def pytest_addoption(parser):
   parser.addoption(
       "--master", action="store", default="", help="IP address of GKE master")
@@ -11,13 +12,16 @@ def pytest_addoption(parser):
       "--service", action="store", default="",
       help="The name of the mnist K8s service")
 
+
 @pytest.fixture
 def master(request):
   return request.config.getoption("--master")
 
+
 @pytest.fixture
 def namespace(request):
   return request.config.getoption("--namespace")
+
 
 @pytest.fixture
 def service(request):

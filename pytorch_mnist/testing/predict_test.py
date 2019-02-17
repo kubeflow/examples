@@ -34,6 +34,7 @@ import pytest
 
 from kubeflow.testing import util
 
+
 # TODO(dsdinter) refactor to call through gRPC instead
 def is_retryable_result(r):
   if r.status_code == requests.codes.NOT_FOUND:
@@ -43,13 +44,14 @@ def is_retryable_result(r):
 
   return False
 
+
 # TODO(dsdinter) refactor to call through gRPC instead
 @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000,
        stop_max_delay=5*60*1000,
        retry_on_result=is_retryable_result)
 def send_request(*args, **kwargs):
-  # We don't use util.run because that ends up including the access token
-  # in the logs
+    # We don't use util.run because that ends up including the access token
+    # in the logs
   token = subprocess.check_output(["gcloud", "auth", "print-access-token"])
   if six.PY3 and hasattr(token, "decode"):
     token = token.decode()
@@ -91,8 +93,8 @@ def test_predict(master, namespace, service):
   with open(test_data) as hf:
     instances = json.load(hf)
 
-  # We proxy the request through the APIServer so that we can connect
-  # from outside the cluster.
+    # We proxy the request through the APIServer so that we can connect
+    # from outside the cluster.
   url = ("https://{master}/api/v1/namespaces/{namespace}/services/{service}:8500"
          "/proxy/v1/models/mnist:predict").format(
            master=master, namespace=namespace, service=service)
@@ -115,6 +117,7 @@ def test_predict(master, namespace, service):
   assert "predictions" in predictions
   assert len(predictions["predictions"]) == 10
   logging.info("URL %s returned; %s", url, content)
+
 
 if __name__ == "__main__":
   logging.basicConfig(level=logging.INFO,

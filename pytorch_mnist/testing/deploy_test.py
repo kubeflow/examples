@@ -29,6 +29,7 @@ from kubeflow.testing import ks_util
 from kubeflow.testing import test_util
 from kubeflow.testing import util
 
+
 # TODO(jlewi): Should we refactor this to use pytest like predict_test
 # and not depend on test_runner.
 class MnistDeployTest(test_util.TestCase):
@@ -57,7 +58,7 @@ class MnistDeployTest(test_util.TestCase):
 
     # Apply the components
     for component in ["serving_model"]:
-      # Setup the ksonnet app
+        # Setup the ksonnet app
       ks_util.setup_ks_app(self.app_dir, self.env, self.namespace, component,
                            self.params)
 
@@ -72,9 +73,10 @@ class MnistDeployTest(test_util.TestCase):
     # We don't delete the resources. We depend on the namespace being
     # garbage collected.
 
+
 if __name__ == "__main__":
-  # TODO(jlewi): It looks like using test_runner we don't exit with an error
-  # if the deployment doesn't succeed. So the Argo workflow continues which
-  # isn't what we want. Might be a good reason to switch to using
-  # pytest.
+    # TODO(jlewi): It looks like using test_runner we don't exit with an error
+    # if the deployment doesn't succeed. So the Argo workflow continues which
+    # isn't what we want. Might be a good reason to switch to using
+    # pytest.
   test_runner.main(module=__name__)
