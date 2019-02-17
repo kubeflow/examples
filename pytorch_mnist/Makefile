@@ -30,9 +30,6 @@ IMG ?= gcr.io/kubeflow-examples/pytorch-mnist
 # In particular we exclude changes to the ksonnet configs.
 CHANGED_FILES := $(shell git diff-files --relative=mnist/)
 
-# Include absolute directory from Makefile path
-ROOT_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-
 # Whether to use cached images with GCB
 USE_IMAGE_CACHE ?= false
 
@@ -55,7 +52,6 @@ build-gcb-spec:
 	jsonnet ./image_build.jsonnet --ext-str imageBase=$(IMG) \
 	  --ext-str gitVersion=$(GIT_VERSION) --ext-str tag=$(TAG) \
 	  --ext-str useImageCache=$(USE_IMAGE_CACHE) \
-	  --ext-str rootDir=$(ROOT_DIR) \
 	  > ./build/image_build.json
 
 # Build using GCB. This is useful if we are on a slow internet connection

@@ -33,6 +33,8 @@
 
     local template = self,
 
+    local rootDir = "/workspace/",
+
     local pullStep = if useImageCache then [
       {
         id: "pull-" + template.name,
@@ -57,10 +59,10 @@
                args: [
                        "run",
                        "-v",
-                       template.contextDir + ":/my_model",
+                       rootDir + template.contextDir + ":/my_model",
                        "seldonio/core-python-wrapper:0.7",
                        "/my_model",
-                       template.name,
+                       "mnistddpserving",
                        std.extVar("tag"),
                        std.extVar("imageBase"),
                        "--grpc",
@@ -77,7 +79,7 @@
                        "build",
                        "-t",
                        image,
-                       template.contextDir + "/build"
+                       rootDir + template.contextDir + "/build"
                      ],
                waitFor: ["wrap-" + template.name],
              },
@@ -133,7 +135,7 @@
   local servingSteps = subGraphTemplate {
     name: "serving",
     seldon: true,
-    contextDir: std.extVar("rootDir") + "/serving/seldon-wrapper"
+    contextDir: "/serving/seldon-wrapper"
   },
 
   local ksonnetSteps = subGraphTemplate {
