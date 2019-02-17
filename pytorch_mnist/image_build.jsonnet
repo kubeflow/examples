@@ -134,7 +134,7 @@
     name: "serving",
     seldon: true,
     dockerFile: "./serving/seldon-wrapper/Dockerfile",
-    contextDir: "./serving/seldon-wrapper"
+    contextDir: std.extVar("rootDir") + "/serving/seldon-wrapper"
   },
 
   local ksonnetSteps = subGraphTemplate {
