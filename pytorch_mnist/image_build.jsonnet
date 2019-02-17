@@ -26,7 +26,7 @@
   local subGraphTemplate = {
     // following variables must be set
     name: null,
-
+    seldon: false,
     dockerFile: null,
     buildArg: null,
     contextDir: ".",
@@ -46,7 +46,48 @@
     local imageLatest = std.extVar("imageBase") + "/" + template.name + ":latest",
 
     images: [image, imageLatest],
-    steps: pullStep +
+    steps: pullStep + if template.seldon then
+           [
+             {
+               local buildArgList = if template.buildArg != null then ["--build-arg", template.buildArg] else [],
+               local cacheList = if useImageCache then ["--cache-from=" + imageLatest] else [],
+
+               id: "wrap-" + template.name,
+               name: "gcr.io/cloud-builders/docker",
+               args: [
+                       "run",
+                       "-v",
+                       template.contextDir + ":/my_model",
+                       "seldonio/core-python-wrapper:0.7",
+                       "/my_model",
+                       template.name,
+                       std.extVar("tag"),
+                       std.extVar("imageBase"),
+                       "--grpc",
+                       "--force"
+                     ]
+                     + buildArgList
+                     + cacheList + [template.contextDir],
+               waitFor: if useImageCache then ["pull-" + template.name] else ["-"],
+             },
+             {
+               name: "gcr.io/cloud-builders/docker",
+               args: [
+                       "build",
+                       "-t",
+                       image,
+                       "build"
+                     ],
+               waitFor: ["wrap-" + template.name],
+             },
+             {
+               id: "tag-" + template.name,
+               name: "gcr.io/cloud-builders/docker",
+               args: ["tag", image, imageLatest],
+               waitFor: ["build-" + template.name],
+             },
+           ]
+           else
            [
              {
                local buildArgList = if template.buildArg != null then ["--build-arg", template.buildArg] else [],
@@ -77,16 +118,23 @@
   },
 
   local trainCPUSteps = subGraphTemplate {
-      name: "trainCPU",
+      name: "traincpu",
       dockerFile: "./training/ddp/mnist/Dockerfile.traincpu",
       contextDir: "./training/ddp/mnist"
     },
 
   local trainGPUSteps = subGraphTemplate {
-        name: "trainGPU",
+        name: "traingpu",
         dockerFile: "./training/ddp/mnist/Dockerfile.traingpu",
         contextDir: "./training/ddp/mnist"
       },
+
+  local servingSteps = subGraphTemplate {
+    name: "serving",
+    seldon: true,
+    dockerFile: "./serving/seldon-wrapper/Dockerfile",
+    contextDir: "./serving/seldon-wrapper"
+  },
 
   local ksonnetSteps = subGraphTemplate {
     name: "ksonnet",
@@ -100,6 +148,6 @@
     contextDir: "./web-ui"
   },
 
-  steps: trainCPUSteps.steps + trainGPUSteps.steps + ksonnetSteps.steps + uiSteps.steps,
-  images: trainCPUSteps.images +trainGPUSteps.images + ksonnetSteps.images + uiSteps.images,
+  steps: trainCPUSteps.steps + trainGPUSteps.steps + servingSteps.steps + ksonnetSteps.steps + uiSteps.steps,
+  images: trainCPUSteps.images + trainGPUSteps.images + servingSteps.images + ksonnetSteps.images + uiSteps.images,
 }
