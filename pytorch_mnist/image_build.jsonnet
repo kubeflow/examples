@@ -46,7 +46,7 @@
     local imageLatest = std.extVar("imageBase") + "/" + template.name + ":latest",
 
     images: [image, imageLatest],
-    steps: pullStep + if template.seldon then
+    steps: if template.seldon then
            [
              {
                local buildArgList = if template.buildArg != null then ["--build-arg", template.buildArg] else [],
@@ -88,7 +88,7 @@
                waitFor: ["build-" + template.name],
              },
            ]
-           else
+           else pullStep +
            [
              {
                local buildArgList = if template.buildArg != null then ["--build-arg", template.buildArg] else [],
