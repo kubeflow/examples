@@ -68,7 +68,7 @@
                      ]
                      + buildArgList
                      + cacheList + [template.contextDir],
-               waitFor: if useImageCache then ["pull-" + template.name] else ["-"],
+               waitFor: ["-"],
              },
              {
                id: "build-" + template.name,
