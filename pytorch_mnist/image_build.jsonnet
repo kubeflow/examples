@@ -67,7 +67,7 @@
                        "--force"
                      ]
                      + buildArgList
-                     + cacheList + [template.contextDir],
+                     + cacheList,
                waitFor: if useImageCache then ["pull-" + template.name] else ["-"],
              },
              {
@@ -133,7 +133,6 @@
   local servingSteps = subGraphTemplate {
     name: "serving",
     seldon: true,
-    dockerFile: "./serving/seldon-wrapper/Dockerfile",
     contextDir: std.extVar("rootDir") + "/serving/seldon-wrapper"
   },
 
