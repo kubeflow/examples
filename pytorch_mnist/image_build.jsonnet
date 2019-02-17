@@ -77,7 +77,7 @@
                        "build",
                        "-t",
                        image,
-                       "build"
+                       template.contextDir + "/build"
                      ],
                waitFor: ["wrap-" + template.name],
              },
