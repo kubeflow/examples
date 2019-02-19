@@ -80,6 +80,12 @@ Once you have identified an area for improvement, follow these steps:
 
 Examples housed in this repo should have the following characteristics:
 
+### Testing
+
+Examples should have E2E tests to ensure they work as expected.
+
+Please refer to the [E2E test guide](http://bit.ly/kf_example_testing_guide) for guidance on writing tests.
+
 ### Consistency
 
 A good example fits in with existing examples. It follows the same conventions, has similar

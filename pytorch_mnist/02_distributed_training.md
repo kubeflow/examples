@@ -20,6 +20,14 @@ Since this is a strong scaling example, we should perform an average after the a
 
 Deploy the PyTorchJob resource to start training the CPU & GPU models:
 
+### If running on Kubeflow 0.3.x:
+```
+kubectl create -f training/ddp/mnist/cpu/v1alpha2/job_mnist_DDP_CPU.yaml
+kubectl create -f training/ddp/mnist/cpu/v1alpha2/job_mnist_DDP_GPU.yaml
+
+```
+
+### If running on Kubeflow 0.4.x or newer:
 ```
 kubectl create -f training/ddp/mnist/cpu/v1beta1/job_mnist_DDP_CPU.yaml
 kubectl create -f training/ddp/mnist/cpu/v1beta1/job_mnist_DDP_GPU.yaml
@@ -31,7 +39,7 @@ kubectl create -f training/ddp/mnist/cpu/v1beta1/job_mnist_DDP_GPU.yaml
 With the commands above we have created Custom Resource that has been defined and enabled during Kubeflow
 installation, namely `PyTorchJob`.
 
-If you look at [job_mnist_DDP_GPU.yaml](https://github.com/kubeflow/examples/blob/master/github_issue_summarization/training/ddp/mnist/cpu/v1beta1/job_mnist_DDP_GPU.yaml) few things are worth mentioning.
+If you look at [job_mnist_DDP_GPU.yaml](https://github.com/kubeflow/examples/blob/master/pytorch_mnist/training/ddp/mnist/gpu/v1beta1/job_mnist_DDP_GPU.yaml) few things are worth mentioning.
 
 1. We mount our shared persistent disk as /mnt/kubeflow-gcfs for our PyTorchJob, where models will be saved at the end of the epochs
 2. Allocate one GPU to our container

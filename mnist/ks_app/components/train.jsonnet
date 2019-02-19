@@ -43,6 +43,9 @@ local trainEnv = [
   },
 ];
 
+// AWS Access/Secret keys
+local trainSecrets = util.parseSecrets(params.secretKeyRefs);
+
 local secretPieces = std.split(params.secret, "=");
 local secretName = if std.length(secretPieces) > 0 then secretPieces[0] else "";
 local secretMountPath = if std.length(secretPieces) > 1 then secretPieces[1] else "";
@@ -54,7 +57,7 @@ local replicaSpec = {
         "/usr/bin/python",
         "/opt/model.py",
       ],
-      env: trainEnv + util.parseEnv(params.envVariables),
+      env: trainEnv + util.parseEnv(params.envVariables) + trainSecrets,
       image: params.image,
       name: "tensorflow",
       volumeMounts: if secretMountPath != "" then

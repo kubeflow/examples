@@ -37,7 +37,8 @@ Refer to the [guide](https://www.kubeflow.org/docs/started/getting-started/) for
 detailed instructions on how to setup Kubeflow on your Kubernetes cluster.
 Specifically, complete the following sections:
 
-* [Deploy Kubeflow](https://www.kubeflow.org/docs/started/getting-started/)
+
+* [Deploy Kubeflow](https://www.kubeflow.org/docs/other-guides/advanced/)
     * The latest version that was tested with this walkthrough was v0.4.0-rc.2.
     * The [`kfctl`](https://github.com/kubeflow/kubeflow/blob/master/scripts/kfctl.sh)
       CLI tool can be used to install Kubeflow on an existing cluster. Follow
@@ -66,6 +67,7 @@ Notebook](https://www.kubeflow.org/docs/guides/components/jupyter/)
     * When choosing an image for your cluster in the JupyterHub UI, use the
       image from this example:
       [`gcr.io/kubeflow-dev/issue-summarization-notebook-cpu:latest`](https://github.com/kubeflow/examples/blob/master/github_issue_summarization/workflow/Dockerfile).
+
 
 After completing that, you should have the following ready:
 
