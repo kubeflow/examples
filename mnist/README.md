@@ -273,7 +273,7 @@ To use this service account we perform the following steps
                   ...
        ```
 
-  2. Next we need to set the environment variable `GOOGLE_APPLICATION_CREDENTIALS` so that our code knows
+  1. Next we need to set the environment variable `GOOGLE_APPLICATION_CREDENTIALS` so that our code knows
      where to look for the service account key.
 
      ```
@@ -376,14 +376,14 @@ various environment variables configuring access to S3.
      export S3_VERIFY_SSL=1 #set to 0 for defaul minio installs 
      ```
 
-  2. Create a K8s secret containing your AWS credentials
+  1. Create a K8s secret containing your AWS credentials
 
      ```
      kubectl create secret generic aws-creds --from-literal=awsAccessKeyID=${AWS_ACCESS_KEY_ID} \
        --from-literal=awsSecretAccessKey=${AWS_SECRET_ACCESS_KEY}
      ```
   
-  3. Pass secrets as environment variables into pod
+  1. Pass secrets as environment variables into pod
 
      ```
      ks param set --env=${KSENV} train secretKeyRefs AWS_ACCESS_KEY_ID=aws-creds.awsAccessKeyID,AWS_SECRET_ACCESS_KEY=aws-creds.awsSecretAccessKey
@@ -427,7 +427,7 @@ various environment variables configuring access to S3.
                    ...
        ```
   
-  4. Next we need to set a whole bunch of S3 related environment variables so that TensorFlow
+  1. Next we need to set a whole bunch of S3 related environment variables so that TensorFlow
      knows how to talk to S3
 
      ```
@@ -528,7 +528,7 @@ You need to point TensorBoard to GCP credentials to access GCS bucket with model
 
      * The output should now include a volumeMount and volume section
 
-  2. Next we need to set the environment variable `GOOGLE_APPLICATION_CREDENTIALS` so that our code knows
+  1. Next we need to set the environment variable `GOOGLE_APPLICATION_CREDENTIALS` so that our code knows
      where to look for the service account key.
 
      ```
@@ -601,7 +601,7 @@ You need to point TensorBoard to AWS credentials to access S3 bucket with model.
                   ...
        ```
 
-  2. Next we need to set a whole bunch of S3 related environment variables so that TensorBoard
+  1. Next we need to set a whole bunch of S3 related environment variables so that TensorBoard
      knows how to talk to S3
 
      ```
