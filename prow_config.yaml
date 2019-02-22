@@ -3,7 +3,7 @@
 workflows:
   - app_dir: kubeflow/examples/test/workflows
     component: workflows
-    name: examples-unittests
+    name: unittests
     job_types:
     - presubmit
     - postsubmit
