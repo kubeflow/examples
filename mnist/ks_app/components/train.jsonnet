@@ -1,6 +1,6 @@
 // Component to train a model.
 //
-// Parameters are used to control training
+// Parameters are used to control the training
 //   image: Docker iamge to use
 //   modelDir: Location to write the model this can be a local path (e.g. to a PV)
 //             or it can be any filesystem URI that TF understands (e.g GCS, S3, HDFS)

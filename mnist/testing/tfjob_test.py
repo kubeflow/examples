@@ -28,6 +28,7 @@ import logging
 import os
 
 from kubernetes import client as k8s_client
+from kubernetes.client import rest
 from py import tf_job_client #pylint: disable=no-name-in-module
 from py import test_runner #pylint: disable=no-name-in-module
 
@@ -89,6 +90,21 @@ class TFJobTest(test_util.TestCase):
       self.failure = "Job {0} in namespace {1} in status {2}".format(  # pylint: disable=attribute-defined-outside-init
           self.name, self.namespace, results.get("status", {}))
       logging.error(self.failure)
+
+      # if the TFJob failed, print out the pod logs for debugging.
+      pod_names = tf_job_client.get_pod_names(
+          api_client, self.namespace, self.name)
+      logging.info("The Pods name:\n %s", pod_names)
+
+      core_api = k8s_client.CoreV1Api(api_client)
+
+      for pod in pod_names:
+        logging.info("Getting logs of Pod %s.", pod)
+        try:
+          pod_logs = core_api.read_namespaced_pod_log(pod, self.namespace)
+          logging.info("The logs of Pod %s log:\n %s", pod, pod_logs)
+        except rest.ApiException as e:
+          logging.info("Exception when calling CoreV1Api->read_namespaced_pod_log: %s\n", e)
       return
 
     # We don't delete the jobs. We rely on TTLSecondsAfterFinished
