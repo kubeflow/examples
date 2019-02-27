@@ -30,6 +30,7 @@ guide](https://github.com/kubeflow/kubeflow/blob/master/user_guide.md) for
 detailed instructions on how to setup kubeflow on your kubernetes cluster.
 Specifically, complete the following sections:
 
+<<<<<<< HEAD
 *    [Deploy
 Kubeflow](https://github.com/kubeflow/kubeflow/blob/master/user_guide.md#deploy-kubeflow)
     *   The `ks-kubeflow` directory can be used instead of creating a ksonnet
@@ -53,6 +54,39 @@ Notebook](https://github.com/kubeflow/kubeflow/blob/master/user_guide.md#bringin
     *   When choosing an image for your cluster in the JupyterHub UI, use the
         image from this example:
         [`gcr.io/kubeflow-dev/issue-summarization-notebook-cpu:latest`](https://github.com/kubeflow/examples/blob/master/github_issue_summarization/workflow/Dockerfile).
+=======
+
+* [Deploy Kubeflow](https://www.kubeflow.org/docs/other-guides/advanced/)
+    * The latest version that was tested with this walkthrough was v0.4.0-rc.2.
+    * The [`kfctl`](https://github.com/kubeflow/kubeflow/blob/master/scripts/kfctl.sh)
+      CLI tool can be used to install Kubeflow on an existing cluster. Follow
+      [this guide](https://www.kubeflow.org/docs/started/getting-started/#kubeflow-quick-start)
+      to use `kfctl` to generate a ksonnet app, create Kubeflow manifests, and
+      install all default components onto an existing Kubernetes cluster. Note
+      that you can likely skip this step if you used
+      [Click-to-Deploy](https://deploy.kubeflow.cloud/#/deploy)
+      or `kfctl` to generate your cluster.
+
+* [Setup a persistent disk](https://www.kubeflow.org/docs/guides/advanced/)
+
+    * We need a shared persistent disk to store our training data since
+      containers' filesystems are ephemeral and don't have a lot of storage space.
+
+    * For this example, provision a `10GB` cluster-wide shared NFS mount with the
+      name `github-issues-data`.
+
+    * After the NFS is ready, delete the `jupyter-0` pod so that it gets recreated and
+      picks up the NFS mount. You can delete it by running `kubectl delete pod
+      jupyter-0 -n=${NAMESPACE}`
+
+* [Bringing up a
+Notebook](https://www.kubeflow.org/docs/guides/components/jupyter/)
+
+    * When choosing an image for your cluster in the JupyterHub UI, use the
+      image from this example:
+      [`gcr.io/kubeflow-dev/issue-summarization-notebook-cpu:latest`](https://github.com/kubeflow/examples/blob/master/github_issue_summarization/workflow/Dockerfile).
+>>>>>>> bc11d20adf7458d45351884c9d2b9fa627925e27
+
 
 After completing that, you should have the following ready:
 
