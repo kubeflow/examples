@@ -9,7 +9,7 @@
         "export DOCKER_API_VERSION=1.23",
 	"export DOCKER_USER=$(cat /tmp/dockersecret/user)",
 	"export DOCKER_PASS=$(cat /tmp/dockersecret/password)",
-	"docker login --username=$DOCKER_USER --password=$DOCKER_PASS",
+	"docker login --username=nickharvey --password=$DOCKER_PASS",
 	"cd /pfs/build/build",
         "chmod +x build_image.sh",
 	"chmod +x push_image.sh",
@@ -24,7 +24,7 @@
     ]
   },
   "input": {
-    "atom": {
+    "pfs": {
       "repo": "build",
       "glob": "/"
     }

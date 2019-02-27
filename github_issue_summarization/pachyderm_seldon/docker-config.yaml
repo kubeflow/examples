@@ -4,5 +4,5 @@ metadata:
   name: dockersecret
 type: Opaque
 data:
-  user: <user>
-  password: <password> 
+  user: bmlja2hhcnZleQ==
+  password: U0h6ejI0JmRk

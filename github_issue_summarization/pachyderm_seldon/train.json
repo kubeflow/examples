@@ -14,7 +14,7 @@
     ]
   },
   "input": {
-    "atom": {
+    "pfs": {
       "repo": "pre_process",
       "glob": "/"
     }

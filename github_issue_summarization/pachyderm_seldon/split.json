@@ -13,8 +13,9 @@
       "--output_testdf_csv=/pfs/out/github_issues_medium_test.csv" 
     ]
   },
+  "enable_stats": true,
   "input": {
-    "atom": {
+    "pfs": {
       "repo": "raw_data",
       "glob": "/"
     }
