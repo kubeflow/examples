@@ -21,8 +21,9 @@ RUN apt-get install --no-install-recommends -y -q ca-certificates python-dev pyt
 
 RUN easy_install pip
 
-RUN pip install tensor2tensor
-RUN pip install tensorflow_hub
+RUN pip install tensorflow-probability==0.5
+RUN pip install tensor2tensor==1.11.0
+RUN pip install tensorflow_hub==0.1.1
 RUN pip install pyyaml==3.12 six==1.11.0
 
 RUN wget -nv https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.zip && \

@@ -95,7 +95,7 @@ def summary():
   Provides a machine-generated summary of the given text. Sends a request to a live
   model trained on GitHub issues.
   """
-  global problem
+  global problem  #pylint: disable=global-statement
   if problem is None:
     init()
   request_fn = make_tfserving_rest_request_fn()
@@ -119,7 +119,7 @@ def summary():
 problem = None
 def init():
   # global input_encoder, output_decoder, fname, problem
-  global problem
+  global problem  #pylint: disable=global-statement
   tf.logging.set_verbosity(tf.logging.INFO)
   tf.logging.info("importing ghsumm/trainer from {}".format(t2t_usr_dir))
   usr_dir.import_usr_dir(t2t_usr_dir)

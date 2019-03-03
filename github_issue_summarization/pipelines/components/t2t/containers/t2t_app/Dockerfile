@@ -21,8 +21,8 @@ RUN apt-get install --no-install-recommends -y -q ca-certificates python-dev pyt
 
 RUN easy_install pip
 
-RUN pip install tensor2tensor
-# RUN pip install tensorflow_hub
+RUN pip install tensorflow-probability==0.5
+RUN pip install tensor2tensor==1.11.0
 RUN pip install tensorflow-serving-api
 RUN pip install gunicorn
 RUN pip install pyyaml==3.12 six==1.11.0

@@ -20,7 +20,7 @@ import logging
 import subprocess
 import requests
 
-from tensorflow.python.lib.io import file_io
+from tensorflow.python.lib.io import file_io  #pylint: disable=no-name-in-module
 
 
 def main():
