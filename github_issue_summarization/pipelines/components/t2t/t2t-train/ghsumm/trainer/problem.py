@@ -34,7 +34,7 @@ class GhProblem(text_problems.Text2TextProblem):
         "shards": 10,
     }]
 
-  def generate_samples(self, data_dir, tmp_dir, dataset_split):  #pylint: disable=unused-argument
+  def generate_samples(self, data_dir, tmp_dir, dataset_split):  #pylint: disable=unused-argument,no-self-use
     with open('gh_data/github_issues.csv') as csvfile:
       ireader = csv.reader((line.replace('\0', '') for line in csvfile), delimiter=','
        # quotechar='|'
