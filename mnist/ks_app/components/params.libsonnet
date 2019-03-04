@@ -59,9 +59,12 @@
       trafficRule: 'v1:100',
     },
     "tensorboard": {
+      envVariables: 'GOOGLE_APPLICATION_CREDENTIALS=/var/secrets/user-gcp-sa.json',
       image: "tensorflow/tensorflow:1.11.0",
       logDir: "gs://example/to/model/logdir",
       name: "tensorboard",
+      secret: '',
+      secretKeyRefs: '',
     },
     "web-ui": {
       containerPort: 5000,

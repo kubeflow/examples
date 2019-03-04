@@ -66,6 +66,7 @@ def send_request(*args, **kwargs):
 
   return r
 
+@pytest.mark.xfail
 def test_predict(master, namespace, service):
   app_credentials = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
   if app_credentials:

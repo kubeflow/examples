@@ -3,9 +3,11 @@
 workflows:
   - app_dir: kubeflow/examples/test/workflows
     component: workflows
-    name: examples-e2e
+    name: unittests
     job_types:
     - presubmit
+    - postsubmit
+    - periodic
 
   # E2E test for code_search example
   - app_dir: kubeflow/examples/test/workflows

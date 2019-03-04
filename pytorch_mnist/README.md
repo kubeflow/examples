@@ -32,9 +32,9 @@ In other words, you send an image to the model, and the model does its best to i
 
 ![](https://www.kubeflow.org/docs/images/gcp-e2e-ui-prediction.png)
 
-In the above screenshot, the image shows a hand-written 8. 
+In the above screenshot, the image shows a hand-written 7. 
 The table below the image shows a bar graph for each classification label from 0 to 9. Each bar represents the probability that the image matches the respective label. 
-Looks like it’s pretty confident this one is an 8!
+Looks like it’s pretty confident this one is an 7!
 
 ## Steps:
 
