@@ -69,6 +69,14 @@ local srcDir = srcRootDir + "/" + prowDict.REPO_OWNER + "/" + prowDict.REPO_NAME
 // value of KUBECONFIG environment variable. This should be  a full path.
 local kubeConfig = testDir + "/.kube/kubeconfig";
 
+// The directory within the kubeflow_testing and kubeflow_tf-operator submodule containing
+// py scripts to use.
+local kubeflowTestingPy = srcRootDir + "/kubeflow/testing/py";
+
+local tfOperatorPy = srcRootDir + "/kubeflow/tf-operator/py";
+
+
+
 // These variables control where the docker images get pushed and what 
 // tag to use
 local imageBase = "gcr.io/kubeflow-ci/github-issue-summarization";
@@ -92,17 +100,13 @@ local buildTemplate = {
   workingDir:: null,
   env_vars:: [],
   side_cars: [],
+  pythonPath: kubeflowTestingPy + ":" + tfOperatorPy,
 
 
   activeDeadlineSeconds: 1800,  // Set 30 minute timeout for each template
 
   local template = self,
 
-  // The directory within the kubeflow_testing submodule containing
-  // py scripts to use.
-  local kubeflowTestingPy = srcRootDir + "/kubeflow/testing/py",
-
-  local tfOperatorPy = srcRootDir + "/kubeflow/tf-operator",
 
   // Actual template for Argo
   argoTemplate: {
@@ -123,7 +127,7 @@ local buildTemplate = {
         {
           // Add the source directories to the python path.
           name: "PYTHONPATH",
-          value: kubeflowTestingPy + ":" + tfOperatorPy,
+          value: template.pythonPath,
         },
         {
           name: "GOOGLE_APPLICATION_CREDENTIALS",
@@ -269,6 +273,7 @@ local dagTemplates = [
         "--artifacts_path=" + artifactsDir,
       ],
       workingDir: srcDir + "/github_issue_summarization/testing",
+      pythonPath: tfOperatorPy + ":" + kubeflowTestingPy,
     },
     dependencies: ["build-images", "get-kubeconfig"],
   },  // tfjob-test
