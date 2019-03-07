@@ -17,7 +17,8 @@ bin/
 flymd.*
 
 # vim .swp files
-.swp
+*.swp
+*.swo
 
 # Files created by Gogland IDE
 .idea/
