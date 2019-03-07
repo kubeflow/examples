@@ -1,6 +1,6 @@
 # MNIST Pipelines GCP
 
-This document describes how to run the [MNIST example] on Kubeflow Pipelines on a Google Cloud Platform cluster
+This document describes how to run the [MNIST example](https://github.com/kubeflow/examples/tree/master/mnist) on Kubeflow Pipelines on a Google Cloud Platform cluster
 
 ## Setup
 
@@ -105,8 +105,8 @@ Pipelines are expected to include a `@dsl.pipeline` decorator to provide metadat
 
 #### Function Header
 ```
-def mnist_pipeline(bucket_path='gs://kubeflow-sanche-testing-project',
-                   train_steps='2',
+def mnist_pipeline(model_export_dir='gs://your-bucket/export',
+                   train_steps='200',
                    learning_rate='0.01',
                    batch_size='100'):
 ```
@@ -117,13 +117,16 @@ Although passed as strings, these arguments are of type [`kfp.dsl.PipelineParam`
 ```
 train = dsl.ContainerOp(
         name='train',
-        image='gcr.io/kubeflow-examples/mnist/model:v20190111-v0.2-148-g313770f',
-        ).apply(gcp.use_gcp_secret('user-gcp-sa'))
-train.add_env_variable(V1EnvVar('TF_MODEL_DIR', 'gs://kubeflow-sanche-testing-project'))
-train.add_env_variable(V1EnvVar('TF_EXPORT_DIR', 'gs://kubeflow-sanche-testing-project/export/export'))
-train.add_env_variable(V1EnvVar('TF_TRAIN_STEPS', '20'))
-train.add_env_variable(V1EnvVar('TF_BATCH_SIZE', '100'))
-train.add_env_variable(V1EnvVar('TF_LEARNING_RATE', '0.01'))
+        image='gcr.io/kubeflow-examples/mnist/model:v20190304-v0.2-176-g15d997b',
+        arguments=[
+            "/opt/model.py",
+            "--tf-export-dir", model_export_dir,
+            "--tf-train-steps", train_steps,
+            "--tf-batch-size", batch_size,
+            "--tf-learning-rate", learning_rate
+        ]
+).apply(gcp.use_gcp_secret('user-gcp-sa'))
+
 ```
 This block defines the 'train' component. A component is made up of a [`kfp.dsl.ContainerOp`](https://github.com/kubeflow/pipelines/blob/master/sdk/python/kfp/dsl/_container_op.py) 
 object with the container path and a name specified. The container image used is defined in the [Dockerfile.model in the MNIST example](https://github.com/kubeflow/examples/blob/master/mnist/Dockerfile.model)
@@ -135,12 +138,12 @@ After defining the train component, we also set a number of environment variable
 #### Serve
 ```
 serve = dsl.ContainerOp(
-    name='serve',
-    image='gcr.io/ml-pipeline/ml-pipeline-kubeflow-deployer:6ad2601ec7d04e842c212c50d5c78e548e12ddea',
-    arguments=[
-        '--model-path', 'gs://kubeflow-sanche-testing-project',
-        '--server-name', "mnist-service"
-    ]
+        name='serve',
+        image='gcr.io/ml-pipeline/ml-pipeline-kubeflow-deployer:7775692adf28d6f79098e76e839986c9ee55dd61',
+        arguments=[
+            '--model-export-path', model_export_dir,
+            '--server-name', "mnist-service"
+        ]
 ).apply(gcp.use_gcp_secret('user-gcp-sa'))
 serve.after(train)
 ```
@@ -156,21 +159,21 @@ The `serve.after(train)` line specifies that this component is to run sequential
 ```
 web_ui = dsl.ContainerOp(
     name='web-ui',
-    # TODO: publish container somewhere
-    image='gcr.io/sanche-testing-project/deploy-service:latest',
+    image='gcr.io/kubeflow-examples/mnist/deploy-service:latest',
     arguments=[
-        '--image', 'gcr.io/kubeflow-examples/mnist/web-ui:v20190112-v0.2-142-g3b38225',
+        '--image', 'gcr.io/kubeflow-examples/mnist/web-ui:v20190304-v0.2-176-g15d997b-pipelines',
         '--name', 'web-ui',
         '--container-port', '5000',
         '--service-port', '80',
         '--service-type', "LoadBalancer"
     ]
 ).apply(gcp.use_gcp_secret('user-gcp-sa'))
+
 web_ui.after(serve)
 ```
 Like 'serve', the web-ui component launches a service that exists after the pipeline is complete. Instead of launching a Kubeflow resource, the web-ui launches
 a standard Kubernetes Deployment/Service pair. The Dockerfile that builds the deployment image [can be found here.](./deploy-service/Dockerfile) This image is used
-to run the 'gcr.io/kubeflow-examples/mnist/web-ui:v20190112-v0.2-142-g3b38225', which was built from the [web-ui Dockerfile found in the MNIST example](https://github.com/kubeflow/examples/blob/master/mnist/web-ui/Dockerfil://github.com/kubeflow/examples/blob/master/mnist/web-ui/Dockerfile)
+to deploy the web UI, which was built from the [Dockerfile found in the MNIST example](https://github.com/kubeflow/examples/blob/master/mnist/web-ui/Dockerfile)
 
 After this component is run, a new LoadBalancer is provisioned that gives external access to a 'web-ui' deployment launched in the cluster.
 
