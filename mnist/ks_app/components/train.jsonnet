@@ -21,9 +21,6 @@ local util = import "util.libsonnet";
 
 local trainSecrets = util.parseSecrets(params.secretKeyRefs);
 
-// AWS Access/Secret keys
-local trainSecrets = util.parseSecrets(params.secretKeyRefs);
-
 local secretPieces = std.split(params.secret, "=");
 local secretName = if std.length(secretPieces) > 0 then secretPieces[0] else "";
 local secretMountPath = if std.length(secretPieces) > 1 then secretPieces[1] else "";
