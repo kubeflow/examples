@@ -69,8 +69,8 @@ local srcDir = srcRootDir + "/" + prowDict.REPO_OWNER + "/" + prowDict.REPO_NAME
 // value of KUBECONFIG environment variable. This should be  a full path.
 local kubeConfig = testDir + "/.kube/kubeconfig";
 
-// The directory within the kubeflow_testing submodule containing
-  // py scripts to use.
+// The directory within the kubeflow_testing and kubeflow_tf-operator submodule containing
+// py scripts to use.
 local kubeflowTestingPy = srcRootDir + "/kubeflow/testing/py";
 
 local tfOperatorPy = srcRootDir + "/kubeflow/tf-operator/py";
