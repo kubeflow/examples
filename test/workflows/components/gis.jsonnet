@@ -102,7 +102,7 @@ local buildTemplate = {
   // py scripts to use.
   local kubeflowTestingPy = srcRootDir + "/kubeflow/testing/py",
 
-  local tfOperatorPy = srcRootDir + "/kubeflow/tf-operator",
+  local tfOperatorPy = srcRootDir + "/kubeflow/tf-operator/py",
 
   // Actual template for Argo
   argoTemplate: {
