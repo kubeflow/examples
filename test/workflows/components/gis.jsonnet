@@ -71,9 +71,9 @@ local kubeConfig = testDir + "/.kube/kubeconfig";
 
 // The directory within the kubeflow_testing submodule containing
   // py scripts to use.
-  local kubeflowTestingPy = srcRootDir + "/kubeflow/testing/py",
+local kubeflowTestingPy = srcRootDir + "/kubeflow/testing/py";
 
-  local tfOperatorPy = srcRootDir + "/kubeflow/tf-operator/py",
+local tfOperatorPy = srcRootDir + "/kubeflow/tf-operator/py";
 
 
 
