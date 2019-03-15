@@ -97,8 +97,8 @@ Now that we've run a pipeline, lets break down how it works
 #### Decorator
 ```
 @dsl.pipeline(
-  name='MNIST',
-  description='A pipeline to train and serve the MNIST example.'
+    name='MNIST',
+    description='A pipeline to train and serve the MNIST example.'
 )
 ```
 Pipelines are expected to include a `@dsl.pipeline` decorator to provide metadata about the pipeline
@@ -116,17 +116,16 @@ Although passed as strings, these arguments are of type [`kfp.dsl.PipelineParam`
 #### Train
 ```
 train = dsl.ContainerOp(
-        name='train',
-        image='gcr.io/kubeflow-examples/mnist/model:v20190304-v0.2-176-g15d997b',
-        arguments=[
-            "/opt/model.py",
-            "--tf-export-dir", model_export_dir,
-            "--tf-train-steps", train_steps,
-            "--tf-batch-size", batch_size,
-            "--tf-learning-rate", learning_rate
+    name='train',
+    image='gcr.io/kubeflow-examples/mnist/model:v20190304-v0.2-176-g15d997b',
+    arguments=[
+        "/opt/model.py",
+        "--tf-export-dir", model_export_dir,
+        "--tf-train-steps", train_steps,
+        "--tf-batch-size", batch_size,
+        "--tf-learning-rate", learning_rate
         ]
 ).apply(gcp.use_gcp_secret('user-gcp-sa'))
-
 ```
 This block defines the 'train' component. A component is made up of a [`kfp.dsl.ContainerOp`](https://github.com/kubeflow/pipelines/blob/master/sdk/python/kfp/dsl/_container_op.py) 
 object with the container path and a name specified. The container image used is defined in the [Dockerfile.model in the MNIST example](https://github.com/kubeflow/examples/blob/master/mnist/Dockerfile.model)
@@ -138,14 +137,14 @@ After defining the train component, we also set a number of environment variable
 #### Serve
 ```
 serve = dsl.ContainerOp(
-        name='serve',
-        image='gcr.io/ml-pipeline/ml-pipeline-kubeflow-deployer:7775692adf28d6f79098e76e839986c9ee55dd61',
-        arguments=[
-            '--model-export-path', model_export_dir,
-            '--server-name', "mnist-service"
-        ]
+    name='serve',
+    image='gcr.io/ml-pipeline/ml-pipeline-kubeflow-deployer:\
+            7775692adf28d6f79098e76e839986c9ee55dd61',
+    arguments=[
+        '--model-export-path', model_export_dir,
+        '--server-name', "mnist-service"
+    ]
 ).apply(gcp.use_gcp_secret('user-gcp-sa'))
-serve.after(train)
 ```
 The 'serve' component is slightly different than 'train'. While 'train' runs a single container and then exits, 'serve' runs a container that launches long-living 
 resources in the cluster. The ContainerOP takes two arguments: the path we exported our trained model to, and a server name. Using these, this pipeline component 
@@ -161,7 +160,8 @@ web_ui = dsl.ContainerOp(
     name='web-ui',
     image='gcr.io/kubeflow-examples/mnist/deploy-service:latest',
     arguments=[
-        '--image', 'gcr.io/kubeflow-examples/mnist/web-ui:v20190304-v0.2-176-g15d997b-pipelines',
+        '--image', 'gcr.io/kubeflow-examples/mnist/web-ui:\
+                v20190304-v0.2-176-g15d997b-pipelines',
         '--name', 'web-ui',
         '--container-port', '5000',
         '--service-port', '80',
