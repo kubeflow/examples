@@ -49,6 +49,12 @@ local replicaSpec = {
             mountPath: secretMountPath,
             readOnly: true,
           },
+        ] else if params.pvcName != "null" && params.pvcName != "" then
+        [
+          {
+            name: "local-storage",
+            mountPath: "/mnt",
+          },
         ] else [],
       workingDir: "/opt",
     },
@@ -60,6 +66,14 @@ local replicaSpec = {
           name: secretName,
           secret: {
             secretName: secretName,
+          },
+        },
+      ] else if params.pvcName != "null" && params.pvcName != "" then
+      [
+        {
+          name: "local-storage",
+          persistentVolumeClaim: {
+            claimName: params.pvcName,
           },
         },
       ] else [],
