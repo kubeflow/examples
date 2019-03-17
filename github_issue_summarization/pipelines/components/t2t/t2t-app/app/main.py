@@ -26,8 +26,8 @@ from flask import jsonify
 from flask import render_template
 from flask import g, request
 
-from googleapiclient import discovery
-from oauth2client.client import GoogleCredentials
+from googleapiclient import discovery  # pylint: disable=wrong-import-order
+from oauth2client.client import GoogleCredentials  # pylint: disable=wrong-import-order
 import pandas as pd
 
 import tensorflow as tf
