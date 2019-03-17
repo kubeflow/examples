@@ -21,15 +21,17 @@ import random
 import re
 import requests
 
-import tensorflow as tf
-import pandas as pd
-
 from flask import Flask
 from flask import jsonify
 from flask import render_template
 from flask import g, request
+
 from googleapiclient import discovery
 from oauth2client.client import GoogleCredentials
+import pandas as pd
+
+import tensorflow as tf
+
 
 # similar to T2T's query.py
 # https://github.com/tensorflow/tensor2tensor/blob/master/tensor2tensor/serving/query.py
