@@ -18,13 +18,13 @@ local defaultParams = {
   stepImage: "gcr.io/kubeflow-ci/test-worker/test-worker:v20190116-b7abb8d-e3b0c4",
 
   // Which Kubeflow cluster to use for running TFJobs on.
-  kfProject: "kubeflow-ci",
-  kfZone: "us-east1-d",
-  kfCluster: "kf-v0-4-n00",
+  kfProject: "kubeflow-ci-deployment",
+  kfZone: "us-east1-b",
+  kfCluster: "kf-vmaster-n00",
 
   // The bucket where the model should be written
   // This needs to be writable by the GCP service account in the Kubeflow cluster (not the test cluster)
-  modelBucket: "kubeflow-ci_temp",
+  modelBucket: "kubeflow-ci-deployment_ci-temp",
 
   // Whether to delete the namespace at the end.
   // Leaving the namespace around can be useful for debugging.
