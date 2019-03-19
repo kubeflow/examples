@@ -28,8 +28,8 @@ import logging
 import os
 
 from kubernetes import client as k8s_client
-from py import tf_job_client #pylint: disable=no-name-in-module
-from py import test_runner #pylint: disable=no-name-in-module
+from kubeflow.tf_operator import tf_job_client #pylint: disable=no-name-in-module
+from kubeflow.tf_operator import test_runner #pylint: disable=no-name-in-module
 
 from kubeflow.testing import ks_util
 from kubeflow.testing import test_util
