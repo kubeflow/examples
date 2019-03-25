@@ -27,11 +27,9 @@ Manually running the test
 import logging
 import os
 
-from py import test_runner
+from kubeflow.tf_operator import test_runner #pylint: disable=no-name-in-module
 
-from kubeflow.testing import ks_util
-from kubeflow.testing import test_util
-from kubeflow.testing import util
+from kubeflow.testing import ks_util, test_util, util
 
 
 class PytorchJobTest(test_util.TestCase):

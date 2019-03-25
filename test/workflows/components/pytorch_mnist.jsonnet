@@ -92,7 +92,7 @@ local testNamespace = "pytorch-mnist-" + prowDict["BUILD_ID"];
 // The directory within the kubeflow_testing submodule containing
 // py scripts to use.
 local kubeflowTestingPy = srcRootDir + "/kubeflow/testing/py";
-local OperatorPy = srcRootDir + "/kubeflow/tf-operator";
+local OperatorPy = srcRootDir + "/kubeflow/tf-operator/py";
 
 // Workflow template is the name of the workflow template; typically the name of the ks component.
 // This is used as a label to make it easy to identify all Argo workflows created from a given
