@@ -92,7 +92,7 @@ local testNamespace = "pytorch-mnist-" + prowDict["BUILD_ID"];
 // The directory within the kubeflow_testing submodule containing
 // py scripts to use.
 local kubeflowTestingPy = srcRootDir + "/kubeflow/testing/py";
-local ptOperatorPy = srcRootDir + "/kubeflow/pytorch-operator";
+local OperatorPy = srcRootDir + "/kubeflow/tf-operator";
 
 // Workflow template is the name of the workflow template; typically the name of the ks component.
 // This is used as a label to make it easy to identify all Argo workflows created from a given
@@ -321,11 +321,11 @@ local dagTemplates = [
           "envVariables=GOOGLE_APPLICATION_CREDENTIALS=/var/secrets/user-gcp-sa.json",
           "secret=user-gcp-sa=/var/secrets",
       ])],
-      // This test only we need to add ptOperatorPy.
+      // This test only we need to add OperatorPy.
       // We don't want to add it to the other steps because
       // of a top level path conflict see
       // https://github.com/kubeflow/tf-operator/issues/914
-      pythonPath: kubeflowTestingPy + ":" + ptOperatorPy,
+      pythonPath: kubeflowTestingPy + ":" + OperatorPy,
       workingDir: srcDir + "/pytorch_mnist/testing",
     },
     dependencies: ["build-images", "create-namespace"],
@@ -342,11 +342,11 @@ local dagTemplates = [
           "modelBasePath=" + modelDir,
           "exportDir=" + modelDir,
       ])],
-      // This test only we need to add ptOperatorPy.
+      // This test only we need to add OperatorPy.
       // We don't want to add it to the other steps because
       // of a top level path conflict see
       // https://github.com/kubeflow/tf-operator/issues/914
-      pythonPath: kubeflowTestingPy + ":" + ptOperatorPy,
+      pythonPath: kubeflowTestingPy + ":" + OperatorPy,
       workingDir: srcDir + "/pytorch_mnist/testing",
     },
     dependencies: ["pytorchjob-test"],
