@@ -77,6 +77,7 @@ This example covers the following concepts:
 4. Deploy and serve with TF-serving
 5. Iterate training and serving
 6. Training on GPU
+7. Using Kubeflow Pipelines to automate ML workflow
 
 
 ## Component-focused
