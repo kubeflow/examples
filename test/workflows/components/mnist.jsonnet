@@ -92,7 +92,7 @@ local testNamespace = "mnist-" + prowDict["BUILD_ID"];
 // The directory within the kubeflow_testing submodule containing
 // py scripts to use.
 local kubeflowTestingPy = srcRootDir + "/kubeflow/testing/py";
-local tfOperatorPy = srcRootDir + "/kubeflow/tf-operator";
+local tfOperatorPy = srcRootDir + "/kubeflow/tf-operator/py";
 
 // Workflow template is the name of the workflow template; typically the name of the ks component.
 // This is used as a label to make it easy to identify all Argo workflows created from a given
@@ -116,7 +116,7 @@ local buildTemplate = {
   workingDir:: null,
   env_vars:: [],
   side_cars: [],
-  pythonPath: kubeflowTestingPy,
+  pythonPath: kubeflowTestingPy + ":" + tfOperatorPy,
 
   activeDeadlineSeconds: 1800,  // Set 30 minute timeout for each template
 
@@ -325,7 +325,7 @@ local dagTemplates = [
       // We don't want to add it to the other steps because
       // of a top level path conflict see
       // https://github.com/kubeflow/tf-operator/issues/914
-      pythonPath: kubeflowTestingPy + ":" + tfOperatorPy,
+      pythonPath: tfOperatorPy+ ":" + kubeflowTestingPy,
       workingDir: srcDir + "/mnist/testing",
     },
     dependencies: ["build-images", "create-namespace"],
@@ -346,7 +346,7 @@ local dagTemplates = [
       // We don't want to add it to the other steps because
       // of a top level path conflict see
       // https://github.com/kubeflow/tf-operator/issues/914
-      pythonPath: kubeflowTestingPy + ":" + tfOperatorPy,
+      pythonPath: tfOperatorPy+ ":" + kubeflowTestingPy,
       workingDir: srcDir + "/mnist/testing",
     },
     dependencies: ["tfjob-test"],
