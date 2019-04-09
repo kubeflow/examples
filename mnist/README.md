@@ -4,7 +4,7 @@
 
 - [Training MNIST](#training-mnist)
   - [Prerequisites](#prerequisites)
-    - [Kubernetes Cluster Environment](#kubernetes-cluster-environment)
+    - [Deploy Kubeflow](#deploy-kubeflow)
     - [Local Setup](#local-setup)
   - [Modifying existing examples](#modifying-existing-examples)
     - [Prepare model](#prepare-model)
@@ -16,7 +16,16 @@
       - [Using S3](#using-s3)
   - [Monitoring](#monitoring)
     - [Tensorboard](#tensorboard)
-  - [Using Tensorflow serving](#using-tensorflow-serving)
+      - [Using GCS](#using-gcs-1)
+      - [Using S3](#using-s3-1)
+      - [Deploying TensorBoard](#deploying-tensorboard)
+  - [Serving the model](#serving-the-model)
+    - [GCS](#gcs)
+    - [S3](#s3)
+    - [Local storage](#local-storage-1)
+  - [Web Front End](#web-front-end)
+    - [Connecting via port forwarding](#connecting-via-port-forwarding)
+    - [Using IAP on GCP](#using-iap-on-gcp)
   - [Conclusion and Next Steps](#conclusion-and-next-steps)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -85,11 +94,11 @@ In the following instructions we will install our required components to a singl
 
 #### Local storage
 
-Let's start by runing the training job on Kubeflow and storing the model in a directory local to the pod e.g. '/tmp'.
-This is useful as a smoke test to ensure everything works. Since `/tmp` is not a filesystem external to the container, all data
-is lost once the job finishes. So to make the model available after the job finishes we will need to use an external filesystem
-like GCS or S3 as discussed in the next section.
+Let's start by runing the training job on Kubeflow and storing the model in a local storage. 
 
+Fristly, refer to the [document](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) to create Persistent Volume(PV) and Persistent Volume Claim(PVC), the PVC name (${PVC_NAME}) will be used by pods of training and serving for local mode in steps below.
+
+Creating an environment to store parameters particular for local mode.
 ```
 KSENV=local
 cd ks_app
@@ -108,13 +117,18 @@ Point the job at your custom training image
 ks param set --env=${KSENV} train image $DOCKER_URL
 ```
 
+Mount the pvc to store the exported model, by default the pvc will be mounted to the `/mnt` of the training pod.
+
+```
+ks param set --env=${KSENV} train pvcName ${PVC_NAME}
+```
+
 Configure a filepath for the exported model and checkpoints.
 
 ```
-ks param set --env=${KSENV} train modelDir ./output
-ks param set --env=${KSENV} train exportDir ./output/export
+ks param set --env=${KSENV} train modelDir /mnt
+ks param set --env=${KSENV} train exportDir /mnt/export
 ```
-
 You can now submit the job 
 
 ```
@@ -132,11 +146,6 @@ And to check the logs
 ```
 kubectl logs mnist-train-local-chief-0
 ```
-
-Storing the model in a directory inside the container isn't useful because the directory is
-lost as soon as the pod is deleted.
-
-So in the next sections we cover saving the model on a suitable filesystem like GCS or S3.
 
 #### Using GCS
 
@@ -722,9 +731,40 @@ kubectl describe service mnist-service
 
 TODO: Add instructions
 
-### PVC
+### Local storage
 
-TODO: Add instructions
+The section shows how to serve the local model that was stored in PVC while training.
+
+Mount the PVC, by default the pvc will be mounted to the `/mnt` of the pod.
+
+```
+ks param set --env=${KSENV} mnist-deploy-local pvcName ${PVC_NAME}
+```
+
+Configure a filepath for the exported model.
+
+```
+ks param set --env=${KSENV} mnist-deploy-local modelBasePath /mnt/export
+```
+
+Deploy it.
+
+```
+ks apply ${KSENV} -c mnist-deploy-local
+```
+
+You can check the deployment by running
+```
+kubectl describe deployments mnist-deploy-local
+```
+Finally, run a service to make the deployment accessible to other pods in the cluster.
+```
+ks apply ${KSENV} -c mnist-service
+```
+The service should make the `mnist-deploy-local` deployment accessible over port 9000.
+```
+kubectl describe service mnist-service
+```
 
 ## Web Front End
 
