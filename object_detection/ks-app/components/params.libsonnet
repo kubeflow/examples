@@ -34,6 +34,7 @@
       pvc: 'pets-pvc',
     },
     "tf-training-job": {
+      tfjobApiVersion: 'kubeflow.org/v1beta1',
       image: 'lcastell/pets_object_detection',
       mountPath: '/pets_data',
       name: 'tf-training-job',
