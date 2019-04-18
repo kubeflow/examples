@@ -24,6 +24,16 @@ This example covers the following concepts:
 1. Serving with Seldon Core
 1. Flask front-end
 
+### [Pachyderm Example - GitHub issue summarization](./github_issue_summarization/Pachyderm_Example)
+Author: [Nick Harvey](https://github.com/Nick-Harvey) & [Daniel Whitenack](https://github.com/dwhitena)
+
+This example covers the following concepts:
+1. A production pipeline for pre-processing, training, and model export
+1. CI/CD for model binaries, building and deploying a docker image for serving in Seldon
+1. Full tracking of what data produced which model, and what model is being used for inference
+1. Automatic updates of models based on changes to training data or code
+1. Training with single node Tensorflow and distributed TF-jobs
+
 ### [Pytorch MNIST](./pytorch_mnist)
 Author: [David Sabater](https://github.com/dsdinter)
 
