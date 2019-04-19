@@ -19,8 +19,8 @@ local defaultParams = {
 
   // Which Kubeflow cluster to use for running TFJobs on.
   kfProject: "kubeflow-ci",
-  kfZone: "us-east1-d",
-  kfCluster: "kf-v0-4-n00",  
+  kfZone: "us-east1-b",
+  kfCluster: "kf-vmaster-n00",
 };
 
 local params = defaultParams + overrides;
@@ -46,7 +46,7 @@ local prowDict = {
 	REPO_NAME: "notset",
 	JOB_NAME: "notset",
 	JOB_TYPE: "notset",
-	PULL_NUMBER: "notset",	
+	PULL_NUMBER: "notset",
  } + util.listOfDictToMap(prowEnv);
 
 local bucket = params.bucket;
@@ -77,7 +77,7 @@ local tfOperatorPy = srcRootDir + "/kubeflow/tf-operator/py";
 
 
 
-// These variables control where the docker images get pushed and what 
+// These variables control where the docker images get pushed and what
 // tag to use
 local imageBase = "gcr.io/kubeflow-ci/github-issue-summarization";
 local imageTag = "build-" + prowDict["BUILD_ID"];
@@ -219,7 +219,7 @@ local dagTemplates = [
         "TAG=" + imageTag,
       ]]
       ),
-      workingDir: srcDir + "/github_issue_summarization",      
+      workingDir: srcDir + "/github_issue_summarization",
     },
     dependencies: ["checkout"],
   }, // build-images
@@ -250,7 +250,7 @@ local dagTemplates = [
       ],
       [
         "gcloud",
-        "--project=" + params.kfProject,        
+        "--project=" + params.kfProject,
         "container",
         "clusters",
         "get-credentials",
@@ -316,7 +316,7 @@ local exitTemplates =
       template:
         buildTemplate {
           name: "test-dir-delete",
-          command: [           
+          command: [
             "rm",
             "-rf",
             testDir,
@@ -337,8 +337,8 @@ local exitDag = {
   name: "exit-handler",
   // Construct tasks from the templates
   // we will give the steps the same name as the template
-  dag: {    
-    tasks: util.toArgoTaskList(exitTemplates),    
+  dag: {
+    tasks: util.toArgoTaskList(exitTemplates),
   },
 };
 
@@ -355,7 +355,7 @@ local workflow = {
   metadata: {
     name: params.name,
     namespace: env.namespace,
-    labels: prowDict + {      
+    labels: prowDict + {
       workflow_template: workflow_template,
     },
   },
