@@ -27,7 +27,6 @@ IMG ?= gcr.io/kubeflow-examples/mnist
 
 # List any changed  files. We only include files in the notebooks directory.
 # because that is the code in the docker image.
-# In particular we exclude changes to the ksonnet configs.
 CHANGED_FILES := $(shell git diff-files --relative=mnist/)
 
 # Whether to use cached images with GCB
