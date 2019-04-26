@@ -21,11 +21,11 @@ Manually running the test
 
 import logging
 import os
+import subprocess
 
 from kubernetes import client as k8s_client
 from kubeflow.tf_operator import test_runner #pylint: disable=no-name-in-module
 
-from kubeflow.testing import ks_util
 from kubeflow.testing import test_util
 from kubeflow.testing import util
 
@@ -38,14 +38,13 @@ class MnistDeployTest(test_util.TestCase):
 
     if not self.app_dir:
       self.app_dir = os.path.join(os.path.dirname(__file__), "..",
-                                  "ks_app")
+                                  "serving/GCS")
       self.app_dir = os.path.abspath(self.app_dir)
       logging.info("--app_dir not set defaulting to: %s", self.app_dir)
 
     self.env = env
     self.namespace = namespace
     self.params = args.params
-    self.ks_cmd = ks_util.get_ksonnet_cmd(self.app_dir)
     super(MnistDeployTest, self).__init__(class_name="MnistDeployTest",
                                           name=name)
 
@@ -55,16 +54,26 @@ class MnistDeployTest(test_util.TestCase):
     # same name.
     api_client = k8s_client.ApiClient()
 
+    # TODO (jinchihe) beflow code will be removed once new test-worker
+    # is publish in https://github.com/kubeflow/testing/issues/373.
+    kusUrl = 'https://github.com/kubernetes-sigs/kustomize/' \
+         'releases/download/v2.0.3/kustomize_2.0.3_linux_amd64'
+    util.run(['wget', '-O', '/usr/local/bin/kustomize', kusUrl], cwd=self.app_dir)
+    util.run(['chmod', 'a+x', '/usr/local/bin/kustomize'], cwd=self.app_dir)
+
     # Apply the components
-    for component in ["mnist-deploy-gcp", "mnist-service"]:
-      # Setup the ksonnet app
-      ks_util.setup_ks_app(self.app_dir, self.env, self.namespace, component,
-                           self.params)
+    configmap = 'mnist-map-serving-gcs'
+    for pair in self.params.split(","):
+      k, v = pair.split("=", 1)
+      if k == "namespace":
+        util.run(['kustomize', 'edit', 'set', k, v], cwd=self.app_dir)
+      else:
+        util.run(['kustomize', 'edit', 'add', 'configmap', configmap,
+                '--from-literal=' + k + '=' + v], cwd=self.app_dir)
 
-      util.run([self.ks_cmd, "apply", self.env, "-c", component],
-               cwd=self.app_dir)
-
-      logging.info("Created deployment %s in namespaces %s", self.name, self.namespace)
+    # Seems the util.run cannot handle pipes case, using check_call.
+    subCmd = 'kustomize build ' + self.app_dir + '| kubectl apply -f -'
+    subprocess.check_call(subCmd, shell=True)
 
     util.wait_for_deployment(api_client, self.namespace, self.name,
                              timeout_minutes=4)

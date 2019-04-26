@@ -1,0 +1,5 @@
+varReference:
+- path: spec/template/spec/containers/env/value
+  kind: Deployment
+- path: spec/template/spec/volumes/persistentVolumeClaim/claimName
+  kind: Deployment

@@ -82,9 +82,9 @@
     contextDir: "."
   },
 
-  local ksonnetSteps = subGraphTemplate {
+  local kustomizeSteps = subGraphTemplate {
     name: "ksonnet",
-    dockerFile: "./Dockerfile.ksonnet",
+    dockerFile: "./Dockerfile.kustomize",
     contextDir: "."
   },
 
@@ -94,6 +94,6 @@
     contextDir: "./web-ui"
   },
 
-  steps: modelSteps.steps + ksonnetSteps.steps + uiSteps.steps,
-  images: modelSteps.images + ksonnetSteps.images + uiSteps.images,
+  steps: modelSteps.steps + kustomizeSteps.steps + uiSteps.steps,
+  images: modelSteps.images + kustomizeSteps.images + uiSteps.images,
 }

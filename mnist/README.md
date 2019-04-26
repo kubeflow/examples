@@ -2,7 +2,7 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
-- [Training MNIST](#training-mnist)
+- [MNIST on Kubeflow](#mnist-on-kubeflow)
   - [Prerequisites](#prerequisites)
     - [Deploy Kubeflow](#deploy-kubeflow)
     - [Local Setup](#local-setup)
@@ -30,24 +30,25 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-# Training MNIST
+
+# MNIST on Kubeflow
 
 This example guides you through the process of taking an example model, modifying it to run better within Kubeflow, and serving the resulting trained model.
 
 ## Prerequisites
 
-Before we get started there a few requirements.
+Before we get started there are a few requirements.
 
 ### Deploy Kubeflow
 
-Follow the [Getting Started Guide](https://www.kubeflow.org/docs/started/getting-started/) to deploy Kubeflow
+Follow the [Getting Started Guide](https://www.kubeflow.org/docs/started/getting-started/) to deploy Kubeflow.
 
 ### Local Setup
 
 You also need the following command line tools:
 
 - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
-- [ksonnet](https://ksonnet.io/#get-started)
+- [kustomize](https://kustomize.io/)
 
 To run the client at the end of the example, you must have [requirements.txt](requirements.txt) intalled in your active python environment.
 
@@ -78,7 +79,7 @@ The resulting model is [model.py](model.py).
 With our code ready, we will now build/push the docker image.
 
 ```
-DOCKER_URL=docker.io/reponame/mytfmodel # Put your docker registry here
+DOCKER_URL=docker.io/reponame/mytfmodel:tag # Put your docker registry here
 docker build . --no-cache  -f Dockerfile.model -t ${DOCKER_URL}
 
 docker push ${DOCKER_URL}
@@ -88,7 +89,7 @@ docker push ${DOCKER_URL}
 
 With our data and workloads ready, now the cluster must be prepared. We will be deploying the TF Operator, and Argo to help manage our training job.
 
-In the following instructions we will install our required components to a single namespace.  For these instructions we will assume the chosen namespace is `tfworkflow`:
+In the following instructions we will install our required components to a single namespace.  For these instructions we will assume the chosen namespace is `kubeflow`.
 
 ### Training your model
 
@@ -98,41 +99,33 @@ Let's start by runing the training job on Kubeflow and storing the model in a lo
 
 Fristly, refer to the [document](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) to create Persistent Volume(PV) and Persistent Volume Claim(PVC), the PVC name (${PVC_NAME}) will be used by pods of training and serving for local mode in steps below.
 
-Creating an environment to store parameters particular for local mode.
+Enter the `training/local` directory.
 ```
-KSENV=local
-cd ks_app
-ks env add ${KSENV}
+cd training/local
 ```
 
 Give the job a name to indicate it is running locally
 
 ```
-ks param set --env=${KSENV} train name mnist-train-local
+kustomize edit add configmap mnist-map-local --from-literal=name=mnist-train-local
 ```
 
 Point the job at your custom training image
 
 ```
-ks param set --env=${KSENV} train image $DOCKER_URL
+kustomize edit set image training-image=$DOCKER_URL:$TAG
 ```
 
-Mount the pvc to store the exported model, by default the pvc will be mounted to the `/mnt` of the training pod.
+Mount the PVC to store the exported model, by default the PVC will be mounted to the `/mnt` of the training pod, and the exported model and checkpoints will be stored in the PVC.
 
 ```
-ks param set --env=${KSENV} train pvcName ${PVC_NAME}
+kustomize edit add configmap mnist-map-local --from-literal=pvcName=${PVC_NAME}
 ```
 
-Configure a filepath for the exported model and checkpoints.
-
-```
-ks param set --env=${KSENV} train modelDir /mnt
-ks param set --env=${KSENV} train exportDir /mnt/export
-```
 You can now submit the job 
 
 ```
-ks apply ${KSENV} -c train
+kustomize build . |kubectl apply -f -
 ```
 
 And you can check the job
@@ -147,24 +140,22 @@ And to check the logs
 kubectl logs mnist-train-local-chief-0
 ```
 
+
 #### Using GCS
 
 In this section we describe how to save the model to Google Cloud Storage (GCS).
 
-Storing the model in GCS has the advantages
+Storing the model in GCS has the advantages:
 
 * The model is readily available after the job finishes
 * We can run distributed training
    
   * Distributed training requires a storage system accessible to all the machines
 
-Lets start by creating an environment to store parameters particular to writing the model to GCS
-and running distributed.
+Enter `training/GCS` directory.
 
 ```
-KSENV=distributed
-cd ks_app
-ks env add ${KSENV}
+cd training/GCS
 ```
 
 Set an environment variable that points to your GCP project Id
@@ -174,28 +165,34 @@ PROJECT=<your project id>
 
 Create a bucket on GCS to store our model. The name must be unique across all GCS buckets
 ```
-BUCKET=$KSENV-$(date +%s)
+BUCKET=distributed-$(date +%s)
 gsutil mb gs://$BUCKET/
 ```
 
 Give the job a different name (to distinguish it from your job which didn't use GCS)
 
 ```
-ks param set --env=${KSENV} train name mnist-train-dist
+kustomize edit add configmap mnist-map-gcs --from-literal=name=mnist-train-dist
 ```
 
-Next we configure it to run distributed by setting the number of parameter servers and workers to use.
+Optionally, if you want to use your custom training image, configurate that as below.
 
 ```
-ks param set --env=${KSENV} train numPs 1
-ks param set --env=${KSENV} train numWorkers 2
+kustomize edit set image training-image=$DOCKER_URL:$TAG
 ```
+
+Next we configure it to run distributed by setting the number of parameter servers and workers to use. The `numPs` means the number of Ps and the `numWorkers` means the number of Worker.
+
+```
+./definition.sh --numPs 1 --numWorkers 2
+```
+
 Now we need to configure parameters telling the code to save the model to GCS.
 
 ```
 MODEL_PATH=my-model
-ks param set --env=${KSENV} train modelDir gs://${BUCKET}/${MODEL_PATH}
-ks param set --env=${KSENV} train exportDir gs://${BUCKET}/${MODEL_PATH}/export
+kustomize edit add configmap mnist-map-gcs --from-literal=modelDir=gs://${BUCKET}/${MODEL_PATH}
+kustomize edit add configmap mnist-map-gcs --from-literal=exportDir=gs://${BUCKET}/${MODEL_PATH}/export
 ```
 
 In order to write to GCS we need to supply the TFJob with GCP credentials. We do
@@ -212,7 +209,7 @@ then a number of steps have already been performed for you
        gcloud --project=${PROJECT} iam service-accounts list
        ```
 
-  1. We stored the private key for this account in a K8s secret named `user-gcp-sa`
+  2. We stored the private key for this account in a K8s secret named `user-gcp-sa`
 
      * To see the secrets in your cluster
      
@@ -220,7 +217,7 @@ then a number of steps have already been performed for you
        kubectl get secrets -n kubeflow
        ```
 
-  1. We granted this service account permission to read/write GCS buckets in this project
+  3. We granted this service account permission to read/write GCS buckets in this project
 
      * To see the IAM policy you can do
 
@@ -244,55 +241,24 @@ then a number of steps have already been performed for you
 
 To use this service account we perform the following steps
 
-  1. Mount the secret into the pod 
+  1. Mount the secret `user-gcp-sa` into the pod and configure the mount path of the secret. 
        ```
-       ks param set --env=${KSENV} train secret user-gcp-sa=/var/secrets
+       kustomize edit add configmap mnist-map-gcs --from-literal=secretName=user-gcp-sa
+       kustomize edit add configmap mnist-map-gcs --from-literal=secretMountPath=/var/secrets
        ```
 
      * Note: ensure your envrionment is pointed at the same `kubeflow` namespace as the `user-gcp-sa` secret
-     * Setting this ksonnet parameter causes a volumeMount and volume to be added to your TFJob
-     * To see this you can run `ks show ${KSENV} -c train`
 
-     * The output should now include a volumeMount and volume section
-
-       ```
-        apiVersion: kubeflow.org/v1beta1
-        kind: TFJob
-        metadata:
-          ...
-        spec:
-          tfReplicaSpecs:
-            Chief:
-              ...
-              template:
-                ...
-                spec:
-                  containers:
-                  - command:
-                    ...
-                    volumeMounts:
-                    - mountPath: /var/secrets
-                      name: user-gcp-sa
-                      readOnly: true
-                    ...
-                  volumes:
-                  - name: user-gcp-sa
-                    secret:
-                      secretName: user-gcp-sa
-                  ...
-       ```
-
-  1. Next we need to set the environment variable `GOOGLE_APPLICATION_CREDENTIALS` so that our code knows
-     where to look for the service account key.
+  2. Next we need to set the environment variable `GOOGLE_APPLICATION_CREDENTIALS` so that our code knows where to look for the service account key.
 
      ```
-     ks param set --env=${KSENV} train envVariables GOOGLE_APPLICATION_CREDENTIALS=/var/secrets/user-gcp-sa.json     
+     kustomize edit add configmap mnist-map-gcs --from-literal=GOOGLE_APPLICATION_CREDENTIALS=/var/secrets/user-gcp-sa.json
      ```
 
      * If we look at the spec for our job we can see that the environment variable `GOOGLE_APPLICATION_CREDENTIALS` is set.
 
        ```
-        ks show ${KSENV} -c train
+        kustomize build .
        ```
        ```
         apiVersion: kubeflow.org/v1beta1
@@ -321,7 +287,7 @@ To use this service account we perform the following steps
 You can now submit the job
 
 ```
-ks apply ${KSENV} -c train
+kustomize build . |kubectl apply -f -
 ```
 
 And you can check the job status
@@ -336,41 +302,42 @@ And to check the logs
 kubectl logs -f mnist-train-dist-chief-0
 ```
 
-
 #### Using S3
 
-To use S3 we need we need to configure TensorFlow to use S3 credentials and variables. These credentials will be provided as kubernetes secrets and the variables will be passed in as environment variables. Modify the below values to suit your environment.
+To use S3 we need to configure TensorFlow to use S3 credentials and variables. These credentials will be provided as kubernetes secrets and the variables will be passed in as environment variables. Modify the below values to suit your environment.
 
-Lets start by creating an environment to store parameters particular to writing the model to S3
-and running distributed.
+Enter the `training/S3` directory:
 
 ```
-KSENV=distributed
-cd ks_app
-ks env add ${KSENV}
+cd training/S3
 ```
 
 Give the job a different name (to distinguish it from your job which didn't use S3)
 
 ```
-ks param set --env=${KSENV} train name mnist-train-dist
+kustomize edit add configmap mnist-map-s3 --from-literal=name=mnist-train-dist
 ```
 
-Next we configure it to run distributed by setting the number of parameter servers and workers to use.
+Optionally, if you want to use your custom training image, configurate that as below.
 
 ```
-ks param set --env=${KSENV} train numPs 1
-ks param set --env=${KSENV} train numWorkers 2
-```
-Now we need to configure parameters telling the code to save the model to S3.
-
-```
-ks param set --env=${KSENV} train modelDir ${S3_MODEL_PATH_URI}
-ks param set --env=${KSENV} train exportDir ${S3_MODEL_EXPORT_URI}
+kustomize edit set image training-image=$DOCKER_URL:$TAG
 ```
 
-In order to write to S3 we need to supply the TensorFlow code with AWS credentials we also need to set
-various environment variables configuring access to S3.
+Next we configure it to run distributed by setting the number of parameter servers and workers to use. The `numPs` means the number of Ps and the `numWorkers` means the number of Worker.
+
+```
+./definition.sh --numPs 1 --numWorkers 2
+```
+
+Now we need to configure parameters telling the code to save the model to S3, replace `${S3_MODEL_PATH_URI}` and `${S3_MODEL_EXPORT_URI}` below with real value.
+
+```
+kustomize edit add configmap mnist-map-s3 --from-literal=S3_MODEL_PATH_URI=${S3_MODEL_PATH_URI}
+kustomize edit add configmap mnist-map-s3 --from-literal=S3_MODEL_EXPORT_URI=${S3_MODEL_EXPORT_URI}
+```
+
+In order to write to S3 we need to supply the TensorFlow code with AWS credentials we also need to set various environment variables configuring access to S3.
 
   1. Define a bunch of environment variables corresponding to your S3 settings; these will be used in subsequent steps
 
@@ -385,76 +352,37 @@ various environment variables configuring access to S3.
      export S3_VERIFY_SSL=1 #set to 0 for defaul minio installs 
      ```
 
-  1. Create a K8s secret containing your AWS credentials
+  2. Create a K8s secret containing your AWS credentials
 
      ```
-     kubectl create secret generic aws-creds --from-literal=awsAccessKeyID=${AWS_ACCESS_KEY_ID} \
+     kustomize edit add secret aws-creds --from-literal=awsAccessKeyID=${AWS_ACCESS_KEY_ID} \
        --from-literal=awsSecretAccessKey=${AWS_SECRET_ACCESS_KEY}
      ```
-  
-  1. Pass secrets as environment variables into pod
+
+  3. Pass secrets as environment variables into pod
 
      ```
-     ks param set --env=${KSENV} train secretKeyRefs AWS_ACCESS_KEY_ID=aws-creds.awsAccessKeyID,AWS_SECRET_ACCESS_KEY=aws-creds.awsSecretAccessKey
-     ```
+     kustomize edit add configmap mnist-map-s3 --from-literal=awsSecretName=aws-creds
+     kustomize edit add configmap mnist-map-s3 --from-literal=awsAccessKeyIDName=awsAccessKeyID
+     kustomize edit add configmap mnist-map-s3 --from-literal=awsSecretAccessKeyName=awsSecretAccessKey
+     ```   
 
-     * Setting this ksonnet parameter causes a two new environment variables to be added to your TFJob
-     * To see this you can run
-
-       ```
-       ks show ${KSENV} -c train
-       ```
-
-     * The output should now include two environment variables referencing K8s secret
-
-       ```
-       apiVersion: kubeflow.org/v1beta1
-       kind: TFJob
-       metadata:
-         ...
-       spec:
-         tfReplicaSpecs:
-           Chief:
-             ...
-             template:
-               ...
-               spec:
-                 containers:
-                 - command:
-                   ...
-                   env:
-                   - name: AWS_ACCESS_KEY_ID
-                     valueFrom:
-                       secretKeyRef:
-                         key: awsAccessKeyID
-                         name: aws-creds
-                   - name: AWS_SECRET_ACCESS_KEY
-                     valueFrom:
-                       secretKeyRef:
-                         key: awsSecretAccessKey
-                         name: aws-creds
-                   ...
-       ```
-  
-  1. Next we need to set a whole bunch of S3 related environment variables so that TensorFlow
-     knows how to talk to S3
+  4. Next we need to set a whole bunch of S3 related environment variables so that TensorFlow knows how to talk to S3
 
      ```
-     AWSENV="S3_ENDPOINT=${S3_ENDPOINT}"
-     AWSENV="${AWSENV},AWS_ENDPOINT_URL=${AWS_ENDPOINT_URL}"     
-     AWSENV="${AWSENV},AWS_REGION=${AWS_REGION}"
-     AWSENV="${AWSENV},BUCKET_NAME=${BUCKET_NAME}"
-     AWSENV="${AWSENV},S3_USE_HTTPS=${S3_USE_HTTPS}"
-     AWSENV="${AWSENV},S3_VERIFY_SSL=${S3_VERIFY_SSL}"
-
-     ks param set --env=${KSENV} train envVariables ${AWSENV}
+     kustomize edit add configmap mnist-map-s3 --from-literal=S3_ENDPOINT=${S3_ENDPOINT}
+     kustomize edit add configmap mnist-map-s3 --from-literal=AWS_ENDPOINT_URL=${AWS_ENDPOINT_URL}
+     kustomize edit add configmap mnist-map-s3 --from-literal=AWS_REGION=${AWS_REGION}
+     kustomize edit add configmap mnist-map-s3 --from-literal=BUCKET_NAME=${BUCKET_NAME}
+     kustomize edit add configmap mnist-map-s3 --from-literal=S3_USE_HTTPS=${S3_USE_HTTPS}
+     kustomize edit add configmap mnist-map-s3 --from-literal=S3_VERIFY_SSL=${S3_VERIFY_SSL}
      ```
 
      * If we look at the spec for our job we can see that the environment variables related 
      to S3 are set.
 
        ```
-        ks show ${KSENV} -c train
+        kustomize build .
 
         apiVersion: kubeflow.org/v1beta1
         kind: TFJob
@@ -484,7 +412,7 @@ various environment variables configuring access to S3.
 You can now submit the job
 
 ```
-ks apply ${KSENV} -c train
+kustomize build . |kubectl apply -f -
 ```
 
 And you can check the job
@@ -507,10 +435,16 @@ There are various ways to monitor workflow/training job. In addition to using `k
 
 #### Using GCS
 
+Enter the `monitoring/GCS` directory.
+
+```
+cd monitoring/GCS
+```
+
 Configure TensorBoard to point to your model location
 
 ```
-ks param set tensorboard --env=${KSENV} logDir ${LOGDIR}
+kustomize edit add configmap mnist-map-tb-gcs --from-literal=logDir=${LOGDIR}
 ```
 
 Assuming you followed the directions above if you used GCS you can use the following value
@@ -521,33 +455,25 @@ LOGDIR=gs://${BUCKET}/${MODEL_PATH}
 
 You need to point TensorBoard to GCP credentials to access GCS bucket with model.
 
-  1. Mount the secret into the pod
-
-     ```
-     ks param set --env=${KSENV} tensorboatd secret user-gcp-sa=/var/secrets
-     ```
-
-     * Setting this ksonnet parameter causes a volumeMount and volume to be added to TensorBoard
-     deployment
-     * To see this you can run
-
+  1. Mount the secret `user-gcp-sa` into the pod and configure the mount path of the secret. 
        ```
-       ks show ${KSENV} -c tensorboard
+       kustomize edit add configmap mnist-map-tb-gcs --from-literal=secretName=user-gcp-sa
+       kustomize edit add configmap mnist-map-tb-gcs --from-literal=secretMountPath=/var/secrets
        ```
 
-     * The output should now include a volumeMount and volume section
+     * Setting this parameter causes a volumeMount and volume to be added to TensorBoard deployment
 
-  1. Next we need to set the environment variable `GOOGLE_APPLICATION_CREDENTIALS` so that our code knows
+  2. Next we need to set the environment variable `GOOGLE_APPLICATION_CREDENTIALS` so that our code knows
      where to look for the service account key.
 
      ```
-     ks param set --env=${KSENV} tensorboard envVariables GOOGLE_APPLICATION_CREDENTIALS=/var/secrets/user-gcp-sa.json     
+     kustomize edit add configmap mnist-map-tb-gcs --from-literal=GOOGLE_APPLICATION_CREDENTIALS=/var/secrets/user-gcp-sa.json     
      ```
 
      * If we look at the spec for TensorBoard deployment we can see that the environment variable `GOOGLE_APPLICATION_CREDENTIALS` is set.
 
        ```
-       ks show ${KSENV} -c tensorboard
+       kustomize build .
        ```
        ```
         ...
@@ -559,10 +485,16 @@ You need to point TensorBoard to GCP credentials to access GCS bucket with model
 
 #### Using S3
 
+Enter the `monitoring/S3` directory.
+
+```
+cd monitoring/S3
+```
+
 Configure TensorBoard to point to your model location
 
 ```
-ks param set tensorboard --env=${KSENV} logDir ${LOGDIR}
+kustomize edit add configmap mnist-map-tb-s3 --from-literal=logDir=${LOGDIR}
 ```
 
 Assuming you followed the directions above if you used S3 you can use the following value
@@ -576,58 +508,26 @@ You need to point TensorBoard to AWS credentials to access S3 bucket with model.
   1. Pass secrets as environment variables into pod
 
      ```
-     ks param set --env=${KSENV} tensorboard secretKeyRefs AWS_ACCESS_KEY_ID=aws-creds.awsAccessKeyID,AWS_SECRET_ACCESS_KEY=aws-creds.awsSecretAccessKey
+     kustomize edit add configmap mnist-map-tb-s3 --from-literal=awsSecretName=aws-creds
+     kustomize edit add configmap mnist-map-tb-s3 --from-literal=awsAccessKeyIDName=awsAccessKeyID
+     kustomize edit add configmap mnist-map-tb-s3 --from-literal=awsSecretAccessKeyName=awsSecretAccessKey
      ```
 
-     * Setting this ksonnet parameter causes a two new environment variables to be added to TensorBoard
-     deployment
-     * To see this you can run
-
-       ```
-       ks show ${KSENV} -c tensorboard
-       ```
-
-     * The output should now include two environment variables referencing K8s secret
-
-       ```
-        ...
-        spec:
-          containers:
-          - command:
-          ...
-            env:
-            ...
-            - name: AWS_ACCESS_KEY_ID
-              valueFrom:
-                secretKeyRef:
-                  key: awsAccessKeyID
-                  name: aws-creds
-            - name: AWS_SECRET_ACCESS_KEY
-              valueFrom:
-                secretKeyRef:
-                  key: awsSecretAccessKey
-                  name: aws-creds
-                  ...
-       ```
-
-  1. Next we need to set a whole bunch of S3 related environment variables so that TensorBoard
-     knows how to talk to S3
+  2. Next we need to set a whole bunch of S3 related environment variables so that TensorBoard knows how to talk to S3
 
      ```
-     AWSENV="S3_ENDPOINT=${S3_ENDPOINT}"
-     AWSENV="${AWSENV},AWS_ENDPOINT_URL=${AWS_ENDPOINT_URL}"     
-     AWSENV="${AWSENV},AWS_REGION=${AWS_REGION}"
-     AWSENV="${AWSENV},BUCKET_NAME=${BUCKET_NAME}"
-     AWSENV="${AWSENV},S3_USE_HTTPS=${S3_USE_HTTPS}"
-     AWSENV="${AWSENV},S3_VERIFY_SSL=${S3_VERIFY_SSL}"
-
-     ks param set --env=${KSENV} tensorboard envVariables ${AWSENV}
+     kustomize edit add configmap mnist-map-tb-s3 --from-literal=S3_ENDPOINT=${S3_ENDPOINT}
+     kustomize edit add configmap mnist-map-tb-s3 --from-literal=AWS_ENDPOINT_URL=${AWS_ENDPOINT_URL}
+     kustomize edit add configmap mnist-map-tb-s3 --from-literal=AWS_REGION=${AWS_REGION}
+     kustomize edit add configmap mnist-map-tb-s3 --from-literal=BUCKET_NAME=${BUCKET_NAME}
+     kustomize edit add configmap mnist-map-tb-s3 --from-literal=S3_USE_HTTPS=${S3_USE_HTTPS}
+     kustomize edit add configmap mnist-map-tb-s3 --from-literal=S3_VERIFY_SSL=${S3_VERIFY_SSL}
      ```
 
      * If we look at the spec for TensorBoard deployment we can see that the environment variables related to S3 are set.
 
        ```
-       ks show ${KSENV} -c tensorboard
+       kustomize build .
        ```
 
        ```
@@ -648,34 +548,29 @@ You need to point TensorBoard to AWS credentials to access S3 bucket with model.
 
 #### Deploying TensorBoard
 
-
 Now you can deploy TensorBoard
 
 ```
-ks apply ${KSENV} -c tensorboard
+kustomize build . | kubectl apply -f -
 ```
 
 To access TensorBoard using port-forwarding
 
 ```
-kubectl -n jlewi port-forward service/tensorboard-tb 8090:80
+kubectl -n kubeflow port-forward service/tensorboard-tb 8090:80
 ```
 TensorBoard can now be accessed at [http://127.0.0.1:8090](http://127.0.0.1:8090).
-
 
 ## Serving the model
 
 The model code will export the model in saved model format which is suitable for serving with TensorFlow serving.
 
-To serve the model follow the instructions below. The instructins vary slightly based on where you are storing your
-model (e.g. GCS, S3, PVC). Depending on the storage system we provide different ksonnet components as a convenience
-for setting relevant environment variables.
+To serve the model follow the instructions below. The instructins vary slightly based on where you are storing your model (e.g. GCS, S3, PVC). Depending on the storage system we provide different kustomization as a convenience for setting relevant environment variables.
 
 
 ### GCS
 
-Here we show to serve the model when it is stored on GCS. This assumes that when you trained the model you set `exportDir` to a GCS
-URI; if not you can always copy it to GCS using `gsutil`.
+Here we show to serve the model when it is stored on GCS. This assumes that when you trained the model you set `exportDir` to a GCS URI; if not you can always copy it to GCS using `gsutil`.
 
 Check that a model was exported
 
@@ -696,35 +591,39 @@ ${EXPORT_DIR}/1547100373/variables/variables.index
 
 The number `1547100373` is a version number auto-generated by TensorFlow; it will vary on each run but should be monotonically increasing if you save a model to the same location as a previous location.
 
+Enter the `serving/GCS` directory.
+```
+cd serving/GCS
+```
+
+Set a different name for the tf-serving.
+
+```
+kustomize edit add configmap mnist-map-serving-gcs --from-literal=name=mnist-gcs-dist
+```
 
 Set your model path
 
 ```
-ks param set --env=${KSENV} mnist-deploy-gcp modelBasePath ${EXPORT_DIR}
+kustomize edit add configmap mnist-map-serving-gcs --from-literal=modelBasePath=${EXPORT_DIR} 
 ```
 
-Deploy it
+Deploy it, and run a service to make the deployment accessible to other pods in the cluster
 
 ```
-ks apply ${KSENV} -c mnist-deploy-gcp
+kustomize build . |kubectl apply -f -
 ```
 
 You can check the deployment by running
 
 ```
-kubectl describe deployments mnist-deploy-gcp
+kubectl describe deployments mnist-gcs-dist
 ```
 
-Finally, run a service to make the deployment accessible to other pods in the cluster
+The service should make the `mnist-gcs-dist` deployment accessible over port 9000
 
 ```
-ks apply ${KSENV} -c mnist-service
-```
-
-The service should make the `mnist-deploy-gcp` deployment accessible over port 9000
-
-```
-kubectl describe service mnist-service
+kubectl describe service mnist-gcs-dist
 ```
 
 ### S3
@@ -735,32 +634,34 @@ TODO: Add instructions
 
 The section shows how to serve the local model that was stored in PVC while training.
 
+Enter the `serving/local` directory.
+```
+cd serving/local
+```
+
 Mount the PVC, by default the pvc will be mounted to the `/mnt` of the pod.
 
 ```
-ks param set --env=${KSENV} mnist-deploy-local pvcName ${PVC_NAME}
+kustomize edit add configmap mnist-map-serving-local --from-literal=pvcName=${PVC_NAME}
 ```
 
 Configure a filepath for the exported model.
 
 ```
-ks param set --env=${KSENV} mnist-deploy-local modelBasePath /mnt/export
+kustomize edit add configmap mnist-map-serving-local --from-literal=modelBasePath=/mnt/export
 ```
 
-Deploy it.
+Deploy it, and run a service to make the deployment accessible to other pods in the cluster.
 
 ```
-ks apply ${KSENV} -c mnist-deploy-local
+kustomize build . |kubectl apply -f -
 ```
 
 You can check the deployment by running
 ```
 kubectl describe deployments mnist-deploy-local
 ```
-Finally, run a service to make the deployment accessible to other pods in the cluster.
-```
-ks apply ${KSENV} -c mnist-service
-```
+
 The service should make the `mnist-deploy-local` deployment accessible over port 9000.
 ```
 kubectl describe service mnist-service
@@ -770,10 +671,16 @@ kubectl describe service mnist-service
 
 The example comes with a simple web front end that can be used with your model.
 
+Enter `front` derectory.
+
+```
+cd front
+```
+
 To deploy the web front end
 
 ```
-ks apply ${KSENV} -c web-ui
+kustomize build . |kubectl apply -f -
 ```
 
 ### Connecting via port forwarding

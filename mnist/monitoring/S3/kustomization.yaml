@@ -1,0 +1,91 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- deployment.yaml
+- service.yaml
+
+namespace: kubeflow
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+configMapGenerator:
+- literals:
+  name: mnist-map-tb-s3
+
+vars:
+- fieldref:
+    fieldPath: data.logDir
+  name: logDir
+  objref:
+    apiVersion: v1
+    kind: ConfigMap
+    name: mnist-map-tb-s3
+- fieldref:
+    fieldPath: data.S3_ENDPOINT
+  name: S3_ENDPOINT
+  objref:
+    apiVersion: v1
+    kind: ConfigMap
+    name: mnist-map-tb-s3
+- fieldref:
+    fieldPath: data.AWS_ENDPOINT_URL
+  name: AWS_ENDPOINT_URL
+  objref:
+    apiVersion: v1
+    kind: ConfigMap
+    name: mnist-map-tb-s3
+- fieldref:
+    fieldPath: data.AWS_REGION
+  name: AWS_REGION
+  objref:
+    apiVersion: v1
+    kind: ConfigMap
+    name: mnist-map-tb-s3
+- fieldref:
+    fieldPath: data.BUCKET_NAME
+  name: BUCKET_NAME
+  objref:
+    apiVersion: v1
+    kind: ConfigMap
+    name: mnist-map-tb-s3
+- fieldref:
+    fieldPath: data.S3_USE_HTTPS
+  name: S3_USE_HTTPS
+  objref:
+    apiVersion: v1
+    kind: ConfigMap
+    name: mnist-map-tb-s3
+- fieldref:
+    fieldPath: data.S3_VERIFY_SSL
+  name: S3_VERIFY_SSL
+  objref:
+    apiVersion: v1
+    kind: ConfigMap
+    name: mnist-map-tb-s3
+- fieldref:
+    fieldPath: data.awsSecretName
+  name: awsSecretName
+  objref:
+    apiVersion: v1
+    kind: ConfigMap
+    name: mnist-map-tb-s3
+- fieldref:
+    fieldPath: data.awsAccessKeyIDName
+  name: awsAccessKeyIDName
+  objref:
+    apiVersion: v1
+    kind: ConfigMap
+    name: mnist-map-tb-s3
+- fieldref:
+    fieldPath: data.awsSecretAccessKeyName
+  name: awsSecretAccessKeyName
+  objref:
+    apiVersion: v1
+    kind: ConfigMap
+    name: mnist-map-tb-s3
+
+configurations:
+- params.yaml
+

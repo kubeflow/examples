@@ -1,0 +1,54 @@
+apiVersion: kubeflow.org/v1beta1
+kind: TFJob
+metadata:
+  name: $(trainingName)
+  namespace: kubeflow
+spec:
+  tfReplicaSpecs:
+    Worker:
+      replicas: %numWorkers%
+      template:
+        spec:
+          containers:
+          - args:
+            - --tf-model-dir=$(S3_MODEL_PATH_URI)
+            - --tf-export-dir=$(S3_MODEL_EXPORT_URI)
+            - --tf-train-steps=200
+            - --tf-batch-size=100
+            - --tf-learning-rate=0.01
+            command:
+            - /usr/bin/python
+            - /opt/model.py
+            env:
+            - name: S3_MODEL_PATH_URI
+              value: $(S3_MODEL_PATH_URI)
+            - name: S3_MODEL_EXPORT_URI
+              value: $(S3_MODEL_EXPORT_URI)
+            - name: S3_ENDPOINT
+              value: $(S3_ENDPOINT)              
+            - name: AWS_ENDPOINT_URL
+              value: $(AWS_ENDPOINT_URL)            
+            - name: AWS_REGION
+              value: $(AWS_REGION)            
+            - name: BUCKET_NAME
+              value: $(BUCKET_NAME)            
+            - name: S3_USE_HTTPS
+              value: $(S3_USE_HTTPS)              
+            - name: S3_VERIFY_SSL
+              value: $(S3_VERIFY_SSL)
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  key: awsAccessKeyID
+                  name: $(awsSecretName)
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: awsSecretAccessKey
+                  name: $(awsSecretName)
+            image: training-image
+            name: tensorflow
+            volumeMounts: []
+            workingDir: /opt
+          restartPolicy: OnFailure
+          volumes: []
