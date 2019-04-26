@@ -1,0 +1,108 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- training.yaml
+
+namespace: kubeflow
+
+images:
+- name: training-image
+  newName: gcr.io/kubeflow-examples/mnist/model
+  newTag: v20190111-v0.2-148-g313770f
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+configMapGenerator:
+- literals:
+  name: mnist-map-s3
+
+vars:
+- fieldref:
+    fieldPath: data.name
+  name: trainingName
+  objref:
+    apiVersion: v1
+    kind: ConfigMap
+    name: mnist-map-s3
+- fieldref:
+    fieldPath: data.S3_MODEL_PATH_URI
+  name: S3_MODEL_PATH_URI
+  objref:
+    apiVersion: v1
+    kind: ConfigMap
+    name: mnist-map-s3
+- fieldref:
+    fieldPath: data.S3_MODEL_EXPORT_URI
+  name: S3_MODEL_EXPORT_URI
+  objref:
+    apiVersion: v1
+    kind: ConfigMap
+    name: mnist-map-s3
+- fieldref:
+    fieldPath: data.S3_ENDPOINT
+  name: S3_ENDPOINT
+  objref:
+    apiVersion: v1
+    kind: ConfigMap
+    name: mnist-map-s3
+- fieldref:
+    fieldPath: data.AWS_ENDPOINT_URL
+  name: AWS_ENDPOINT_URL
+  objref:
+    apiVersion: v1
+    kind: ConfigMap
+    name: mnist-map-s3
+- fieldref:
+    fieldPath: data.AWS_REGION
+  name: AWS_REGION
+  objref:
+    apiVersion: v1
+    kind: ConfigMap
+    name: mnist-map-s3
+- fieldref:
+    fieldPath: data.BUCKET_NAME
+  name: BUCKET_NAME
+  objref:
+    apiVersion: v1
+    kind: ConfigMap
+    name: mnist-map-s3
+- fieldref:
+    fieldPath: data.S3_USE_HTTPS
+  name: S3_USE_HTTPS
+  objref:
+    apiVersion: v1
+    kind: ConfigMap
+    name: mnist-map-s3
+- fieldref:
+    fieldPath: data.S3_VERIFY_SSL
+  name: S3_VERIFY_SSL
+  objref:
+    apiVersion: v1
+    kind: ConfigMap
+    name: mnist-map-s3
+- fieldref:
+    fieldPath: data.awsSecretName
+  name: awsSecretName
+  objref:
+    apiVersion: v1
+    kind: ConfigMap
+    name: mnist-map-s3
+- fieldref:
+    fieldPath: data.awsAccessKeyIDName
+  name: awsAccessKeyIDName
+  objref:
+    apiVersion: v1
+    kind: ConfigMap
+    name: mnist-map-s3
+- fieldref:
+    fieldPath: data.awsSecretAccessKeyName
+  name: awsSecretAccessKeyName
+  objref:
+    apiVersion: v1
+    kind: ConfigMap
+    name: mnist-map-s3
+
+configurations:
+- params.yaml

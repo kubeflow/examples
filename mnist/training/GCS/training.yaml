@@ -1,0 +1,47 @@
+apiVersion: kubeflow.org/v1beta1
+kind: TFJob
+metadata:
+  name: $(trainingName)
+  namespace: kubeflow
+spec:
+  cleanPodPolicy: "None"
+  tfReplicaSpecs:
+    Chief:
+      replicas: 1
+      template:
+        spec:
+          containers:
+          - args:
+            - --tf-model-dir=$(modelDir)
+            - --tf-export-dir=$(exportDir)
+            - --tf-train-steps=$(trainSteps)
+            - --tf-batch-size=$(batchSize)
+            - --tf-learning-rate=$(learningRate)
+            command:
+            - /usr/bin/python
+            - /opt/model.py
+            env:
+            - name: modelDir
+              value: $(modelDir)
+            - name: exportDir
+              value: $(exportDir)
+            - name: trainSteps
+              value: $(trainSteps)
+            - name: batchSize
+              value: $(batchSize)
+            - name: learningRate
+              value: $(learningRate)    
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: $(GOOGLE_APPLICATION_CREDENTIALS)
+            image: training-image
+            name: tensorflow
+            volumeMounts:
+            - mountPath: $(secretMountPath)
+              name: user-gcp-sa
+              readOnly: true
+            workingDir: /opt
+          restartPolicy: OnFailure
+          volumes:
+          - name: user-gcp-sa
+            secret:
+              secretName: $(secretName)

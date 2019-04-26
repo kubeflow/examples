@@ -1,0 +1,87 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- training.yaml
+
+namespace: kubeflow
+
+images:
+- name: training-image
+  newName: gcr.io/kubeflow-examples/mnist/model
+  newTag: v20190111-v0.2-148-g313770f
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+configMapGenerator:
+- literals:
+  name: mnist-map-gcs
+
+vars:
+- fieldref:
+    fieldPath: data.name
+  name: trainingName
+  objref:
+    apiVersion: v1
+    kind: ConfigMap
+    name: mnist-map-gcs
+- fieldref:
+    fieldPath: data.modelDir
+  name: modelDir
+  objref:
+    apiVersion: v1
+    kind: ConfigMap
+    name: mnist-map-gcs
+- fieldref:
+    fieldPath: data.exportDir
+  name: exportDir
+  objref:
+    apiVersion: v1
+    kind: ConfigMap
+    name: mnist-map-gcs
+- fieldref:
+    fieldPath: data.trainSteps
+  name: trainSteps
+  objref:
+    apiVersion: v1
+    kind: ConfigMap
+    name: mnist-map-gcs
+- fieldref:
+    fieldPath: data.batchSize
+  name: batchSize
+  objref:
+    apiVersion: v1
+    kind: ConfigMap
+    name: mnist-map-gcs
+- fieldref:
+    fieldPath: data.learningRate
+  name: learningRate
+  objref:
+    apiVersion: v1
+    kind: ConfigMap
+    name: mnist-map-gcs
+- fieldref:
+    fieldPath: data.GOOGLE_APPLICATION_CREDENTIALS
+  name: GOOGLE_APPLICATION_CREDENTIALS
+  objref:
+    apiVersion: v1
+    kind: ConfigMap
+    name: mnist-map-gcs
+- fieldref:
+    fieldPath: data.secretName
+  name: secretName
+  objref:
+    apiVersion: v1
+    kind: ConfigMap
+    name: mnist-map-gcs
+- fieldref:
+    fieldPath: data.secretMountPath
+  name: secretMountPath
+  objref:
+    apiVersion: v1
+    kind: ConfigMap
+    name: mnist-map-gcs
+
+configurations:
+- params.yaml

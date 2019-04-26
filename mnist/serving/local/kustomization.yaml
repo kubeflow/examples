@@ -1,0 +1,42 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- deployment.yaml
+- mnist-deploy-local-config.yaml
+- service.yaml
+
+namespace: kubeflow
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+configMapGenerator:
+- literals:
+  name: mnist-map-serving-local
+
+vars:
+- fieldref:
+    fieldPath: data.modelBasePath
+  name: modelBasePath
+  objref:
+    apiVersion: v1
+    kind: ConfigMap
+    name: mnist-map-serving-local
+- fieldref:
+    fieldPath: data.pvcName
+  name: pvcName
+  objref:
+    apiVersion: v1
+    kind: ConfigMap
+    name: mnist-map-serving-local
+- fieldref:
+    fieldPath: data.pvcMountPath
+  name: pvcMountPath
+  objref:
+    apiVersion: v1
+    kind: ConfigMap
+    name: mnist-map-serving-local
+
+configurations:
+- params.yaml

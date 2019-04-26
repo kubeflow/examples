@@ -1,0 +1,49 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: tensorboard-tb
+  namespace: kubeflow
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: tensorboard
+        tb-job: tensorboard
+      name: tensorboard
+      namespace: kubeflow
+    spec:
+      containers:
+      - command:
+        - /usr/local/bin/tensorboard
+        - --logdir=$(logDir)
+        - --port=80
+        env:
+        - name: logDir
+          value: $(logDir)        
+        - name: S3_ENDPOINT
+          value: $(S3_ENDPOINT)
+        - name: AWS_ENDPOINT_URL
+          value: $(AWS_ENDPOINT_URL)
+        - name: AWS_REGION
+          value: $(AWS_REGION)
+        - name: BUCKET_NAME
+          value: $(BUCKET_NAME)
+        - name: S3_USE_HTTPS
+          value: $(S3_USE_HTTPS)
+        - name: S3_VERIFY_SSL
+          value: $(S3_VERIFY_SSL)
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              key: $(awsAccessKeyIDName)
+              name: $(awsSecretName)
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              key: $(awsSecretAccessKeyName)
+              name: $(awsSecretName)
+        image: tensorflow/tensorflow:1.11.0
+        name: tensorboard
+        ports:
+        - containerPort: 80
