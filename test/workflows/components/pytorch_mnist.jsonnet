@@ -19,7 +19,7 @@ local defaultParams = {
 
   // Which Kubeflow cluster to use for running PytorchJobs on.
   kfProject: "kubeflow-ci",
-  kfZone: "us-east1-d",
+  kfZone: "us-east1-b",
   kfCluster: "kf-vmaster-n00",
 
   // The bucket where the model should be written
