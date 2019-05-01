@@ -20,20 +20,20 @@ Since this is a strong scaling example, we should perform an average after the a
 
 Deploy the PyTorchJob resource to start training the CPU & GPU models:
 
-### If running on Kubeflow 0.3.x:
-```bash
-cd ks_app
-ks env add ${KF_ENV}
-ks apply ${KF_ENV} -c train_model_CPU_v1alpha2
-ks apply ${KF_ENV} -c train_model_GPU_v1alpha2
-```
-
-### If running on Kubeflow 0.4.x or newer:
+### If running on Kubeflow 0.4.x:
 ```bash
 cd ks_app
 ks env add ${KF_ENV}
 ks apply ${KF_ENV} -c train_model_CPU_v1beta1
 ks apply ${KF_ENV} -c train_model_GPU_v1beta1
+```
+
+### If running on Kubeflow 0.5.x or newer:
+```bash
+cd ks_app
+ks env add ${KF_ENV}
+ks apply ${KF_ENV} -c train_model_CPU_v1beta2
+ks apply ${KF_ENV} -c train_model_GPU_v1beta2
 ```
 
 ## What just happened?
