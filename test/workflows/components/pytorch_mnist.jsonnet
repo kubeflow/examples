@@ -355,7 +355,7 @@ local dagTemplates = [
     template: buildTemplate {
       name: "predict-test",
       command: [        
-        "pytest",
+        "python",
         "predict_test.py",
         // I think -s mean stdout/stderr will print out to aid in debugging.
         // Failures still appear to be captured and stored in the junit file.
