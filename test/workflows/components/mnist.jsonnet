@@ -20,7 +20,7 @@ local defaultParams = {
   // Which Kubeflow cluster to use for running TFJobs on.
   kfProject: "kubeflow-ci-deployment",
   kfZone: "us-east1-b",
-  kfCluster: "kf-vmaster-n00",
+  kfCluster: "kf-v0-5-n04",
 
   // The bucket where the model should be written
   // This needs to be writable by the GCP service account in the Kubeflow cluster (not the test cluster)
@@ -311,8 +311,9 @@ local dagTemplates = [
         "--params=" + std.join(",", [
           "name=mnist-test-" + prowDict["BUILD_ID"], 
           "namespace=" + testNamespace,
-          "numTrainSteps=10",
+          "trainSteps=10",
           "batchSize=10",
+          "learningRate=0.01",
           "image=" + trainerImage,
           "numPs=1",
           "numWorkers=2",

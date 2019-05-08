@@ -1,6 +1,6 @@
 """Test training using TFJob.
 
-This file tests that we can submit the job from ksonnet
+This file tests that we can submit the job
 and that the job runs to completion.
 
 It is an integration test as it depends on having access to
@@ -20,18 +20,18 @@ Manually running the test
  3. To test a new image set the parameter image e.g
      --params=name=${NAME},namespace=${NAMESPACE},image=${IMAGE}
  4. To control how long it trains set sample_size and num_epochs
-     --params=numTrainSteps=10,batchSize=10,...
+     --params=trainSteps=10,batchSize=10,...
 """
 
 import json
 import logging
 import os
+import subprocess
 
 from kubernetes import client as k8s_client
 from kubeflow.tf_operator import tf_job_client #pylint: disable=no-name-in-module
 from kubeflow.tf_operator import test_runner #pylint: disable=no-name-in-module
 
-from kubeflow.testing import ks_util
 from kubeflow.testing import test_util
 from kubeflow.testing import util
 
@@ -42,14 +42,13 @@ class TFJobTest(test_util.TestCase):
 
     if not self.app_dir:
       self.app_dir = os.path.join(os.path.dirname(__file__), "..",
-                                  "ks_app")
+                                  "training/GCS")
       self.app_dir = os.path.abspath(self.app_dir)
       logging.info("--app_dir not set defaulting to: %s", self.app_dir)
 
     self.env = env
     self.namespace = namespace
     self.params = args.params
-    self.ks_cmd = ks_util.get_ksonnet_cmd(self.app_dir)
     super(TFJobTest, self).__init__(class_name="TFJobTest", name=name)
 
   def test_train(self):
@@ -58,15 +57,43 @@ class TFJobTest(test_util.TestCase):
     # same name.
     api_client = k8s_client.ApiClient()
 
-    component = "train"
-    # Setup the ksonnet app
-    ks_util.setup_ks_app(self.app_dir, self.env, self.namespace, component,
-                         self.params)
+    # TODO (jinchihe) beflow code will be removed once new test-worker image
+    # is publish in https://github.com/kubeflow/testing/issues/373.
+    kusUrl = 'https://github.com/kubernetes-sigs/kustomize/' \
+         'releases/download/v2.0.3/kustomize_2.0.3_linux_amd64'
+    util.run(['wget', '-O', '/usr/local/bin/kustomize', kusUrl], cwd=self.app_dir)
+    util.run(['chmod', 'a+x', '/usr/local/bin/kustomize'], cwd=self.app_dir)
 
+    # Setup parameters for kustomize
+    configmap = 'mnist-map-training'
+    for pair in self.params.split(","):
+      k, v = pair.split("=", 1)
+      if k == "namespace":
+        util.run(['kustomize', 'edit', 'set', k, v], cwd=self.app_dir)
+      elif k == "image":
+        util.run(['kustomize', 'edit', 'set', k, 'training-image=' + v], cwd=self.app_dir)
+      elif k == "numPs":
+        util.run(['../base/definition.sh', '--numPs', v], cwd=self.app_dir)
+      elif k == "numWorkers":
+        util.run(['../base/definition.sh', '--numWorkers', v], cwd=self.app_dir)
+      elif k == "secret":
+        secretName, secretMountPath = v.split("=", 1)
+        util.run(['kustomize', 'edit', 'add', 'configmap', configmap,
+                '--from-literal=secretName=' + secretName], cwd=self.app_dir)
+        util.run(['kustomize', 'edit', 'add', 'configmap', configmap,
+                '--from-literal=secretMountPath=' + secretMountPath], cwd=self.app_dir)
+      elif k == "envVariables":
+        var_k, var_v = v.split("=", 1)
+        util.run(['kustomize', 'edit', 'add', 'configmap', configmap,
+                '--from-literal=' + var_k + '=' + var_v], cwd=self.app_dir)
+      else:
+        util.run(['kustomize', 'edit', 'add', 'configmap', configmap,
+                '--from-literal=' + k + '=' + v], cwd=self.app_dir)
 
     # Create the TF job
-    util.run([self.ks_cmd, "apply", self.env, "-c", component],
-             cwd=self.app_dir)
+    # Seems the util.run cannot handle pipes case, using check_call.
+    subCmd = 'kustomize build ' + self.app_dir + '| kubectl apply -f -'
+    subprocess.check_call(subCmd, shell=True)
     logging.info("Created job %s in namespaces %s", self.name, self.namespace)
 
     # Wait for the job to complete.
@@ -89,6 +116,21 @@ class TFJobTest(test_util.TestCase):
       self.failure = "Job {0} in namespace {1} in status {2}".format(  # pylint: disable=attribute-defined-outside-init
           self.name, self.namespace, results.get("status", {}))
       logging.error(self.failure)
+
+      # if the TFJob failed, print out the pod logs for debugging.
+      pod_names = tf_job_client.get_pod_names(
+          api_client, self.namespace, self.name)
+      logging.info("The Pods name:\n %s", pod_names)
+
+      core_api = k8s_client.CoreV1Api(api_client)
+
+      for pod in pod_names:
+        logging.info("Getting logs of Pod %s.", pod)
+        try:
+          pod_logs = core_api.read_namespaced_pod_log(pod, self.namespace)
+          logging.info("The logs of Pod %s log:\n %s", pod, pod_logs)
+        except k8s_client.rest.ApiException as e:
+          logging.info("Exception when calling CoreV1Api->read_namespaced_pod_log: %s\n", e)
       return
 
     # We don't delete the jobs. We rely on TTLSecondsAfterFinished
