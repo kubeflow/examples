@@ -115,7 +115,7 @@ kustomize edit add configmap mnist-map-training --from-literal=name=mnist-train-
 Point the job at your custom training image
 
 ```
-kustomize edit set image training-image=$DOCKER_URL:$TAG
+kustomize edit set image training-image=$DOCKER_URL
 ```
 
 Optionally, configure it to run distributed by setting the number of parameter servers and workers to use. The `numPs` means the number of Ps and the `numWorkers` means the number of Worker.
