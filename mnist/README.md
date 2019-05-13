@@ -91,7 +91,9 @@ With our data and workloads ready, now the cluster must be prepared. We will be 
 
 In the following instructions we will install our required components to a single namespace.  For these instructions we will assume the chosen namespace is `kubeflow`.
 
-
+```
+kubectl config set-context $(kubectl config current-context) --namespace=kubeflow
+```
 
 ### Training your model
 
@@ -246,7 +248,7 @@ then a number of steps have already been performed for you
      * To see the secrets in your cluster
      
        ```
-       kubectl get secrets -n kubeflow
+       kubectl get secrets
        ```
 
   3. We granted this service account permission to read/write GCS buckets in this project
@@ -596,7 +598,7 @@ kustomize build . | kubectl apply -f -
 To access TensorBoard using port-forwarding
 
 ```
-kubectl -n kubeflow port-forward service/tensorboard-tb 8090:80
+kubectl port-forward service/tensorboard-tb 8090:80
 ```
 TensorBoard can now be accessed at [http://127.0.0.1:8090](http://127.0.0.1:8090).
 
