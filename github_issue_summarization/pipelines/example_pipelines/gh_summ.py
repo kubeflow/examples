@@ -40,6 +40,7 @@ def gh_summ(  #pylint: disable=unused-argument
       image='gcr.io/google-samples/ml-pipeline-t2ttrain',
       arguments=["--data-dir", data_dir,
           "--checkpoint-dir", checkpoint_dir,
+          "--working-dir", working_dir,
           "--model-dir", '%s/%s/model_output' % (working_dir, '{{workflow.name}}'),
           "--train-steps", train_steps, "--deploy-webapp", deploy_webapp],
       file_outputs={'output': '/tmp/output'}

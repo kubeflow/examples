@@ -17,12 +17,51 @@
 import argparse
 import json
 import subprocess
+from urlparse import urlparse
+
+from google.cloud import storage
+
+
+# location of the model checkpoint that we'll start our training from
+SOURCE_BUCKET = 'aju-dev-demos-codelabs'
+PREFIX = 'kubecon/model_output_tbase.bak2019000/'
+
+
+def copy_blob(storage_client, source_bucket, source_blob, target_bucket_name, new_blob_name, new_blob_prefix, prefix):
+    """Copies a blob from one bucket to another with a new name."""
+
+    target_bucket = storage_client.get_bucket(target_bucket_name)
+    new_blob_name_trimmed = new_blob_name.replace(prefix, '')
+    new_blob_full_name = new_blob_prefix + '/'+ new_blob_name_trimmed
+
+    new_blob = source_bucket.copy_blob(
+        source_blob, target_bucket, new_blob_full_name)
+
+    print('Blob {} in bucket {} copied to blob {} in bucket {}.'.format(
+      source_blob.name, source_bucket.name, new_blob.name,
+      target_bucket.name))
+
+def copy_checkpoint(new_blob_prefix, target_bucket):
+
+  storage_client = storage.Client()
+  source_bucket = storage_client.bucket(SOURCE_BUCKET)
+
+  # Lists objects with the given prefix.
+  blob_list = list(source_bucket.list_blobs(prefix=PREFIX))
+  print('Copying files:')
+  for blob in blob_list:
+    print(blob.name)
+    copy_blob(storage_client, source_bucket, blob, target_bucket, blob.name, new_blob_prefix, PREFIX)
 
 
 def main():
   parser = argparse.ArgumentParser(description='ML Trainer')
   parser.add_argument(
       '--model-dir',
+      help='...',
+      required=True)
+  parser.add_argument(
+      '--working-dir',
       help='...',
       required=True)
   parser.add_argument(
@@ -62,11 +101,19 @@ def main():
   print("model_startpoint: %s" % model_startpoint)
   model_dir = args.model_dir
   print("model_dir: %s" % model_dir)
-  model_copy_command = ['gsutil', '-m', 'cp', '-r', model_startpoint, model_dir
-      ]
-  print(model_copy_command)
-  result1 = subprocess.call(model_copy_command)
-  print(result1)
+
+  # copy over the checkpoint directory
+  target_bucket = urlparse(args.working_dir).netloc
+  print("target bucket: %s", target_bucket)
+  new_blob_prefix = model_dir.replace('gs://' + target_bucket + '/', '')
+  print("new_blob_prefix: %s", new_blob_prefix)
+  copy_checkpoint(new_blob_prefix, target_bucket)
+
+  # model_copy_command = ['gsutil', '-m', 'cp', '-r', model_startpoint, model_dir
+  #     ]
+  # print(model_copy_command)
+  # result1 = subprocess.call(model_copy_command)
+  # print(result1)
 
   print('training steps (total): %s' % args.train_steps)
 
