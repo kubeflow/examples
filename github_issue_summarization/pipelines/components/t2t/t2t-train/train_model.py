@@ -16,7 +16,9 @@
 
 import argparse
 import json
+import logging
 import subprocess
+import time
 from urlparse import urlparse
 
 from google.cloud import storage
@@ -38,25 +40,38 @@ def copy_blob(storage_client, source_bucket, source_blob, target_bucket_name, ne
   new_blob = source_bucket.copy_blob(
       source_blob, target_bucket, new_blob_full_name)
 
-  print('Blob {} in bucket {} copied to blob {} in bucket {}.'.format(
-    source_blob.name, source_bucket.name, new_blob.name,
-    target_bucket.name))
+  logging.info('blob %s in bucket %s copied to blob %s in bucket %s',
+      str(source_blob.name), str(source_bucket.name), str(new_blob.name), str(target_bucket.name))
+
 
 def copy_checkpoint(new_blob_prefix, target_bucket):
 
   storage_client = storage.Client()
   source_bucket = storage_client.bucket(SOURCE_BUCKET)
+  retries = 10
 
   # Lists objects with the given prefix.
   blob_list = list(source_bucket.list_blobs(prefix=PREFIX))
-  print('Copying files:')
+  logging.info('Copying files:')
   for blob in blob_list:
-    print(blob.name)
-    copy_blob(storage_client, source_bucket, blob, target_bucket, blob.name, new_blob_prefix,
-        PREFIX)
+    sleeptime = 0.1
+    num_retries = 0
+    while num_retries < retries:
+      logging.info('copying %s; retry %s', blob.name, num_retries)
+      try:
+        copy_blob(storage_client, source_bucket, blob, target_bucket, blob.name, new_blob_prefix,
+            PREFIX)
+        break
+      except Exception as e:  #pylint: disable=broad-except
+        logging.warning(e)
+        time.sleep(sleeptime)
+        sleeptime *= 2
+        num_retries += 1
 
 
 def main():
+
+  logging.getLogger().setLevel(logging.INFO)
   parser = argparse.ArgumentParser(description='ML Trainer')
   parser.add_argument(
       '--model-dir',
