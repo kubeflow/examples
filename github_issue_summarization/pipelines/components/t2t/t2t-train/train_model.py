@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""..."""
+
 
 import argparse
 import json
@@ -22,24 +22,25 @@ from urlparse import urlparse
 from google.cloud import storage
 
 
-# location of the model checkpoint that we'll start our training from
+# location of the model checkpoint from which we'll start our training
 SOURCE_BUCKET = 'aju-dev-demos-codelabs'
 PREFIX = 'kubecon/model_output_tbase.bak2019000/'
 
 
-def copy_blob(storage_client, source_bucket, source_blob, target_bucket_name, new_blob_name, new_blob_prefix, prefix):
-    """Copies a blob from one bucket to another with a new name."""
+def copy_blob(storage_client, source_bucket, source_blob, target_bucket_name, new_blob_name,
+    new_blob_prefix, prefix):
+  """Copies a blob from one bucket to another with a new name."""
 
-    target_bucket = storage_client.get_bucket(target_bucket_name)
-    new_blob_name_trimmed = new_blob_name.replace(prefix, '')
-    new_blob_full_name = new_blob_prefix + '/'+ new_blob_name_trimmed
+  target_bucket = storage_client.get_bucket(target_bucket_name)
+  new_blob_name_trimmed = new_blob_name.replace(prefix, '')
+  new_blob_full_name = new_blob_prefix + '/'+ new_blob_name_trimmed
 
-    new_blob = source_bucket.copy_blob(
-        source_blob, target_bucket, new_blob_full_name)
+  new_blob = source_bucket.copy_blob(
+      source_blob, target_bucket, new_blob_full_name)
 
-    print('Blob {} in bucket {} copied to blob {} in bucket {}.'.format(
-      source_blob.name, source_bucket.name, new_blob.name,
-      target_bucket.name))
+  print('Blob {} in bucket {} copied to blob {} in bucket {}.'.format(
+    source_blob.name, source_bucket.name, new_blob.name,
+    target_bucket.name))
 
 def copy_checkpoint(new_blob_prefix, target_bucket):
 
@@ -51,7 +52,8 @@ def copy_checkpoint(new_blob_prefix, target_bucket):
   print('Copying files:')
   for blob in blob_list:
     print(blob.name)
-    copy_blob(storage_client, source_bucket, blob, target_bucket, blob.name, new_blob_prefix, PREFIX)
+    copy_blob(storage_client, source_bucket, blob, target_bucket, blob.name, new_blob_prefix,
+        PREFIX)
 
 
 def main():
@@ -108,12 +110,6 @@ def main():
   new_blob_prefix = model_dir.replace('gs://' + target_bucket + '/', '')
   print("new_blob_prefix: %s", new_blob_prefix)
   copy_checkpoint(new_blob_prefix, target_bucket)
-
-  # model_copy_command = ['gsutil', '-m', 'cp', '-r', model_startpoint, model_dir
-  #     ]
-  # print(model_copy_command)
-  # result1 = subprocess.call(model_copy_command)
-  # print(result1)
 
   print('training steps (total): %s' % args.train_steps)
 
