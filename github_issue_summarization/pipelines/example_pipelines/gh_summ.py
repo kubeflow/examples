@@ -22,24 +22,22 @@ import kfp.gcp as gcp
   description='Demonstrate Tensor2Tensor-based training and TF-Serving'
 )
 def gh_summ(  #pylint: disable=unused-argument
-  train_steps: dsl.PipelineParam = dsl.PipelineParam(name='train-steps', value=2019300),
-  project: dsl.PipelineParam = dsl.PipelineParam(name='project', value='YOUR_PROJECT_HERE'),
-  github_token: dsl.PipelineParam = dsl.PipelineParam(
-      name='github-token', value='YOUR_GITHUB_TOKEN_HERE'),
-  working_dir: dsl.PipelineParam = dsl.PipelineParam(name='working-dir', value='YOUR_GCS_DIR_HERE'),
-  checkpoint_dir: dsl.PipelineParam = dsl.PipelineParam(
-      name='checkpoint-dir',
-      value='gs://aju-dev-demos-codelabs/kubecon/model_output_tbase.bak2019000'),
-  deploy_webapp: dsl.PipelineParam = dsl.PipelineParam(name='deploy-webapp', value='true'),
-  data_dir: dsl.PipelineParam = dsl.PipelineParam(
-      name='data-dir', value='gs://aju-dev-demos-codelabs/kubecon/t2t_data_gh_all/')):
+  train_steps=2019300,
+  project='YOUR_PROJECT_HERE',
+  github_token='YOUR_GITHUB_TOKEN_HERE',
+  working_dir='YOUR_GCS_DIR_HERE',
+  checkpoint_dir='gs://aju-dev-demos-codelabs/kubecon/model_output_tbase.bak2019000',
+  deploy_webapp='true',
+  data_dir='gs://aju-dev-demos-codelabs/kubecon/t2t_data_gh_all/'
+  ):
 
 
   train = dsl.ContainerOp(
       name='train',
-      image='gcr.io/google-samples/ml-pipeline-t2ttrain',
+      image='gcr.io/google-samples/ml-pipeline-t2ttrain:v1ap',
       arguments=["--data-dir", data_dir,
           "--checkpoint-dir", checkpoint_dir,
+          "--working-dir", working_dir,
           "--model-dir", '%s/%s/model_output' % (working_dir, '{{workflow.name}}'),
           "--train-steps", train_steps, "--deploy-webapp", deploy_webapp],
       file_outputs={'output': '/tmp/output'}

@@ -12,17 +12,73 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""..."""
+
 
 import argparse
 import json
+import logging
 import subprocess
+import time
+from urlparse import urlparse
+
+from google.cloud import storage
+
+
+# location of the model checkpoint from which we'll start our training
+SOURCE_BUCKET = 'aju-dev-demos-codelabs'
+PREFIX = 'kubecon/model_output_tbase.bak2019000/'
+
+
+def copy_blob(storage_client, source_bucket, source_blob, target_bucket_name, new_blob_name,
+    new_blob_prefix, prefix):
+  """Copies a blob from one bucket to another with a new name."""
+
+  target_bucket = storage_client.get_bucket(target_bucket_name)
+  new_blob_name_trimmed = new_blob_name.replace(prefix, '')
+  new_blob_full_name = new_blob_prefix + '/'+ new_blob_name_trimmed
+
+  new_blob = source_bucket.copy_blob(
+      source_blob, target_bucket, new_blob_full_name)
+
+  logging.info('blob %s in bucket %s copied to blob %s in bucket %s',
+      str(source_blob.name), str(source_bucket.name), str(new_blob.name), str(target_bucket.name))
+
+
+def copy_checkpoint(new_blob_prefix, target_bucket):
+
+  storage_client = storage.Client()
+  source_bucket = storage_client.bucket(SOURCE_BUCKET)
+  retries = 10
+
+  # Lists objects with the given prefix.
+  blob_list = list(source_bucket.list_blobs(prefix=PREFIX))
+  logging.info('Copying files:')
+  for blob in blob_list:
+    sleeptime = 0.1
+    num_retries = 0
+    while num_retries < retries:
+      logging.info('copying %s; retry %s', blob.name, num_retries)
+      try:
+        copy_blob(storage_client, source_bucket, blob, target_bucket, blob.name, new_blob_prefix,
+            PREFIX)
+        break
+      except Exception as e:  #pylint: disable=broad-except
+        logging.warning(e)
+        time.sleep(sleeptime)
+        sleeptime *= 2
+        num_retries += 1
 
 
 def main():
+
+  logging.getLogger().setLevel(logging.INFO)
   parser = argparse.ArgumentParser(description='ML Trainer')
   parser.add_argument(
       '--model-dir',
+      help='...',
+      required=True)
+  parser.add_argument(
+      '--working-dir',
       help='...',
       required=True)
   parser.add_argument(
@@ -62,11 +118,13 @@ def main():
   print("model_startpoint: %s" % model_startpoint)
   model_dir = args.model_dir
   print("model_dir: %s" % model_dir)
-  model_copy_command = ['gsutil', '-m', 'cp', '-r', model_startpoint, model_dir
-      ]
-  print(model_copy_command)
-  result1 = subprocess.call(model_copy_command)
-  print(result1)
+
+  # copy over the checkpoint directory
+  target_bucket = urlparse(args.working_dir).netloc
+  print("target bucket: %s", target_bucket)
+  new_blob_prefix = model_dir.replace('gs://' + target_bucket + '/', '')
+  print("new_blob_prefix: %s", new_blob_prefix)
+  copy_checkpoint(new_blob_prefix, target_bucket)
 
   print('training steps (total): %s' % args.train_steps)
 
