@@ -42,7 +42,7 @@ If you get stuck on the example, please reach out the community via:
 
 We also include some [resources](#resources) at the bottom of the tutorial, so you can dig in a little deeper.
 
-## 1. Deploy KubeFlow
+## 1. Deploy KubeFlow and setup Ksonnet
 
 The best instructions for deploying KubeFlow live on [KubeFlow.org](https://www.kubeflow.org). Follow the directions listed in the [Getting Started](https://www.kubeflow.org/docs/started/getting-started/) section for the platform of your choice (minikube, microk8s, GKE, etc.).
 
@@ -50,6 +50,33 @@ The best instructions for deploying KubeFlow live on [KubeFlow.org](https://www.
 
 ```
 $ export NAMESPACE=kubeflow
+```
+
+If you don't already have ksonnet setup on your local machine you'll want to install it via their getting started here: [ksonnet get started](https://ksonnet.io/get-started/)
+
+Next, you'll want to export a few environment variables. You'll need a Github API token and if you don't already have one, you can get one [here](https://github.com/settings/tokens)
+
+```
+$ export NAMESPACE=kubeflow
+$ export USER=<your github user id>
+$ export GITHUB_TOKEN=<your github token>
+$ export APP_NAME=my-kubeflow
+```
+
+Now you're ready to proceed with the ksonnet setup. 
+
+```
+$ ks init ${APP_NAME}
+$ cd ${APP_NAME}
+$ ks env set default --namespace ${NAMESPACE}
+```
+It's recommended to install the core Kubeflow infrastructure, which includes the ability to train models with a TFJob CRD. In addition to that, we are going to go ahead and add in the Pachyderm and Seldon components:
+
+```
+$ ks registry add kubeflow github.com/katacoda/kubeflow-ksonnet/tree/master/kubeflow
+$ ks pkg install kubeflow/core
+$ ks pkg install kubeflow/seldon
+$ ks pkg install kubeflow/pachyderm
 ```
 
 ## 2. Deploy Pachyderm and Seldon on top of KubeFlow
@@ -79,6 +106,9 @@ seldon-cluster-manager-7f5ddbcf7d-trvfp     1/1       Running   0          1m
 To deploy Pachyderm, we follow a similar pattern:
 
 ```
+# Setup permissions for GKE. For local deployments just setup with the appropriate user
+kubectl create clusterrolebinding cluster-admin-binding --clusterrole=cluster-admin --user=$(gcloud config get-value account)
+
 # generate the template
 $ ks generate pachyderm pachyderm
 
