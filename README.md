@@ -80,9 +80,9 @@ This example covers the following concepts:
 
 ### [Reusable Pipeline Steps for NLP](./reusable_components_nlp)
 
-Author: [Alejandro Sauced](https://github.com/axsauze)
+Author: [Alejandro Saucedo](https://github.com/axsauze)
 
-In this example we showcase how to build re-usable components to build an ML pipeline that can be trained and deployed at scale, and covers:
+This example covers the following concepts:
 1. Setting up Kubeflow, Seldon and other dependencies
 2. Explore, test and build all re-usable pipeline steps
 3. Run the Kubeflow pipeline from the UI to train and deploy using Seldon
