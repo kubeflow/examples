@@ -295,7 +295,7 @@ To use this service account we perform the following steps
         kustomize build .
        ```
        ```
-        apiVersion: kubeflow.org/v1beta1
+        apiVersion: kubeflow.org/v1beta2
         kind: TFJob
         metadata:
           ...
@@ -425,7 +425,7 @@ In order to write to S3 we need to supply the TensorFlow code with AWS credentia
        ```
         kustomize build .
 
-        apiVersion: kubeflow.org/v1beta1
+        apiVersion: kubeflow.org/v1beta2
         kind: TFJob
         metadata:
           ...
