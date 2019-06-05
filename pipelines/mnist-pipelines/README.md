@@ -1,8 +1,10 @@
 # MNIST Pipelines GCP
 
-This document describes how to run the [MNIST example](https://github.com/kubeflow/examples/tree/master/mnist) on Kubeflow Pipelines on a Google Cloud Platform cluster
+This document describes how to run the [MNIST example](https://github.com/kubeflow/examples/tree/master/mnist) on Kubeflow Pipelines on a Google Cloud Platform and on premise cluster.
 
 ## Setup
+
+### GCP
 
 #### Create a GCS bucket
 
@@ -32,7 +34,11 @@ kubectl port-forward -n kubeflow $(kubectl get pods -n kubeflow --selector=servi
     -o jsonpath='{.items[0].metadata.name}') 8085:80
 ```
 
-#### Install Python Dependencies
+### On Premise Cluster
+For on premise cluster, beside of Kubeflow deployment, you need to create a [Persistent Volume (PV)](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) and [Persistent Volume Claims(PVC)](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims) to store trained result. 
+Note that the `accessModes` of the PVC should be `ReadWriteMany ` so that the PVC can be mounted by containers of multiple steps in parallel.
+
+### Install Python Dependencies
 
 Set up a [virtual environment](https://docs.python.org/3/tutorial/venv.html) for your Kubeflow Pipelines work:
 
@@ -50,17 +56,24 @@ pip install -r requirements.txt --upgrade
 ## Running the Pipeline
 
 #### Compile Pipeline
-Pipelines are written in Python, but they must be compiled into a [domain-specific language (DSL)](https://en.wikipedia.org/wiki/Domain-specific_language)
-before they can be used. Most pipelines are designed so that simply running the script will preform the compilation step
+Pipelines are written in Python, but they must be compiled into a [domain-specific language (DSL)](https://en.wikipedia.org/wiki/Domain-specific_language) before they can be used. 
+
+For on premise cluster, update the `platform` to `onprem` in `mnist_pipeline.py`.
+
+```bash
+sed -i.sedbak s"/platform = 'GCP'/platform = 'onprem'/"  mnist_pipeline.py
 ```
-python3 mnist-pipeline.py
+
+Most pipelines are designed so that simply running the script will preform the compilation steps:
 ```
-Running this command should produce a compiled *mnist.tar.gz* file
+python3 mnist_pipeline.py
+```
+Running this command should produce a compiled * mnist_pipeline.py.tar.gz* file:
 
 Additionally, you can compile manually using the *dsl-compile* script
 
 ```
-python venv/bin/dsl-compile --py mnist-pipeline.py --output mnist-pipeline.py.tar.gz
+python venv/bin/dsl-compile --py mnist_pipeline.py --output mnist_pipeline.py.tar.gz
 ```
 
 #### Upload through the UI
@@ -81,7 +94,9 @@ When you're ready, select the "Create Run" button to launch the pipeline
 
 ![Pipeline](./img/pipeline.png "Pipeline")
 
-Fill out the information required for the run, including the GCP `$BUCKET_ID` you created earlier. Press "Start" when you are ready
+Fill out the information required for the run, and press "Start" when you are ready.
+ - GCP: Fill out the GCP `$BUCKET_ID` you created earlier, and ignore the option `pvc_name`.
+ - On premise cluster: Fill out the `pvc_name` as name of the PVC you created earlier, and the PVC is mounted to '/mnt', so the `model-export-dir` can be `/mnt/export`.
 
 ![Run Form](./img/run_form.png "Run Form")
 
@@ -108,7 +123,8 @@ Pipelines are expected to include a `@dsl.pipeline` decorator to provide metadat
 def mnist_pipeline(model_export_dir='gs://your-bucket/export',
                    train_steps='200',
                    learning_rate='0.01',
-                   batch_size='100'):
+                   batch_size='100'
+                   pvc_name=''):
 ```
 The pipeline is defined in the mnist_pipeline function. It includes a number of arguments, which are exposed in the Kubeflow Pipelines UI when creating a new Run. 
 Although passed as strings, these arguments are of type [`kfp.dsl.PipelineParam`](https://github.com/kubeflow/pipelines/blob/master/sdk/python/kfp/dsl/_pipeline_param.py)
@@ -170,7 +186,7 @@ web_ui = dsl.ContainerOp(
 ).apply(gcp.use_gcp_secret('user-gcp-sa'))
 
 web_ui.after(serve)
-```
+``` 
 Like 'serve', the web-ui component launches a service that exists after the pipeline is complete. Instead of launching a Kubeflow resource, the web-ui launches
 a standard Kubernetes Deployment/Service pair. The Dockerfile that builds the deployment image [can be found here.](./deploy-service/Dockerfile) This image is used
 to deploy the web UI, which was built from the [Dockerfile found in the MNIST example](https://github.com/kubeflow/examples/blob/master/mnist/web-ui/Dockerfile)
