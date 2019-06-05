@@ -131,8 +131,8 @@ And you should be able to communicate with Pachyderm via their CLI `pachctl`:
 ```
 $ pachctl version
 COMPONENT           VERSION
-pachctl             1.7.5
-pachd               1.7.5
+pachctl             1.8.*
+pachd               1.8.*
 ```
 
 ## 3. Create a versioned data repository with the training data set
