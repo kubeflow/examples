@@ -742,7 +742,8 @@ POD_NAME=$(kubectl get pods --selector=app=web-ui --template '{{range .items}}{{
 kubectl port-forward ${POD_NAME} 8080:5000  
 ```
 
-You should now be able to open up the web app at [http://localhost:8080](http://localhost:8080).
+You should now be able to open up the web app at Local Storage: [http://localhost:8080](http://localhost:8080) and GCS: [http://localhost:8080/?addr=mnist-gcs-dist](http://localhost:8080/?addr=mnist-gcs-dist)
+
 
 ### Using IAP on GCP
 
