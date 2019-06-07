@@ -1,4 +1,4 @@
-apiVersion: kubeflow.org/v1beta1
+apiVersion: kubeflow.org/v1beta2
 kind: TFJob
 metadata:
   name: $(trainingName)

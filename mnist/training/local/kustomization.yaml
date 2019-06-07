@@ -38,4 +38,4 @@ patchesJson6902:
     group: kubeflow.org
     kind: TFJob
     name: $(trainingName)
-    version: v1beta1
+    version: v1beta2
