@@ -50,7 +50,7 @@ You also need the following command line tools:
 - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
 - [kustomize](https://kustomize.io/)
 
-To run the client at the end of the example, you must have [requirements.txt](requirements.txt) intalled in your active python environment.
+To run the client at the end of the example, you must have [requirements.txt](requirements.txt) installed in your active python environment.
 
 ```
 pip install -r requirements.txt
