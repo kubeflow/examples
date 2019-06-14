@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 
 
-def load_data(tickers):
+def load_data(tickers, year_cutoff=None):
   """Load stock market data (close values for each day) for given tickers.
 
   Args:
@@ -23,8 +23,11 @@ def load_data(tickers):
   # get the data
   bq_query = {}
   for ticker in tickers:
-    bq_query[ticker] = bigquery_client.query(
-        'SELECT Date, Close from `bingo-ml-1.market_data.{}`'.format(ticker))
+    query = 'SELECT Date, Close from `bingo-ml-1.market_data.{}`'.format(ticker)
+    if year_cutoff:
+      query += 'WHERE EXTRACT(YEAR FROM Date) >= {}'.format(year_cutoff)
+    bq_query[ticker] = bigquery_client.query(query)
+
   results = {}
   for ticker in tickers:
     results[ticker] = bq_query[ticker].result().to_dataframe().set_index('Date')

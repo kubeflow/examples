@@ -16,8 +16,7 @@ FROM tensorflow/tensorflow:1.8.0-devel-gpu-py3
 
 RUN pip3 install google-cloud-storage==1.10.0 \
                  google-cloud-bigquery==1.6.0 \
-                 pandas==0.23.4 \
-                 numpy==1.15.2
+                 pandas==0.23.4
 
 COPY . /opt/workdir
 WORKDIR /opt/workdir
