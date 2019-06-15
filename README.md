@@ -79,6 +79,17 @@ This example covers the following concepts:
 6. Training on GPU
 7. Using Kubeflow Pipelines to automate ML workflow
 
+### [Reusable Pipeline Steps for NLP](./reusable_components_nlp)
+
+Author: [Alejandro Saucedo](https://github.com/axsauze)
+
+This example covers the following concepts:
+1. Setting up Kubeflow, Seldon and other dependencies
+2. Explore, test and build all re-usable pipeline steps
+3. Run the Kubeflow pipeline from the UI to train and deploy using Seldon
+4. Test Seldon Deployed ML REST Endpoints 
+5. Visualise Seldon's deployed ML Pipelines
+
 
 ## Component-focused
 
