@@ -59,6 +59,6 @@ github_issue_summarization/hp-tune/vendor
 [._]ss[a-gi-z]
 [._]sw[a-p]
 
-# Cache
-.cache/
+# MyPy
+.mypy_cache
 
