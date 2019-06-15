@@ -50,7 +50,7 @@ You also need the following command line tools:
 - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
 - [kustomize](https://kustomize.io/)
 
-To run the client at the end of the example, you must have [requirements.txt](requirements.txt) intalled in your active python environment.
+To run the client at the end of the example, you must have [requirements.txt](requirements.txt) installed in your active python environment.
 
 ```
 pip install -r requirements.txt
@@ -295,7 +295,7 @@ To use this service account we perform the following steps
         kustomize build .
        ```
        ```
-        apiVersion: kubeflow.org/v1beta1
+        apiVersion: kubeflow.org/v1beta2
         kind: TFJob
         metadata:
           ...
@@ -425,7 +425,7 @@ In order to write to S3 we need to supply the TensorFlow code with AWS credentia
        ```
         kustomize build .
 
-        apiVersion: kubeflow.org/v1beta1
+        apiVersion: kubeflow.org/v1beta2
         kind: TFJob
         metadata:
           ...
@@ -742,7 +742,8 @@ POD_NAME=$(kubectl get pods --selector=app=web-ui --template '{{range .items}}{{
 kubectl port-forward ${POD_NAME} 8080:5000  
 ```
 
-You should now be able to open up the web app at [http://localhost:8080](http://localhost:8080).
+You should now be able to open up the web app at your localhost. [Local Storage](http://localhost:8080) or [GCS](http://localhost:8080/?addr=mnist-gcs-dist).
+
 
 ### Using IAP on GCP
 
