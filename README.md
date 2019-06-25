@@ -79,6 +79,13 @@ This example covers the following concepts:
 6. Training on GPU
 7. Using Kubeflow Pipelines to automate ML workflow
 
+### [Pipelines](./pipelines)
+
+Author: [DanSanche](https://github.com/DanSanche) and [Jin Chi He](https://github.com/jinchihe)
+
+This example covers the following concepts:
+1. Run MNIST Pipelines sample on a Google Cloud Platform (GCP).
+2. Run MNIST Pipelines sample for on premises cluster.
 
 ## Component-focused
 
