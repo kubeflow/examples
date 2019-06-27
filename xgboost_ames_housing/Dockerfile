@@ -12,9 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Use an official Ubuntu 18.04 as parent image
-FROM ubuntu:18.04
-
 # Install python 2.7
 FROM python:2.7
 
