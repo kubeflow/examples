@@ -17,15 +17,14 @@ limitations under the License.
 import datetime
 import logging
 import os
-import sys
 from math import ceil
 from random import Random
 
 import torch
 import torch.distributed as dist
-import torch.nn as nn
+import torch.nn as nn  # pylint: disable = useless-import-alias
 import torch.nn.functional as F
-import torch.optim as optim
+import torch.optim as optim # pylint: disable = useless-import-alias
 import torch.utils.data
 import torch.utils.data.distributed
 from torch._utils import _flatten_dense_tensors, _unflatten_dense_tensors
@@ -44,7 +43,7 @@ class DistributedDataParallel(Module):
 
     def allreduce_params():
       if self.needs_reduction:
-        self.needs_reduction = False
+        self.needs_reduction = False  # pylint: disable = attribute-defined-outside-init
         buckets = {}
         for param in self.module.parameters():
           if param.requires_grad and param.grad is not None:
@@ -62,8 +61,8 @@ class DistributedDataParallel(Module):
             buf.copy_(synced)
 
     for param in list(self.module.parameters()):
-      def allreduce_hook(*unused):
-        Variable._execution_engine.queue_callback(allreduce_params)
+      def allreduce_hook(*unused):  # pylint: disable = unused-argument
+        Variable._execution_engine.queue_callback(allreduce_params)  # pylint: disable = protected-access
 
       if param.requires_grad:
         param.register_hook(allreduce_hook)
@@ -72,17 +71,17 @@ class DistributedDataParallel(Module):
     for param in self.module.parameters():
       dist.broadcast(param.data, 0)
 
-  def forward(self, *inputs, **kwargs):
+  def forward(self, *inputs, **kwargs):  # pylint: disable = arguments-differ
     if self.first_call:
       logging.info("first broadcast start")
       self.weight_broadcast()
       self.first_call = False
       logging.info("first broadcast done")
-    self.needs_reduction = True
+    self.needs_reduction = True  # pylint: disable = attribute-defined-outside-init
     return self.module(*inputs, **kwargs)
 
 
-class Partition(object):
+class Partition(object):  # pylint: disable = useless-object-inheritance
   """ Dataset-like object, but only access a subset of it. """
 
   def __init__(self, data, index):
@@ -97,10 +96,10 @@ class Partition(object):
     return self.data[data_idx]
 
 
-class DataPartitioner(object):
+class DataPartitioner(object):  # pylint: disable = useless-object-inheritance
   """ Partitions a dataset into different chuncks. """
 
-  def __init__(self, data, sizes=[0.7, 0.2, 0.1], seed=1234):
+  def __init__(self, data, sizes=[0.7, 0.2, 0.1], seed=1234):  # pylint: disable = dangerous-default-value
     self.data = data
     self.partitions = []
     rng = Random()
@@ -129,7 +128,7 @@ class Net(nn.Module):
     self.fc1 = nn.Linear(320, 50)
     self.fc2 = nn.Linear(50, 10)
 
-  def forward(self, x):
+  def forward(self, x):  # pylint: disable = arguments-differ
     x = F.relu(F.max_pool2d(self.conv1(x), 2))
     x = F.relu(F.max_pool2d(self.conv2_drop(self.conv2(x)), 2))
     x = x.view(-1, 320)
@@ -208,12 +207,14 @@ def run(modelpath, gpu):
       model_path = model_dir + "/model_gpu.dat"
     else:
       model_path = model_dir + "/model_cpu.dat"
-    logging.info("Saving model in {}".format(model_path))
+    logging.info("Saving model in {}".format(model_path))  # pylint: disable = logging-format-interpolation
     torch.save(model.module.state_dict(), model_path)
   if gpu:
-    logging.info("GPU training time= {}".format(str(datetime.datetime.now() - time_start)))
+    logging.info("GPU training time= {}".format(  # pylint: disable = logging-format-interpolation
+      str(datetime.datetime.now() - time_start)))  # pylint: disable = logging-format-interpolation
   else:
-    logging.info("CPU training time= {}".format(str(datetime.datetime.now() - time_start)))
+    logging.info("CPU training time= {}".format(  # pylint: disable = logging-format-interpolation
+      str(datetime.datetime.now() - time_start)))  # pylint: disable = logging-format-interpolation
 
 
 if __name__ == "__main__":
@@ -234,10 +235,10 @@ if __name__ == "__main__":
   args = parser.parse_args()
   if args.gpu:
     logging.info("\n======= CUDA INFO =======")
-    logging.info("CUDA Availibility:", torch.cuda.is_available())
-    if (torch.cuda.is_available()):
-      logging.info("CUDA Device Name:", torch.cuda.get_device_name(0))
-      logging.info("CUDA Version:", torch.version.cuda)
+    logging.info("CUDA Availibility:", torch.cuda.is_available())  # pylint: disable = logging-too-many-args
+    if torch.cuda.is_available():
+      logging.info("CUDA Device Name:", torch.cuda.get_device_name(0))  # pylint: disable = logging-too-many-args
+      logging.info("CUDA Version:", torch.version.cuda)  # pylint: disable = logging-too-many-args
     logging.info("=========================\n")
   dist.init_process_group(backend='gloo')
   run(modelpath=args.modelpath, gpu=args.gpu)
