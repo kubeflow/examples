@@ -22,9 +22,9 @@ from random import Random
 
 import torch
 import torch.distributed as dist
-import torch.nn as nn  # pylint: disable = useless-import-alias
+import torch.nn as nn  # pylint: disable = all
 import torch.nn.functional as F
-import torch.optim as optim # pylint: disable = useless-import-alias
+import torch.optim as optim # pylint: disable = all
 import torch.utils.data
 import torch.utils.data.distributed
 from torch._utils import _flatten_dense_tensors, _unflatten_dense_tensors
@@ -81,7 +81,7 @@ class DistributedDataParallel(Module):
     return self.module(*inputs, **kwargs)
 
 
-class Partition(object):  # pylint: disable = useless-object-inheritance
+class Partition(object):  # pylint: disable = all
   """ Dataset-like object, but only access a subset of it. """
 
   def __init__(self, data, index):
@@ -96,7 +96,7 @@ class Partition(object):  # pylint: disable = useless-object-inheritance
     return self.data[data_idx]
 
 
-class DataPartitioner(object):  # pylint: disable = useless-object-inheritance
+class DataPartitioner(object):  # pylint: disable = all
   """ Partitions a dataset into different chuncks. """
 
   def __init__(self, data, sizes=[0.7, 0.2, 0.1], seed=1234):  # pylint: disable = dangerous-default-value
