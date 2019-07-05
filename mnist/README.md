@@ -50,6 +50,8 @@ You also need the following command line tools:
 - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
 - [kustomize](https://kustomize.io/)
 
++**Note:** kustomize [v2.0.3](https://github.com/kubernetes-sigs/kustomize/releases/tag/v2.0.3) is recommented since the [problem](https://github.com/kubernetes-sigs/kustomize/issues/1295) in kustomize v2.1.0.
+
 To run the client at the end of the example, you must have [requirements.txt](requirements.txt) installed in your active python environment.
 
 ```
