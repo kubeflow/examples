@@ -1,0 +1,35 @@
+apiVersion: kubeflow.org/v1alpha1
+kind: Notebook
+metadata:
+  labels:
+    app: notebook
+  name: kubecon-demo
+  namespace: kubeflow
+spec:
+  template:
+    spec:
+      containers:
+      - env: []
+        image: gcr.io/kubeflow-images-public/tensorflow-1.12.0-notebook-cpu:v0.5.0
+        name: jlewi-cpu
+        resources:
+          limits:
+            cpu: 8
+            memory: 16Gi
+          requests:
+            cpu: 1
+            memory: 1Gi
+        volumeMounts:
+        - mountPath: /home/jovyan
+          name: kubecon-demo
+        - mountPath: /mnt/kubeflow-gcfs
+          name: kubeflow-gcfs
+      serviceAccountName: jupyter-notebook
+      ttlSecondsAfterFinished: 300
+      volumes:
+      - name: kubecon-demo
+        persistentVolumeClaim:
+          claimName: kubecon-demo
+      - name: kubeflow-gcfs
+        persistentVolumeClaim:
+          claimName: kubeflow-gcfs

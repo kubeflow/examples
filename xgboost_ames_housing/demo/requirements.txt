@@ -1,0 +1,9 @@
+fire
+gitpython
+google-cloud-storage
+pandas
+joblib
+numpy
+xgboost
+sklearn
+seldon-core

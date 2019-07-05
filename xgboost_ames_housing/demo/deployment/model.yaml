@@ -1,0 +1,56 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:  
+  labels:
+    app: ames
+    fairing-deployer: serving
+    prod: true
+  namespace: kubeflow
+  name: ames-prod
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: ames
+      fairing-deployer: serving
+      prod: true
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: ames
+        fairing-deployer: serving
+      name: fairing-deployer
+    spec:
+      containers:
+      - command:
+        - seldon-core-microservice
+        - ames-xgboost-build-train-deploy.HousingServe
+        - REST
+        - --service-type=MODEL
+        - --persistence=0
+        env:
+        - name: FAIRING_RUNTIME
+          value: "1"
+        - name: MODEL_FILE
+          value: /mnt/kubeflow-gcfs/models/trained_ames_model.dat
+        image: gcr.io/code-search-demo/fairing-job/fairing-job:8DB71A07
+        imagePullPolicy: IfNotPresent
+        name: model
+        workingDir: /app
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: kubeflow-gcfs
+        persistentVolumeClaim:
+          claimName: kubeflow-gcfs
