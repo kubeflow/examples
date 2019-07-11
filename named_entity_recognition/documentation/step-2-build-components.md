@@ -3,7 +3,7 @@
 A component is code that performs one step in the Kubeflow pipeline. It is a containerized implementation of an ML task. **Components can be reused in other pipelines.**
 
 ## Component structure
-A component follows a specific structure and contains:
+A component follows a specific [structure](https://www.kubeflow.org/docs/pipelines/sdk/component-development/) and contains:
  
 * `/src` - Component logic . 
 * `component.yaml` - Component specification. 
