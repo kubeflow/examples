@@ -2,7 +2,7 @@
 If you are not familiar with pipelines have a look into the following article ["Kubeflow Components and Pipelines"](https://towardsdatascience.com/kubeflow-components-and-pipelines-33a1aa3cc338). 
 
 ## Open the Kubeflow Notebook
-The pipeline can be created using our Jupyter notebook. For that, we have to create a Notebook in Kubeflow. 
+The pipeline can be created using our Jupyter notebook. For that, you have to create a Notebook in Kubeflow. 
 
 Open the Jupyter notebook interface and create a new Terminal by clicking on menu, New -> Terminal. In the Terminal, clone this git repo by executing:
 
@@ -38,7 +38,7 @@ The pipeline need several parameter in order to execute the components. After yo
 * `model_name` - The model name is later displayed in AI Platform.
 * `model_region` - The region where the model sould be deployed.
 * `model_version` - The version of the trained model. 
-* `model_runtime_version` - The runtime version, in our case we used TensorFlow 1.13 .
+* `model_runtime_version` - The runtime version, in your case you used TensorFlow 1.13 .
 * `model_prediction_class` - The prediction class of our custom prediction routine. 
 * `model_python_version` - The used python version
 * `model_package_uris` - The package which contains our custom prediction routine. 
@@ -75,7 +75,7 @@ def pipeline():
 ```
 
 ### Compile the pipeline
-To compile the pipeline we use the `compiler.Compile()` function which is part of the pipeline SDK. 
+To compile the pipeline you use the `compiler.Compile()` function which is part of the pipeline SDK. 
 The compiler generates a yaml definition which is used by Kubernetes to create the execution resources.
 
 ```python
@@ -101,7 +101,7 @@ except:
 ```
 
 ### Run the pipeline
-We use the experiment id and the compiled pipeline to run a pipeline. `client.run_pipeline()` runs the pipelines and provides a direct link to the Kubeflow experiment.
+Use the experiment id and the compiled pipeline to run a pipeline. `client.run_pipeline()` runs the pipelines and provides a direct link to the Kubeflow experiment.
 
 ```python
 arguments = {}
@@ -115,7 +115,7 @@ run_result = client.run_pipeline(experiment.id,
 
 ## Scale Training
 As default training jobs are running within the CPU pool. 
-If the dataset size increase or model complexity increases we have several options:
+If the dataset size increase or model complexity increases you have several options:
 
 * Scale the training with AI Platform 
 * Train in Kubeflow by enabling GPU or TPU on the ContainerOp 

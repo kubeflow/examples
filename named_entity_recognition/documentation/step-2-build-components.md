@@ -25,10 +25,10 @@ The train component is using the preprocessed training data. Contains the model 
 The deploy component is using the model and starts a deployment to AI Platform. 
 
 ## Build and push component images
-In order to use the components later on in our pipelines, we have to build and then push the image to a Docker registry. In this example, we are using the 
+In order to use the components later on in our pipelines,you have to build and then push the image to a Docker registry. In this example, you are using the 
 [Google Container Registry](https://cloud.google.com/container-registry/), it is possible to use any other docker registry. 
 
-Each component has its dedicated build script `build_image.sh`, please open this file for each component and set **`<PROJECT-ID>`** to your Google Cloud Platform project id.
+Each component has its dedicated build script `build_image.sh`, open this file for each component and set **`<PROJECT-ID>`** to your Google Cloud Platform project id.
 
 The build scripts are located in each component folder:
 
@@ -36,7 +36,7 @@ The build scripts are located in each component folder:
 * `/components/train/build_image.sh`
 * `/components/deploy/build_image.sh`
 
-To build and push the Docker images please open a Terminal, navigate to `/components/` and run the following command:
+To build and push the Docker images open a Terminal, navigate to `/components/` and run the following command:
 
 ```bash
 $ sh build_components.sh
@@ -49,10 +49,10 @@ Navigate to the Google Cloud Container Registry and validate if you see the comp
 ![container registry](files/container.png)
 
 ## Upload the component specification
-The specification contains anything we need to use the component. Therefore we need access to these files later on in our pipeline. 
-It also contains the path to our docker images, please open `component.yaml` for each component and set **`<PROJECT-ID>`** to your Google Cloud Platform project id.
+The specification contains anything you need to use the component. Therefore you need access to these files later on in your pipeline. 
+It also contains the path to our docker images, open `component.yaml` for each component and set **`<PROJECT-ID>`** to your Google Cloud Platform project id.
 
-We upload all three component specifications to your Google Cloud Storage and make it public accessible by setting the permission to `allUsers`.
+Upload all three component specifications to your Google Cloud Storage and make it public accessible by setting the permission to `allUsers`.
 
 > It is also possible to upload those files to a storage solution of your choice.
 
@@ -62,7 +62,7 @@ Navigate to the components folder `/components/` open `copy_specification.sh` se
 $ sh copy_specification.sh
 ```
 
-Your bucket should look like this:
+The bucket contains 3 folder:
 
 ![container registry](files/bucket.png)
 

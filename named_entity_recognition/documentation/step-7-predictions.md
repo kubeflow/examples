@@ -1,8 +1,6 @@
 # Prediction
 
-To use the trained and deployed model please open AI Platform and navigate to your model. 
-
-It should look similar to this: 
+Open AI Platform and navigate to your model, there is one model listed: 
 
 ![ai platform models](files/models.png)
 
