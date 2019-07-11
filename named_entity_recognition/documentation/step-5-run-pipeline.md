@@ -45,7 +45,7 @@ The pipeline need several parameter in order to execute the components. After yo
 
 ## Whats happening in the notebook?
 ### Load the component
-Components can be used in Pipelines by loading them from an url. Everyone with access to the Docker repository can use this components.
+Components can be used in Pipelines by loading them from an URL. Everyone with access to the Docker repository can use these components.
 The component can be loaded via components.load_component_from_url()
 
 ```python
@@ -63,7 +63,7 @@ help(ai_platform_deploy_operation)
 ```
 
 ### Create the pipeline
-The pipeline is created by defining an decorator.  The dsl decorator is provided via the pipeline SDK. `dsl.pipeline` defines a decorator for Python functions which returns a pipeline.
+The pipeline is created by defining a decorator.  The dsl decorator is provided via the pipeline SDK. `dsl.pipeline` defines a decorator for Python functions which returns a pipeline.
 
 ```python
 @dsl.pipeline(
