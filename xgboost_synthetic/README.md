@@ -1,11 +1,11 @@
-# kubecon-demo
-Kubecon EU 2019 fairing, pipelines demo
+# xgboost-synthetic
+Kubeflow fairing, pipelines demo using synthetic data
 
 1. Launch a notebook
 
    ```
-   kubectl apply -f pvc.kubecon-demo.yaml 
-   kubectl apply -f notebook.kubecon-demo.yaml
+   kubectl apply -f pvc.xgboost-synthetic.yaml
+   kubectl apply -f notebook.xgboost-synthetic.yaml
    ```
 1. Attach an extra data volume named 
 

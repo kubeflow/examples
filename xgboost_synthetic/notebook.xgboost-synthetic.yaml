@@ -3,7 +3,7 @@ kind: Notebook
 metadata:
   labels:
     app: notebook
-  name: kubecon-demo
+  name: xgboost-synthetic
   namespace: kubeflow
 spec:
   template:
@@ -21,15 +21,15 @@ spec:
             memory: 1Gi
         volumeMounts:
         - mountPath: /home/jovyan
-          name: kubecon-demo
+          name: xgboost-synthetic
         - mountPath: /mnt/kubeflow-gcfs
           name: kubeflow-gcfs
       serviceAccountName: jupyter-notebook
       ttlSecondsAfterFinished: 300
       volumes:
-      - name: kubecon-demo
+      - name: xgboost-synthetic
         persistentVolumeClaim:
-          claimName: kubecon-demo
+          claimName: xgboost-synthetic
       - name: kubeflow-gcfs
         persistentVolumeClaim:
           claimName: kubeflow-gcfs

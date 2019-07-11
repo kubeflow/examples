@@ -21,9 +21,9 @@ spec:
         - --src-dir=/home/jovyan/src
         - --remote-fork=git@github.com:kubeflow-bot/kubecon-demo.git
         - --add-github-host=true
-        image: gcr.io/code-search-demo/kubecon-demo/notebook:v20190518-2d04328-dirty-a8c2a5
+        image: gcr.io/code-search-demo/xgboost-synthetic/notebook:v20190518-2d04328-dirty-a8c2a5
         name: update
-        workingDir: /src/jlewi/kubecon-demo
+        workingDir: /src/jlewi/xgboost-synthetic
         env:
         - name: GIT_AUTHOR_NAME
           value: kubeflow-bot

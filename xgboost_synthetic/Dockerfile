@@ -30,7 +30,7 @@ RUN cd /tmp && \
 # Bake a copy of update_model.py into the image
 # Used for testing the code with one of jobs.
 COPY update_model.py .
-RUN mkdir -p /src/jlewi/kubecon-demo && \
-    mv update_model.py /src/jlewi/kubecon-demo
+RUN mkdir -p /src/jlewi/xgboost-synthetic && \
+    mv update_model.py /src/jlewi/xgboost-synthetic
 
 USER jovyan

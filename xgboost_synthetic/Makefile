@@ -3,8 +3,8 @@
 # $(IMG)/$(NAME):$(TAG)
 
 PROJECT ?= code-search-demo
-IMG ?= gcr.io/${PROJECT}/kubecon-demo/notebook
-GITOPS_IMAGE ?= gcr.io/${PROJECT}/kubecon-demo/gitops
+IMG ?= gcr.io/${PROJECT}/xgboost-synthetic/notebook
+GITOPS_IMAGE ?= gcr.io/${PROJECT}/xgboost-synthetic/gitops
 
 # List any changed  files. We only include files in the notebooks directory.
 # because that is the code in the docker image.
