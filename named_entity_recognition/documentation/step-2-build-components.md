@@ -67,7 +67,7 @@ Your bucket should look like this:
 ![container registry](files/bucket.png)
 
 
-## Push Docker Container Error
+## Troubleshooting
 Run `gcloud auth configure-docker` to configure docker, in case you get the following error message:
 
 ```b
