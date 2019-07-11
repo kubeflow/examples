@@ -80,13 +80,13 @@ This example covers the following concepts:
 7. Using Kubeflow Pipelines to automate ML workflow
 
 ### [Pipelines](./pipelines)
-#### Simple notebook pipeline
+#### [Simple notebook pipeline] (./pipelines/simple-notebook-pipeline)
 Author: [Zane Durante](https://github.com/zanedurante)
 This example covers the following concepts:
 1. How to create pipeline components from python functions in jupyter notebook
 2. How to compile and run a pipeline from jupyter notebook
 
-#### MNIST Pipelines
+#### [MNIST Pipelines] (./pipelines/mnist-pipelines)
 Author: [Dan Sanche](https://github.com/DanSanche) and [Jin Chi He](https://github.com/jinchihe)
 
 This example covers the following concepts:
