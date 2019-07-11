@@ -11,7 +11,7 @@ To support preprocessing also on prediction time we have to define a custom pred
 
 > Without custom prediction routine we would need to implement this preprocessing in an additional wrapper, for example, App Engine or Cloud Function. Which adds complexity and latency.
 
-## How is it working?
+## How does it work?
 
 Our custom prediction routine requires five parts
 
