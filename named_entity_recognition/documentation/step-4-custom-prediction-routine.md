@@ -2,16 +2,16 @@
 
 Allow us to determine which code runs when sending a prediction request.
 Without custom prediction routine the machine learning framework handles the prediction operation.
-With custom prediction routine we can define custom code which runs for each prediction request.
+With custom prediction routine you can define custom code which runs for each prediction request.
 
 ## Why custom prediction routine
 Our model requires numeric inputs, remember the preprocessing steps.
-This is very unhandy if we want to use our model with raw text.
-To support preprocessing also on prediction time we have to define a custom prediction route.
+This is very unhandy if you want to use your model with raw text.
+To support preprocessing also on prediction time you have to define a custom prediction route.
 
-> Without custom prediction routine we would need to implement this preprocessing in an additional wrapper, for example, App Engine or Cloud Function. Which adds complexity and latency.
+> Without custom prediction routine you would need to implement this preprocessing in an additional wrapper, for example, App Engine or Cloud Function. Which adds complexity and latency.
 
-## How does it work?
+## How are custom prediction routine working?
 
 Our custom prediction routine requires five parts
 
@@ -22,7 +22,7 @@ Our custom prediction routine requires five parts
 * `custom_prediction_routine.tar.gz` - A Python package `tar.gz` which contains our implementation.
 * `setup.py` - Used to create the Python package. 
 
-To build our custom prediction routine run the build script located `/routine/build_routine.sh`. This will create a `tar.gz` which is required when we deploy our model. 
+To build our custom prediction routine run the build script located `/routine/build_routine.sh`. This creates a `tar.gz` which is required when you deploy your model. 
 
 Navigate to the routine folder `/routine/` and run the following build script:
 

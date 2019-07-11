@@ -23,7 +23,7 @@ Each tag is defined in an IOB format, IOB (short for inside, outside, beginning)
 > O - indicates that the token is outside of any entity not annotated
 
 ## Upload dataset
-Please [download](https://drive.google.com/open?id=1qNNaYguyH_xLfbqnR5ABuYrjblkUEr_z) the dataset and upload it to a Google Cloud Storage location. 
+[Download](https://drive.google.com/open?id=1qNNaYguyH_xLfbqnR5ABuYrjblkUEr_z) the dataset and upload it to a Google Cloud Storage location. 
 
 ```bash
 gsutil cp ner.csv gs://${BUCKET}/data/ner.csv
