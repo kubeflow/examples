@@ -35,3 +35,7 @@ $ sh build_routine.sh
 ```bash
 gsutil cp custom_prediction_routine-0.2.tar.gz gs://${BUCKET}/routine/custom_prediction_routine-0.2.tar.gz
 ```
+
+*Next*: [Run the pipeline](step-5-run-pipeline.md)
+
+*Previous*: [Upload the dataset](step-3-upload-dataset.md)

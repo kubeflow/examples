@@ -121,3 +121,6 @@ If the dataset size increase or model complexity increases we have several optio
 * Train in Kubeflow by enabling GPU or TPU on the ContainerOp 
 * Converting the Keras model to a TensorFlow estimator and take advantage of distributed training.
 
+*Next*: [Monitor the training](step-6-monitor-training.md)
+
+*Previous*: [Custom prediction routine](step-4-custom-prediction-routine.md)

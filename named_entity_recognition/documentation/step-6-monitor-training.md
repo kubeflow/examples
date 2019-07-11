@@ -23,3 +23,7 @@ metadata = {
 with open('/mlpipeline-ui-metadata.json', 'w') as f:
   json.dump(metadata, f)
 ```
+
+*Next*: [Predict](step-7-predictions.md)
+
+*Previous*: [Run the pipeline](step-5-run-pipeline.md)

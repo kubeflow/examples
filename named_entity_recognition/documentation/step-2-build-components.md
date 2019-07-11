@@ -73,3 +73,7 @@ Run `gcloud auth configure-docker` to configure docker, in case you get the foll
 ```b
 You don't have the needed permissions to perform this operation, and you may have invalid credentials. To authenticate your request, follow the steps in: https://cloud.google.com/container-registry/docs/advanced-authentication
 ```
+
+*Next*: [Upload the dataset](step-3-upload-dataset.md)
+
+*Previous*: [Setup Kubeflow and clone repository](step-1-setup.md)
