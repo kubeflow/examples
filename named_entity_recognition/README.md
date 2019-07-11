@@ -14,7 +14,7 @@ This example demonstrates how you can use Kubeflow to train and deploy a Keras m
 ## What is Named Entity Recognition
 Named Entity Recognition is a word classification problem, which extract data called entities from text.
 
-![solution](https://github.com/kubeflow/examples/named_entity_recognition/blob/master/documentation/files/solution.png?raw=true)
+![solution](documentation/files/solution.png)
 
 ### Usage
 

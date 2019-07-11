@@ -4,14 +4,14 @@ To use the trained and deployed model please open AI Platform and navigate to yo
 
 It should look similar to this: 
 
-![ai platform models](https://github.com/kubeflow/examples/named_entity_recognition/blob/master/documentation/files/models.png?raw=true)
+![ai platform models](files/models.png)
 
 Open the model and choose your version then click on the Tab `TEST & USE` and enter the following input data:
 
 ```
 {"instances":  ["London on Monday evening"]}
 ```
-![ai platform predict](https://github.com/kubeflow/examples/named_entity_recognition/blob/master/documentation/files/predict.png?raw=true)
+![ai platform predict](files/predict.png)
 
 After a couple of seconds, you get the prediction response
 
