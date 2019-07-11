@@ -46,7 +46,7 @@ $ sh build_components.sh
 
 Navigate to the Google Cloud Container Registry and validate if you see the components. 
 
-![container registry](https://github.com/kubeflow/examples/named_entity_recognition/blob/master/documentation/files/container.png?raw=true)
+![container registry](files/container.png)
 
 ## Upload the component specification
 The specification contains anything we need to use the component. Therefore we need access to these files later on in our pipeline. 
@@ -64,7 +64,7 @@ $ sh copy_specification.sh
 
 Your bucket should look like this:
 
-![container registry](https://github.com/kubeflow/examples/named_entity_recognition/blob/master/documentation/files/bucket.png?raw=true)
+![container registry](files/bucket.png)
 
 
 ## Push Docker Container Error
