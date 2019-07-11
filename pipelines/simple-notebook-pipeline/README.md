@@ -1,5 +1,5 @@
 # Simple Notebook Pipeline on GCP
-This document shows how to compile and run a simple Kubeflow pipeline using Jupyter notebooks and Google Cloud Storage.  The pipeline is very simple, and is a helpful starting point for people new to Kubeflow.
+This notebook shows how to compile and run a simple Kubeflow pipeline using Jupyter notebooks and Google Cloud Storage.  The pipeline is very simple, and is a helpful starting point for people new to Kubeflow.
 
 ## Setup
 
