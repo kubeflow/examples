@@ -113,12 +113,15 @@ run_result = client.run_pipeline(experiment.id,
                                  arguments)
 ```
 
-## Scale Training
-As default training jobs are running within the CPU pool. 
-If the dataset size increase or model complexity increases you have several options:
+## Options to scale your training
 
-* Scale the training with AI Platform 
-* Train in Kubeflow by enabling GPU or TPU on the ContainerOp 
+> These are optional extenstions and outside of the scope of this example.
+
+As default, training jobs are running within the CPU pool. 
+If the dataset size or model complexity increases you have several options:
+
+* Scale the training with AI Platform .
+* Train in Kubeflow by enabling GPU or TPU on the ContainerOp.
 * Converting the Keras model to a TensorFlow estimator and take advantage of distributed training.
 
 *Next*: [Monitor the training](step-6-monitor-training.md)
