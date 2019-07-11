@@ -16,7 +16,7 @@ Named Entity Recognition is a word classification problem, which extract data ca
 
 ![solution](documentation/files/solution.png)
 
-### Usage
+### Steps
 
 1. [Setup Kubeflow and clone repository](documentation/step-1-setup.md)
 1. [Build the pipeline components](documentation/step-2-build-components.md)
