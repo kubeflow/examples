@@ -1,7 +1,7 @@
 # Setup
 
 ## Deploying Kubeflow to Google Cloud Platform
-This example requires a running Kubeflow environment. The easiest way to setup a Kubeflow environment is by using the [Deployment UI](https://www.kubeflow.org/docs/gke/deploy/deploy-ui/).
+This example requires a running Kubeflow environment (v0.5.0). The easiest way to setup a Kubeflow environment is by using the [Deployment UI](https://www.kubeflow.org/docs/gke/deploy/deploy-ui/).
 
 ## Create bucket
 Create a bucket, this bucket will contain everything which is required for our Kubeflow pipeline. 
