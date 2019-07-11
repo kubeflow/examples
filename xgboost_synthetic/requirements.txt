@@ -1,9 +1,11 @@
+fairing
 fire
 gitpython
 google-cloud-storage
-pandas
 joblib
 numpy
-xgboost
-sklearn
+pandas
+retrying
 seldon-core
+sklearn
+xgboost

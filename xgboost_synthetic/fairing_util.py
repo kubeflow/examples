@@ -25,8 +25,8 @@ class FilterIncludeCell(NbPreProcessor):
     def preprocess_cell(self, cell, resources, index):
         if cell['cell_type'] == 'code':
             cell['source'] = self.filter_include_cell(cell['source'])
-            
-        return cell, resources   
+
+        return cell, resources
 
 
 class ConvertNotebookPreprocessorWithFire(converted_notebook.ConvertNotebookPreprocessor):
@@ -43,7 +43,7 @@ class ConvertNotebookPreprocessorWithFire(converted_notebook.ConvertNotebookPrep
         exporter = nbconvert.PythonExporter()
         exporter.register_preprocessor(self.notebook_preprocessor, enabled=True)
         processed, _ = exporter.from_filename(self.notebook_file)
-        
+
         lines = []
         for l in processed.splitlines():
             # Get rid of multiple blank lines
@@ -56,7 +56,7 @@ class ConvertNotebookPreprocessorWithFire(converted_notebook.ConvertNotebookPrep
             if l.startswith("# In["):
                 continue
             lines.append(l)
-        
+
         contents = "\n".join(lines)
         converted_notebook = Path(self.notebook_file).with_suffix('.py')
         with open(converted_notebook, 'w') as f:
@@ -78,16 +78,16 @@ if __name__ == "__main__":
 def has_volume(pod_spec, pvc_name):
     if not pod_spec.containers[0].volumes:
         return False
-    
+
     for v in pod_spec.containers[0].volumes:
         if v.name == pvc_name:
             return True
-    
+
     return False
 
 def add_pvc_mutator(pvc_name, mount_path):
     """Generate a pod mutator to add a pvc."""
-    
+
     def add_pvc(kube_manager, pod_spec, namespace):
         """Add a pvc to the specified pod spec."""
         volume_mount = client.V1VolumeMount(
