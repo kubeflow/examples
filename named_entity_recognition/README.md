@@ -1,11 +1,12 @@
 # Named Entity Recognition with Kubeflow and Keras 
 
-This example demonstrates how you can use Kubeflow to train and deploy a Keras model with a custom prediction routine. 
+In this walkthrough, you will learn how to use Kubeflow to build reusable components to train your model on an kubernetes cluster and deploy it to AI platform.
 
 ## Goals
 
+* Demonstrate how to build reusable pipeline components
 * Demonstrate how to use Keras only models
-* Demonstrate how to train a Named Entity Recognition model
+* Demonstrate how to train a Named Entity Recognition model on a Kubernetes cluster
 * Demonstrate how to deploy a Keras model to AI Platform
 * Demonstrate how to use a custom prediction routine
 * Demonstrate how to use Kubeflow metrics
