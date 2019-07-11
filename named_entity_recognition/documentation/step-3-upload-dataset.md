@@ -28,3 +28,7 @@ Each tag is defined in an IOB format, IOB (short for inside, outside, beginning)
 > I - indicates the inside of a token
 
 > O - indicates that the token is outside of any entity not annotated
+
+*Next*: [Custom prediction routine](step-4-custom-prediction-routine.md)
+
+*Previous*: [Build the pipeline components](step-2-build-components.md)

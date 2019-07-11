@@ -27,3 +27,5 @@ After a couple of seconds, you get the prediction response
   ]
 }
 ```
+
+*Previous*: [Monitor the training](step-6-monitor-training.md)
