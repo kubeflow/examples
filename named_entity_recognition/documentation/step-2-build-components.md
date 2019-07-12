@@ -52,7 +52,7 @@ It also contains the path to our docker images, open `component.yaml` for each c
 
 Upload all three component specifications to your Google Cloud Storage and make it public accessible by setting the permission to `allUsers`.
 
-> It is also possible to upload those files to a storage solution of your choice.
+> It is also possible to upload those files to a storage solution of your choice. GCS currently only supports public object in the GCS.
 
 Navigate to the components folder `/components/` open `copy_specification.sh` set your bucket name `BUCKET="your-bucket"` and run the following command:
 
