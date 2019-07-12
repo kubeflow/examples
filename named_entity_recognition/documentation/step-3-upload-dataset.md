@@ -22,6 +22,13 @@ Each tag is defined in an IOB format, IOB (short for inside, outside, beginning)
 
 > O - indicates that the token is outside of any entity not annotated
 
+### Example
+
+```bash
+"London on Monday evening"
+"London(B-geo) on(O) Monday(B-tim) evening(I-tim)"
+```
+
 ## Data Preparation
 You can download the dataset from the [Kaggle dataset](https://www.kaggle.com/abhinavwalia95/entity-annotated-corpus). In order to make it convenient we have uploaded the dataset on GCS.
 
