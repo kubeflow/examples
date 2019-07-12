@@ -10,7 +10,7 @@ Our model requires numeric inputs, which we convert from text before training (t
 
 ## How do custom prediction routines work?
 
-Our custom prediction routine requires five parts
+Our custom prediction routine requires six parts
 
 * `keras_saved_model.h5` - The model stored as part of our training component (artifact).
 * `processor_state.pkl` - The preprocessing state stored as part of our training component (artifact).
