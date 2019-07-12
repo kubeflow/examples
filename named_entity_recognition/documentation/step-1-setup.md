@@ -10,10 +10,13 @@ Create a bucket, this bucket will contain everything which is required for our K
 gsutil mb -c regional -l us-east1 gs://your-bucket-name
 ```
 
-Create the following environment variable.
+## Set enviornment variables
+
+Create the following environment variables, follow the [documenation](https://cloud.google.com/resource-manager/docs/creating-managing-projects#identifying_projects) to get the project id :
 
 ```bash
 export BUCKET=your-bucket-name
+export PROJECT=your-gcp-project-id
 ```
 
 ## Clone this repository

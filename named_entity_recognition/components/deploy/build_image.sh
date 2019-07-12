@@ -1,6 +1,6 @@
 #!/bin/sh
 
-image_name=gcr.io/<PROJECT-ID>/kubeflow/ner/deploy
+image_name=gcr.io/$PROJECT/kubeflow/ner/deploy
 image_tag=latest
 
 full_image_name=${image_name}:${image_tag}

@@ -28,9 +28,7 @@ The deploy component is using the model and starts a deployment to AI Platform.
 In order to use the components later on in our pipelines,you have to build and then push the image to a Docker registry. In this example, you are using the 
 [Google Container Registry](https://cloud.google.com/container-registry/), it is possible to use any other docker registry. 
 
-Each component has its dedicated build script `build_image.sh`, open this file for each component and set **`<PROJECT-ID>`** to your Google Cloud Platform project id.
-
-The build scripts are located in each component folder:
+Each component has its dedicated build script `build_image.sh`, the build scripts are located in each component folder:
 
 * `/components/preprocess/build_image.sh`
 * `/components/train/build_image.sh`
