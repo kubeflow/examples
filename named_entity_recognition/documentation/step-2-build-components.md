@@ -39,7 +39,7 @@ The build scripts are located in each component folder:
 To build and push the Docker images open a Terminal, navigate to `/components/` and run the following command:
 
 ```bash
-$ sh build_components.sh
+$ ./build_components.sh
 ```
 
 ## Check if the images are successfully pushed to the Google Cloud Repository
@@ -59,7 +59,7 @@ Upload all three component specifications to your Google Cloud Storage and make 
 Navigate to the components folder `/components/` open `copy_specification.sh` set your bucket name `BUCKET="your-bucket"` and run the following command:
 
 ```bash
-$ sh copy_specification.sh
+$ ./copy_specification.sh
 ```
 
 The bucket contains 3 folder:

@@ -1,3 +1,6 @@
+
+#!/bin/sh
+
 image_name=gcr.io/<PROJECT-ID>/kubeflow/ner/train
 image_tag=latest
 

@@ -27,7 +27,7 @@ To build our custom prediction routine run the build script located `/routine/bu
 Navigate to the routine folder `/routine/` and run the following build script:
 
 ```bash
-$ sh build_routine.sh
+$ ./build_routine.sh
 ```
 
 ## Upload custom prediction routine to Google Cloud Storage
