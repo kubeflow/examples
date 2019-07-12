@@ -1,17 +1,14 @@
 # Custom prediction routine
 
-Allow us to determine which code runs when sending a prediction request.
+Custom prediction routines allow us to specify additional code that runs with every prediction request.
 Without custom prediction routine the machine learning framework handles the prediction operation.
-With custom prediction routine you can define custom code which runs for each prediction request.
 
 ## Why custom prediction routine
-Our model requires numeric inputs, remember the preprocessing steps.
-This is very unhandy if you want to use your model with raw text.
-To support preprocessing also on prediction time you have to define a custom prediction route.
+Our model requires numeric inputs, which we convert from text before training (this is the preprocessing step). To perform the same conversion at prediction time, inject the preprocessing code by defining a custom prediction routine.
 
-> Without custom prediction routine you would need to implement this preprocessing in an additional wrapper, for example, App Engine or Cloud Function. Which adds complexity and latency.
+> Without a custom prediction routine, you would need to create a wrapper, e.g. with App Engine or Cloud Functions, which would add complexity and latency.
 
-## How are custom prediction routine working?
+## How do custom prediction routines work?
 
 Our custom prediction routine requires five parts
 

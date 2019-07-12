@@ -40,9 +40,9 @@ To build and push the Docker images open a Terminal, navigate to `/components/` 
 $ ./build_components.sh
 ```
 
-## Check if the images are successfully pushed to the Google Cloud Repository
+## Check that the images are successfully pushed to the Google Cloud Repository
 
-Navigate to the Google Cloud Container Registry and validate if you see the components. 
+Navigate to the Google Cloud Container Registry and validate that you see the components. 
 
 ![container registry](files/container.png)
 
