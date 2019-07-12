@@ -20,7 +20,7 @@ export PROJECT_ID=your-gcp-project-id
 ```
 
 ## Clone this repository
-Clone the following repository, it contains everything which is needed for this example.
+Clone the following repository, which contains everything needed for this example.
 
 ```bash
 git clone https://github.com/kubeflow/examples.git
