@@ -1,3 +1,5 @@
+#!/bin/sh
+
 BUCKET="your-bucket-name"
 
 echo "\nCopy component specifications to Google Cloud Storage"

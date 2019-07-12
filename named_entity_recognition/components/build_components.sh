@@ -1,10 +1,10 @@
-#!/bin/bash
+#!/bin/sh
 
 echo "\nBuild and push preprocess component"
-sh ./preprocess/build_image.sh
+./preprocess/build_image.sh
 
 echo "\nBuild and push train component"
-sh ./train/build_image.sh
+./train/build_image.sh
 
 echo "\nBuild and push deploy component"
-sh ./deploy/build_image.sh
+./deploy/build_image.sh

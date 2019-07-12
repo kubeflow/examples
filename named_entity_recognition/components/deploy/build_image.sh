@@ -1,3 +1,5 @@
+#!/bin/sh
+
 image_name=gcr.io/<PROJECT-ID>/kubeflow/ner/deploy
 image_tag=latest
 
