@@ -33,7 +33,7 @@ Each tag is defined in an IOB format, IOB (short for inside, outside, beginning)
 You can download the dataset from the [Kaggle dataset](https://www.kaggle.com/abhinavwalia95/entity-annotated-corpus). In order to make it convenient we have uploaded the dataset on GCS.
 
 ```
-gs://kubeflow-examples-data/named_entity_recognition_dataset
+gs://kubeflow-examples-data/named_entity_recognition_dataset/ner.csv
 ```
 
 > The training pipeline will use this data, there are no further data preperation steps required.
