@@ -27,9 +27,6 @@ Named Entity Recognition is a word classification problem, which extract data ca
 1. [Monitor the training](documentation/step-6-monitor-training.md)
 1. [Predict](documentation/step-7-predictions.md)
 
-### Model 
-Bi-LSTM (Bidirectional long Short term memory) a type of RNN (Recurrent Neural Network).
-
 
 
 
