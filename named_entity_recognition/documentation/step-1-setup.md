@@ -29,3 +29,5 @@ git clone https://github.com/kubeflow/examples.git
 Open a Terminal and navigate to the folder `/examples/named-entity-recognition/`.
 
 *Next*: [Build the pipeline components](step-2-build-components.md)
+
+*Previous*: [Index](../README.md)
