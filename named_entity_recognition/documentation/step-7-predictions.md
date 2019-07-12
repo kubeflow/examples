@@ -1,6 +1,7 @@
 # Prediction
 
 Open AI Platform and navigate to your [model](https://console.cloud.google.com/ai-platform/models), there is one model listed: 
+
 ![ai platform models](files/models.png)
 
 Open the model and choose your version then click on the Tab `TEST & USE` and enter the following input data:
