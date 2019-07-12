@@ -16,7 +16,7 @@ Create the following environment variables, follow the [documenation](https://cl
 
 ```bash
 export BUCKET=your-bucket-name
-export PROJECT=your-gcp-project-id
+export PROJECT_ID=your-gcp-project-id
 ```
 
 ## Clone this repository

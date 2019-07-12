@@ -1,7 +1,7 @@
 
 #!/bin/sh
 
-image_name=gcr.io/$PROJECT/kubeflow/ner/train
+image_name=gcr.io/$PROJECT_ID/kubeflow/ner/train
 image_tag=latest
 
 full_image_name=${image_name}:${image_tag}
