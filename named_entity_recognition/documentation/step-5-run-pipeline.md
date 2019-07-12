@@ -65,7 +65,7 @@ help(ai_platform_deploy_operation)
 Example based on the training component:
 
 1. `kfp.components.load_component_from_url` loads the pipeline component.
-2. You then have a operation that runs the container image and accepts arguments for the component.inputs
+2. You then have a operation that runs the container image and accepts arguments for the component inputs.
 
 ![use component](files/load-component.png)
 
