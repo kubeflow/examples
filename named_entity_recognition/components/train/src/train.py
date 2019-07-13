@@ -67,15 +67,15 @@ tensorboard = TensorBoard(
 callbacks = [tensorboard]
 
 # model
-input = Input(shape=(140,))
+model_input = Input(shape=(140,))
 model = Embedding(input_dim=args.input_words,
-                  output_dim=140, input_length=140)(input)
+                  output_dim=140, input_length=140)(model_input)
 model = Dropout(args.input_dropout)(model)
 model = Bidirectional(
     LSTM(units=100, return_sequences=True, recurrent_dropout=0.1))(model)
 out = TimeDistributed(Dense(args.input_tags, activation="softmax"))(
     model)  # softmax output layer
-model = Model(input, out)
+model = Model(model_input, out)
 model.compile(optimizer="adam", loss="categorical_crossentropy",
               metrics=["accuracy"])
 model.summary()

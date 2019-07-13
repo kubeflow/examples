@@ -3,7 +3,7 @@ import pickle
 import numpy as np
 
 
-class CustomModelPrediction(object):
+class CustomModelPrediction():
 
   def __init__(self, model, processor):
     self._model = model
