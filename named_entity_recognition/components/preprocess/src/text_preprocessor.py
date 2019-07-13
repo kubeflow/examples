@@ -1,5 +1,4 @@
 from keras.preprocessing.sequence import pad_sequences
-from tensorflow.python.keras.preprocessing import sequence
 from tensorflow.keras.preprocessing import text
 
 
