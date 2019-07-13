@@ -1,28 +1,23 @@
 import argparse
 import os
 from pathlib import Path
-# Supports both local paths and Cloud Storage (GCS) or S3
-from tensorflow import gfile
-import numpy as np
-import pandas as pd
 import pickle
 
-from keras.preprocessing.sequence import pad_sequences
-from tensorflow.python.keras.preprocessing import sequence
-from tensorflow.keras.preprocessing import text
+import pandas as pd
+from tensorflow import gfile
 from keras.utils import to_categorical
-
+from keras.preprocessing.sequence import pad_sequences
 from text_preprocessor import TextPreprocessor
 
 PREPROCESS_FILE = 'processor_state.pkl'
 
 
 def read_data(input1_path):
-  with gfile.Open(args.input1_path, 'r') as input1_file:
+  with gfile.Open(input1_path, 'r') as input1_file:
     print('processing')
     print('input file', input1_file)
-    data = pd.read_csv(input1_file, error_bad_lines=False)
-    return data
+    csv_data = pd.read_csv(input1_file, error_bad_lines=False)
+    return csv_data
 
 
 # Defining and parsing the command-line arguments
@@ -60,14 +55,14 @@ print(data.head())
 # build sentences
 
 
-def agg_func(s): return [(w, t) for w, t in zip(s["word"].values.tolist(),
-                                                s["tag"].values.tolist())]
+def agg_func(s):
+  return [(w, t) for w, t in zip(s["word"].values.tolist(),
+                                 s["tag"].values.tolist())]
 
 
 grouped = data.groupby("sentence_idx").apply(agg_func)
 sentences = [s for s in grouped]
 sentences_list = [" ".join([s[0] for s in sent]) for sent in sentences]
-sentences_list[0]
 
 # calculate maxlen
 maxlen = max([len(s) for s in sentences])
@@ -110,7 +105,8 @@ with gfile.GFile(args.output_y_path, 'w') as output_y:
 
 # export preprocessing state, required for custom prediction route used
 # during inference
-with gfile.GFile(args.output_preprocessing_state_path + '/' + PREPROCESS_FILE, 'w') as output_preprocessing_state:
+preprocess_output = args.output_preprocessing_state_path + '/' + PREPROCESS_FILE
+with gfile.GFile(preprocess_output, 'w') as output_preprocessing_state:
   pickle.dump(processor, output_preprocessing_state)
 
 # with open('./processor_state.pkl', 'wb') as f:
