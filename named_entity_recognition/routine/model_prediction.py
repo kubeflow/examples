@@ -20,7 +20,7 @@ class CustomModelPrediction():
 
     return labeled_predictions
 
-  def predict(self, instances, **kwargs):
+  def predict(self, instances):
     transformed_instances = self._processor.transform(instances)
     predictions = self._model.predict(np.array(transformed_instances))
     predictions = np.argmax(predictions, axis=-1).tolist()
