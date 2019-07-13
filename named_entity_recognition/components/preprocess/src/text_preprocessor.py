@@ -2,7 +2,7 @@ from keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.preprocessing import text
 
 
-class TextPreprocessor(object):
+class TextPreprocessor():
 
   def __init__(self, max_sequence_length):
     self._max_sequence_length = max_sequence_length
