@@ -13,4 +13,3 @@ setup(
   packages=find_packages(),
   scripts=["model_prediction.py", "text_preprocessor.py"]
 )
-
