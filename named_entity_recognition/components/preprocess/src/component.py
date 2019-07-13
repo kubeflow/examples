@@ -1,10 +1,11 @@
 import argparse
 import os
 from pathlib import Path
-from tensorflow import gfile # Supports both local paths and Cloud Storage (GCS) or S3
+# Supports both local paths and Cloud Storage (GCS) or S3
+from tensorflow import gfile
 import numpy as np
 import pandas as pd
-import pickle  
+import pickle
 
 from keras.preprocessing.sequence import pad_sequences
 from tensorflow.python.keras.preprocessing import sequence
@@ -15,6 +16,7 @@ from text_preprocessor import TextPreprocessor
 
 PREPROCESS_FILE = 'processor_state.pkl'
 
+
 def read_data(input1_path):
     with gfile.Open(args.input1_path, 'r') as input1_file:
         print('processing')
@@ -22,9 +24,11 @@ def read_data(input1_path):
         data = pd.read_csv(input1_file, error_bad_lines=False)
         return data
 
+
 # Defining and parsing the command-line arguments
 parser = argparse.ArgumentParser(description='My program description')
-parser.add_argument('--input1-path', type=str, help='Path of the local file or GCS blob containing the Input 1 data.')
+parser.add_argument('--input1-path', type=str,
+                    help='Path of the local file or GCS blob containing the Input 1 data.')
 
 parser.add_argument('--output-tags', type=str, help='')
 parser.add_argument('--output-words', type=str, help='')
@@ -36,7 +40,8 @@ parser.add_argument('--output-y-path', type=str, help='')
 parser.add_argument('--output-y-path-file', type=str, help='')
 
 parser.add_argument('--output-preprocessing-state-path', type=str, help='')
-parser.add_argument('--output-preprocessing-state-path-file', type=str, help='')
+parser.add_argument(
+    '--output-preprocessing-state-path-file', type=str, help='')
 
 args = parser.parse_args()
 
@@ -44,17 +49,21 @@ args = parser.parse_args()
 data = read_data(args.input1_path)
 
 # remove not required columns
-data=data.drop(['Unnamed: 0', 'lemma', 'next-lemma', 'next-next-lemma', 'next-next-pos',
-        'next-next-shape', 'next-next-word', 'next-pos', 'next-shape',
-        'next-word', 'prev-iob', 'prev-lemma', 'prev-pos',
-        'prev-prev-iob', 'prev-prev-lemma', 'prev-prev-pos', 'prev-prev-shape',
-        'prev-prev-word', 'prev-shape', 'prev-word',"pos", "shape"],axis=1)
+data = data.drop(['Unnamed: 0', 'lemma', 'next-lemma', 'next-next-lemma', 'next-next-pos',
+                  'next-next-shape', 'next-next-word', 'next-pos', 'next-shape',
+                  'next-word', 'prev-iob', 'prev-lemma', 'prev-pos',
+                  'prev-prev-iob', 'prev-prev-lemma', 'prev-prev-pos', 'prev-prev-shape',
+                  'prev-prev-word', 'prev-shape', 'prev-word', "pos", "shape"], axis=1)
 
 print(data.head())
 
 # build sentences
-agg_func = lambda s: [(w, t) for w,t in zip(s["word"].values.tolist(),
-                                                    s["tag"].values.tolist())]
+
+
+def agg_func(s): return [(w, t) for w, t in zip(s["word"].values.tolist(),
+                                                s["tag"].values.tolist())]
+
+
 grouped = data.groupby("sentence_idx").apply(agg_func)
 sentences = [s for s in grouped]
 sentences_list = [" ".join([s[0] for s in sent]) for sent in sentences]
@@ -62,18 +71,18 @@ sentences_list[0]
 
 # calculate maxlen
 maxlen = max([len(s) for s in sentences])
-print ('Maximum sequence length:', maxlen)
+print('Maximum sequence length:', maxlen)
 
 # calculate words
 words = list(set(data["word"].values))
 n_words = len(words)
-print ('Number of words:', n_words)
+print('Number of words:', n_words)
 
 # calculate tags
 tags = list(set(data["tag"].values))
 n_tags = len(tags)
-print ('Number of tags:', n_tags)
-print ('Type of tags:', tags)
+print('Number of tags:', n_tags)
+print('Type of tags:', tags)
 
 # create output folder for x and y
 gfile.MakeDirs(os.path.dirname(args.output_x_path))
@@ -103,7 +112,7 @@ with gfile.GFile(args.output_y_path, 'w') as output_y:
 with gfile.GFile(args.output_preprocessing_state_path + '/' + PREPROCESS_FILE, 'w') as output_preprocessing_state:
     pickle.dump(processor, output_preprocessing_state)
 
-#with open('./processor_state.pkl', 'wb') as f:
+# with open('./processor_state.pkl', 'wb') as f:
 #  pickle.dump(processor, f)
 
 # writing x and y path to a file for downstream tasks
@@ -113,8 +122,10 @@ Path(args.output_x_path_file).write_text(args.output_x_path)
 Path(args.output_y_path_file).parent.mkdir(parents=True, exist_ok=True)
 Path(args.output_y_path_file).write_text(args.output_y_path)
 
-Path(args.output_preprocessing_state_path_file).parent.mkdir(parents=True, exist_ok=True)
-Path(args.output_preprocessing_state_path_file).write_text(args.output_preprocessing_state_path + '/' + PREPROCESS_FILE)
+Path(args.output_preprocessing_state_path_file).parent.mkdir(
+    parents=True, exist_ok=True)
+Path(args.output_preprocessing_state_path_file).write_text(
+    args.output_preprocessing_state_path + '/' + PREPROCESS_FILE)
 
 # TODO @Sascha use int rather then str
 Path(args.output_tags).parent.mkdir(parents=True, exist_ok=True)
