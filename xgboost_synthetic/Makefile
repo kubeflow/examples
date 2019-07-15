@@ -29,12 +29,11 @@ all: build
 # To build without the cache set the environment variable
 # export DOCKER_BUILD_OPTS=--no-cache
 .PHONY: build
-build-dir: ./Dockerfile ./requirements.txt update_model.py
+build-dir: ./Dockerfile ./requirements.txt
 	rm -rf ./.build
 	mkdir  -p ./.build
 	cp ./requirements.txt ./.build/
 	cp ./Dockerfile* ./.build/
-	cp ./update_model.py ./.build/
 
 build: build-dir
 	cd .build && docker build ${DOCKER_BUILD_OPTS} -t $(IMG):$(TAG) -f Dockerfile . \

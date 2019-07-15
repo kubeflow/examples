@@ -1,20 +1,12 @@
 from google.cloud import storage
-from kubernetes import client as k8s_client
-from kubernetes import config as k8s_config
 import logging
-import os
 import re
 import joblib
-import sys
-from pathlib import Path
-import pprint
 import pandas as pd
 from sklearn.metrics import mean_absolute_error
 from sklearn.model_selection import train_test_split
 from sklearn.impute import SimpleImputer
-import time
 from xgboost import XGBRegressor
-import yaml
 
 def read_input(file_name, test_size=0.25):
     """Read input data and split it into train and test."""
@@ -119,59 +111,3 @@ def split_gcs_uri(gcs_uri):
         path = m.group(2).lstrip("/")
     return bucket, path
 
-def create_pr_to_update_model(job_spec_file, model_file):
-    """Submit a K8s job to generate the model.
-    
-    Args:
-      job_spec_file: Path to yaml file for the K8s job to update the model
-      model_file: Value to use for the model file.
-    """
-    k8s_config.incluster_config.load_incluster_config()
-    kclient = k8s_client.ApiClient()
-    logging.info("K8s master: %s", kclient.configuration.host)
-                 
-    with open(job_spec_file) as hf:
-        job_spec = yaml.load(hf)
-    
-    command = job_spec["spec"]["template"]["spec"]["containers"][0]["command"]
-    for i, v in enumerate(command):
-        if not "--model-file" in v:
-            continue
-
-        command[i] = "--model-file=" + model_file
-        break
-
-    logging.info("Creating job to update model to %s", model_file)
-    batch_client = k8s_client.BatchV1Api(kclient)
-    job_resp = batch_client.create_namespaced_job(job_spec["metadata"]["namespace"], job_spec)
-    namespace = job_spec["metadata"]["namespace"]
-    name = job_resp.metadata.name
-    logging.info("Created job %s.%s", namespace,name)    
-    while True:
-        latest_job = batch_client.read_namespaced_job(name, namespace)
-
-        last_condition = None
-        if latest_job.status.conditions:
-            last_condition = latest_job.status.conditions[-1]
-
-        logging.info("Waiting for job %s.%s; Last condition %s", namespace, name,
-                     pprint.pformat(last_condition))
-
-        if last_condition:
-            if last_condition.type.lower() == "complete":
-                logging.info("Job %s.%s is done", namespace, name)
-                break
-
-        time.sleep(10)
-
-    logging.info("Final job:\n%s", pprint.pformat(latest_job))
-    
-def deploy_model(model_file):
-    # TODO(jlewi): Write actual code to deploy model; we could use fairing
-    logging.info("Deploying model %s", model_file)
-    
-def validate_model(endpoint):
-    # TODO(jlewi): Write actual code to validate the model
-    logging.info("Validating model at %s", endpoint)
-    
-    
