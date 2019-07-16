@@ -1,0 +1,11 @@
+fairing
+fire
+gitpython
+google-cloud-storage
+joblib
+numpy
+pandas
+retrying
+seldon-core
+sklearn
+xgboost
