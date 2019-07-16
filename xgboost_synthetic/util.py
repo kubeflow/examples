@@ -3,9 +3,9 @@ import os
 import shutil
 import subprocess
 import json
-import numpy as np
 import requests
 from retrying import retry
+import numpy as np
 
 KFP_PACKAGE = 'https://storage.googleapis.com/ml-pipeline/release/0.1.20/kfp.tar.gz'
 def notebook_setup():
