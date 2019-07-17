@@ -1,0 +1,581 @@
+{
+    "source": 2,
+    "revision": 1,
+    "description": null,
+    "createdBy": {
+        "displayName": "Username",
+        "url": "https://app.vssps.visualstudio.com/Ababa295f-6e98-40b6-9dc1-aa6118e169e2/_apis/Identities/af1dae6a-5d55-49bb-a1a1-8e5db902dc1c",
+        "_links": {
+            "avatar": {
+                "href": "https://youaccount.visualstudio.com/_apis/GraphProfile/MemberAvatars/aad.ZmZhYjg5YzEtYmIxNC03NGRiLTk3NTAtZDBlMzQ2NGQwNjU0"
+            }
+        },
+        "id": "af1dae6a-5d55-49bb-a1a1-8e5db902dc1c",
+        "uniqueName": "user@email.com",
+        "imageUrl": "https://youaccount.visualstudio.com/_api/_common/identityImage?id=af1dae6a-5d55-49bb-a1a1-8e5db902dc1c",
+        "descriptor": "aad.ZmZhYjg5YzEtYmIxNC03NGRiLTk3NTAtZDBlMzQ2NGQwNjU0"
+    },
+    "createdOn": "2019-03-28T18:56:41.680Z",
+    "modifiedBy": {
+        "displayName": "User Name",
+        "url": "https://app.vssps.visualstudio.com/Ababa295f-6e98-40b6-9dc1-aa6118e169e2/_apis/Identities/af1dae6a-5d55-49bb-a1a1-8e5db902dc1c",
+        "_links": {
+            "avatar": {
+                "href": "https://youaccount.visualstudio.com/_apis/GraphProfile/MemberAvatars/aad.ZmZhYjg5YzEtYmIxNC03NGRiLTk3NTAtZDBlMzQ2NGQwNjU0"
+            }
+        },
+        "id": "af1dae6a-5d55-49bb-a1a1-8e5db902dc1c",
+        "uniqueName": "user@email.com",
+        "imageUrl": "https://youaccount.visualstudio.com/_api/_common/identityImage?id=af1dae6a-5d55-49bb-a1a1-8e5db902dc1c",
+        "descriptor": "aad.ZmZhYjg5YzEtYmIxNC03NGRiLTk3NTAtZDBlMzQ2NGQwNjU0"
+    },
+    "modifiedOn": "2019-03-28T18:56:41.680Z",
+    "isDeleted": false,
+    "variables": {},
+    "variableGroups": [],
+    "environments": [
+        {
+            "id": 8,
+            "name": "QA Environment",
+            "rank": 1,
+            "owner": {
+                "displayName": "User Name",
+                "url": "https://app.vssps.visualstudio.com/Ababa295f-6e98-40b6-9dc1-aa6118e169e2/_apis/Identities/af1dae6a-5d55-49bb-a1a1-8e5db902dc1c",
+                "_links": {
+                    "avatar": {
+                        "href": "https://youaccount.visualstudio.com/_apis/GraphProfile/MemberAvatars/aad.ZmZhYjg5YzEtYmIxNC03NGRiLTk3NTAtZDBlMzQ2NGQwNjU0"
+                    }
+                },
+                "id": "af1dae6a-5d55-49bb-a1a1-8e5db902dc1c",
+                "uniqueName": "user@email.com",
+                "imageUrl": "https://youaccount.visualstudio.com/_api/_common/identityImage?id=af1dae6a-5d55-49bb-a1a1-8e5db902dc1c",
+                "descriptor": "aad.ZmZhYjg5YzEtYmIxNC03NGRiLTk3NTAtZDBlMzQ2NGQwNjU0"
+            },
+            "variables": {},
+            "variableGroups": [],
+            "preDeployApprovals": {
+                "approvals": [
+                    {
+                        "rank": 1,
+                        "isAutomated": true,
+                        "isNotificationOn": false,
+                        "id": 22
+                    }
+                ],
+                "approvalOptions": {
+                    "requiredApproverCount": null,
+                    "releaseCreatorCanBeApprover": false,
+                    "autoTriggeredAndPreviousEnvironmentApprovedCanBeSkipped": false,
+                    "enforceIdentityRevalidation": false,
+                    "timeoutInMinutes": 0,
+                    "executionOrder": 1
+                }
+            },
+            "deployStep": {
+                "id": 25
+            },
+            "postDeployApprovals": {
+                "approvals": [
+                    {
+                        "rank": 1,
+                        "isAutomated": true,
+                        "isNotificationOn": false,
+                        "id": 26
+                    }
+                ],
+                "approvalOptions": {
+                    "requiredApproverCount": null,
+                    "releaseCreatorCanBeApprover": false,
+                    "autoTriggeredAndPreviousEnvironmentApprovedCanBeSkipped": false,
+                    "enforceIdentityRevalidation": false,
+                    "timeoutInMinutes": 0,
+                    "executionOrder": 2
+                }
+            },
+            "deployPhases": [
+                {
+                    "deploymentInput": {
+                        "parallelExecution": {
+                            "parallelExecutionType": 0
+                        },
+                        "skipArtifactsDownload": false,
+                        "artifactsDownloadInput": {
+                            "downloadInputs": []
+                        },
+                        "queueId": 18,
+                        "demands": [],
+                        "enableAccessToken": false,
+                        "timeoutInMinutes": 0,
+                        "jobCancelTimeoutInMinutes": 1,
+                        "condition": "succeeded()",
+                        "overrideInputs": {}
+                    },
+                    "rank": 1,
+                    "phaseType": 1,
+                    "name": "Agent job",
+                    "refName": null,
+                    "workflowTasks": [
+                        {
+                            "environment": {},
+                            "taskId": "33c63b11-352b-45a2-ba1b-54cb568a29ca",
+                            "version": "0.*",
+                            "name": "Use Python 3.6",
+                            "refName": "",
+                            "enabled": true,
+                            "alwaysRun": false,
+                            "continueOnError": false,
+                            "timeoutInMinutes": 0,
+                            "definitionType": "task",
+                            "overrideInputs": {},
+                            "condition": "succeeded()",
+                            "inputs": {
+                                "versionSpec": "3.6",
+                                "addToPath": "true",
+                                "architecture": "x64"
+                            }
+                        },
+                        {
+                            "environment": {},
+                            "taskId": "6c731c3c-3c68-459a-a5c9-bde6e6595b5b",
+                            "version": "3.*",
+                            "name": "Bash Script",
+                            "refName": "",
+                            "enabled": true,
+                            "alwaysRun": false,
+                            "continueOnError": false,
+                            "timeoutInMinutes": 0,
+                            "definitionType": "task",
+                            "overrideInputs": {},
+                            "condition": "succeeded()",
+                            "inputs": {
+                                "targetType": "filePath",
+                                "filePath": "$(System.DefaultWorkingDirectory)/DevOpsForAI/devops-for-ai/environment_setup/install_requirements.sh",
+                                "arguments": "",
+                                "script": "# Write your commands here\n\n# Use the environment variables input below to pass secret variables to this script",
+                                "workingDirectory": "$(System.DefaultWorkingDirectory)/DevOpsForAI/devops-for-ai/environment_setup",
+                                "failOnStderr": "false",
+                                "noProfile": "true",
+                                "noRc": "true"
+                            }
+                        },
+                        {
+                            "environment": {},
+                            "taskId": "d9bafed4-0b18-4f58-968d-86655b4d2ce9",
+                            "version": "2.*",
+                            "name": "Login to Azure Subscription",
+                            "refName": "",
+                            "enabled": true,
+                            "alwaysRun": false,
+                            "continueOnError": false,
+                            "timeoutInMinutes": 0,
+                            "definitionType": "task",
+                            "overrideInputs": {},
+                            "condition": "succeeded()",
+                            "inputs": {
+                                "script": "az login --service-principal -u $(spidentity) -p $(spsecret) --tenant $(sptenant)\n",
+                                "workingDirectory": "",
+                                "failOnStderr": "false"
+                            }
+                        },
+                        {
+                            "environment": {},
+                            "taskId": "d9bafed4-0b18-4f58-968d-86655b4d2ce9",
+                            "version": "2.*",
+                            "name": "New model available, Create Scoring Image",
+                            "refName": "",
+                            "enabled": false,
+                            "alwaysRun": false,
+                            "continueOnError": false,
+                            "timeoutInMinutes": 0,
+                            "definitionType": "task",
+                            "overrideInputs": {},
+                            "condition": "succeeded()",
+                            "inputs": {
+                                "script": "python aml_service/30-CreateScoringImage.py",
+                                "workingDirectory": "$(System.DefaultWorkingDirectory)/DevOpsForAI/devops-for-ai",
+                                "failOnStderr": "false"
+                            }
+                        },
+                        {
+                            "environment": {},
+                            "taskId": "d9bafed4-0b18-4f58-968d-86655b4d2ce9",
+                            "version": "2.*",
+                            "name": "Get Latest Scoring Image Name & Version",
+                            "refName": "",
+                            "enabled": true,
+                            "alwaysRun": false,
+                            "continueOnError": false,
+                            "timeoutInMinutes": 0,
+                            "definitionType": "task",
+                            "overrideInputs": {},
+                            "condition": "succeeded()",
+                            "inputs": {
+                                "script": "python aml_service/34-GetScoringImageName.py",
+                                "workingDirectory": "$(System.DefaultWorkingDirectory)/DevOpsForAI/devops-for-ai",
+                                "failOnStderr": "false"
+                            }
+                        },
+                        {
+                            "environment": {},
+                            "taskId": "d9bafed4-0b18-4f58-968d-86655b4d2ce9",
+                            "version": "2.*",
+                            "name": "Deploy new image to ACI",
+                            "refName": "",
+                            "enabled": true,
+                            "alwaysRun": false,
+                            "continueOnError": false,
+                            "timeoutInMinutes": 0,
+                            "definitionType": "task",
+                            "overrideInputs": {},
+                            "condition": "succeeded()",
+                            "inputs": {
+                                "script": "python aml_service/50-deployOnAci.py",
+                                "workingDirectory": "$(System.DefaultWorkingDirectory)/DevOpsForAI/devops-for-ai",
+                                "failOnStderr": "false"
+                            }
+                        },
+                        {
+                            "environment": {},
+                            "taskId": "d9bafed4-0b18-4f58-968d-86655b4d2ce9",
+                            "version": "2.*",
+                            "name": "Test the image on ACI",
+                            "refName": "",
+                            "enabled": true,
+                            "alwaysRun": false,
+                            "continueOnError": false,
+                            "timeoutInMinutes": 0,
+                            "definitionType": "task",
+                            "overrideInputs": {},
+                            "condition": "succeeded()",
+                            "inputs": {
+                                "script": "python aml_service/60-AciWebserviceTest.py",
+                                "workingDirectory": "$(System.DefaultWorkingDirectory)/DevOpsForAI/devops-for-ai",
+                                "failOnStderr": "false"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "environmentOptions": {
+                "emailNotificationType": "OnlyOnFailure",
+                "emailRecipients": "release.environment.owner;release.creator",
+                "skipArtifactsDownload": false,
+                "timeoutInMinutes": 0,
+                "enableAccessToken": false,
+                "publishDeploymentStatus": true,
+                "badgeEnabled": false,
+                "autoLinkWorkItems": false,
+                "pullRequestDeploymentEnabled": false
+            },
+            "demands": [],
+            "conditions": [
+                {
+                    "name": "ReleaseStarted",
+                    "conditionType": 1,
+                    "value": ""
+                }
+            ],
+            "executionPolicy": {
+                "concurrencyCount": 1,
+                "queueDepthCount": 0
+            },
+            "schedules": [],
+            "currentRelease": {
+                "id": 0,
+                "url": "https://youaccount.vsrm.visualstudio.com/c9414c5b-b8f8-4d50-a8bf-eae8dbbb6a2a/_apis/Release/releases/0",
+                "_links": {}
+            },
+            "retentionPolicy": {
+                "daysToKeep": 30,
+                "releasesToKeep": 3,
+                "retainBuild": true
+            },
+            "processParameters": {},
+            "properties": {},
+            "preDeploymentGates": {
+                "id": 0,
+                "gatesOptions": null,
+                "gates": []
+            },
+            "postDeploymentGates": {
+                "id": 0,
+                "gatesOptions": null,
+                "gates": []
+            },
+            "environmentTriggers": [],
+            "badgeUrl": "https://youaccount.vsrm.visualstudio.com/_apis/public/Release/badge/c9414c5b-b8f8-4d50-a8bf-eae8dbbb6a2a/5/8"
+        },
+        {
+            "id": 9,
+            "name": "Prod Environment",
+            "rank": 2,
+            "owner": {
+                "displayName": "User Name",
+                "url": "https://app.vssps.visualstudio.com/Ababa295f-6e98-40b6-9dc1-aa6118e169e2/_apis/Identities/af1dae6a-5d55-49bb-a1a1-8e5db902dc1c",
+                "_links": {
+                    "avatar": {
+                        "href": "https://youaccount.visualstudio.com/_apis/GraphProfile/MemberAvatars/aad.ZmZhYjg5YzEtYmIxNC03NGRiLTk3NTAtZDBlMzQ2NGQwNjU0"
+                    }
+                },
+                "id": "af1dae6a-5d55-49bb-a1a1-8e5db902dc1c",
+                "uniqueName": "user@email.com",
+                "imageUrl": "https://youaccount.visualstudio.com/_api/_common/identityImage?id=af1dae6a-5d55-49bb-a1a1-8e5db902dc1c",
+                "descriptor": "aad.ZmZhYjg5YzEtYmIxNC03NGRiLTk3NTAtZDBlMzQ2NGQwNjU0"
+            },
+            "variables": {},
+            "variableGroups": [],
+            "preDeployApprovals": {
+                "approvals": [
+                    {
+                        "rank": 1,
+                        "isAutomated": true,
+                        "isNotificationOn": false,
+                        "id": 23
+                    }
+                ],
+                "approvalOptions": {
+                    "requiredApproverCount": null,
+                    "releaseCreatorCanBeApprover": false,
+                    "autoTriggeredAndPreviousEnvironmentApprovedCanBeSkipped": false,
+                    "enforceIdentityRevalidation": false,
+                    "timeoutInMinutes": 0,
+                    "executionOrder": 1
+                }
+            },
+            "deployStep": {
+                "id": 24
+            },
+            "postDeployApprovals": {
+                "approvals": [
+                    {
+                        "rank": 1,
+                        "isAutomated": true,
+                        "isNotificationOn": false,
+                        "id": 27
+                    }
+                ],
+                "approvalOptions": {
+                    "requiredApproverCount": null,
+                    "releaseCreatorCanBeApprover": false,
+                    "autoTriggeredAndPreviousEnvironmentApprovedCanBeSkipped": false,
+                    "enforceIdentityRevalidation": false,
+                    "timeoutInMinutes": 0,
+                    "executionOrder": 2
+                }
+            },
+            "deployPhases": [
+                {
+                    "deploymentInput": {
+                        "parallelExecution": {
+                            "parallelExecutionType": 0
+                        },
+                        "skipArtifactsDownload": false,
+                        "artifactsDownloadInput": {
+                            "downloadInputs": []
+                        },
+                        "queueId": 18,
+                        "demands": [],
+                        "enableAccessToken": false,
+                        "timeoutInMinutes": 0,
+                        "jobCancelTimeoutInMinutes": 1,
+                        "condition": "succeeded()",
+                        "overrideInputs": {}
+                    },
+                    "rank": 1,
+                    "phaseType": 1,
+                    "name": "Agent job",
+                    "refName": null,
+                    "workflowTasks": [
+                        {
+                            "environment": {},
+                            "taskId": "33c63b11-352b-45a2-ba1b-54cb568a29ca",
+                            "version": "0.*",
+                            "name": "Use Python 3.6",
+                            "refName": "",
+                            "enabled": true,
+                            "alwaysRun": false,
+                            "continueOnError": false,
+                            "timeoutInMinutes": 0,
+                            "definitionType": "task",
+                            "overrideInputs": {},
+                            "condition": "succeeded()",
+                            "inputs": {
+                                "versionSpec": "3.6",
+                                "addToPath": "true",
+                                "architecture": "x64"
+                            }
+                        },
+                        {
+                            "environment": {},
+                            "taskId": "6c731c3c-3c68-459a-a5c9-bde6e6595b5b",
+                            "version": "3.*",
+                            "name": "Bash Script",
+                            "refName": "",
+                            "enabled": true,
+                            "alwaysRun": false,
+                            "continueOnError": false,
+                            "timeoutInMinutes": 0,
+                            "definitionType": "task",
+                            "overrideInputs": {},
+                            "condition": "succeeded()",
+                            "inputs": {
+                                "targetType": "filePath",
+                                "filePath": "$(System.DefaultWorkingDirectory)/DevOpsForAI/devops-for-ai/environment_setup/install_requirements.sh",
+                                "arguments": "",
+                                "script": "# Write your commands here\n\n# Use the environment variables input below to pass secret variables to this script",
+                                "workingDirectory": "$(System.DefaultWorkingDirectory)/DevOpsForAI/devops-for-ai/environment_setup",
+                                "failOnStderr": "false",
+                                "noProfile": "true",
+                                "noRc": "true"
+                            }
+                        },
+                        {
+                            "environment": {},
+                            "taskId": "d9bafed4-0b18-4f58-968d-86655b4d2ce9",
+                            "version": "2.*",
+                            "name": "Login to Azure Subscription",
+                            "refName": "",
+                            "enabled": true,
+                            "alwaysRun": false,
+                            "continueOnError": false,
+                            "timeoutInMinutes": 0,
+                            "definitionType": "task",
+                            "overrideInputs": {},
+                            "condition": "succeeded()",
+                            "inputs": {
+                                "script": "az login --service-principal -u $(spidentity) -p $(spsecret) --tenant $(sptenant)",
+                                "workingDirectory": "",
+                                "failOnStderr": "false"
+                            }
+                        },
+                        {
+                            "environment": {},
+                            "taskId": "d9bafed4-0b18-4f58-968d-86655b4d2ce9",
+                            "version": "2.*",
+                            "name": "Get Latest Scoring Image Name & Version",
+                            "refName": "",
+                            "enabled": true,
+                            "alwaysRun": false,
+                            "continueOnError": false,
+                            "timeoutInMinutes": 0,
+                            "definitionType": "task",
+                            "overrideInputs": {},
+                            "condition": "succeeded()",
+                            "inputs": {
+                                "script": "python aml_service/34-GetScoringImageName.py",
+                                "workingDirectory": "$(System.DefaultWorkingDirectory)/DevOpsForAI/devops-for-ai",
+                                "failOnStderr": "false"
+                            }
+                        },
+                        {
+                            "environment": {},
+                            "taskId": "d9bafed4-0b18-4f58-968d-86655b4d2ce9",
+                            "version": "2.*",
+                            "name": "Deploy to AKS",
+                            "refName": "",
+                            "enabled": true,
+                            "alwaysRun": false,
+                            "continueOnError": false,
+                            "timeoutInMinutes": 0,
+                            "definitionType": "task",
+                            "overrideInputs": {},
+                            "condition": "succeeded()",
+                            "inputs": {
+                                "script": "python aml_service/51-deployOnAks.py",
+                                "workingDirectory": "$(System.DefaultWorkingDirectory)/DevOpsForAI/devops-for-ai",
+                                "failOnStderr": "false"
+                            }
+                        },
+                        {
+                            "environment": {},
+                            "taskId": "d9bafed4-0b18-4f58-968d-86655b4d2ce9",
+                            "version": "2.*",
+                            "name": "Test AKS endpoint",
+                            "refName": "",
+                            "enabled": true,
+                            "alwaysRun": false,
+                            "continueOnError": false,
+                            "timeoutInMinutes": 0,
+                            "definitionType": "task",
+                            "overrideInputs": {},
+                            "condition": "succeeded()",
+                            "inputs": {
+                                "script": "python aml_service/61-AksWebserviceTest.py",
+                                "workingDirectory": "$(System.DefaultWorkingDirectory)/DevOpsForAI/devops-for-ai",
+                                "failOnStderr": "false"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "environmentOptions": {
+                "emailNotificationType": "OnlyOnFailure",
+                "emailRecipients": "release.environment.owner;release.creator",
+                "skipArtifactsDownload": false,
+                "timeoutInMinutes": 0,
+                "enableAccessToken": false,
+                "publishDeploymentStatus": true,
+                "badgeEnabled": false,
+                "autoLinkWorkItems": false,
+                "pullRequestDeploymentEnabled": false
+            },
+            "demands": [],
+            "conditions": [],
+            "executionPolicy": {
+                "concurrencyCount": 1,
+                "queueDepthCount": 0
+            },
+            "schedules": [],
+            "currentRelease": {
+                "id": 0,
+                "url": "https://youaccount.vsrm.visualstudio.com/c9414c5b-b8f8-4d50-a8bf-eae8dbbb6a2a/_apis/Release/releases/0",
+                "_links": {}
+            },
+            "retentionPolicy": {
+                "daysToKeep": 30,
+                "releasesToKeep": 3,
+                "retainBuild": true
+            },
+            "processParameters": {},
+            "properties": {},
+            "preDeploymentGates": {
+                "id": 0,
+                "gatesOptions": null,
+                "gates": []
+            },
+            "postDeploymentGates": {
+                "id": 0,
+                "gatesOptions": null,
+                "gates": []
+            },
+            "environmentTriggers": [],
+            "badgeUrl": "https://youaccount.vsrm.visualstudio.com/_apis/public/Release/badge/c9414c5b-b8f8-4d50-a8bf-eae8dbbb6a2a/5/9"
+        }
+    ],
+    "artifacts": [],
+    "triggers": [],
+    "releaseNameFormat": "Release-$(rev:r)",
+    "tags": [],
+    "pipelineProcess": {
+        "type": 1
+    },
+    "properties": {
+        "DefinitionCreationSource": {
+            "$type": "System.String",
+            "$value": "ReleaseImport"
+        }
+    },
+    "id": 5,
+    "name": "releasedeploymentpipeline",
+    "path": "\\",
+    "projectReference": null,
+    "url": "https://youaccount.vsrm.visualstudio.com/c9414c5b-b8f8-4d50-a8bf-eae8dbbb6a2a/_apis/Release/definitions/5",
+    "_links": {
+        "self": {
+            "href": "https://youaccount.vsrm.visualstudio.com/c9414c5b-b8f8-4d50-a8bf-eae8dbbb6a2a/_apis/Release/definitions/5"
+        },
+        "web": {
+            "href": "https://youaccount.visualstudio.com/c9414c5b-b8f8-4d50-a8bf-eae8dbbb6a2a/_release?definitionId=5"
+        }
+    }
+}

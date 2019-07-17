@@ -1,0 +1,291 @@
+{
+    "source": 2,
+    "revision": 1,
+    "description": null,
+    "createdBy": {
+        "displayName": "User Name",
+        "url": "https://spsprodcus3.vssps.visualstudio.com/A127dc0c3-e10b-4004-a104-fa5be489bed1/_apis/Identities/af1dae6a-5d55-49bb-a1a1-8e5db902dc1c",
+        "_links": {
+            "avatar": {
+                "href": "https://dev.azure.com/userorg/_apis/GraphProfile/MemberAvatars/aad.ZmZhYjg5YzEtYmIxNC03NGRiLTk3NTAtZDBlMzQ2NGQwNjU0"
+            }
+        },
+        "id": "af1dae6a-5d55-49bb-a1a1-8e5db902dc1c",
+        "uniqueName": "user@email.com",
+        "imageUrl": "https://dev.azure.com/userorg/_api/_common/identityImage?id=af1dae6a-5d55-49bb-a1a1-8e5db902dc1c",
+        "descriptor": "aad.ZmZhYjg5YzEtYmIxNC03NGRiLTk3NTAtZDBlMzQ2NGQwNjU0"
+    },
+    "createdOn": "2019-03-29T01:48:19.893Z",
+    "modifiedBy": {
+        "displayName": "User Name",
+        "url": "https://spsprodcus3.vssps.visualstudio.com/A127dc0c3-e10b-4004-a104-fa5be489bed1/_apis/Identities/af1dae6a-5d55-49bb-a1a1-8e5db902dc1c",
+        "_links": {
+            "avatar": {
+                "href": "https://dev.azure.com/userorg/_apis/GraphProfile/MemberAvatars/aad.ZmZhYjg5YzEtYmIxNC03NGRiLTk3NTAtZDBlMzQ2NGQwNjU0"
+            }
+        },
+        "id": "af1dae6a-5d55-49bb-a1a1-8e5db902dc1c",
+        "uniqueName": "user@email.com",
+        "imageUrl": "https://dev.azure.com/userorg/_api/_common/identityImage?id=af1dae6a-5d55-49bb-a1a1-8e5db902dc1c",
+        "descriptor": "aad.ZmZhYjg5YzEtYmIxNC03NGRiLTk3NTAtZDBlMzQ2NGQwNjU0"
+    },
+    "modifiedOn": "2019-03-29T01:48:19.893Z",
+    "isDeleted": false,
+    "variables": {},
+    "variableGroups": [
+        7
+    ],
+    "environments": [
+        {
+            "id": 9,
+            "name": "Retrain",
+            "rank": 1,
+            "owner": {
+                "displayName": "User Name",
+                "url": "https://spsprodcus3.vssps.visualstudio.com/A127dc0c3-e10b-4004-a104-fa5be489bed1/_apis/Identities/af1dae6a-5d55-49bb-a1a1-8e5db902dc1c",
+                "_links": {
+                    "avatar": {
+                        "href": "https://dev.azure.com/userorg/_apis/GraphProfile/MemberAvatars/aad.ZmZhYjg5YzEtYmIxNC03NGRiLTk3NTAtZDBlMzQ2NGQwNjU0"
+                    }
+                },
+                "id": "af1dae6a-5d55-49bb-a1a1-8e5db902dc1c",
+                "uniqueName": "user@email.com",
+                "imageUrl": "https://dev.azure.com/userorg/_api/_common/identityImage?id=af1dae6a-5d55-49bb-a1a1-8e5db902dc1c",
+                "descriptor": "aad.ZmZhYjg5YzEtYmIxNC03NGRiLTk3NTAtZDBlMzQ2NGQwNjU0"
+            },
+            "variables": {},
+            "variableGroups": [],
+            "preDeployApprovals": {
+                "approvals": [
+                    {
+                        "rank": 1,
+                        "isAutomated": true,
+                        "isNotificationOn": false,
+                        "id": 29
+                    }
+                ],
+                "approvalOptions": {
+                    "requiredApproverCount": null,
+                    "releaseCreatorCanBeApprover": false,
+                    "autoTriggeredAndPreviousEnvironmentApprovedCanBeSkipped": false,
+                    "enforceIdentityRevalidation": false,
+                    "timeoutInMinutes": 0,
+                    "executionOrder": 1
+                }
+            },
+            "deployStep": {
+                "id": 30
+            },
+            "postDeployApprovals": {
+                "approvals": [
+                    {
+                        "rank": 1,
+                        "isAutomated": true,
+                        "isNotificationOn": false,
+                        "id": 31
+                    }
+                ],
+                "approvalOptions": {
+                    "requiredApproverCount": null,
+                    "releaseCreatorCanBeApprover": false,
+                    "autoTriggeredAndPreviousEnvironmentApprovedCanBeSkipped": false,
+                    "enforceIdentityRevalidation": false,
+                    "timeoutInMinutes": 0,
+                    "executionOrder": 2
+                }
+            },
+            "deployPhases": [
+                {
+                    "deploymentInput": {
+                        "parallelExecution": {
+                            "parallelExecutionType": 0
+                        },
+                        "skipArtifactsDownload": false,
+                        "artifactsDownloadInput": {
+                            "downloadInputs": []
+                        },
+                        "queueId": 6,
+                        "demands": [],
+                        "enableAccessToken": false,
+                        "timeoutInMinutes": 0,
+                        "jobCancelTimeoutInMinutes": 1,
+                        "condition": "succeeded()",
+                        "overrideInputs": {}
+                    },
+                    "rank": 1,
+                    "phaseType": 1,
+                    "name": "Agent job",
+                    "refName": null,
+                    "workflowTasks": [
+                        {
+                            "environment": {},
+                            "taskId": "33c63b11-352b-45a2-ba1b-54cb568a29ca",
+                            "version": "0.*",
+                            "name": "Use Python 3.6",
+                            "refName": "",
+                            "enabled": true,
+                            "alwaysRun": false,
+                            "continueOnError": false,
+                            "timeoutInMinutes": 0,
+                            "definitionType": "task",
+                            "overrideInputs": {},
+                            "condition": "succeeded()",
+                            "inputs": {
+                                "versionSpec": "3.6",
+                                "addToPath": "true",
+                                "architecture": "x64"
+                            }
+                        },
+                        {
+                            "environment": {},
+                            "taskId": "6c731c3c-3c68-459a-a5c9-bde6e6595b5b",
+                            "version": "3.*",
+                            "name": "Install Requirements",
+                            "refName": "",
+                            "enabled": true,
+                            "alwaysRun": false,
+                            "continueOnError": false,
+                            "timeoutInMinutes": 0,
+                            "definitionType": "task",
+                            "overrideInputs": {},
+                            "condition": "succeeded()",
+                            "inputs": {
+                                "targetType": "filePath",
+                                "filePath": "$(System.DefaultWorkingDirectory)/DevOpsForAI/devops-for-ai/environment_setup/install_requirements.sh",
+                                "arguments": "",
+                                "script": "# Write your commands here\n\n# Use the environment variables input below to pass secret variables to this script",
+                                "workingDirectory": "$(System.DefaultWorkingDirectory)/DevOpsForAI/devops-for-ai/environment_setup",
+                                "failOnStderr": "false",
+                                "noProfile": "true",
+                                "noRc": "true"
+                            }
+                        },
+                        {
+                            "environment": {},
+                            "taskId": "d9bafed4-0b18-4f58-968d-86655b4d2ce9",
+                            "version": "2.*",
+                            "name": "Login to Azure Subscription",
+                            "refName": "",
+                            "enabled": true,
+                            "alwaysRun": false,
+                            "continueOnError": false,
+                            "timeoutInMinutes": 0,
+                            "definitionType": "task",
+                            "overrideInputs": {},
+                            "condition": "succeeded()",
+                            "inputs": {
+                                "script": "az login --service-principal -u $(spidentity) -p $(spsecret) --tenant $(sptenant)",
+                                "workingDirectory": "",
+                                "failOnStderr": "false"
+                            }
+                        },
+                        {
+                            "environment": {},
+                            "taskId": "d9bafed4-0b18-4f58-968d-86655b4d2ce9",
+                            "version": "2.*",
+                            "name": "Run AML Pipeline",
+                            "refName": "",
+                            "enabled": true,
+                            "alwaysRun": false,
+                            "continueOnError": false,
+                            "timeoutInMinutes": 0,
+                            "definitionType": "task",
+                            "overrideInputs": {},
+                            "condition": "succeeded()",
+                            "inputs": {
+                                "script": "python aml_service/05-TriggerAmlPipeline.py",
+                                "workingDirectory": "$(System.DefaultWorkingDirectory)/DevOpsForAI/devops-for-ai",
+                                "failOnStderr": "false"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "environmentOptions": {
+                "emailNotificationType": "OnlyOnFailure",
+                "emailRecipients": "release.environment.owner;release.creator",
+                "skipArtifactsDownload": false,
+                "timeoutInMinutes": 0,
+                "enableAccessToken": false,
+                "publishDeploymentStatus": true,
+                "badgeEnabled": false,
+                "autoLinkWorkItems": false,
+                "pullRequestDeploymentEnabled": false
+            },
+            "demands": [],
+            "conditions": [
+                {
+                    "name": "ReleaseStarted",
+                    "conditionType": 1,
+                    "value": ""
+                }
+            ],
+            "executionPolicy": {
+                "concurrencyCount": 1,
+                "queueDepthCount": 0
+            },
+            "schedules": [],
+            "currentRelease": {
+                "id": 0,
+                "url": "https://vsrm.dev.azure.com/userorg/420d3eaf-7dbb-46cb-a7c9-93662c745570/_apis/Release/releases/0",
+                "_links": {}
+            },
+            "retentionPolicy": {
+                "daysToKeep": 30,
+                "releasesToKeep": 3,
+                "retainBuild": true
+            },
+            "processParameters": {},
+            "properties": {},
+            "preDeploymentGates": {
+                "id": 0,
+                "gatesOptions": null,
+                "gates": []
+            },
+            "postDeploymentGates": {
+                "id": 0,
+                "gatesOptions": null,
+                "gates": []
+            },
+            "environmentTriggers": [],
+            "badgeUrl": "https://vsrm.dev.azure.com/userorg/_apis/public/Release/badge/420d3eaf-7dbb-46cb-a7c9-93662c745570/6/9"
+        }
+    ],
+    "artifacts": [],
+    "triggers": [
+        {
+            "schedule": {
+                "jobId": "5efd6865-0305-493a-9ff9-08995bbb72e5",
+                "timeZoneId": "UTC",
+                "startHours": 3,
+                "startMinutes": 0,
+                "daysToRelease": 21
+            },
+            "triggerType": 2
+        }
+    ],
+    "releaseNameFormat": "Release-$(rev:r)",
+    "tags": [],
+    "pipelineProcess": {
+        "type": 1
+    },
+    "properties": {
+        "DefinitionCreationSource": {
+            "$type": "System.String",
+            "$value": "ReleaseClone"
+        }
+    },
+    "id": 6,
+    "name": "retrainingtriggerpipeline",
+    "path": "\\",
+    "projectReference": null,
+    "url": "https://vsrm.dev.azure.com/userorg/420d3eaf-7dbb-46cb-a7c9-93662c745570/_apis/Release/definitions/6",
+    "_links": {
+        "self": {
+            "href": "https://vsrm.dev.azure.com/userorg/420d3eaf-7dbb-46cb-a7c9-93662c745570/_apis/Release/definitions/6"
+        },
+        "web": {
+            "href": "https://dev.azure.com/userorg/420d3eaf-7dbb-46cb-a7c9-93662c745570/_release?definitionId=6"
+        }
+    }
+}

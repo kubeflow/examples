@@ -1,0 +1,1 @@
+-n tacoprofile -m tacosandburritos -i /scripts/inferenceconfig.json -d '{"image":"https://www.exploreveg.org/files/2015/05/sofritas-burrito.jpeg"}' -t 72f988bf-86f1-41af-91ab-2d7cd011db47 -r taco-rg -w taco-workspace -s 2991e3e4-4e8d-451f-aa17-640d89c63144 -p xP2a6Bp1vSOjKholxl5bLPd.=r@ZZJn[ -u 1308a130-d549-44e1-ba66-ce8c487d76e3
