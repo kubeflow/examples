@@ -11,6 +11,8 @@ KFP_PACKAGE = 'https://storage.googleapis.com/ml-pipeline/release/0.1.20/kfp.tar
 def notebook_setup():
   # Install the SDK
 
+  for p in ["sklearn", "pandas", "joblib", "fire"]:
+    subprocess.check_call(["pip3", "install", p])
   subprocess.check_call(["pip3", "install", KFP_PACKAGE, "--upgrade"])
 
   logging.basicConfig(format='%(message)s')
