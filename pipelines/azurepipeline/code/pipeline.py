@@ -86,13 +86,13 @@ def tacosandburritos_train(
 
     operations['profile'] = dsl.ContainerOp(
         name='profile',
-        image='tacoregistry.azurecr.io/profile:ictest',
+        image='insert your image here',
         command=['sh'],
         arguments=[
             '/scripts/profile.sh',
             '-n', profile_name,
             '-m', model_name,
-            '-i', 'insert your image here',
+            '-i', '/scripts/inferenceconfig.json',
             '-d', '{"image":"https://www.exploreveg.org/files/2015/05/sofritas-burrito.jpeg"}',
             '-t', tenant_id,
             '-r', resource_group,
