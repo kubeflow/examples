@@ -41,7 +41,7 @@ def run(raw_data):
     inference_time = datetime.timedelta(seconds=current_time - prev_time)
     payload = {
         'time': inference_time.total_seconds(),
-        'prediction': 'burrito' if o < 0.5 else 'tacos',
+        'prediction': 'burrito' if o > 0.5 else 'tacos',
         'scores': str(o)
     }
 
