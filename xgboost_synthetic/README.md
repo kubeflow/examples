@@ -1,9 +1,2 @@
 # xgboost-synthetic
-Kubeflow fairing, pipelines demo using synthetic data
-
-1. Launch a notebook
-
-   ```
-   kubectl apply -f notebook.xgboost-synthetic.yaml
-   ```
-1. Attach an extra data volume named 
+Kubeflow fairing, pipelines demo using synthetic data. This notebook `build-train-deploy.ipynb` can be executed using one of the stock notebook images launched through Kubeflow UI.
