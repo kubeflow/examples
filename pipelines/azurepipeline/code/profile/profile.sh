@@ -16,6 +16,6 @@ while getopts "m:n:i:d:s:p:u:r:w:t:b:" option;
     esac
 done
 az login --service-principal --username ${SERVICE_PRINCIPAL_ID} --password ${SERVICE_PRINCIPAL_PASSWORD} -t $TENANT_ID
-az ml model profile -n $PROFILE_NAME -m ${MODEL}:26 --ic $INFERENCE_CONFIG -d $DATA -t myprofileresult.json -w $WORKSPACE -g $RESOURCE_GROUP
+az ml model profile -n $PROFILE_NAME -m ${MODEL}:1 --ic $INFERENCE_CONFIG -d $DATA -t myprofileresult.json -w $WORKSPACE -g $RESOURCE_GROUP
 mv myprofileresult.json ${BASE_PATH}/myprofileresult.json
 echo ${BASE_PATH}
