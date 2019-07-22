@@ -9,9 +9,3 @@ Kubeflow fairing, pipelines demo using synthetic data. This notebook `build-trai
     ```
 
 1. In the directory `xgboost_synthetic`, open the notebook `build-train-deploy.ipynb`
-
-1. Set the environment variable `GOOGLE_APPLICATION_CREDENTIALS` by the command
-    ```python
-    import os
-    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'Your value'
-    ```
