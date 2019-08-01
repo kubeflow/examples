@@ -50,15 +50,8 @@ You also need the following command line tools:
 - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
 - [kustomize](https://kustomize.io/)
 
-+**Note:** kustomize [v2.0.3](https://github.com/kubernetes-sigs/kustomize/releases/tag/v2.0.3) is recommented since the [problem](https://github.com/kubernetes-sigs/kustomize/issues/1295) in kustomize v2.1.0.
+**Note:** kustomize [v2.0.3](https://github.com/kubernetes-sigs/kustomize/releases/tag/v2.0.3) is recommented since the [problem](https://github.com/kubernetes-sigs/kustomize/issues/1295) in kustomize v2.1.0.
 
-To run the client at the end of the example, you must have [requirements.txt](requirements.txt) installed in your active python environment.
-
-```
-pip install -r requirements.txt
-```
-
-NOTE: These instructions rely on Github, and may cause issues if behind a firewall with many Github users. 
 
 ## Modifying existing examples
 
@@ -710,12 +703,12 @@ kustomize build . |kubectl apply -f -
 
 You can check the deployment by running
 ```
-kubectl describe deployments mnist-deploy-local
+kubectl describe deployments mnist-service-local
 ```
 
-The service should make the `mnist-deploy-local` deployment accessible over port 9000.
+The service should make the `mnist-service-local` deployment accessible over port 9000.
 ```
-kubectl describe service mnist-service
+kubectl describe service mnist-service-local
 ```
 
 ## Web Front End
