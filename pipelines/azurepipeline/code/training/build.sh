@@ -1,3 +1,9 @@
 #!/bin/bash
-IMAGE=<your_registry>.azurecr.io/kubeflow/training
+while getopts "r:" option;
+    do
+    case "$option" in
+        r ) REGISTRY_NAME=${OPTARG};;
+    esac
+done
+IMAGE=${REGISTRY_NAME}.azurecr.io/training
 docker build -t $IMAGE . && docker run -it $IMAGE
