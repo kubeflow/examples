@@ -27,6 +27,10 @@ from google.cloud import storage
 # location of the model checkpoint from which we'll start our training
 SOURCE_BUCKET = 'aju-dev-demos-codelabs'
 PREFIX = 'kubecon/model_output_tbase.bak2019000/'
+COPY_ACTION = 'copy_data'
+TRAIN_ACTION = 'train'
+PROBLEM = 'gh_problem'
+
 
 
 def copy_blob(storage_client, source_bucket, source_blob, target_bucket_name, new_blob_name,
@@ -45,6 +49,9 @@ def copy_blob(storage_client, source_bucket, source_blob, target_bucket_name, ne
 
 
 def copy_checkpoint(new_blob_prefix, target_bucket):
+  """Copy an existing model checkpoint directory to the working directory for the workflow,
+  so that the training can start from that point.
+  """
 
   storage_client = storage.Client()
   source_bucket = storage_client.bucket(SOURCE_BUCKET)
@@ -68,70 +75,18 @@ def copy_checkpoint(new_blob_prefix, target_bucket):
         sleeptime *= 2
         num_retries += 1
 
+def run_training(args, data_dir, model_dir):
+  """Run the model training, and when finished export the results."""
 
-def main():
-
-  logging.getLogger().setLevel(logging.INFO)
-  parser = argparse.ArgumentParser(description='ML Trainer')
-  parser.add_argument(
-      '--model-dir',
-      help='...',
-      required=True)
-  parser.add_argument(
-      '--working-dir',
-      help='...',
-      required=True)
-  parser.add_argument(
-      '--data-dir',
-      help='...',
-      required=True)
-  parser.add_argument(
-      '--checkpoint-dir',
-      help='...',
-      required=True)
-  parser.add_argument(
-      '--train-steps',
-      help='...',
-      required=True)
-  parser.add_argument(
-      '--deploy-webapp',
-      help='...',
-      required=True)
-
-  args = parser.parse_args()
-
-  # Create metadata.json file for visualization.
-  metadata = {
-    'outputs' : [{
-      'type': 'tensorboard',
-      'source': args.model_dir,
-    }]
-  }
-  with open('/mlpipeline-ui-metadata.json', 'w') as f:
-    json.dump(metadata, f)
-
-  problem = 'gh_problem'
-  data_dir = args.data_dir
-  print("data dir: %s" % data_dir)
-  # copy the model starting point
-  model_startpoint = args.checkpoint_dir
-  print("model_startpoint: %s" % model_startpoint)
-  model_dir = args.model_dir
-  print("model_dir: %s" % model_dir)
-
-  # copy over the checkpoint directory
-  target_bucket = urlparse(args.working_dir).netloc
-  print("target bucket: %s", target_bucket)
-  new_blob_prefix = model_dir.replace('gs://' + target_bucket + '/', '')
-  print("new_blob_prefix: %s", new_blob_prefix)
-  copy_checkpoint(new_blob_prefix, target_bucket)
-
+  if not args.train_steps:
+    logging.error("Number of training steps not set.")
+    return
   print('training steps (total): %s' % args.train_steps)
 
-  # Then run the training for N steps from there.
+  # Run the training for N steps.
   model_train_command = ['t2t-trainer', '--data_dir', data_dir,
      '--t2t_usr_dir', '/ml/ghsumm/trainer',
-     '--problem', problem,
+     '--problem', PROBLEM,
      '--model', 'transformer', '--hparams_set', 'transformer_prepend', '--output_dir', model_dir,
      '--job-dir', model_dir,
      '--train_steps', args.train_steps, '--eval_throttle_seconds', '240',
@@ -153,6 +108,74 @@ def main():
   print("deploy-webapp arg: %s" % args.deploy_webapp)
   with open('/tmp/output', 'w') as f:
     f.write(args.deploy_webapp)
+
+
+def main():
+
+  logging.getLogger().setLevel(logging.INFO)
+  parser = argparse.ArgumentParser(description='ML Trainer')
+  parser.add_argument(
+      '--model-dir',
+      help='...',
+      required=True)
+  parser.add_argument(
+      '--action',
+      help='...',
+      required=True)
+  parser.add_argument(
+      '--working-dir',
+      help='...',
+      required=True)
+  parser.add_argument(
+      '--data-dir',
+      help='...',
+      required=True)
+  parser.add_argument(
+      '--checkpoint-dir',
+      help='...',
+      required=True)
+  parser.add_argument(
+      '--train-steps',
+      help='...')
+  parser.add_argument(
+      '--deploy-webapp',
+      help='...',
+      default='true')
+
+  args = parser.parse_args()
+
+  # Create metadata.json file for visualization.
+  metadata = {
+    'outputs' : [{
+      'type': 'tensorboard',
+      'source': args.model_dir,
+    }]
+  }
+  with open('/mlpipeline-ui-metadata.json', 'w') as f:
+    json.dump(metadata, f)
+
+  data_dir = args.data_dir
+  logging.info("data dir: %s", data_dir)
+
+  # model_startpoint = args.checkpoint_dir
+  logging.info("model_startpoint: %s", args.checkpoint_dir)
+  model_dir = args.model_dir
+  logging.info("model_dir: %s", model_dir)
+
+  if args.action.lower() == COPY_ACTION:
+    # copy over the checkpoint directory
+    target_bucket = urlparse(args.working_dir).netloc
+    logging.info("target bucket: %s", target_bucket)
+    new_blob_prefix = model_dir.replace('gs://' + target_bucket + '/', '')
+    logging.info("new_blob_prefix: %s", new_blob_prefix)
+    copy_checkpoint(new_blob_prefix, target_bucket)
+  elif args.action.lower() == TRAIN_ACTION:
+    # launch the training job
+    run_training(args, data_dir, model_dir)
+  else:
+    logging.warn("Error: unknown action mode %s", args.action)
+
+
 
 if __name__ == "__main__":
   main()
