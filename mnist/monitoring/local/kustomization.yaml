@@ -28,9 +28,3 @@ patchesJson6902:
     kind: Deployment
     name: tensorboard-tb
     version: v1beta1
-configMapGenerator:
-- literals:
-  - logDir=/mnt
-  - pvcMountPath=/mnt
-  - pvcName=pvcname4
-  name: mnist-map-monitoring
