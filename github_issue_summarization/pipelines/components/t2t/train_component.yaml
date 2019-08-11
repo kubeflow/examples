@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: Copy training checkpoint data
+name: Train T2T model
 description: |
   A Kubeflow Pipeline component to copy training checkpoint data from one bucket
   to another
@@ -20,6 +20,10 @@ metadata:
   labels:
     add-pod-env: 'true'
 inputs:
+  - name: train_steps
+    description: '...'
+    type: Integer
+    default: '2019300'
   - name: working_dir
     description: '...'
     type: GCSPath
@@ -35,6 +39,13 @@ inputs:
   - name: action
     description: '...'
     type: String
+  - name: deploy_webapp
+    description: '...'
+    type: String
+outputs:
+  - name: output
+    description: '...'
+    type: String
 implementation:
   container:
     image: gcr.io/google-samples/ml-pipeline-t2ttrain:v2ap
@@ -43,7 +54,11 @@ implementation:
       --checkpoint-dir, {inputValue: checkpoint_dir},
       --action, {inputValue: action},
       --working-dir, {inputValue: working_dir},
-      --model-dir, {inputValue: model_dir}
+      --model-dir, {inputValue: model_dir},
+      --train-steps, {inputValue: train_steps},
+      --deploy-webapp, {inputValue: deploy_webapp}
     ]
     env:
       KFP_POD_NAME: "{{pod.name}}"
+    fileOutputs:
+      output: /tmp/output

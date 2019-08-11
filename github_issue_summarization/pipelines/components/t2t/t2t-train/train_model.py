@@ -75,7 +75,7 @@ def copy_checkpoint(new_blob_prefix, target_bucket):
         sleeptime *= 2
         num_retries += 1
 
-def run_training(args, data_dir, model_dir):
+def run_training(args, data_dir, model_dir, problem):
   """Run the model training, and when finished export the results."""
 
   if not args.train_steps:
@@ -86,7 +86,7 @@ def run_training(args, data_dir, model_dir):
   # Run the training for N steps.
   model_train_command = ['t2t-trainer', '--data_dir', data_dir,
      '--t2t_usr_dir', '/ml/ghsumm/trainer',
-     '--problem', PROBLEM,
+     '--problem', problem,
      '--model', 'transformer', '--hparams_set', 'transformer_prepend', '--output_dir', model_dir,
      '--job-dir', model_dir,
      '--train_steps', args.train_steps, '--eval_throttle_seconds', '240',
@@ -171,7 +171,7 @@ def main():
     copy_checkpoint(new_blob_prefix, target_bucket)
   elif args.action.lower() == TRAIN_ACTION:
     # launch the training job
-    run_training(args, data_dir, model_dir)
+    run_training(args, data_dir, model_dir, PROBLEM)
   else:
     logging.warn("Error: unknown action mode %s", args.action)
 
