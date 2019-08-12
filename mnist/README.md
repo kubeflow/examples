@@ -16,13 +16,14 @@
       - [Using S3](#using-s3)
   - [Monitoring](#monitoring)
     - [Tensorboard](#tensorboard)
+      - [Local storage](#local-storage-1)
       - [Using GCS](#using-gcs-1)
       - [Using S3](#using-s3-1)
       - [Deploying TensorBoard](#deploying-tensorboard)
   - [Serving the model](#serving-the-model)
     - [GCS](#gcs)
     - [S3](#s3)
-    - [Local storage](#local-storage-1)
+    - [Local storage](#local-storage-2)
   - [Web Front End](#web-front-end)
     - [Connecting via port forwarding](#connecting-via-port-forwarding)
     - [Using IAP on GCP](#using-iap-on-gcp)
@@ -468,6 +469,21 @@ kubectl logs -f mnist-train-dist-chief-0
 There are various ways to monitor workflow/training job. In addition to using `kubectl` to query for the status of `pods`, some basic dashboards are also available.
 
 ### Tensorboard
+
+#### Local storage
+
+Enter the `monitoring/local` from the `mnist` application directory.
+```
+cd monitoring/local
+```
+
+Configure PVC name, mount point, and set log directory.
+```
+kustomize edit add configmap mnist-map-monitoring --from-literal=pvcName=${PVC_NAME}
+kustomize edit add configmap mnist-map-monitoring --from-literal=pvcMountPath=/mnt
+kustomize edit add configmap mnist-map-monitoring --from-literal=logDir=/mnt
+```
+
 
 #### Using GCS
 
