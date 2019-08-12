@@ -469,21 +469,6 @@ There are various ways to monitor workflow/training job. In addition to using `k
 
 ### Tensorboard
 
-#### Local storage
-
-Enter the `monitoring/local` from the `mnist` application directory.
-```
-cd monitoring/local
-```
-
-Configure PVC name, mount point, and set log directory.
-```
-kustomize edit add configmap mnist-map-monitoring --from-literal=pvcName=${PVC_NAME}
-kustomize edit add configmap mnist-map-monitoring --from-literal=pvcMountPath=/mnt
-kustomize edit add configmap mnist-map-monitoring --from-literal=logDir=/mnt
-```
-
-
 #### Using GCS
 
 Enter the `monitoring/GCS` from the `mnist` application directory.
