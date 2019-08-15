@@ -34,7 +34,7 @@ class Net(torch.nn.Module):
     self.fc1 = torch.nn.Linear(320, 50)
     self.fc2 = torch.nn.Linear(50, 10)
 
-  def forward(self, x):
+  def forward(self, x):  # pylint: disable = arguments-differ
     x = f.relu(f.max_pool2d(self.conv1(x), 2))
     x = f.relu(f.max_pool2d(self.conv2_drop(self.conv2(x)), 2))
     x = x.view(-1, 320)
