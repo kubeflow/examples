@@ -5,51 +5,52 @@ import hmac
 import json
 import hashlib
 import argparse
+from random import shuffle
 import numpy as np
 import tensorflow as tf
-from pathlib2 import Path
-from random import shuffle
-from datetime import datetime
 from tensorflow.data import Dataset
+from pathlib2 import Path
 
-global image_size
 
-def info(msg, char = "#", width = 75):
+def info(msg, char="#", width=75):
   print("")
   print(char * width)
-  print(char + "   %0*s" % ((-1*width)+5, msg) + char)
+  print(char + "   %0*s" % ((-1 * width) + 5, msg) + char)
   print(char * width)
 
-def check_dir(path, check=False):
-  if check:
-    assert os.path.exists(path), '{} does not exist!'.format(path)
-  else:
-    if not os.path.exists(path):
-      os.makedirs(path)
-    return Path(path).resolve(strict=False)
 
-def process_image(path, label):
+def check_dir(path):
+  if not os.path.exists(path):
+    os.makedirs(path)
+  return Path(path).resolve(strict=False)
+
+
+def process_image(path, label, img_size):
   img_raw = tf.io.read_file(path)
   img_tensor = tf.image.decode_jpeg(img_raw, channels=3)
-  img_final = tf.image.resize(img_tensor, [image_size, image_size]) / 255
+  img_final = tf.image.resize(img_tensor, [img_size, img_size]) / 255
   return img_final, label
 
-def load_dataset(base_path, dataset, split=[8, 1, 1]):
+
+def load_dataset(base_path, dset, split=None):
   # normalize splits
+  if split is None:
+    split = [8, 1, 1]
   splits = np.array(split) / np.sum(np.array(split))
 
   # find labels - parent folder names
   labels = {}
   for (_, dirs, _) in os.walk(base_path):
     print('found {}'.format(dirs))
-    labels = { k: v for (v, k) in enumerate(dirs) }
+    labels = {k: v for (v, k) in enumerate(dirs)}
     print('using {}'.format(labels))
     break
 
   # load all files along with idx label
-  print('loading dataset from {}'.format(dataset))
-  with open(dataset, 'r') as d:
-    data = [(str(Path(f.strip()).absolute()), labels[Path(f.strip()).parent.name]) for f in d.readlines()]
+  print('loading dataset from {}'.format(dset))
+  with open(dset, 'r') as d:
+    data = [(str(Path(line.strip()).absolute()),
+             labels[Path(line.strip()).parent.name]) for line in d.readlines()]
 
   print('dataset size: {}\nsuffling data...'.format(len(data)))
 
@@ -59,25 +60,29 @@ def load_dataset(base_path, dataset, split=[8, 1, 1]):
   print('splitting data...')
   # split data
   train_idx = int(len(data) * splits[0])
-  eval_idx = int(len(data) * splits[1])
 
-  return data[:train_idx], \
-    data[train_idx:train_idx + eval_idx], \
-    data[train_idx + eval_idx:], \
-    labels
+  return data[:train_idx]
 
-#@print_info
-def run(data_path, image_size=160, epochs=10, batch_size=32, learning_rate=0.0001, output='model', dataset=None):
-  img_shape = (image_size, image_size, 3)
+
+# @print_info
+def run(
+    dpath,
+    img_size=160,
+    epochs=10,
+    batch_size=32,
+    learning_rate=0.0001,
+    output='model',
+    dset=None):
+  img_shape = (img_size, img_size, 3)
 
   info('Loading Data Set')
   # load dataset
-  train, test, val, labels = load_dataset(data_path, dataset)
+  train = load_dataset(dpath, dset)
 
   # training data
   train_data, train_labels = zip(*train)
   train_ds = Dataset.zip((Dataset.from_tensor_slices(list(train_data)),
-                          Dataset.from_tensor_slices(list(train_labels))))
+                          Dataset.from_tensor_slices(list(train_labels)), img_size))
 
   train_ds = train_ds.map(map_func=process_image,
                           num_parallel_calls=5)
@@ -91,8 +96,8 @@ def run(data_path, image_size=160, epochs=10, batch_size=32, learning_rate=0.000
   # model
   info('Creating Model')
   base_model = tf.keras.applications.MobileNetV2(input_shape=img_shape,
-                                              include_top=False,
-                                              weights='imagenet')
+                                                 include_top=False,
+                                                 weights='imagenet')
   base_model.trainable = True
 
   model = tf.keras.Sequential([
@@ -102,15 +107,15 @@ def run(data_path, image_size=160, epochs=10, batch_size=32, learning_rate=0.000
   ])
 
   model.compile(optimizer=tf.keras.optimizers.Adam(lr=learning_rate),
-            loss='binary_crossentropy',
-            metrics=['accuracy'])
+                loss='binary_crossentropy',
+                metrics=['accuracy'])
 
   model.summary()
 
   # training
   info('Training')
-  steps_per_epoch = math.ceil(len(train)/batch_size)
-  history = model.fit(train_ds, epochs=epochs, steps_per_epoch=steps_per_epoch)
+  steps_per_epoch = math.ceil(len(train) / batch_size)
+  model.fit(train_ds, epochs=epochs, steps_per_epoch=steps_per_epoch)
 
   # save model
   info('Saving Model')
@@ -130,18 +135,19 @@ def run(data_path, image_size=160, epochs=10, batch_size=32, learning_rate=0.000
   return generate_hash(file_output, 'kf_pipeline')
 
 
-def generate_hash(file, key):
-  print('Generating hash for {}'.format(file))
+def generate_hash(dfile, key):
+  print('Generating hash for {}'.format(dfile))
   m = hmac.new(str.encode(key), digestmod=hashlib.sha256)
   BUF_SIZE = 65536
-  with open(str(file), 'rb') as f:
+  with open(str(dfile), 'rb') as myfile:
     while True:
-      data = f.read(BUF_SIZE)
+      data = myfile.read(BUF_SIZE)
       if not data:
         break
       m.update(data)
 
   return m.hexdigest()
+
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser(description='transfer learning for binary image task')
@@ -165,13 +171,13 @@ if __name__ == "__main__":
   params = Path(args.base_path).joinpath('params.json')
 
   args = {
-      "data_path": str(data_path),
-      "image_size": image_size,
-      "epochs": args.epochs,
-      "batch_size": args.batch,
-      "learning_rate": args.lr,
-      "output": str(target_path),
-      "dataset": str(dataset)
+    "dpath": str(data_path),
+    "img_size": image_size,
+    "epochs": args.epochs,
+    "batch_size": args.batch,
+    "learning_rate": args.lr,
+    "output": str(target_path),
+    "dset": str(dataset)
   }
 
   dataset_signature = generate_hash(dataset, 'kf_pipeline')

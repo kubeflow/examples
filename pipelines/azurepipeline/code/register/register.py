@@ -1,22 +1,22 @@
 import json
 from os.path import relpath
-import azureml
 import argparse
 from pathlib2 import Path
+import azureml
 from azureml.core import Workspace
 from azureml.core.model import Model
-from azureml.core.image import ContainerImage, Image
-from azureml.core.webservice import Webservice, AciWebservice
-from azureml.core.authentication import ServicePrincipalAuthentication 
+from azureml.core.authentication import ServicePrincipalAuthentication
 
-def info(msg, char = "#", width = 75):
-  print("")
-  print(char * width)
-  print(char + "   %0*s" % ((-1*width)+5, msg) + char)
-  print(char * width)
 
-def run(model_path, model_name, tenant_id, service_principal_id,
-    service_principal_password, subscription_id, resource_group, workspace, tags):
+def info(msg, char="#", width=75):
+  print ""
+  print char * width
+  print char + "   %0*s" % ((-1 * width) + 5, msg) + char
+  print char * width
+
+
+def get_ws(tenant_id, service_principal_id,
+        service_principal_password, subscription_id, resource_group, workspace):
   auth_args = {
     'tenant_id': tenant_id,
     'service_principal_id': service_principal_id,
@@ -28,18 +28,21 @@ def run(model_path, model_name, tenant_id, service_principal_id,
     'subscription_id': subscription_id,
     'resource_group': resource_group
   }
-
   ws = Workspace.get(workspace, **ws_args)
+  return ws
 
-  print(ws.get_details())
+def run(mdl_path, model_name, ws, tgs):
 
-  print('\nSaving model {} to {}'.format(model_path, model_name))
+  print ws.get_details()
+
+  print '\nSaving model {} to {}'.format(mdl_path, model_name)
 
   # Model Path needs to be relative
-  model_path = relpath(model_path, '.')
+  mdl_path = relpath(mdl_path, '.')
 
-  model = Model.register(ws, model_name=model_name, model_path=model_path, tags=tags)
-  print('Done!')
+  Model.register(ws, model_name=model_name, model_path=mdl_path, tags=tgs)
+  print 'Done!'
+
 
 if __name__ == "__main__":
   # argparse stuff for model path and model name
@@ -54,14 +57,14 @@ if __name__ == "__main__":
   parser.add_argument('-r', '--resource_group', help='resource_group')
   parser.add_argument('-w', '--workspace', help='workspace')
   args = parser.parse_args()
-  
-  print('Azure ML SDK Version: {}'.format(azureml.core.VERSION))
+
+  print 'Azure ML SDK Version: {}'.format(azureml.core.VERSION)
   args.model = 'model/' + args.model
-  model_path = str(Path(args.base_path).resolve(strict=False).joinpath(args.model).resolve(strict=False))
-  params_path = str(Path(args.base_path).resolve(strict=False).joinpath('params.json').resolve(strict=False))
-  rgs = {
-    'model_path': model_path,
-    'model_name': args.model_name,
+  model_path = str(Path(args.base_path).resolve(
+    strict=False).joinpath(args.model).resolve(strict=False))
+  params_path = str(Path(args.base_path).resolve(
+    strict=False).joinpath('params.json').resolve(strict=False))
+  wsrgs = {
     'tenant_id': args.tenant_id,
     'service_principal_id': args.service_principal_id,
     'service_principal_password': args.service_principal_password,
@@ -69,23 +72,29 @@ if __name__ == "__main__":
     'resource_group': args.resource_group,
     'workspace': args.workspace
   }
+  rgs = {
+    'mdl_path': model_path,
+    'model_name': args.model_name
+  }
 
   # printing out args for posterity
-  for i in rgs:
+  for i in wsrgs:
     if i == 'service_principal_password':
-      print('{} => **********'.format(i))
+      print '{} => **********'.format(i)
     else:
-      print('{} => {}'.format(i, rgs[i]))
+      print '{} => {}'.format(i, rgs[i])
 
   with(open(str(params_path), 'r')) as f:
     tags = json.load(f)
 
-  print('\n\nUsing the following tags:')
+  print '\n\nUsing the following tags:'
   for tag in tags:
-    print('{} => {}'.format(tag, tags[tag]))
+    print '{} => {}'.format(tag, tags[tag])
 
   rgs['tags'] = tags
 
+  workspc = get_ws(**wsrgs)
+  rgs['ws'] = workspc
   run(**rgs)
 
   # python register.py --model_path v --model_name c --tenant_id c
