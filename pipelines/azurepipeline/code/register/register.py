@@ -9,14 +9,14 @@ from azureml.core.authentication import ServicePrincipalAuthentication
 
 
 def info(msg, char="#", width=75):
-  print ""
-  print char * width
-  print char + "   %0*s" % ((-1 * width) + 5, msg) + char
-  print char * width
+  print("")
+  print(char * width)
+  print(char + "   %0*s" % ((-1 * width) + 5, msg) + char)
+  print(char * width)
 
 
 def get_ws(tenant_id, service_principal_id,
-        service_principal_password, subscription_id, resource_group, workspace):
+           service_principal_password, subscription_id, resource_group, workspace):
   auth_args = {
     'tenant_id': tenant_id,
     'service_principal_id': service_principal_id,
@@ -31,17 +31,17 @@ def get_ws(tenant_id, service_principal_id,
   ws = Workspace.get(workspace, **ws_args)
   return ws
 
+
 def run(mdl_path, model_name, ws, tgs):
+  print(ws.get_details())
 
-  print ws.get_details()
-
-  print '\nSaving model {} to {}'.format(mdl_path, model_name)
+  print('\nSaving model {} to {}'.format(mdl_path, model_name))
 
   # Model Path needs to be relative
   mdl_path = relpath(mdl_path, '.')
 
   Model.register(ws, model_name=model_name, model_path=mdl_path, tags=tgs)
-  print 'Done!'
+  print('Done!')
 
 
 if __name__ == "__main__":
@@ -58,7 +58,7 @@ if __name__ == "__main__":
   parser.add_argument('-w', '--workspace', help='workspace')
   args = parser.parse_args()
 
-  print 'Azure ML SDK Version: {}'.format(azureml.core.VERSION)
+  print('Azure ML SDK Version: {}'.format(azureml.core.VERSION))
   args.model = 'model/' + args.model
   model_path = str(Path(args.base_path).resolve(
     strict=False).joinpath(args.model).resolve(strict=False))
@@ -80,16 +80,16 @@ if __name__ == "__main__":
   # printing out args for posterity
   for i in wsrgs:
     if i == 'service_principal_password':
-      print '{} => **********'.format(i)
+      print('{} => **********'.format(i))
     else:
-      print '{} => {}'.format(i, rgs[i])
+      print('{} => {}'.format(i, rgs[i]))
 
   with(open(str(params_path), 'r')) as f:
     tags = json.load(f)
 
-  print '\n\nUsing the following tags:'
+  print('\n\nUsing the following tags:')
   for tag in tags:
-    print '{} => {}'.format(tag, tags[tag])
+    print('{} => {}'.format(tag, tags[tag]))
 
   rgs['tags'] = tags
 
