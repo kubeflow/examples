@@ -93,7 +93,7 @@ def run_training(args, data_dir, model_dir, problem):
      ]
   print(model_train_command)
   result2 = subprocess.call(model_train_command)
-  print(result2)
+  # print(result2)
 
   # then export the model...
 
@@ -103,7 +103,7 @@ def run_training(args, data_dir, model_dir, problem):
       '--t2t_usr_dir', '/ml/ghsumm/trainer', '--data_dir', data_dir, '--output_dir', model_dir]
   print(model_export_command)
   result3 = subprocess.call(model_export_command)
-  print(result3)
+  # print(result3)
 
   print("deploy-webapp arg: %s" % args.deploy_webapp)
   with open('/tmp/output', 'w') as f:
