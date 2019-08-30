@@ -1,4 +1,4 @@
-# Copyright 2018 Google LLC
+# Copyright 2019 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,19 @@
 
 import kfp.dsl as dsl
 import kfp.gcp as gcp
+import kfp.components as comp
 
+
+COPY_ACTION = 'copy_data'
+TRAIN_ACTION = 'train'
+
+copydata_op = comp.load_component_from_url(
+  'https://raw.githubusercontent.com/amygdala/kubeflow-examples/preempt/github_issue_summarization/pipelines/components/t2t/datacopy_component.yaml'
+  )
+
+train_op = comp.load_component_from_url(
+  'https://raw.githubusercontent.com/amygdala/kubeflow-examples/preempt/github_issue_summarization/pipelines/components/t2t/train_component.yaml'
+  )
 
 @dsl.pipeline(
   name='Github issue summarization',
@@ -32,17 +44,22 @@ def gh_summ(  #pylint: disable=unused-argument
   ):
 
 
-  train = dsl.ContainerOp(
-      name='train',
-      image='gcr.io/google-samples/ml-pipeline-t2ttrain:v1ap',
-      arguments=["--data-dir", data_dir,
-          "--checkpoint-dir", checkpoint_dir,
-          "--working-dir", working_dir,
-          "--model-dir", '%s/%s/model_output' % (working_dir, '{{workflow.name}}'),
-          "--train-steps", train_steps, "--deploy-webapp", deploy_webapp],
-      file_outputs={'output': '/tmp/output'}
+  copydata = copydata_op(
+    working_dir=working_dir,
+    data_dir=data_dir,
+    checkpoint_dir=checkpoint_dir,
+    model_dir='%s/%s/model_output' % (working_dir, '{{workflow.name}}'),
+    action=COPY_ACTION
+    ).apply(gcp.use_gcp_secret('user-gcp-sa'))
 
-      ).apply(gcp.use_gcp_secret('user-gcp-sa'))
+  train = train_op(
+    working_dir=working_dir,
+    data_dir=data_dir,
+    checkpoint_dir=checkpoint_dir,
+    model_dir='%s/%s/model_output' % (working_dir, '{{workflow.name}}'),
+    action=TRAIN_ACTION, train_steps=train_steps,
+    deploy_webapp=deploy_webapp
+    ).apply(gcp.use_gcp_secret('user-gcp-sa'))
 
   serve = dsl.ContainerOp(
       name='serve',
@@ -51,14 +68,16 @@ def gh_summ(  #pylint: disable=unused-argument
           "--model_path", '%s/%s/model_output/export' % (working_dir, '{{workflow.name}}')
           ]
       )
+  train.after(copydata)
   serve.after(train)
+  # train.set_gpu_limit(4).apply(gcp.use_preemptible_nodepool()).set_retry(5)
   train.set_gpu_limit(4)
   train.set_memory_limit('48G')
 
   with dsl.Condition(train.output == 'true'):
     webapp = dsl.ContainerOp(
         name='webapp',
-        image='gcr.io/google-samples/ml-pipeline-webapp-launcher',
+        image='gcr.io/google-samples/ml-pipeline-webapp-launcher:v2ap',
         arguments=["--model_name", 'ghsumm-%s' % ('{{workflow.name}}',),
             "--github_token", github_token]
 

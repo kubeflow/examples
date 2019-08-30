@@ -36,7 +36,7 @@ def gh_summ(
 
   webapp = dsl.ContainerOp(
       name='webapp',
-      image='gcr.io/google-samples/ml-pipeline-webapp-launcher',
+      image='gcr.io/google-samples/ml-pipeline-webapp-launcher:v2ap',
       arguments=["--model_name", 'ghsumm-%s' % ('{{workflow.name}}',),
           "--github_token", github_token]
 
