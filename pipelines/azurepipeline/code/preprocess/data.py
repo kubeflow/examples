@@ -73,7 +73,7 @@ def walk_images(path, image_size=160):
         # write out good images
         imgs.append(image)
       except img.shape[2] != 3:
-        print('{}\n{}\n'.format(e, image))
+        print('{}\n'.format(image))
 
   return imgs
 
