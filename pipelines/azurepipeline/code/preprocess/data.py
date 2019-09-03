@@ -2,9 +2,9 @@ import os
 import shutil
 import zipfile
 import argparse
+from pathlib2 import Path
 import wget
 import tensorflow as tf
-from pathlib2 import Path
 
 
 def check_dir(path):
@@ -72,7 +72,7 @@ def walk_images(path, image_size=160):
         assert img.shape[2] == 3, "Invalid channel count"
         # write out good images
         imgs.append(image)
-      except Exception as e:
+      except img.shape[2] != 3:
         print('{}\n{}\n'.format(e, image))
 
   return imgs
