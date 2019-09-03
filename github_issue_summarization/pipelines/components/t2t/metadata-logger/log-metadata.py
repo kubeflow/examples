@@ -15,18 +15,19 @@
 import argparse
 from datetime import datetime
 import logging
+import retrying
 
 from kfmd import metadata
 
-WORKSPACE_NAME = 'ws_gh_summ'
 DATASET = 'dataset'
 MODEL = 'model'
+METADATA_SERVICE = "metadata-service.kubeflow:8080"
 
 
 def get_or_create_workspace(ws_name):
   return metadata.Workspace(
     # Connect to metadata-service in namesapce kubeflow in the k8s cluster.
-    backend_url_prefix="metadata-service.kubeflow:8080",
+    backend_url_prefix=METADATA_SERVICE,
     name=ws_name,
     description="a workspace for the GitHub summarization task",
     labels={"n1": "v1"})
@@ -38,8 +39,8 @@ def get_or_create_workspace_run(md_workspace, run_name):
     description="Metadata run for workflow %s" % run_name,
   )
 
+@retrying.retry(stop_max_delay=180000)
 def log_model_info(ws, ws_run, model_uri):
-  # test logging metadata
   exec2 = metadata.Execution(
       name = "execution" + datetime.utcnow().isoformat("T") ,
       workspace=ws,
@@ -55,8 +56,8 @@ def log_model_info(ws, ws_run, model_uri):
           version="v1.0.0"
           ))
 
+@retrying.retry(stop_max_delay=180000)
 def log_dataset_info(ws, ws_run, data_uri):
-  # test logging metadata
   exec1 = metadata.Execution(
       name = "execution" + datetime.utcnow().isoformat("T") ,
       workspace=ws,

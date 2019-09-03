@@ -38,7 +38,7 @@ inputs:
     default: ''
 implementation:
   container:
-    image: gcr.io/aju-vtests2/ml-pipeline-metadata-logger
+    image: gcr.io/google-samples/ml-pipeline-metadata-logger:v1
     args: [
       --log-type, {inputValue: log_type},
       --workspace-name, {inputValue: workspace_name},
