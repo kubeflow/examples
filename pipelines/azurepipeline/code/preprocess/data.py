@@ -33,7 +33,7 @@ def download(source, target, force_clear=False):
     print("Copying from {} to {}".format(source, target))
     shutil.copyfile(source, targt_file)
 
-  print 'Unzipping {}'.format(targt_file)
+  print('Unzipping {}'.format(targt_file))
   zipr = zipfile.ZipFile(targt_file)
   zipr.extractall(target)
   zipr.close()

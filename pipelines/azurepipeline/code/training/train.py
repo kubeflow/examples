@@ -6,10 +6,10 @@ import json
 import hashlib
 import argparse
 from random import shuffle
+from pathlib2 import Path
 import numpy as np
 import tensorflow as tf
 from tensorflow.data import Dataset
-from pathlib2 import Path
 
 
 def info(msg, char="#", width=75):
