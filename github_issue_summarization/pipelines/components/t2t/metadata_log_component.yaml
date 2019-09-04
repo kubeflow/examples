@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: log_metatdata
+name: log_metadata
 description: |
   A Kubeflow Pipeline component to log dataset or model metadata
 metadata:

@@ -20,6 +20,9 @@ import kfp.components as comp
 
 COPY_ACTION = 'copy_data'
 TRAIN_ACTION = 'train'
+WORKSPACE_NAME = 'ws_gh_summ'
+DATASET = 'dataset'
+MODEL = 'model'
 
 copydata_op = comp.load_component_from_url(
   'https://raw.githubusercontent.com/amygdala/kubeflow-examples/preempt/github_issue_summarization/pipelines/components/t2t/datacopy_component.yaml'
@@ -27,6 +30,10 @@ copydata_op = comp.load_component_from_url(
 
 train_op = comp.load_component_from_url(
   'https://raw.githubusercontent.com/amygdala/kubeflow-examples/preempt/github_issue_summarization/pipelines/components/t2t/train_component.yaml'
+  )
+
+metadata_log_op = comp.load_component_from_url(
+  'https://raw.githubusercontent.com/amygdala/kubeflow-examples/preempt/github_issue_summarization/pipelines/components/t2t/metadata_log_component.yaml'
   )
 
 @dsl.pipeline(
@@ -52,6 +59,14 @@ def gh_summ(  #pylint: disable=unused-argument
     action=COPY_ACTION
     ).apply(gcp.use_gcp_secret('user-gcp-sa'))
 
+
+  log_dataset = metadata_log_op(
+    log_type=DATASET,
+    workspace_name=WORKSPACE_NAME,
+    run_name='{{workflow.name}}',
+    data_uri=data_dir
+    )
+
   train = train_op(
     working_dir=working_dir,
     data_dir=data_dir,
@@ -61,6 +76,14 @@ def gh_summ(  #pylint: disable=unused-argument
     deploy_webapp=deploy_webapp
     ).apply(gcp.use_gcp_secret('user-gcp-sa'))
 
+
+  log_model = metadata_log_op(
+    log_type=MODEL,
+    workspace_name=WORKSPACE_NAME,
+    run_name='{{workflow.name}}',
+    model_uri='%s/%s/model_output' % (working_dir, '{{workflow.name}}')
+    )
+
   serve = dsl.ContainerOp(
       name='serve',
       image='gcr.io/google-samples/ml-pipeline-kubeflow-tfserve',
@@ -68,7 +91,9 @@ def gh_summ(  #pylint: disable=unused-argument
           "--model_path", '%s/%s/model_output/export' % (working_dir, '{{workflow.name}}')
           ]
       )
+  log_dataset.after(copydata)
   train.after(copydata)
+  log_model.after(train)
   serve.after(train)
   train.set_gpu_limit(4).apply(gcp.use_preemptible_nodepool()).set_retry(5)
   train.set_memory_limit('48G')
