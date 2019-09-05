@@ -15,7 +15,7 @@ from absl import flags
 #  function used to build a Kubeflow
 #  pipeline component.
 # -------------------------------------
-def download_dataset(fname:str, origin:str, cachedir:str="./", cachesubdir:str='datasets')-> str:
+def download_dataset(fname: str, origin: str, cachedir: str = "./", cachesubdir: str = 'datasets') -> str:
   """
   Download Pix2Pix datasets.
 
@@ -72,7 +72,7 @@ def download_dataset(fname:str, origin:str, cachedir:str="./", cachesubdir:str='
 
     return data_path
 
-  except Exception:
+  except ConnectionError:
     print('Failed to download the dataset at url {}'.format(origin))
     return None
 
@@ -97,3 +97,4 @@ if __name__ == '__main__':
   FLAGS = flags.FLAGS
 
   app.run(main)
+  
