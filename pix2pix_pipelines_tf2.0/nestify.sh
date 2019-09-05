@@ -109,7 +109,7 @@ do
     /#KFP-BEGIN/ { p = 1 ; next };
     /#KFP-END/  { p = 0 ; next };
 
-    p { sub(/^/, "    ")};
+    p { sub(/^/, "  ")};
     p { print }
 
     ' ${file} > nestify-partial-code.tmp
