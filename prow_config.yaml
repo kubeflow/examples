@@ -61,3 +61,14 @@ workflows:
       - postsubmit
     include_dirs:
       - pytorch_mnist/*
+
+  # E2E test for xgboost-synthetic
+  - app_dir: kubeflow/examples/test/workflows
+    component: xgboost_synthetic
+    name: xgboost2
+    job_types:
+      - periodic
+      - presubmit
+      - postsubmit
+    include_dirs:
+      - xgboost_synthetic/*
