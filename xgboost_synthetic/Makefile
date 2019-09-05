@@ -34,6 +34,11 @@ build-dir: ./Dockerfile ./requirements.txt
 	mkdir  -p ./.build
 	cp ./requirements.txt ./.build/
 	cp ./Dockerfile* ./.build/
+	cp ./build-train-deploy.ipynb ./.build/
+	cp ./util.py ./.build/
+	cp ./xgboost_util.py ./.build/
+	cp -rf ./testing ./.build/
+
 
 build: build-dir
 	cd .build && docker build ${DOCKER_BUILD_OPTS} -t $(IMG):$(TAG) -f Dockerfile . \
@@ -44,7 +49,7 @@ build: build-dir
 
 build-gcb: build-dir
 	gcloud builds submit --machine-type=n1-highcpu-32 --project=$(PROJECT) --tag=$(IMG):$(TAG) \
-		--timeout=3600 ./build
+		--timeout=3600 ./.build
 	@echo Built $(IMG):$(TAG)
 
 # Build but don't attach the latest tag. This allows manual testing/inspection of the image

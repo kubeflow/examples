@@ -10,3 +10,5 @@ retrying
 seldon-core
 sklearn
 xgboost
+papermill
+tornado>=6.0.3

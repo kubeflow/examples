@@ -1,0 +1,5 @@
+varReference:
+- path: metadata/name
+  kind: Job
+- path: spec/template/spec/containers/image
+  kind: Job

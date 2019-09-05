@@ -1,0 +1,29 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: $(job_name)
+spec:
+  template:
+    metadata:
+      labels:
+        app: xgboost-synthetics-testing
+    spec:
+      restartPolicy: Never
+      securityContext:
+        runAsUser: 0
+      containers:
+      - name: executing-notebooks
+        image: $(image_name)
+        command: ["python3", "execute_notebook.py"]
+        workingDir: /opt/xgboost_synthetic/testing
+        volumeMounts:
+        - mountPath: /var/secrets
+          name: user-gcp-sa
+          readOnly: true
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /var/secrets/user-gcp-sa.json
+      volumes:
+      - name: user-gcp-sa
+        secret:
+          secretName: user-gcp-sa
