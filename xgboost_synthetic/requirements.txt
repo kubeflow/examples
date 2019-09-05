@@ -10,3 +10,4 @@ retrying
 seldon-core
 sklearn
 xgboost
+tornado>=6.0.3
