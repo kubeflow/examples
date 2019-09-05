@@ -1,0 +1,51 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: $(job_name)
+spec:
+  template:
+    metadata:
+      labels:
+        app: xgboost-synthetics-testing
+    spec:
+      restartPolicy: Never
+      securityContext:
+        runAsUser: 0
+      initContainers:
+      # This init container checks out the source code.
+      - command:
+        - /usr/local/bin/checkout_repos.sh
+        - --repos=kubeflow/examples@$(CHECK_TAG)
+        - --src_dir=/src
+        - --depth=all
+        name: checkout
+        image: gcr.io/kubeflow-ci/test-worker:v20190802-c6f9140-e3b0c4
+        volumeMounts:
+        - mountPath: /src
+          name: src
+        env:
+        - name: CHECK_TAG
+          valueFrom:
+            configMapKeyRef:
+              name: xgb-notebooks-tests
+              key: checkTag
+      containers:
+      - name: executing-notebooks
+        image: execute-image
+        command: ["python3", "execute_notebook.py"]
+        workingDir: /src/kubeflow/examples/xgboost_synthetic/testing
+        volumeMounts:
+        - mountPath: /var/secrets
+          name: user-gcp-sa
+          readOnly: true
+        - mountPath: /src
+          name: src
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /var/secrets/user-gcp-sa.json
+      volumes:
+      - name: user-gcp-sa
+        secret:
+          secretName: user-gcp-sa
+      - name: src
+        emptyDir: {}

@@ -1,0 +1,28 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: kubeflow
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+resources:
+- job.yaml
+- role.yaml
+- rolebinding.yaml
+
+configurations:
+- params.yaml
+
+configMapGenerator:
+- name: xgb-notebooks-tests
+  literals:
+
+vars:
+- fieldref:
+    fieldPath: data.name
+  name: job_name
+  objref:
+    apiVersion: v1
+    kind: ConfigMap
+    name: xgb-notebooks-tests
