@@ -3,6 +3,7 @@ fire
 gitpython
 google-cloud-storage
 joblib
+kfmd
 numpy
 pandas
 retrying
