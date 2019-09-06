@@ -15,7 +15,7 @@ from absl import flags
 #  function used to build a Kubeflow
 #  pipeline component.
 # -------------------------------------
-def download_dataset(fname: str, origin: str, 
+def download_dataset(fname: str, origin: str,
                      cachedir: str = "./", cachesubdir: str = 'datasets') -> str:
   """
   Download Pix2Pix datasets.

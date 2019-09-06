@@ -18,7 +18,7 @@ from model import Generator, Discriminator, discriminator_loss, generator_loss  
 #  function used to build a Kubeflow
 #  pipeline component.
 # -------------------------------------
-def train_pix2pix(pathdataset: str, pathmodel: str, pathlogs: str, epochs: int = 150, 
+def train_pix2pix(pathdataset: str, pathmodel: str, pathlogs: str, epochs: int = 150,
                   learningrate: float = 2e-4, batchsize: int = 1)-> str:
   """
   Train Pix2Pix.

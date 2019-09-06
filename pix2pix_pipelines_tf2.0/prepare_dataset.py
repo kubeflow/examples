@@ -108,7 +108,8 @@ def prepare_dataset(pathimg: str, pathimgsubdir: str) -> str:
   with tf.io.TFRecordWriter(pathtfrecords) as writer:
 
     # Loop over all the images in the dataset
-    for idx, jpeg_file in enumerate(os.listdir(path_to_image)):
+    nb_images = 0
+    for jpeg_file in os.listdir(path_to_image):
 
       # Load jpeg image and convert into a Numpy array
       img_array = load_jpeg(path_to_image, jpeg_file)
@@ -142,10 +143,12 @@ def prepare_dataset(pathimg: str, pathimgsubdir: str) -> str:
       writer.write(example.SerializeToString())
 
       # Add monitoring info
-      if idx % 100 == 0:
-        print("[INFO] {} images processed into the TFRecord file".format(idx))
+      if nb_images % 100 == 0:
+        print("[INFO] {} images processed into the TFRecord file".format(nb_images))
 
-    print("\n[INFO] Processing done: {} jpeg images processed into {}\n".format(idx, pathtfrecords))
+      nb_images = nb_images + 1
+
+    print("\n[INFO] Processing done: {} jpeg images processed into {}\n".format(nb_images, pathtfrecords))
 
 
   # ------------------------------
