@@ -212,7 +212,7 @@ def save_image(img, image_name):
 
 
 
-def display_results(path_to_images, display_max_examples=3, reverse=True):
+def display_results(path_to_images, display_max_examples=3):
   '''
   Display a few image examples from the the Dataset Input/target
   and associated Generated images from the Pix2Pix GAN generator
@@ -220,20 +220,12 @@ def display_results(path_to_images, display_max_examples=3, reverse=True):
   Args:
     path_to_ouputs       (str)  : path to the Pix2Pix outputs
     display_max_examples (int)  : Number of samples to display (0 to display all)
-    reverse              (bool) : False = oldest images first and vice-versa
   '''
 
-  # During the testing task, images are saved to disk in the following order :
-  # img_a, img_b and fake_b. Thus we can compute list of picture files from latest
-  # to oldest or vice-versa
-  images_a = [s for s in glob.glob(path_to_images + "/img_a*") if os.path.isfile(s)]
-  images_a.sort(key=lambda s: os.path.getmtime(s), reverse=reverse)
-
-  images_b = [s for s in glob.glob(path_to_images + "/img_b*") if os.path.isfile(s)]
-  images_b.sort(key=lambda s: os.path.getmtime(s), reverse=reverse)
-
-  images_fake = [s for s in glob.glob(path_to_images + "/fake_b*") if os.path.isfile(s)]
-  images_fake.sort(key=lambda s: os.path.getmtime(s), reverse=reverse)
+  # Compute list of picture files (sorted images_a by name)
+  images_a = sorted([s for s in glob.glob(path_to_images + "/img_a*") if os.path.isfile(s)])
+  images_b = sorted([s for s in glob.glob(path_to_images + "/img_b*") if os.path.isfile(s)])
+  images_fake = sorted([s for s in glob.glob(path_to_images + "/fake_b*") if os.path.isfile(s)])
 
   # Display the pictures in a grid
   for idx, (a, f, b) in enumerate(zip(images_a, images_fake, images_b)):

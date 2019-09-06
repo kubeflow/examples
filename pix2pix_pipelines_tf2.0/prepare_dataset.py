@@ -15,7 +15,7 @@ from absl import flags
 #  function used to build a Kubeflow
 #  pipeline component.
 # -------------------------------------
-def prepare_dataset(pathimg:str, pathimgsubdir:str) -> str:
+def prepare_dataset(pathimg: str, pathimgsubdir: str) -> str:
   """
     Create a TFRecord file from jpeg images (containing both the
     input and target parts), and split it into 2 halves accross the width.
@@ -108,7 +108,7 @@ def prepare_dataset(pathimg:str, pathimgsubdir:str) -> str:
   with tf.io.TFRecordWriter(pathtfrecords) as writer:
 
     # Loop over all the images in the dataset
-    for i, jpeg_file in enumerate(os.listdir(path_to_image)):
+    for idx, jpeg_file in enumerate(os.listdir(path_to_image)):
 
       # Load jpeg image and convert into a Numpy array
       img_array = load_jpeg(path_to_image, jpeg_file)
@@ -142,10 +142,10 @@ def prepare_dataset(pathimg:str, pathimgsubdir:str) -> str:
       writer.write(example.SerializeToString())
 
       # Add monitoring info
-      if i % 100 == 0:
-        print("[INFO] {} images processed into the TFRecord file".format(i))
+      if idx % 100 == 0:
+        print("[INFO] {} images processed into the TFRecord file".format(idx))
 
-    print("\n[INFO] Processing done: {} jpeg images processed into {}\n".format(i, pathtfrecords))
+    print("\n[INFO] Processing done: {} jpeg images processed into {}\n".format(idx, pathtfrecords))
 
 
   # ------------------------------

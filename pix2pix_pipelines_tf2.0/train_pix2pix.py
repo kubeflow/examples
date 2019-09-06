@@ -18,7 +18,8 @@ from model import Generator, Discriminator, discriminator_loss, generator_loss  
 #  function used to build a Kubeflow
 #  pipeline component.
 # -------------------------------------
-def train_pix2pix(pathdataset:str, pathmodel:str, pathlogs:str, epochs:int=150, learningrate:float=2e-4, batchsize:int=1 )-> str:
+def train_pix2pix(pathdataset: str, pathmodel: str, pathlogs: str, epochs: int = 150, 
+                  learningrate: float = 2e-4, batchsize: int = 1)-> str:
   """
   Train Pix2Pix.
 
@@ -42,9 +43,7 @@ def train_pix2pix(pathdataset:str, pathmodel:str, pathlogs:str, epochs:int=150, 
   #  includes inside that python
   #  function.
   # ------------------------------
-  import numpy as np
   import tensorflow as tf
-  import os
   import json
   import time
 
@@ -220,7 +219,7 @@ def train_pix2pix(pathdataset:str, pathmodel:str, pathlogs:str, epochs:int=150, 
     # ------------------------------
     #      Display progression
     # ------------------------------
-    print ('Epoch {}/{} ( {:.1f} sec)  gen_loss={:.6f}  disc_loss={:.6f}'
+    print('Epoch {}/{} ( {:.1f} sec)  gen_loss={:.6f}  disc_loss={:.6f}'
        .format(epoch + 1, epochs, time.time()-start, gen_loss, disc_loss))
 
   print("End of training")

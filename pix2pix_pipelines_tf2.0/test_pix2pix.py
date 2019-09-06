@@ -19,7 +19,7 @@ from model import Generator   #KFP-NEST-IMPORT
 #  function used to build a Kubeflow
 #  pipeline component.
 # -------------------------------------
-def test_pix2pix(pathdataset:str, pathoutput:str, pathmodel:str)-> str:
+def test_pix2pix(pathdataset: str, pathoutput: str, pathmodel: str)-> str:
   """
   Use the Pix2Pix trained model to generate ("translate")
   images from the Test dataset
@@ -43,9 +43,6 @@ def test_pix2pix(pathdataset:str, pathoutput:str, pathmodel:str)-> str:
   # ------------------------------
   import numpy as np
   import tensorflow as tf
-  import os
-  import json
-  import time
 
   # The below tag comment is used by a tool script from this project to automatically nest
   # the python code of the imports function tagged KFP-NEST-IMPORT, just right after this tag.
