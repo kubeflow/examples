@@ -148,7 +148,7 @@ def prepare_dataset(pathimg: str, pathimgsubdir: str) -> str:
 
       nb_images = nb_images + 1
 
-    print("\n[INFO] Processing done: {} jpeg images processed into {}\n".format(nb_images, pathtfrecords))
+    print("\n[INFO] Done: {} jpeg images processed into {}\n".format(nb_images, pathtfrecords))
 
 
   # ------------------------------
