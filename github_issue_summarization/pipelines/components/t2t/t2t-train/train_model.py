@@ -30,6 +30,7 @@ PREFIX = 'kubecon/model_output_tbase.bak2019000/'
 COPY_ACTION = 'copy_data'
 TRAIN_ACTION = 'train'
 PROBLEM = 'gh_problem'
+OUTPUT_PATH = '/tmp/output'
 
 
 
@@ -92,7 +93,7 @@ def run_training(args, data_dir, model_dir, problem):
      '--train_steps', args.train_steps, '--eval_throttle_seconds', '240',
      ]
   print(model_train_command)
-  result2 = subprocess.call(model_train_command)
+  result2 = subprocess.call(model_train_command)  # pylint: disable=unused-variable
   # print(result2)
 
   # then export the model...
@@ -102,11 +103,11 @@ def run_training(args, data_dir, model_dir, problem):
       '--problem', problem,
       '--t2t_usr_dir', '/ml/ghsumm/trainer', '--data_dir', data_dir, '--output_dir', model_dir]
   print(model_export_command)
-  result3 = subprocess.call(model_export_command)
+  result3 = subprocess.call(model_export_command)  # pylint: disable=unused-variable
   # print(result3)
 
   print("deploy-webapp arg: %s" % args.deploy_webapp)
-  with open('/tmp/output', 'w') as f:
+  with open(OUTPUT_PATH, 'w') as f:
     f.write(args.deploy_webapp)
 
 
@@ -173,7 +174,7 @@ def main():
     # launch the training job
     run_training(args, data_dir, model_dir, PROBLEM)
   else:
-    logging.warn("Error: unknown action mode %s", args.action)
+    logging.warning("Error: unknown action mode %s", args.action)
 
 
 

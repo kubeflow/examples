@@ -42,12 +42,12 @@ def get_or_create_workspace_run(md_workspace, run_name):
 @retrying.retry(stop_max_delay=180000)
 def log_model_info(ws, ws_run, model_uri):
   exec2 = metadata.Execution(
-      name = "execution" + datetime.utcnow().isoformat("T") ,
+      name="execution" + datetime.utcnow().isoformat("T"),
       workspace=ws,
       run=ws_run,
       description="train action",
   )
-  data_set = exec2.log_input(
+  _ = exec2.log_input(
       metadata.Model(
           description="t2t model",
           name="t2t-model",
@@ -59,12 +59,12 @@ def log_model_info(ws, ws_run, model_uri):
 @retrying.retry(stop_max_delay=180000)
 def log_dataset_info(ws, ws_run, data_uri):
   exec1 = metadata.Execution(
-      name = "execution" + datetime.utcnow().isoformat("T") ,
+      name="execution" + datetime.utcnow().isoformat("T"),
       workspace=ws,
       run=ws_run,
       description="copy action",
   )
-  data_set = exec1.log_input(
+  _ = exec1.log_input(
       metadata.DataSet(
           description="gh summarization data",
           name="gh-summ-data",
@@ -112,7 +112,7 @@ def main():
   elif args.log_type.lower() == MODEL:
     log_model_info(ws, ws_run, args.model_uri)
   else:
-    logging.warn("Error: unknown metadata logging type %s", args.log_type)
+    logging.warning("Error: unknown metadata logging type %s", args.log_type)
 
 
 

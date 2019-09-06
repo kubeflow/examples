@@ -5,6 +5,8 @@
 
 ## Introduction
 
+**Note: This tutorial is deprecated.  It will be updated soon.**
+
 
 [Kubeflow](https://www.kubeflow.org/) is an OSS project to support a machine learning stack on Kubernetes, to make deployments of ML workflows on Kubernetes simple, portable and scalable.
 

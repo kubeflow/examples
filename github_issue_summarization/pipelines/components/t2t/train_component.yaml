@@ -14,8 +14,8 @@
 
 name: Train T2T model
 description: |
-  A Kubeflow Pipeline component to copy training checkpoint data from one bucket
-  to another
+  A Kubeflow Pipeline component to train a Tensor2Tensor
+  model
 metadata:
   labels:
     add-pod-env: 'true'
