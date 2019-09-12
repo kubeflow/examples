@@ -1,4 +1,4 @@
-fairing
+kubeflow-fairing
 fire
 gitpython
 google-cloud-storage
