@@ -9,47 +9,40 @@ configurations:
 
 vars:
 - fieldref:
+    fieldPath: data.s3Enable
+  name: s3Enable
+  objref:
+    apiVersion: v1
+    kind: ConfigMap
+    name: mnist-map-serving
+- fieldref:
     fieldPath: data.S3_ENDPOINT
   name: S3_ENDPOINT
   objref:
     apiVersion: v1
     kind: ConfigMap
-    name: mnist-map-monitoring
-- fieldref:
-    fieldPath: data.AWS_ENDPOINT_URL
-  name: AWS_ENDPOINT_URL
-  objref:
-    apiVersion: v1
-    kind: ConfigMap
-    name: mnist-map-monitoring
+    name: mnist-map-serving
 - fieldref:
     fieldPath: data.AWS_REGION
   name: AWS_REGION
   objref:
     apiVersion: v1
     kind: ConfigMap
-    name: mnist-map-monitoring
-- fieldref:
-    fieldPath: data.BUCKET_NAME
-  name: BUCKET_NAME
-  objref:
-    apiVersion: v1
-    kind: ConfigMap
-    name: mnist-map-monitoring
+    name: mnist-map-serving
 - fieldref:
     fieldPath: data.S3_USE_HTTPS
   name: S3_USE_HTTPS
   objref:
     apiVersion: v1
     kind: ConfigMap
-    name: mnist-map-monitoring
+    name: mnist-map-serving
 - fieldref:
     fieldPath: data.S3_VERIFY_SSL
   name: S3_VERIFY_SSL
   objref:
     apiVersion: v1
     kind: ConfigMap
-    name: mnist-map-monitoring
+    name: mnist-map-serving
 - fieldref:
     fieldPath: metadata.name
   name: awsSecretName
@@ -58,24 +51,24 @@ vars:
     kind: Secret
     name: aws-creds
 - fieldref:
-    fieldPath: data.awsAccessKeyIDName
-  name: awsAccessKeyIDName
+    fieldPath: data.AWS_ACCESS_KEY_ID
+  name: AWS_ACCESS_KEY_ID
   objref:
     apiVersion: v1
     kind: ConfigMap
-    name: mnist-map-monitoring
+    name: mnist-map-serving
 - fieldref:
-    fieldPath: data.awsSecretAccessKeyName
-  name: awsSecretAccessKeyName
+    fieldPath: data.AWS_SECRET_ACCESS_KEY
+  name: AWS_SECRET_ACCESS_KEY
   objref:
     apiVersion: v1
     kind: ConfigMap
-    name: mnist-map-monitoring
+    name: mnist-map-serving
 
 patchesJson6902:
 - path: deployment_patch.yaml
   target:
-    group: apps
+    group: extensions
     kind: Deployment
-    name: tensorboard-tb
+    name: $(svcName)
     version: v1beta1

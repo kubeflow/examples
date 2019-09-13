@@ -92,7 +92,15 @@ This example covers the following concepts:
 
 ### [Pipelines](./pipelines)
 
-Author: [DanSanche](https://github.com/DanSanche) and [Jin Chi He](https://github.com/jinchihe)
+#### [Simple notebook pipeline](./pipelines/simple-notebook-pipeline)
+Author: [Zane Durante](https://github.com/zanedurante)
+
+This example covers the following concepts:
+1. How to create pipeline components from python functions in jupyter notebook
+2. How to compile and run a pipeline from jupyter notebook
+
+#### [MNIST Pipelines](./pipelines/mnist-pipelines)
+Author: [Dan Sanche](https://github.com/DanSanche) and [Jin Chi He](https://github.com/jinchihe)
 
 This example covers the following concepts:
 1. Run MNIST Pipelines sample on a Google Cloud Platform (GCP).
