@@ -23,108 +23,104 @@ https://cloud.google.com/vision/automl/docs.
 
 import argparse
 import logging
-import os
-import time
 
-from google.cloud import automl
+from google.cloud import automl  #pylint: disable=no-name-in-module
 
 DATASET_OP = 'dataset'
 MODEL_OP = 'model'
 
 
 def create_dataset(project_id, compute_region, dataset_name, multilabel=False):
-    """Create a dataset."""
+  """Create a dataset."""
 
-    client = automl.AutoMlClient()
+  client = automl.AutoMlClient()
 
-    # A resource that represents Google Cloud Platform location.
-    project_location = client.location_path(project_id, compute_region)
+  # A resource that represents Google Cloud Platform location.
+  project_location = client.location_path(project_id, compute_region)
 
-    # Classification type is assigned based on multilabel value.
-    classification_type = "MULTICLASS"
-    if multilabel:
-        classification_type = "MULTILABEL"
+  # Classification type is assigned based on multilabel value.
+  classification_type = "MULTICLASS"
+  if multilabel:
+    classification_type = "MULTILABEL"
 
-    # Specify the image classification type for the dataset.
-    dataset_metadata = {"classification_type": classification_type}
-    # Set dataset name and metadata of the dataset.
-    my_dataset = {
-        "display_name": dataset_name,
-        "image_classification_dataset_metadata": dataset_metadata,
-    }
+  # Specify the image classification type for the dataset.
+  dataset_metadata = {"classification_type": classification_type}
+  # Set dataset name and metadata of the dataset.
+  my_dataset = {
+      "display_name": dataset_name,
+      "image_classification_dataset_metadata": dataset_metadata,
+  }
 
-    # Create a dataset with the dataset metadata in the region.
-    dataset = client.create_dataset(project_location, my_dataset) # TODO: what error-checking needed?
-    dataset_id = dataset.name.split("/")[-1]
+  # Create a dataset with the dataset metadata in the region.
+  dataset = client.create_dataset(project_location, my_dataset) # TODO: what error-checking needed?
+  dataset_id = dataset.name.split("/")[-1]
 
-    # Display the dataset information.
-    print("Dataset name: {}".format(dataset.name))
-    print("Dataset id: {}".format(dataset_id))
-    print("Dataset display name: {}".format(dataset.display_name))
-    print("Image classification dataset metadata:")
-    print("\t{}".format(dataset.image_classification_dataset_metadata))
-    print("Dataset example count: {}".format(dataset.example_count))
-    print("Dataset create time:")
-    print("\tseconds: {}".format(dataset.create_time.seconds))
-    print("\tnanos: {}".format(dataset.create_time.nanos))
+  # Display the dataset information.
+  print("Dataset name: {}".format(dataset.name))
+  print("Dataset id: {}".format(dataset_id))
+  print("Dataset display name: {}".format(dataset.display_name))
+  print("Image classification dataset metadata:")
+  print("\t{}".format(dataset.image_classification_dataset_metadata))
+  print("Dataset example count: {}".format(dataset.example_count))
+  print("Dataset create time:")
+  print("\tseconds: {}".format(dataset.create_time.seconds))
+  print("\tnanos: {}".format(dataset.create_time.nanos))
 
-    return dataset_id
+  return dataset_id
 
 
 def import_data(project_id, compute_region, dataset_id, csv_path):
-    """Import labeled images."""
-    # csv_path = 'gs://path/to/file.csv'
+  """Import labeled images."""
+  # csv_path = 'gs://path/to/file.csv'
 
-    client = automl.AutoMlClient()
+  client = automl.AutoMlClient()
 
-    # Get the full path of the dataset.
-    dataset_full_id = client.dataset_path(
-        project_id, compute_region, dataset_id
-    )
+  # Get the full path of the dataset.
+  dataset_full_id = client.dataset_path(
+      project_id, compute_region, dataset_id
+  )
 
-    # Get the multiple Google Cloud Storage URIs.
-    input_uris = csv_path.split(",")
-    input_config = {"gcs_source": {"input_uris": input_uris}}
+  # Get the multiple Google Cloud Storage URIs.
+  input_uris = csv_path.split(",")
+  input_config = {"gcs_source": {"input_uris": input_uris}}
 
-    # Import data from the input URI.
-    response = client.import_data(dataset_full_id, input_config)
+  # Import data from the input URI.
+  response = client.import_data(dataset_full_id, input_config)
 
-    print("Processing import...")
-    # synchronous check of operation status.
-    print("Data imported. {}".format(response.result()))
-
-
-def create_model(
-    project_id, compute_region, dataset_id, model_name, train_budget=24
-):
-    """Create a model."""
-
-    client = automl.AutoMlClient()
-
-    # A resource that represents Google Cloud Platform location.
-    project_location = client.location_path(project_id, compute_region)
-
-    # Set model name and model metadata for the image dataset.
-    my_model = {
-        "display_name": model_name,
-        "dataset_id": dataset_id,
-        "image_classification_model_metadata": {"train_budget": train_budget}
-        if train_budget
-        else {},
-    }
-
-    # Create a model with the model metadata in the region.
-    operation = client.create_model(project_location, my_model)
-    opname = operation.operation.name
-    print("Training operation name: {}".format(opname))
-    print("Training started, waiting for result...")
-    result = operation.result()  # do synchronous wait in this case. TODO: Are there timeouts/deadlines?
-    print('result:')
-    print(result)
-    return opname, result
+  print("Processing import...")
+  # synchronous check of operation status.
+  print("Data imported. {}".format(response.result()))
 
 
-def main(argv=None):
+def create_model(project_id, compute_region, dataset_id, model_name, train_budget=24):
+  """Create a model."""
+
+  client = automl.AutoMlClient()
+
+  # A resource that represents Google Cloud Platform location.
+  project_location = client.location_path(project_id, compute_region)
+
+  # Set model name and model metadata for the image dataset.
+  my_model = {
+      "display_name": model_name,
+      "dataset_id": dataset_id,
+      "image_classification_model_metadata": {"train_budget": train_budget}
+      if train_budget
+      else {},
+  }
+
+  # Create a model with the model metadata in the region.
+  operation = client.create_model(project_location, my_model)
+  opname = operation.operation.name
+  print("Training operation name: {}".format(opname))
+  print("Training started, waiting for result...")
+  result = operation.result()  # do synchronous wait in this case. TODO: timeouts/deadlines?
+  print('result:')
+  print(result)
+  return opname, result
+
+
+def main():
   parser = argparse.ArgumentParser(description='AutoML')
   parser.add_argument(
       '--operation', type=str,  # 'dataset' or 'model'
@@ -198,7 +194,7 @@ def main(argv=None):
 
       logging.info("using train budget: %s", args.train_budget)
       logging.info("starting model training...")
-      opname, result = create_model(args.project_id, args.compute_region, args.dataset_id,
+      _, result = create_model(args.project_id, args.compute_region, args.dataset_id,
           args.model_name, train_budget=args.train_budget)
       logging.info("model training complete.")
       model_realname = result.name
@@ -207,14 +203,14 @@ def main(argv=None):
 
 
     else:
-      logging.error('error: unknown operation %s' % args.operation)
+      logging.error('error: unknown operation %s', args.operation)
       raise Exception('error: unknown operation')
-  except Exception as e:
-    logging.warn(e)
+  except Exception as e:  # pylint: disable=broad-except
+    logging.warning(e)
 
 
 
-if __name__== "__main__":
+if __name__ == "__main__":
   main()
 
 
