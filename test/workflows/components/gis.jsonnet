@@ -19,8 +19,8 @@ local defaultParams = {
 
   // Which Kubeflow cluster to use for running TFJobs on.
   kfProject: "kubeflow-ci",
-  kfZone: "us-east1-d",
-  kfCluster: "kf-v0-4-n00",  
+  kfZone: "us-east1-b",
+  kfCluster: "kf-vmaster-n00",
 };
 
 local params = defaultParams + overrides;
@@ -46,7 +46,7 @@ local prowDict = {
 	REPO_NAME: "notset",
 	JOB_NAME: "notset",
 	JOB_TYPE: "notset",
-	PULL_NUMBER: "notset",	
+	PULL_NUMBER: "notset",
  } + util.listOfDictToMap(prowEnv);
 
 local bucket = params.bucket;
@@ -69,7 +69,15 @@ local srcDir = srcRootDir + "/" + prowDict.REPO_OWNER + "/" + prowDict.REPO_NAME
 // value of KUBECONFIG environment variable. This should be  a full path.
 local kubeConfig = testDir + "/.kube/kubeconfig";
 
-// These variables control where the docker images get pushed and what 
+// The directory within the kubeflow_testing and kubeflow_tf-operator submodule containing
+// py scripts to use.
+local kubeflowTestingPy = srcRootDir + "/kubeflow/testing/py";
+
+local tfOperatorPy = srcRootDir + "/kubeflow/tf-operator/py";
+
+
+
+// These variables control where the docker images get pushed and what
 // tag to use
 local imageBase = "gcr.io/kubeflow-ci/github-issue-summarization";
 local imageTag = "build-" + prowDict["BUILD_ID"];
@@ -92,17 +100,13 @@ local buildTemplate = {
   workingDir:: null,
   env_vars:: [],
   side_cars: [],
+  pythonPath: kubeflowTestingPy + ":" + tfOperatorPy,
 
 
   activeDeadlineSeconds: 1800,  // Set 30 minute timeout for each template
 
   local template = self,
 
-  // The directory within the kubeflow_testing submodule containing
-  // py scripts to use.
-  local kubeflowTestingPy = srcRootDir + "/kubeflow/testing/py",
-
-  local tfOperatorPy = srcRootDir + "/kubeflow/tf-operator",
 
   // Actual template for Argo
   argoTemplate: {
@@ -123,7 +127,7 @@ local buildTemplate = {
         {
           // Add the source directories to the python path.
           name: "PYTHONPATH",
-          value: kubeflowTestingPy + ":" + tfOperatorPy,
+          value: template.pythonPath,
         },
         {
           name: "GOOGLE_APPLICATION_CREDENTIALS",
@@ -215,7 +219,7 @@ local dagTemplates = [
         "TAG=" + imageTag,
       ]]
       ),
-      workingDir: srcDir + "/github_issue_summarization",      
+      workingDir: srcDir + "/github_issue_summarization",
     },
     dependencies: ["checkout"],
   }, // build-images
@@ -246,7 +250,7 @@ local dagTemplates = [
       ],
       [
         "gcloud",
-        "--project=" + params.kfProject,        
+        "--project=" + params.kfProject,
         "container",
         "clusters",
         "get-credentials",
@@ -269,6 +273,7 @@ local dagTemplates = [
         "--artifacts_path=" + artifactsDir,
       ],
       workingDir: srcDir + "/github_issue_summarization/testing",
+      pythonPath: tfOperatorPy + ":" + kubeflowTestingPy,
     },
     dependencies: ["build-images", "get-kubeconfig"],
   },  // tfjob-test
@@ -311,7 +316,7 @@ local exitTemplates =
       template:
         buildTemplate {
           name: "test-dir-delete",
-          command: [           
+          command: [
             "rm",
             "-rf",
             testDir,
@@ -332,8 +337,8 @@ local exitDag = {
   name: "exit-handler",
   // Construct tasks from the templates
   // we will give the steps the same name as the template
-  dag: {    
-    tasks: util.toArgoTaskList(exitTemplates),    
+  dag: {
+    tasks: util.toArgoTaskList(exitTemplates),
   },
 };
 
@@ -350,7 +355,7 @@ local workflow = {
   metadata: {
     name: params.name,
     namespace: env.namespace,
-    labels: prowDict + {      
+    labels: prowDict + {
       workflow_template: workflow_template,
     },
   },

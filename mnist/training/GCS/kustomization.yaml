@@ -1,0 +1,48 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+bases:
+- ../base
+
+configurations:
+- params.yaml
+
+# TBD (jinchihe) Need move the image to base file once.
+# the issue addressed: kubernetes-sigs/kustomize/issues/1040
+# TBD (jinchihe) Need to update the image once
+# the issue addressed: kubeflow/testing/issues/373
+images:
+- name: training-image
+  newName: gcr.io/kubeflow-examples/mnist/model
+  newTag: v20190111-v0.2-148-g313770f
+
+vars:
+- fieldref:
+    fieldPath: data.GOOGLE_APPLICATION_CREDENTIALS
+  name: GOOGLE_APPLICATION_CREDENTIALS
+  objref:
+    apiVersion: v1
+    kind: ConfigMap
+    name: mnist-map-training
+- fieldref:
+    fieldPath: data.secretName
+  name: secretName
+  objref:
+    apiVersion: v1
+    kind: ConfigMap
+    name: mnist-map-training
+- fieldref:
+    fieldPath: data.secretMountPath
+  name: secretMountPath
+  objref:
+    apiVersion: v1
+    kind: ConfigMap
+    name: mnist-map-training
+
+patchesJson6902:
+- path: Chief_patch.yaml
+  target:
+    group: kubeflow.org
+    kind: TFJob
+    name: $(trainingName)
+    version: v1beta2

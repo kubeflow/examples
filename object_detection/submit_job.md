@@ -39,6 +39,11 @@ ks param set tf-training-job trainDir ${TRAINING_DIR}
 
 ks apply ${ENV} -c tf-training-job
 ```
+**NOTE**: The default `TFJob` api verison in the component is `kubeflow.org/v1beta1`. You can override the default version by setting the tfjobApiVersion param in the ksonnet app
+
+```
+ks param set tf-training-job tfjobApiVersion ${NEW_VERSION}
+```
 
 For GPU support set the `numGpu` param like:
 ```

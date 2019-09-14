@@ -18,13 +18,13 @@ local defaultParams = {
   stepImage: "gcr.io/kubeflow-ci/test-worker/test-worker:v20190116-b7abb8d-e3b0c4",
 
   // Which Kubeflow cluster to use for running TFJobs on.
-  kfProject: "kubeflow-ci",
-  kfZone: "us-east1-d",
-  kfCluster: "kf-v0-4-n00",
+  kfProject: "kubeflow-ci-deployment",
+  kfZone: "us-east1-b",
+  kfCluster: "kf-vmaster-n01",
 
   // The bucket where the model should be written
   // This needs to be writable by the GCP service account in the Kubeflow cluster (not the test cluster)
-  modelBucket: "kubeflow-ci_temp",
+  modelBucket: "kubeflow-ci-deployment_ci-temp",
 
   // Whether to delete the namespace at the end.
   // Leaving the namespace around can be useful for debugging.
@@ -92,7 +92,7 @@ local testNamespace = "mnist-" + prowDict["BUILD_ID"];
 // The directory within the kubeflow_testing submodule containing
 // py scripts to use.
 local kubeflowTestingPy = srcRootDir + "/kubeflow/testing/py";
-local tfOperatorPy = srcRootDir + "/kubeflow/tf-operator";
+local tfOperatorPy = srcRootDir + "/kubeflow/tf-operator/py";
 
 // Workflow template is the name of the workflow template; typically the name of the ks component.
 // This is used as a label to make it easy to identify all Argo workflows created from a given
@@ -116,7 +116,7 @@ local buildTemplate = {
   workingDir:: null,
   env_vars:: [],
   side_cars: [],
-  pythonPath: kubeflowTestingPy,
+  pythonPath: kubeflowTestingPy + ":" + tfOperatorPy,
 
   activeDeadlineSeconds: 1800,  // Set 30 minute timeout for each template
 
@@ -311,8 +311,9 @@ local dagTemplates = [
         "--params=" + std.join(",", [
           "name=mnist-test-" + prowDict["BUILD_ID"], 
           "namespace=" + testNamespace,
-          "numTrainSteps=10",
+          "trainSteps=10",
           "batchSize=10",
+          "learningRate=0.01",
           "image=" + trainerImage,
           "numPs=1",
           "numWorkers=2",
@@ -325,7 +326,7 @@ local dagTemplates = [
       // We don't want to add it to the other steps because
       // of a top level path conflict see
       // https://github.com/kubeflow/tf-operator/issues/914
-      pythonPath: kubeflowTestingPy + ":" + tfOperatorPy,
+      pythonPath: tfOperatorPy+ ":" + kubeflowTestingPy,
       workingDir: srcDir + "/mnist/testing",
     },
     dependencies: ["build-images", "create-namespace"],
@@ -346,7 +347,7 @@ local dagTemplates = [
       // We don't want to add it to the other steps because
       // of a top level path conflict see
       // https://github.com/kubeflow/tf-operator/issues/914
-      pythonPath: kubeflowTestingPy + ":" + tfOperatorPy,
+      pythonPath: tfOperatorPy+ ":" + kubeflowTestingPy,
       workingDir: srcDir + "/mnist/testing",
     },
     dependencies: ["tfjob-test"],
