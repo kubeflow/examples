@@ -26,6 +26,7 @@ Manually running the test
 import json
 import logging
 import os
+from retrying import retry
 
 from kubernetes import client as k8s_client
 from kubeflow.tf_operator import tf_job_client #pylint: disable=no-name-in-module
@@ -52,8 +53,8 @@ class TFJobTest(test_util.TestCase):
     self.ks_cmd = ks_util.get_ksonnet_cmd(self.app_dir)
     super(TFJobTest, self).__init__(class_name="TFJobTest", name=name)
 
+  @retry(stop_max_attempt_number=5, wait_fixed=5000)
   def test_train(self):
-
     # We repeat the test multiple times.
     # This ensures that if we delete the job we can create a new job with the
     # same name.
