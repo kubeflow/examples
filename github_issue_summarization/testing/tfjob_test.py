@@ -53,6 +53,7 @@ class TFJobTest(test_util.TestCase):
     super(TFJobTest, self).__init__(class_name="TFJobTest", name=name)
 
   def test_train(self):
+
     # We repeat the test multiple times.
     # This ensures that if we delete the job we can create a new job with the
     # same name.
