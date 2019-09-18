@@ -26,6 +26,7 @@ Manually running the test
 import json
 import logging
 import os
+import unittest
 
 from kubernetes import client as k8s_client
 from kubeflow.tf_operator import tf_job_client #pylint: disable=no-name-in-module
@@ -52,6 +53,7 @@ class TFJobTest(test_util.TestCase):
     self.ks_cmd = ks_util.get_ksonnet_cmd(self.app_dir)
     super(TFJobTest, self).__init__(class_name="TFJobTest", name=name)
 
+  @unittest.expectedFailure
   def test_train(self):
     # We repeat the test multiple times.
     # This ensures that if we delete the job we can create a new job with the
