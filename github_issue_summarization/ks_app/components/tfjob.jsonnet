@@ -7,7 +7,7 @@ local name = params.name;
 local namespace = env.namespace;
 
 local tfjob = {
-  apiVersion: "kubeflow.org/v1beta1",
+  apiVersion: "kubeflow.org/v1",
   kind: "TFJob",
   metadata: {
     name: name,

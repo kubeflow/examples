@@ -25,7 +25,7 @@ DATASET = 'dataset'
 MODEL = 'model'
 
 copydata_op = comp.load_component_from_url(
-  'https://raw.githubusercontent.com/amygdala/kubeflow-examples/preempt/github_issue_summarization/pipelines/components/t2t/datacopy_component.yaml'  # pylint: disable=line-too-long
+  'https://raw.githubusercontent.com/amygdala/kubeflow-examples/preempt/github_issue_summarization/pipelines/components/t2t/datacopy_component.yaml' # pylint: disable=line-too-long
   )
 
 train_op = comp.load_component_from_url(
@@ -95,7 +95,7 @@ def gh_summ(  #pylint: disable=unused-argument
   train.after(copydata)
   log_model.after(train)
   serve.after(train)
-  train.set_gpu_limit(4)
+  train.set_gpu_limit(4).apply(gcp.use_preemptible_nodepool()).set_retry(5)
   train.set_memory_limit('48G')
 
   with dsl.Condition(train.output == 'true'):
