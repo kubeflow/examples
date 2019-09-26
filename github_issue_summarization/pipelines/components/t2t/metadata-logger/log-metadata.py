@@ -17,7 +17,7 @@ from datetime import datetime
 import logging
 import retrying
 
-from kfmd import metadata
+from kubeflow.metadata import metadata #pylint: disable=no-name-in-module
 
 DATASET = 'dataset'
 MODEL = 'model'

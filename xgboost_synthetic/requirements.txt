@@ -2,7 +2,7 @@ fire
 gitpython
 google-cloud-storage
 joblib
-kfmd
+kubeflow-metadata
 numpy
 pandas
 retrying

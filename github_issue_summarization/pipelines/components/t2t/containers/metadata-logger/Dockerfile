@@ -26,7 +26,7 @@ RUN apt-get install -y wget unzip git
 # RUN pip install tensorflow==1.12.0
 
 RUN pip install --upgrade pip
-RUN pip install kfmd urllib3 certifi retrying
+RUN pip install kubeflow-metadata urllib3 certifi retrying
 
 # RUN wget -nv https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.zip && \
 #     unzip -qq google-cloud-sdk.zip -d tools && \
