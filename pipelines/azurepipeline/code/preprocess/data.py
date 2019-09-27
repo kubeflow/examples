@@ -58,15 +58,15 @@ def walk_images(path, image_size=160):
     break
 
   for d in labels:
-    path = os.path.join(path, d)
-    print('Processing {}'.format(path))
+    tmp_path = os.path.join(path, d)
+    print('Processing {}'.format(tmp_path))
     # only care about files in directory
-    for item in os.listdir(path):
+    for item in os.listdir(tmp_path):
       if not item.lower().endswith('.jpg'):
         print('skipping {}'.format(item))
         continue
 
-      image = os.path.join(path, item)
+      image = os.path.join(tmp_path, item)
       try:
         img = process_image(image, image_size)
         assert img.shape[2] == 3, "Invalid channel count"
