@@ -6,45 +6,58 @@ import logging
 import os
 import argparse
 import time
-from google.cloud import storage
+import shutil
+import sys
+import pandas as pd
 import tensorflow as tf
 
-import models
-import preprocess
-import metrics
+#pylint: disable=no-name-in-module
+from helpers import preprocess, models, metrics
+from helpers import storage as storage_helper
 
 
-def get_preprocessed_data():
-  """Obtain the preprocessed data."""
-  tickers = ['snp', 'nyse', 'djia', 'nikkei', 'hangseng', 'ftse', 'dax', 'aord']
-  closing_data = preprocess.load_data(tickers)
-  time_series = preprocess.preprocess_data(closing_data)
-  training_test_data = preprocess.train_test_split(time_series, train_test_ratio=0.8)
-  return training_test_data
-
-
-def upload_to_storage(bucket, export_path):
-  """Upload files from export path to Google Cloud Storage.
-
+def parse_arguments(argv):
+  """Parse command line arguments
   Args:
-    bucket (str): Google Cloud Storage bucket
-    export_path (str): export path
-
+      argv (list): list of command line arguments including program name
   Returns:
-
+      The parsed arguments as returned by argparse.ArgumentParser
   """
-  client = storage.Client()
-  bucket = client.get_bucket(bucket)
-  if bucket:
-    for root, _, files in os.walk(export_path):
-      for file in files:
-        path = os.path.join(root, file)
-        blob = bucket.blob(path)
-        blob.upload_from_filename(path)
+  parser = argparse.ArgumentParser(description='Training')
+
+  parser.add_argument('--model',
+                      type=str,
+                      help='model to be used for training',
+                      default='DeepModel',
+                      choices=['FlatModel', 'DeepModel'])
+
+  parser.add_argument('--epochs',
+                      type=int,
+                      help='number of epochs to train',
+                      default=30001)
+
+  parser.add_argument('--version',
+                      type=str,
+                      help='version (stored for serving)',
+                      default='1')
+
+  parser.add_argument('--bucket',
+                      type=str,
+                      help='GCS bucket to store data and ML models',
+                      default='<your-bucket-name>')
+
+  parser.add_argument('--blob_path',
+                      type=str,
+                      help='GCS blob path where data is saved',
+                      default='data')
+
+  args, _ = parser.parse_known_args(args=argv[1:])
+
+  return args
 
 
-def run_training(args):
-  """Runs the ML model training script.
+def run_training(argv=None):
+  """Runs the ML model training.
 
   Args:
     args: args that are passed when submitting the training
@@ -53,12 +66,20 @@ def run_training(args):
 
   """
   # parse args
-  logging.info('parsing args...')
+  args = parse_arguments(sys.argv if argv is None else argv)
+  logging.info('getting the ML model...')
   model = getattr(models, args.model)(nr_predictors=24, nr_classes=2)
 
   # get the data
   logging.info('getting the data...')
-  training_test_data = get_preprocessed_data()
+  temp_folder = 'data'
+  if not os.path.exists(temp_folder):
+    os.mkdir(temp_folder)
+  file_path = os.path.join(temp_folder, 'data.csv')
+  storage_helper.download_blob(args.bucket, args.blob_path, file_path)
+  time_series = pd.read_csv(file_path)
+  training_test_data = preprocess.train_test_split(time_series, 0.8)
+
 
   # define training objective
   logging.info('defining the training objective...')
@@ -112,7 +133,7 @@ def run_training(args):
   # create signature for TensorFlow Serving
   logging.info('Exporting model for tensorflow-serving...')
 
-  export_path = args.version
+  export_path = os.path.join("model", args.version)
   tf.saved_model.simple_save(
       sess,
       export_path,
@@ -123,37 +144,13 @@ def run_training(args):
 
   # save model on GCS
   logging.info("uploading to " + args.bucket + "/" + export_path)
-  upload_to_storage(args.bucket, export_path)
+  storage_helper.upload_to_storage(args.bucket, export_path)
 
-
-def main():
-  parser = argparse.ArgumentParser(description='Training')
-
-  parser.add_argument('--model',
-                      type=str,
-                      help='model to be used for training',
-                      default='DeepModel',
-                      choices=['FlatModel', 'DeepModel'])
-
-  parser.add_argument('--epochs',
-                      type=int,
-                      help='number of epochs to train',
-                      default=30001)
-
-  parser.add_argument('--version',
-                      type=str,
-                      help='version (stored for serving)',
-                      default='1')
-
-  parser.add_argument('--bucket',
-                      type=str,
-                      help='GCS bucket where model is saved',
-                      default='<your-bucket-name>')
-
-  args = parser.parse_args()
-  run_training(args)
+  # remove local files
+  shutil.rmtree(export_path)
+  shutil.rmtree(temp_folder)
 
 
 if __name__ == '__main__':
   logging.basicConfig(level=logging.INFO)
-  main()
+  run_training()

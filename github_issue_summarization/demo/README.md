@@ -83,7 +83,8 @@ Here are the instructions for setting up the demo.
 
 ### Training and Deploying the model.
 
-We use the ksonnet app in [github/kubeflow/examples/github_issue_summarization/ks-kubeflow](https://github.com/kubeflow/examples/tree/master/github_issue_summarization/ks-kubeflow)
+We use the ksonnet app in
+[github/kubeflow/examples/github_issue_summarization/ks_app](https://github.com/kubeflow/examples/tree/master/github_issue_summarization/ks_app)
 
 The current environment is
 
@@ -94,14 +95,14 @@ export ENV=gh-demo-1003
 Set a bucket for the job output
 ```
 DAY=$(date +%Y%m%d)
-ks param set --env=${ENV} tfjob-v1alpha2 output_model_gcs_bucket kubecon-gh-demo
-ks param set --env=${ENV} tfjob-v1alpha2 output_model_gcs_path gh-demo/${DAY}/output
+ks param set --env=${ENV} tfjob output_model_gcs_bucket kubecon-gh-demo
+ks param set --env=${ENV} tfjob output_model_gcs_path gh-demo/${DAY}/output
 ```
 
 Run the job
 
 ```
-ks apply ${ENV} -c tfjob-v1alpha2
+ks apply ${ENV} -c tfjob
 ```
 
 

@@ -17,7 +17,8 @@ bin/
 flymd.*
 
 # vim .swp files
-.swp
+*.swp
+*.swo
 
 # Files created by Gogland IDE
 .idea/
@@ -57,3 +58,7 @@ github_issue_summarization/hp-tune/vendor
 [._]s[a-rt-v][a-z]
 [._]ss[a-gi-z]
 [._]sw[a-p]
+
+# Cache
+.cache/
+

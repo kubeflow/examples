@@ -7,7 +7,7 @@ which we can then deploy as a REST or GRPC API server.
 
 ##  Building a model server
 
-We use the public model server image `gcr.io/kubeflow-examples/mnistddpserving`
+We use the public model server image `gcr.io/kubeflow-examples/pytorch-mnist/serving`
 
   * This server loads the model from the mount point /mnt/kubeflow-gcfs and includes the supporting assets baked into the container image
   * So you can just run this image to get a pre-trained model from the shared persistent disk
@@ -57,10 +57,10 @@ In the serving/seldon-wrapper directory there is build_image.sh script that call
 exposing the predict service as GRPC API. 
 You can invoke the same process with the below command in case you want to build your own image
 ```
-docker run -v $(pwd):/my_model seldonio/core-python-wrapper:0.7 /my_model mnistddpserving 0.1 gcr.io --image-name=gcr-repository-name/mnistddpserving --grpc
+docker run -v $(pwd):/my_model seldonio/core-python-wrapper:0.7 /my_model mnistddpserving 0.1 gcr.io --image-name=gcr-repository-name/name --grpc
 ```
 
-You can then push the image by running `gcloud docker -- push gcr.io/gcr-repository-name/issue-summarization:0.1` 
+You can then push the image by running `gcloud docker -- push gcr.io/gcr-repository-name/name:0.1` 
 and modify the SeldonDeployment manifest to use your own image.
 
 > You can find more details about wrapping a model with seldon-core [here](https://github.com/SeldonIO/seldon-core/blob/master/docs/wrappers/python.md)
@@ -68,4 +68,4 @@ and modify the SeldonDeployment manifest to use your own image.
 
 *Next*: [Querying the model](04_querying_the_model.md)
 
-*Back*: [Training the model](02_training_the_model.md)
+*Back*: [Training the model](02_distributed_training.md)

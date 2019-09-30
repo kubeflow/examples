@@ -20,7 +20,7 @@ The test can be run as follows
 
 ```
 cd code_search/src
-python3 -m code_searcch.t2t.similarity_transformer_export_test
+python3 -m code_search.t2t.similarity_transformer_test
 ```
 The test just runs the relevant T2T steps and verifies they succeeds. No additional
 checks are executed.

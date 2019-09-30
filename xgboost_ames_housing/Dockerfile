@@ -12,23 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Install python 2.7
+# Install python 2.7.
 FROM python:2.7
 
 RUN apt-get update
 RUN apt-get install -y git make g++
 
-# Build XGBoost
+# Download the training set and code.
+COPY ames_dataset/ ./ames_dataset
+COPY housing.py ./housing.py
+
+# Install Kubeflow seldon_serve component.
+COPY seldon_serve/ ./seldon_serve
+RUN pip install -r seldon_serve/requirements.txt
+
+# Build XGBoost.
 RUN git clone --recursive https://github.com/dmlc/xgboost && \
     cd xgboost && \
     make -j4 && \
     cd python-package; python setup.py install
 
-# Download code and install dependencies
-RUN cd .. && \
-    git clone https://github.com/kubeflow/examples.git && \
-    cd examples && \
-    cd xgboost_ames_housing && \
-    pip install -r seldon_serve/requirements.txt
-
-ENTRYPOINT ["python", "examples/xgboost_ames_housing/housing.py"]
+ENTRYPOINT ["python", "housing.py"]

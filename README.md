@@ -11,6 +11,17 @@ This repository is home to the following types of examples and demos:
 
 ## End-to-end
 
+### [Named Entity Recognition](./named_entity_recognition)
+Author: [Sascha Heyer](https://github.com/saschaheyer)
+
+This example covers the following concepts:
+1. Build reusable pipeline components
+2. Run Kubeflow Pipelines with Jupyter notebooks
+1. Train a Named Entity Recognition model on a Kubernetes cluster
+1. Deploy a Keras model to AI Platform
+1. Use Kubeflow metrics
+1. Use Kubeflow visualizations 
+
 ### [GitHub issue summarization](./github_issue_summarization)
 Author: [Hamel Husain](https://github.com/hamelsmu)
 
@@ -23,6 +34,16 @@ This example covers the following concepts:
     1. GPU
 1. Serving with Seldon Core
 1. Flask front-end
+
+### [Pachyderm Example - GitHub issue summarization](./github_issue_summarization/Pachyderm_Example)
+Author: [Nick Harvey](https://github.com/Nick-Harvey) & [Daniel Whitenack](https://github.com/dwhitena)
+
+This example covers the following concepts:
+1. A production pipeline for pre-processing, training, and model export
+1. CI/CD for model binaries, building and deploying a docker image for serving in Seldon
+1. Full tracking of what data produced which model, and what model is being used for inference
+1. Automatic updates of models based on changes to training data or code
+1. Training with single node Tensorflow and distributed TF-jobs
 
 ### [Pytorch MNIST](./pytorch_mnist)
 Author: [David Sabater](https://github.com/dsdinter)
@@ -67,7 +88,23 @@ This example covers the following concepts:
 4. Deploy and serve with TF-serving
 5. Iterate training and serving
 6. Training on GPU
+7. Using Kubeflow Pipelines to automate ML workflow
 
+### [Pipelines](./pipelines)
+
+#### [Simple notebook pipeline](./pipelines/simple-notebook-pipeline)
+Author: [Zane Durante](https://github.com/zanedurante)
+
+This example covers the following concepts:
+1. How to create pipeline components from python functions in jupyter notebook
+2. How to compile and run a pipeline from jupyter notebook
+
+#### [MNIST Pipelines](./pipelines/mnist-pipelines)
+Author: [Dan Sanche](https://github.com/DanSanche) and [Jin Chi He](https://github.com/jinchihe)
+
+This example covers the following concepts:
+1. Run MNIST Pipelines sample on a Google Cloud Platform (GCP).
+2. Run MNIST Pipelines sample for on premises cluster.
 
 ## Component-focused
 
@@ -102,7 +139,7 @@ You can find the demos in the [`/demos` directory](demos/).
 
 ## Get Involved
 
-* [Slack Channel: #kubeflow-examples](https://join.slack.com/t/kubeflow/shared_invite/enQtMjgyMzMxNDgyMTQ5LWUwMTIxNmZlZTk2NGU0MmFiNDE4YWJiMzFiOGNkZGZjZmRlNTExNmUwMmQ2NzMwYzk5YzQxOWQyODBlZGY2OTg)
+* [Slack](https://join.slack.com/t/kubeflow/shared_invite/enQtNDg5MTM4NTQyNjczLWUyZGI1ZmExZWExYWY4YzlkOWI4NjljNjJhZjhjMjEwNGFjNmVkNjg2NTg4M2I0ZTM5NDExZWI5YTIyMzVmNzM)
 * [Twitter](http://twitter.com/kubeflow)
 * [Mailing List](https://groups.google.com/forum/#!forum/kubeflow-discuss)
 

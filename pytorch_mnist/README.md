@@ -32,9 +32,9 @@ In other words, you send an image to the model, and the model does its best to i
 
 ![](https://www.kubeflow.org/docs/images/gcp-e2e-ui-prediction.png)
 
-In the above screenshot, the image shows a hand-written 8. 
+In the above screenshot, the image shows a hand-written 7. 
 The table below the image shows a bar graph for each classification label from 0 to 9. Each bar represents the probability that the image matches the respective label. 
-Looks like it’s pretty confident this one is an 8!
+Looks like it’s pretty confident this one is an 7!
 
 ## Steps:
 
@@ -43,12 +43,3 @@ Looks like it’s pretty confident this one is an 8!
 1.  [Serving the model](03_serving_the_model.md)
 1.  [Querying the model](04_querying_the_model.md)
 1.  [Teardown](05_teardown.md)
-
-## TODO
-- [x] Argo workflow tests to push images to gcr.io/kubeflow-examples
-- [ ] Grant access to service account to push images
-- [x] 01_setup_a_kubeflow_cluster
-- [x] 02_distributed_training
-- [x] 03_serving_the_model
-- [x] 04_querying_the_model
-- [x] 05_teardown
