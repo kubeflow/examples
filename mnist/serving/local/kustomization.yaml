@@ -30,3 +30,10 @@ patchesJson6902:
     kind: Deployment
     name: $(svcName)
     version: v1beta1
+configMapGenerator:
+- literals:
+  - name=mnist-service
+  - pvcName=mnist
+  - pvcMountPath=/mnt
+  - modelBasePath=/mnt/export
+  name: mnist-map-serving

@@ -20,6 +20,13 @@ vars:
     apiVersion: v1
     kind: ConfigMap
     name: mnist-map-monitoring
+- fieldref:
+    fieldPath: data.pathPrefix
+  name: pathPrefix
+  objref:
+    apiVersion: v1
+    kind: ConfigMap
+    name: mnist-map-monitoring
  
 patchesJson6902:
 - path: deployment_patch.yaml
@@ -28,3 +35,10 @@ patchesJson6902:
     kind: Deployment
     name: tensorboard-tb
     version: v1beta1
+configMapGenerator:
+- literals:
+  - pvcName=mnist
+  - pvcMountPath=/mnt
+  - logDir=/mnt
+  - pathPrefix=/tb
+  name: mnist-map-monitoring

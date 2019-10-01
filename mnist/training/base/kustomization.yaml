@@ -55,3 +55,6 @@ vars:
     apiVersion: v1
     kind: ConfigMap
     name: mnist-map-training
+patchesStrategicMerge:
+- Ps.yaml
+- Worker.yaml

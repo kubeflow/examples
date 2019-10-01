@@ -6,7 +6,7 @@ metadata:
 spec:
   tfReplicaSpecs:
     Worker:
-      replicas: %numWorkers%
+      replicas: 2
       template:
         spec:
           containers:

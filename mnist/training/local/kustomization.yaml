@@ -13,8 +13,8 @@ configurations:
 # the issue addressed: kubeflow/testing/issues/373
 images:
 - name: training-image
-  newName: gcr.io/kubeflow-examples/mnist/model
-  newTag: v20190111-v0.2-148-g313770f
+  newName: docker.io/gwee/kubeflow-examples
+  newTag: "1.0"
 
 vars:
 - fieldref:
@@ -32,10 +32,35 @@ vars:
     kind: ConfigMap
     name: mnist-map-training
     
+      
+      
 patchesJson6902:
+- path: Worker_patch.yaml
+  target:
+    group: kubeflow.org
+    kind: TFJob
+    name: $(trainingName)
+    version: v1beta2
+- path: Ps_patch.yaml
+  target:
+    group: kubeflow.org
+    kind: TFJob
+    name: $(trainingName)
+    version: v1beta2
 - path: Chief_patch.yaml
   target:
     group: kubeflow.org
     kind: TFJob
     name: $(trainingName)
     version: v1beta2
+configMapGenerator:
+- literals:
+  - name=mnist-train-local
+  - trainSteps=200
+  - batchSize=100
+  - learningRate=0.01
+  - pvcName=mnist
+  - pvcMountPath=/mnt
+  - modelDir=/mnt
+  - exportDir=/mnt/export
+  name: mnist-map-training

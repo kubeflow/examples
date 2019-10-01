@@ -6,7 +6,7 @@ metadata:
 spec:
   tfReplicaSpecs:
     Ps:
-      replicas: %numPs%
+      replicas: 1
       template:
         spec:
           containers:
