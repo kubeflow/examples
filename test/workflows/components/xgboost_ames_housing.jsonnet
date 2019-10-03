@@ -19,8 +19,8 @@ local defaultParams = {
 
   // Which Kubeflow cluster to use for running TFJobs on.
   kfProject: "kubeflow-ci",
-  kfZone: "us-east1-d",
-  kfCluster: "kubeflow-testing",
+  kfZone: "us-east1-b",
+  kfCluster: "kf-vmaster-n00",
 
   // The bucket where the model should be written
   // This needs to be writable by the GCP service account in the Kubeflow cluster (not the test cluster)
