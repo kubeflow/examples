@@ -95,7 +95,7 @@ def gh_summ(  #pylint: disable=unused-argument
   train.after(copydata)
   log_model.after(train)
   serve.after(train)
-  train.set_gpu_limit(4)
+  train.set_gpu_limit(1)
   train.set_memory_limit('48G')
 
   with dsl.Condition(train.output == 'true'):
