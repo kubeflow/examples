@@ -9,10 +9,12 @@ This demo highlights the use of pipelines and hyperparameter tuning on a GKE
 cluster with node autoprovisioning (NAP). A simple pipeline requests GPU resources, which triggers
 node pool creation. This demo includes the following steps:
 
-1. [Setup your environment](#1-setup-your-environment)
-1. [Run a simple pipeline](#2-run-a-simple-pipeline)
-1. [Perform hyperparameter tuning](#3-perform-hyperparameter-tuning)
-1. [Run a better pipeline](#4-run-a-better-pipeline)
+- [Kubeflow demo - Simple pipeline](#kubeflow-demo---simple-pipeline)
+  - [Hyperparameter tuning and autoprovisioning GPU nodes](#hyperparameter-tuning-and-autoprovisioning-gpu-nodes)
+  - [1. Setup your environment](#1-setup-your-environment)
+  - [2. Run a simple pipeline](#2-run-a-simple-pipeline)
+  - [3. Perform hyperparameter tuning](#3-perform-hyperparameter-tuning)
+  - [4. Run a better pipeline](#4-run-a-better-pipeline)
 
 ## 1. Setup your environment
 
@@ -74,7 +76,7 @@ to execute a Study, which defines a search space for performing training with a
 range of different parameters.
 
 Create a Study by applying an
-[example file](https://github.com/kubeflow/katib/blob/master/examples/gpu-example.yaml)
+[example file](https://github.com/kubeflow/examples/blob/master/demos/simple_pipeline/gpu-example-katib.yaml)
 to the cluster:
 
 ```
