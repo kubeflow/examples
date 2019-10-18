@@ -65,7 +65,7 @@ def mnist_pipeline(model_export_dir='gs://your-bucket/export',
   serve = dsl.ContainerOp(
       name='serve',
       image='gcr.io/ml-pipeline/ml-pipeline-kubeflow-deployer:'
-            '7775692adf28d6f79098e76e839986c9ee55dd61',
+            '8dfa2d9f832e5291649e3bc9d58468da7c6ed92a',
       arguments=serve_args
   )
   serve.after(train)
@@ -73,7 +73,7 @@ def mnist_pipeline(model_export_dir='gs://your-bucket/export',
 
   webui_args = [
           '--image', 'gcr.io/kubeflow-examples/mnist/web-ui:'
-                     'v20190304-v0.2-176-g15d997b-pipelines',
+                     'latest',
           '--name', 'web-ui',
           '--container-port', '5000',
           '--service-port', '80',
