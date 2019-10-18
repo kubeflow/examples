@@ -6,6 +6,8 @@ Kubeflow fairing, pipelines demo using synthetic data. This notebook `build-trai
 1. Open the notebook terminal and run
     ```
     $ git clone https://github.com/kubeflow/examples.git
+    $ cd examples/xgboost_synthetic
+    $ pip3 install -r requirements.txt --user
     ```
 
 1. In the directory `xgboost_synthetic`, open the notebook `build-train-deploy.ipynb`
