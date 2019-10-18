@@ -36,4 +36,4 @@ spec:
     targetPort: 8500
   selector:
     app: mnist
-  type: ClusterIP
+  type: LoadBalancer
