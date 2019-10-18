@@ -28,7 +28,7 @@ RUN pip --no-cache-dir install \
         h5py \
         ipykernel \
         numpy \
-        tensorflow \
+        tensorflow==1.14.0 \
         tensorflow-serving-api \
         flask \
         && \
