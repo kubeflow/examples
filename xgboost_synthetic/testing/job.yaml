@@ -1,10 +1,15 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: $(job_name)
+  name: xgboost-test
 spec:
   template:
     metadata:
+      annotations:
+        # TODO(jlewi): Do we really want to disable sidecar injection
+        # in the test? Would it be better to use istio to mimic what happens
+        # in notebooks?
+        sidecar.istio.io/inject: "false"
       labels:
         app: xgboost-synthetics-testing
     spec:
@@ -17,8 +22,10 @@ spec:
         - /usr/local/bin/checkout_repos.sh
         - --repos=kubeflow/examples@$(CHECK_TAG)
         - --src_dir=/src
+        # TODO(jlewi): Do we need to do depth all here?
         - --depth=all
         name: checkout
+        # TODO(jlewi): Set in kustomization.yaml?
         image: gcr.io/kubeflow-ci/test-worker:v20190802-c6f9140-e3b0c4
         volumeMounts:
         - mountPath: /src
@@ -35,17 +42,9 @@ spec:
         command: ["python3", "execute_notebook.py"]
         workingDir: /src/kubeflow/examples/xgboost_synthetic/testing
         volumeMounts:
-        - mountPath: /var/secrets
-          name: user-gcp-sa
-          readOnly: true
         - mountPath: /src
           name: src
-        env:
-        - name: GOOGLE_APPLICATION_CREDENTIALS
-          value: /var/secrets/user-gcp-sa.json
+      serviceAccount: default-editor
       volumes:
-      - name: user-gcp-sa
-        secret:
-          secretName: user-gcp-sa
       - name: src
         emptyDir: {}

@@ -18,9 +18,11 @@ def notebook_setup():
   logging.getLogger().setLevel(logging.INFO)
 
   subprocess.check_call(["gcloud", "auth", "configure-docker", "--quiet"])
-  subprocess.check_call(["gcloud", "auth", "activate-service-account",
-                         "--key-file=" + os.getenv("GOOGLE_APPLICATION_CREDENTIALS"),
-                         "--quiet"])
+  if os.getenv("GOOGLE_APPLICATION_CREDENTIALS"):
+    subprocess.check_call(["gcloud", "auth", "activate-service-account",
+                           "--key-file=" +
+                           os.getenv("GOOGLE_APPLICATION_CREDENTIALS"),
+                           "--quiet"])
 
 def copy_data_to_nfs(nfs_path, model_dir):
   if not os.path.exists(nfs_path):
