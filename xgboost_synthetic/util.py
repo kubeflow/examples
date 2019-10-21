@@ -11,13 +11,17 @@ KFP_PACKAGE = 'https://storage.googleapis.com/ml-pipeline/release/0.1.20/kfp.tar
 def notebook_setup():
   # Install the SDK
 
-  subprocess.check_call(["pip3", "install", "--user", ""-r", "requirements.txt"])
+  subprocess.check_call(["pip3", "install", "--user", "-r", "requirements.txt"])
   subprocess.check_call(["pip3", "install", "--user", KFP_PACKAGE, "--upgrade"])
 
   logging.basicConfig(format='%(message)s')
   logging.getLogger().setLevel(logging.INFO)
 
   subprocess.check_call(["gcloud", "auth", "configure-docker", "--quiet"])
+  if os.getenv('GOOGLE_APPLICATION_CREDENTIALS'):
+    subprocess.check_call(["gcloud", "auth", "activate-service-account",
+                           "--key-file=" + os.getenv("GOOGLE_APPLICATION_CREDENTIALS"),
+                           "--quiet"])
 
 def copy_data_to_nfs(nfs_path, model_dir):
   if not os.path.exists(nfs_path):
