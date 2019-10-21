@@ -73,7 +73,7 @@ def mnist_pipeline(model_export_dir='gs://your-bucket/export',
 
   webui_args = [
           '--image', 'gcr.io/kubeflow-examples/mnist/web-ui:'
-                     'latest',
+                     'v20190304-v0.2-176-g15d997b',
           '--name', 'web-ui',
           '--container-port', '5000',
           '--service-port', '80',
@@ -86,7 +86,8 @@ def mnist_pipeline(model_export_dir='gs://your-bucket/export',
 
   web_ui = dsl.ContainerOp(
       name='web-ui',
-      image='gcr.io/kubeflow-examples/mnist/deploy-service:latest',
+      image='gcr.io/kubeflow-examples/mnist/deploy-service:'
+            'v20190304-v0.2-176-g15d997b',
       arguments=webui_args
   )
   web_ui.after(serve)
