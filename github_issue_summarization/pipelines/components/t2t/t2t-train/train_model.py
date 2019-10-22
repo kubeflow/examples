@@ -22,11 +22,9 @@ import time
 from urlparse import urlparse
 
 from google.cloud import storage
+import pathlib2
 
 
-# location of the model checkpoint from which we'll start our training
-SOURCE_BUCKET = 'aju-dev-demos-codelabs'
-PREFIX = 'kubecon/model_output_tbase.bak2019000/'
 COPY_ACTION = 'copy_data'
 TRAIN_ACTION = 'train'
 PROBLEM = 'gh_problem'
@@ -49,17 +47,26 @@ def copy_blob(storage_client, source_bucket, source_blob, target_bucket_name, ne
       str(source_blob.name), str(source_bucket.name), str(new_blob.name), str(target_bucket.name))
 
 
-def copy_checkpoint(new_blob_prefix, target_bucket):
+def copy_checkpoint(checkpoint_dir, model_dir):
   """Copy an existing model checkpoint directory to the working directory for the workflow,
   so that the training can start from that point.
   """
 
   storage_client = storage.Client()
-  source_bucket = storage_client.bucket(SOURCE_BUCKET)
   retries = 10
 
+  source_bucket_string = urlparse(checkpoint_dir).netloc
+  source_prefix = checkpoint_dir.replace('gs://' + source_bucket_string + '/', '')
+  logging.info("source bucket %s and prefix %s", source_bucket_string, source_prefix)
+  source_bucket = storage_client.bucket(source_bucket_string)
+
+  target_bucket = urlparse(model_dir).netloc
+  logging.info("target bucket: %s", target_bucket)
+  new_blob_prefix = model_dir.replace('gs://' + target_bucket + '/', '')
+  logging.info("new_blob_prefix: %s", new_blob_prefix)
+
   # Lists objects with the given prefix.
-  blob_list = list(source_bucket.list_blobs(prefix=PREFIX))
+  blob_list = list(source_bucket.list_blobs(prefix=source_prefix))
   logging.info('Copying files:')
   for blob in blob_list:
     sleeptime = 0.1
@@ -68,7 +75,7 @@ def copy_checkpoint(new_blob_prefix, target_bucket):
       logging.info('copying %s; retry %s', blob.name, num_retries)
       try:
         copy_blob(storage_client, source_bucket, blob, target_bucket, blob.name, new_blob_prefix,
-            PREFIX)
+            source_prefix)
         break
       except Exception as e:  #pylint: disable=broad-except
         logging.warning(e)
@@ -124,17 +131,21 @@ def main():
       help='...',
       required=True)
   parser.add_argument(
-      '--working-dir',
-      help='...',
-      required=True)
-  parser.add_argument(
       '--data-dir',
       help='...',
       required=True)
   parser.add_argument(
+      '--copy-output-path',
+      help='...',
+      )
+  parser.add_argument(
+      '--train-output-path',
+      help='...',
+      )
+  parser.add_argument(  # used for the copy step only
       '--checkpoint-dir',
       help='...',
-      required=True)
+      required=False)
   parser.add_argument(
       '--train-steps',
       help='...')
@@ -145,34 +156,37 @@ def main():
 
   args = parser.parse_args()
 
-  # Create metadata.json file for visualization.
-  metadata = {
-    'outputs' : [{
-      'type': 'tensorboard',
-      'source': args.model_dir,
-    }]
-  }
-  with open('/mlpipeline-ui-metadata.json', 'w') as f:
-    json.dump(metadata, f)
-
   data_dir = args.data_dir
   logging.info("data dir: %s", data_dir)
-
-  # model_startpoint = args.checkpoint_dir
-  logging.info("model_startpoint: %s", args.checkpoint_dir)
   model_dir = args.model_dir
   logging.info("model_dir: %s", model_dir)
 
   if args.action.lower() == COPY_ACTION:
-    # copy over the checkpoint directory
-    target_bucket = urlparse(args.working_dir).netloc
-    logging.info("target bucket: %s", target_bucket)
-    new_blob_prefix = model_dir.replace('gs://' + target_bucket + '/', '')
-    logging.info("new_blob_prefix: %s", new_blob_prefix)
-    copy_checkpoint(new_blob_prefix, target_bucket)
+    logging.info("model starting checkpoint: %s", args.checkpoint_dir)
+    copy_checkpoint(args.checkpoint_dir, model_dir)
+    # write the model dir path as an output param
+    logging.info("copy_output_path: %s", args.copy_output_path)
+    pathlib2.Path(args.copy_output_path).parent.mkdir(parents=True)
+    pathlib2.Path(args.copy_output_path).write_text(model_dir.decode('utf-8'))
+
   elif args.action.lower() == TRAIN_ACTION:
     # launch the training job
     run_training(args, data_dir, model_dir, PROBLEM)
+    # write the model export path as an output param
+    logging.info("train_output_path: %s", args.train_output_path)
+    pathlib2.Path(args.train_output_path).parent.mkdir(parents=True)
+    export_dir = '%s/export' % model_dir
+    pathlib2.Path(args.train_output_path).write_text(export_dir.decode('utf-8'))
+    # Create metadata.json file for Tensorboard 'artifact'
+    metadata = {
+      'outputs' : [{
+        'type': 'tensorboard',
+        'source': model_dir,
+      }]
+    }
+    with open('/mlpipeline-ui-metadata.json', 'w') as f:
+      json.dump(metadata, f)
+
   else:
     logging.warning("Error: unknown action mode %s", args.action)
 
