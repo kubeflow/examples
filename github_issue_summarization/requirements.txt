@@ -134,7 +134,7 @@ patsy==0.4.1
 pep8==1.7.0
 pexpect==4.3.0
 pickleshare==0.7.4
-Pillow==4.3.0
+Pillow==6.2.0
 pkginfo==1.4.1
 plac==0.9.6
 ply==3.10
