@@ -15,7 +15,7 @@ local defaultParams = {
   dataVolume: "kubeflow-test-volume",
 
   // Default step image:
-  stepImage: "gcr.io/kubeflow-ci/test-worker/test-worker:v20190116-b7abb8d-e3b0c4",
+  stepImage: "gcr.io/kubeflow-ci/test-worker/test-worker:v20191029-fd24db8-e3b0c4",
 
   // Which Kubeflow cluster to use for running TFJobs on.
   kfProject: "kubeflow-ci-deployment",
