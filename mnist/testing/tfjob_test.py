@@ -64,6 +64,14 @@ class TFJobTest(test_util.TestCase):
     util.run(['wget', '-O', '/usr/local/bin/kustomize', kusUrl], cwd=self.app_dir)
     util.run(['chmod', 'a+x', '/usr/local/bin/kustomize'], cwd=self.app_dir)
 
+    # TODO @jinchihe: The kubectl has been upgraded to 1.14.0 in kubeflow/testing/pull/500.
+    # But the test-worker image is not refreshed, see issue kubeflow/testing/issues/501.
+    # The below code can be removed once test-worker released.
+    kusUrl = 'https://storage.googleapis.com/kubernetes-release/' \
+         'release/v1.14.0/bin/linux/amd64/kubectl'
+    util.run(['wget', '-O', '/usr/local/bin/kubectl', kusUrl], cwd=self.app_dir)
+    util.run(['chmod', 'a+x', '/usr/local/bin/kubectl'], cwd=self.app_dir)
+
     # Setup parameters for kustomize
     configmap = 'mnist-map-training'
     for pair in self.params.split(","):
