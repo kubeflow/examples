@@ -7,12 +7,12 @@ import requests
 from retrying import retry
 import numpy as np
 
-KFP_PACKAGE = 'https://storage.googleapis.com/ml-pipeline/release/0.1.20/kfp.tar.gz'
+KFP_PACKAGE = 'https://storage.googleapis.com/ml-pipeline/release/0.1.32/kfp.tar.gz'
 def notebook_setup():
   # Install the SDK
 
-  subprocess.check_call(["pip3", "install", "-r", "requirements.txt"])
-  subprocess.check_call(["pip3", "install", KFP_PACKAGE, "--upgrade"])
+  subprocess.check_call(["pip3", "install", "--user", "-r", "requirements.txt"])
+  subprocess.check_call(["pip3", "install", "--user", KFP_PACKAGE, "--upgrade"])
 
   logging.basicConfig(format='%(message)s')
   logging.getLogger().setLevel(logging.INFO)
