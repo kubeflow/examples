@@ -23,7 +23,7 @@ inputs:
   - name: train_steps
     description: '...'
     type: Integer
-    default: '2019300'
+    default: 2019300
   - name: data_dir
     description: '...'
     type: GCSPath
