@@ -31,7 +31,6 @@ PROBLEM = 'gh_problem'
 OUTPUT_PATH = '/tmp/output'
 
 
-
 def copy_blob(storage_client, source_bucket, source_blob, target_bucket_name, new_blob_name,
     new_blob_prefix, prefix):
   """Copies a blob from one bucket to another with a new name."""
@@ -104,7 +103,6 @@ def run_training(args, data_dir, model_dir, problem):
   # print(result2)
 
   # then export the model...
-
   model_export_command = ['t2t-exporter', '--model', 'transformer',
       '--hparams_set', 'transformer_prepend',
       '--problem', problem,
