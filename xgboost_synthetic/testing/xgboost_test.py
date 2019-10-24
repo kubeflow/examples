@@ -35,9 +35,6 @@ def test_xgboost_synthetic(record_xml_attribute, name, namespace, cluster, # pyl
   with open("job.yaml") as hf:
     job = yaml.load(hf)
 
-  job["metadata"]["namespace"] = name
-  job["metadata"]["namespace"] = namespace
-
   # We need to checkout the correct version of the code
   # in presubmits and postsubmits. We should check the environment variables
   # for the prow environment variables to get the appropriate values.
@@ -73,6 +70,8 @@ def test_xgboost_synthetic(record_xml_attribute, name, namespace, cluster, # pyl
                                datetime.datetime.now().strftime("%H%M%S")
                                + "-" + uuid.uuid4().hex[0:3])
 
+  job["metadata"]["namespace"] = namespace
+
   # Create an API client object to talk to the K8s master.
   api_client = k8s_client.ApiClient()
   batch_api = k8s_client.BatchV1Api(api_client)
@@ -81,12 +80,10 @@ def test_xgboost_synthetic(record_xml_attribute, name, namespace, cluster, # pyl
   batch_api.create_namespaced_job(job["metadata"]["namespace"], job)
   logging.info("Created job %s in namespaces %s", name, namespace)
 
-  # Wait for tiller to be ready
+  # Wait for job.
   end_time = datetime.datetime.now() + datetime.timedelta(
     minutes=15)
 
-  namespace = job["metadata"]["namespace"]
-  name = job["metadata"]["name"]
   last_condition = None
   while datetime.datetime.now() < end_time:
     try:
@@ -99,6 +96,8 @@ def test_xgboost_synthetic(record_xml_attribute, name, namespace, cluster, # pyl
     # ready_replicas could be None
     if not job.conditions:
       logging.info("Job missing condition")
+      time.sleep(10)
+      continue
 
     last_condition = job.conditions[-1]
     if last_condition["type"] in ["Failed", "Complete"]:
@@ -111,9 +110,10 @@ def test_xgboost_synthetic(record_xml_attribute, name, namespace, cluster, # pyl
 
   if not last_condition or last_condition["type"] not in ["Failed", "Complete"]:
     logging.error("Timeout waiting for job %s.%s to finish.", namespace, name)
-    assert last_condition["type"] in ["Failed", "Complete"]
-  else:
-    assert last_condition["type"] == "Complete"
+    raise RuntimeError("Job {0}.{1} has last condition {2} which is not "
+                       "Complete".format(namespace, name,
+                       last_condition["type"] in ["Failed", "Complete"]))
+  assert last_condition["type"] == "Complete"
 
 if __name__ == "__main__":
   logging.basicConfig(level=logging.INFO,
