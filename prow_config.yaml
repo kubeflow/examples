@@ -1,5 +1,7 @@
 # This file configures the workflows to trigger in our Prow jobs.
 # see kubeflow/testing/py/run_e2e_workflow.py
+python_paths:
+  - kubeflow/examples/py
 workflows:
   - app_dir: kubeflow/examples/test/workflows
     component: workflows
@@ -62,10 +64,10 @@ workflows:
     include_dirs:
       - pytorch_mnist/*
 
-  # E2E test for xgboost-synthetic
-  - app_dir: kubeflow/examples/test/workflows
-    component: xgboost_synthetic
-    name: xgboost2
+  # E2E test for various notebooks
+  # New notebooks can just add a step to the workflow
+  - py_func: kubeflow.examples.create_e2e_workflow.create_workflow
+    name: notebooks
     job_types:
       - periodic
       - presubmit
