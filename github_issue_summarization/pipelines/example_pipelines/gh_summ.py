@@ -88,7 +88,8 @@ def gh_summ(  #pylint: disable=unused-argument
       arguments=["--model_name", 'ghsumm-%s' % (dsl.RUN_ID_PLACEHOLDER,),
           "--model_path", train.outputs['train_output_path']
           ]
-      )
+      ).apply(gcp.use_gcp_secret('user-gcp-sa'))
+
   log_dataset.after(copydata)
   log_model.after(train)
   train.set_gpu_limit(1)
