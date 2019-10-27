@@ -26,7 +26,7 @@ RUN pip install tensorflow-probability==0.5
 RUN pip install tensor2tensor==1.11.0
 RUN pip install tensorflow_hub==0.1.1
 RUN pip install pyyaml==3.12 six==1.11.0
-RUN pip install google-cloud-storage
+RUN pip install google-cloud-storage pathlib2
 
 RUN wget -nv https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.zip && \
     unzip -qq google-cloud-sdk.zip -d /tools && \

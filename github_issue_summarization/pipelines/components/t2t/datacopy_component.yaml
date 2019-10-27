@@ -20,9 +20,6 @@ metadata:
   labels:
     add-pod-env: 'true'
 inputs:
-  - name: working_dir
-    description: '...'
-    type: GCSPath
   - name: data_dir
     description: '...'
     type: GCSPath
@@ -35,15 +32,19 @@ inputs:
   - name: action
     description: '...'
     type: String
+outputs:
+  - name: copy_output_path
+    description: '...'
+    type: GCSPath
 implementation:
   container:
-    image: gcr.io/google-samples/ml-pipeline-t2ttrain:v2ap
+    image: gcr.io/google-samples/ml-pipeline-t2ttrain:v3ap
     args: [
       --data-dir, {inputValue: data_dir},
       --checkpoint-dir, {inputValue: checkpoint_dir},
       --action, {inputValue: action},
-      --working-dir, {inputValue: working_dir},
-      --model-dir, {inputValue: model_dir}
+      --model-dir, {inputValue: model_dir},
+      --copy-output-path, {outputPath: copy_output_path}
     ]
     env:
       KFP_POD_NAME: "{{pod.name}}"
