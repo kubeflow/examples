@@ -238,11 +238,9 @@ class Builder:
     # Test xgboost
     step_name = "xgboost-synthetic"
     command = ["pytest", "xgboost_test.py",
-               # I think -s mean stdout/stderr will print out to aid in debugging.
-               # Failures still appear to be captured and stored in the junit file.
-               "-s",
                # Increase the log level so that info level log statements show up.
                "--log-cli-level=info",
+               "--log-cli-format='%(levelname)s|%(asctime)s|%(pathname)s|%(lineno)d| %(message)'",
                # Test timeout in seconds.
                "--timeout=1800",
                "--junitxml=" + self.artifacts_dir + "/junit_xgboost-synthetic-test.xml",

@@ -14,9 +14,6 @@ def pytest_addoption(parser):
   parser.addoption(
     "--repos", help="The repos to checkout; leave blank to use defaults",
     type=str, default="")
-  parser.addoption(
-    "--cluster", help="The cluster which the applition running in", type=str,
-    default="")
 
 @pytest.fixture
 def name(request):
@@ -33,7 +30,3 @@ def image(request):
 @pytest.fixture
 def repos(request):
   return request.config.getoption("--repos")
-
-@pytest.fixture
-def cluster(request):
-  return request.config.getoption("--cluster")

@@ -2,7 +2,10 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: xgboost-test
+  labels:
+    app: xgboost-synthetic-test
 spec:
+  backoffLimit: 1
   template:
     metadata:
       annotations:
@@ -11,7 +14,7 @@ spec:
         # in notebooks?
         sidecar.istio.io/inject: "false"
       labels:
-        app: xgboost-synthetics-testing
+        app: xgboost-synthetic-test
     spec:
       restartPolicy: Never
       securityContext:
@@ -22,20 +25,11 @@ spec:
         - /usr/local/bin/checkout_repos.sh
         - --repos=kubeflow/examples@$(CHECK_TAG)
         - --src_dir=/src
-        # TODO(jlewi): Do we need to do depth all here?
-        - --depth=all
         name: checkout
-        # TODO(jlewi): Set in kustomization.yaml?
         image: gcr.io/kubeflow-ci/test-worker:v20190802-c6f9140-e3b0c4
         volumeMounts:
         - mountPath: /src
           name: src
-        env:
-        - name: CHECK_TAG
-          valueFrom:
-            configMapKeyRef:
-              name: xgb-notebooks-tests
-              key: checkTag
       containers:
       - name: executing-notebooks
         image: execute-image
