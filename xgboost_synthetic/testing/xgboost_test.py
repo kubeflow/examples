@@ -1,21 +1,21 @@
 import datetime
 import logging
 import os
-import time
 import uuid
 import yaml
 
 import pytest
 
 from kubernetes import client as k8s_client
-from kubernetes.client import rest
 from kubeflow.testing import argo_build_util
 from kubeflow.testing import util
 
 # TODO(jlewi): This test is currently failing because various things
 # need to be updated to work with 0.7.0. Until that's fixed we mark it
-# as expected to fail so we can begin to get signal.
-@pytest.mark.xfail
+# as expected to fail on presubmits. We only mark it as expected to fail
+# on presubmits because if expected failures don't show up in test grid
+# and we want signal in postsubmits and periodics
+@pytest.mark.xfail(os.getenv("JOB_TYPE") == "presubmit", reason="Flaky")
 def test_xgboost_synthetic(record_xml_attribute, name, namespace, # pylint: disable=too-many-branches,too-many-statements
                            repos, image):
   '''Generate Job and summit.'''
@@ -62,7 +62,8 @@ def test_xgboost_synthetic(record_xml_attribute, name, namespace, # pylint: disa
   logging.info("Creating job:\n%s", yaml.dump(job))
   actual_job = batch_api.create_namespaced_job(job["metadata"]["namespace"],
                                                job)
-  logging.info("Created job %s in namespaces %s", name, namespace)
+  logging.info("Created job %s.%s:\n%s", namespace, name,
+               yaml.safe_dump(actual_job))
 
   final_job = util.wait_for_job(api_client, namespace, name,
                                 timeout=datetime.timedelta(minutes=30))
