@@ -63,12 +63,12 @@ def test_xgboost_synthetic(record_xml_attribute, name, namespace, # pylint: disa
   actual_job = batch_api.create_namespaced_job(job["metadata"]["namespace"],
                                                job)
   logging.info("Created job %s.%s:\n%s", namespace, name,
-               yaml.safe_dump(actual_job))
+               yaml.safe_dump(actual_job.to_dict()))
 
   final_job = util.wait_for_job(api_client, namespace, name,
                                 timeout=datetime.timedelta(minutes=30))
 
-  logging.info("Final job:\n%s", yaml.safe_dump(final_job))
+  logging.info("Final job:\n%s", yaml.safe_dump(final_job.to_dict()))
 
   if not job.status.conditions:
     raise RuntimeError("Job {0}.{1}; did not complete".format(namespace, name))

@@ -241,7 +241,7 @@ class Builder:
     command = ["pytest", "xgboost_test.py",
                # Increase the log level so that info level log statements show up.
                "--log-cli-level=info",
-               "--log-cli-format='%(levelname)s|%(asctime)s|%(pathname)s|%(lineno)d| %(message)'",
+               "--log-cli-format='%(levelname)s|%(asctime)s|%(pathname)s|%(lineno)d| %(message)s'",
                # Test timeout in seconds.
                "--timeout=1800",
                "--junitxml=" + self.artifacts_dir + "/junit_xgboost-synthetic-test.xml",
