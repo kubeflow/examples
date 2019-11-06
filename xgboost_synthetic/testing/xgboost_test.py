@@ -70,10 +70,10 @@ def test_xgboost_synthetic(record_xml_attribute, name, namespace, # pylint: disa
 
   logging.info("Final job:\n%s", yaml.safe_dump(final_job.to_dict()))
 
-  if not job.status.conditions:
+  if not final_job.status.conditions:
     raise RuntimeError("Job {0}.{1}; did not complete".format(namespace, name))
 
-  last_condition = job.status.conditions[-1]
+  last_condition = final_job.status.conditions[-1]
 
   if last_condition.type not in ["Complete"]:
     logging.error("Job didn't complete successfully")
