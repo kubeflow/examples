@@ -72,5 +72,6 @@ workflows:
       - periodic
       - presubmit
       - postsubmit
-    include_dirs:
-      - xgboost_synthetic/*
+    # DO NOT SUBMIT
+    #include_dirs:
+    #  - xgboost_synthetic/*
