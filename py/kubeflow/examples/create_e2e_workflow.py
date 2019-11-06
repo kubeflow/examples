@@ -51,7 +51,8 @@ TEMPLATE_LABEL = "examples_e2e"
 
 MAIN_REPO = "kubeflow/examples"
 
-EXTRA_REPOS = ["kubeflow/testing@HEAD"]
+# DO NOT SUBMIT change back to head.
+EXTRA_REPOS = ["kubeflow/testing@HEAD:519"]
 
 class Builder:
   def __init__(self, name=None, namespace=None, test_target_name=None,
