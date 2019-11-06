@@ -74,3 +74,4 @@ workflows:
       - postsubmit
     include_dirs:
       - xgboost_synthetic/*
+      - py/kubeflow/examples/create_e2e_workflow.py
