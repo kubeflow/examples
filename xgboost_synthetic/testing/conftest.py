@@ -5,8 +5,10 @@ def pytest_addoption(parser):
     "--name", help="Name for the job. If not specified one was created "
     "automatically", type=str, default="")
   parser.addoption(
-    "--namespace", help="The namespace for the application", type=str,
-    default="kubeflow-test-infra")
+    "--namespace", help=("The namespace to run in. This should correspond to"
+                         "a namespace associated with a Kubeflow namespace."),
+                   type=str,
+    default="kubeflow-kubeflow-testing")
   parser.addoption(
     "--image", help="Notebook image to use", type=str,
     default="gcr.io/kubeflow-images-public/tensorflow-1.14.0-notebook-gpu"
