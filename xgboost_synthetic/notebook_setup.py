@@ -11,7 +11,7 @@ import subprocess
 from pathlib import Path
 
 KFP_PACKAGE = 'https://storage.googleapis.com/ml-pipeline/release/0.1.32/kfp.tar.gz'
-FAIRING_PACKAGE = 'git+git://github.com/kubeflow/fairing.git@7c93e888c3fc98bdf5fb0140e90f6407ce7a807b' # pylint: disable=line-too-long
+FAIRING_PACKAGE = 'git+git://github.com/kubeflow/fairing.git@9b0d4ed4796ba349ac6067bbd802ff1d6454d015' # pylint: disable=line-too-long
 
 def notebook_setup():
   # Install the SDK
