@@ -21,17 +21,6 @@ workflows:
     include_dirs:
     - code_search/*
 
-  # E2E test for mnist example
-  - app_dir: kubeflow/examples/test/workflows
-    component: mnist
-    name: mnist
-    job_types:
-    - periodic
-    - presubmit
-    - postsubmit
-    include_dirs:
-    - mnist/*
-
   # E2E test for github issue summarization example
   - app_dir: kubeflow/examples/test/workflows
     component: gis
@@ -74,4 +63,15 @@ workflows:
       - postsubmit
     include_dirs:
       - xgboost_synthetic/*
+      - py/kubeflow/examples/create_e2e_workflow.py
+
+  # E2E test for mnist example
+  - py_func: kubeflow.examples.create_e2e_workflow.create_workflow
+    name: mnist
+    job_types:
+      - periodic
+      - presubmit
+      - postsubmit
+    include_dirs:
+      - mnist/*
       - py/kubeflow/examples/create_e2e_workflow.py
