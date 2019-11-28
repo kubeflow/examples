@@ -1,5 +1,0 @@
-varReference:
-- path: spec/template/spec/volumes/secret/secretName
-  kind: Deployment
-- path: spec/template/spec/containers/volumeMounts/mountPath
-  kind: Deployment

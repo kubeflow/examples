@@ -51,7 +51,9 @@ TEMPLATE_LABEL = "examples_e2e"
 
 MAIN_REPO = "kubeflow/examples"
 
-EXTRA_REPOS = ["kubeflow/testing@HEAD"]
+EXTRA_REPOS = ["kubeflow/testing@HEAD", "kubeflow/tf-operator@HEAD"]
+
+PROW_DICT = argo_build_util.get_prow_dict()
 
 class Builder:
   def __init__(self, name=None, namespace=None, test_target_name=None,
@@ -96,6 +98,10 @@ class Builder:
     # The directory within the kubeflow_testing submodule containing
     # py scripts to use.
     self.kubeflow_testing_py = self.src_root_dir + "/kubeflow/testing/py"
+
+    # The directory within the tf-operator submodule containing
+    # py scripts to use.
+    self.kubeflow_tfjob_py = self.src_root_dir + "/kubeflow/tf-operator/py"
 
     # The class name to label junit files.
     # We want to be able to group related tests in test grid.
@@ -199,7 +205,7 @@ class Builder:
     common_env = [
         {'name': 'PYTHONPATH',
          'value': ":".join([self.kubeflow_py, self.kubeflow_py + "/py",
-                            self.kubeflow_testing_py,])},
+                            self.kubeflow_testing_py, self.kubeflow_tfjob_py])},
         {'name': 'KUBECONFIG',
          'value': os.path.join(self.test_dir, 'kfctl_test/.kube/kubeconfig')},
     ]
@@ -229,7 +235,7 @@ class Builder:
 
     return None
 
-  def _build_tests_dag(self):
+  def _build_tests_dag_notebooks(self):
     """Build the dag for the set of tests to run against a KF deployment."""
 
     task_template = self._build_task_template()
@@ -253,6 +259,82 @@ class Builder:
                                                            "xgboost_synthetic",
                                                            "testing")
 
+  def _build_tests_dag_mnist(self):
+    """Build the dag for the set of tests to run mnist TFJob tests."""
+
+    task_template = self._build_task_template()
+
+    # ***************************************************************************
+    # Build mnist image
+    step_name = "build-image"
+    train_image_base = "gcr.io/kubeflow-ci/mnist"
+    train_image_tag = "build-" + PROW_DICT['BUILD_ID']
+    command = ["/bin/bash",
+               "-c",
+               "gcloud auth activate-service-account --key-file=$(GOOGLE_APPLICATION_CREDENTIALS) \
+                && make build-gcb IMG=" + train_image_base + " TAG=" + train_image_tag,
+              ]
+    dependencies = []
+    build_step = self._build_step(step_name, self.workflow, TESTS_DAG_NAME, task_template,
+                                   command, dependencies)
+    build_step["container"]["workingDir"] = os.path.join(self.src_dir, "mnist")
+
+    # ***************************************************************************
+    # Test mnist TFJob
+    step_name = "tfjob-test"
+    # Using python2 to run the test to avoid dependency error.
+    command = ["python2", "-m", "pytest", "tfjob_test.py",
+               # Increase the log level so that info level log statements show up.
+               "--log-cli-level=info",
+               "--log-cli-format='%(levelname)s|%(asctime)s|%(pathname)s|%(lineno)d| %(message)s'",
+               # Test timeout in seconds.
+               "--timeout=1800",
+               "--junitxml=" + self.artifacts_dir + "/junit_tfjob-test.xml",
+               ]
+
+    dependencies = [build_step['name']]
+    tfjob_step = self._build_step(step_name, self.workflow, TESTS_DAG_NAME, task_template,
+                                   command, dependencies)
+    tfjob_step["container"]["workingDir"] = os.path.join(self.src_dir,
+                                                           "mnist",
+                                                           "testing")
+
+    # ***************************************************************************
+    # Test mnist deploy
+    step_name = "deploy-test"
+    command = ["python2", "-m", "pytest", "deploy_test.py",
+               # Increase the log level so that info level log statements show up.
+               "--log-cli-level=info",
+               "--log-cli-format='%(levelname)s|%(asctime)s|%(pathname)s|%(lineno)d| %(message)s'",
+               # Test timeout in seconds.
+               "--timeout=1800",
+               "--junitxml=" + self.artifacts_dir + "/junit_deploy-test.xml",
+               ]
+
+    dependencies = [tfjob_step["name"]]
+    deploy_step = self._build_step(step_name, self.workflow, TESTS_DAG_NAME, task_template,
+                                   command, dependencies)
+    deploy_step["container"]["workingDir"] = os.path.join(self.src_dir,
+                                                           "mnist",
+                                                           "testing")
+    # ***************************************************************************
+    # Test mnist predict
+    step_name = "predict-test"
+    command = ["pytest", "predict_test.py",
+               # Increase the log level so that info level log statements show up.
+               "--log-cli-level=info",
+               "--log-cli-format='%(levelname)s|%(asctime)s|%(pathname)s|%(lineno)d| %(message)s'",
+               # Test timeout in seconds.
+               "--timeout=1800",
+               "--junitxml=" + self.artifacts_dir + "/junit_predict-test.xml",
+               ]
+
+    dependencies = [deploy_step["name"]]
+    predict_step = self._build_step(step_name, self.workflow, TESTS_DAG_NAME, task_template,
+                                   command, dependencies)
+    predict_step["container"]["workingDir"] = os.path.join(self.src_dir,
+                                                           "mnist",
+                                                           "testing")
 
   def _build_exit_dag(self):
     """Build the exit handler dag"""
@@ -337,7 +419,12 @@ class Builder:
 
     #**************************************************************************
     # Run a dag of tests
-    self._build_tests_dag()
+    if self.test_target_name == "notebooks":
+      self._build_tests_dag_notebooks()
+    elif self.test_target_name == "mnist":
+      self._build_tests_dag_mnist()
+    else:
+      raise RuntimeError('Invalid test_target_name')
 
     # Add a task to run the dag
     dependencies = [credentials["name"]]
