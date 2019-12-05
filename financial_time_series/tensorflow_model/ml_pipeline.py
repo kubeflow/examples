@@ -14,6 +14,7 @@
 # limitations under the License.
 
 import kfp.dsl as dsl
+import kfp.gcp as gcp
 
 
 class Preprocess(dsl.ContainerOp):
@@ -60,9 +61,11 @@ def train_and_deploy(
         model=dsl.PipelineParam('model', value='DeepModel')
 ):
   """Pipeline to train financial time series model"""
-  preprocess_op = Preprocess('preprocess', bucket, cutoff_year)
+  preprocess_op = Preprocess('preprocess', bucket, cutoff_year).apply(
+    gcp.use_gcp_secret('user-gcp-sa'))
   #pylint: disable=unused-variable
-  train_op = Train('train and deploy', preprocess_op.output, version, bucket, model)
+  train_op = Train('train and deploy', preprocess_op.output, version,
+                   bucket, model).apply(gcp.use_gcp_secret('user-gcp-sa'))
 
 
 if __name__ == '__main__':

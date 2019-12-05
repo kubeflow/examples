@@ -24,7 +24,7 @@ def send_request(input_tensor):
   # server settings
   server_host = '127.0.0.1'
   server_port = 9000
-  server_name = "tf-serving"
+  server_name = "finance-model"
   timeout = 10.0
 
   print("connecting to:%s:%i" % (server_host, server_port))
