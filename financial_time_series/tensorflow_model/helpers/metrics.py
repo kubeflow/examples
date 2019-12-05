@@ -94,6 +94,9 @@ def tf_calc_confusion_metrics(true_pos, true_neg, false_pos, false_neg):
   print('F1 Score = ', f1_score)
   print('Accuracy = ', accuracy)
 
+  return {'precision': precision, 'recall': recall, 'f1': f1_score,
+          'accuracy': accuracy}
+
 
 def tf_confusion_matrix(model, actual_classes, session, feed_dict):
   """Calculates confusion matrix when training.
@@ -116,4 +119,4 @@ def tf_confusion_matrix(model, actual_classes, session, feed_dict):
           feed_dict
       )
 
-  tf_calc_confusion_metrics(true_pos, true_neg, false_pos, false_neg)
+  return tf_calc_confusion_metrics(true_pos, true_neg, false_pos, false_neg)

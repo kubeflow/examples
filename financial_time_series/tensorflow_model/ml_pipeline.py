@@ -33,6 +33,7 @@ class Preprocess(dsl.ContainerOp):
       file_outputs={'blob-path': '/blob_path.txt'}
     )
 
+
 class Train(dsl.ContainerOp):
 
   def __init__(self, name, blob_path, version, bucket, model):
@@ -45,8 +46,10 @@ class Train(dsl.ContainerOp):
         '--version', version,
         '--blob_path', blob_path,
         '--bucket', bucket,
-        '--model', model
-      ]
+        '--model', model,
+        '--kfp'
+      ],
+      file_outputs={'mlpipeline_metrics': '/mlpipeline-metrics.json'}
     )
 
 
@@ -55,10 +58,10 @@ class Train(dsl.ContainerOp):
   description='Train Financial Time Series'
 )
 def train_and_deploy(
-        bucket=dsl.PipelineParam('bucket', value='<bucket>'),
-        cutoff_year=dsl.PipelineParam('cutoff-year', value='2010'),
-        version=dsl.PipelineParam('version', value='4'),
-        model=dsl.PipelineParam('model', value='DeepModel')
+        bucket: str = '<bucket>',
+        cutoff_year: str = '2010',
+        version: str = '4',
+        model: str = 'DeepModel'
 ):
   """Pipeline to train financial time series model"""
   preprocess_op = Preprocess('preprocess', bucket, cutoff_year).apply(

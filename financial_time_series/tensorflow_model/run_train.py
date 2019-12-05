@@ -3,6 +3,7 @@
 Scripts that performs all the steps to train the ML model.
 """
 import logging
+import json
 import os
 import argparse
 import time
@@ -10,6 +11,7 @@ import shutil
 import sys
 import pandas as pd
 import tensorflow as tf
+from tensorflow.python.lib.io import file_io
 
 #pylint: disable=no-name-in-module
 from helpers import preprocess, models, metrics
@@ -50,6 +52,11 @@ def parse_arguments(argv):
                       type=str,
                       help='GCS blob path where data is saved',
                       default='data')
+
+  parser.add_argument('--kfp',
+                      dest='kfp',
+                      action='store_true',
+                      help='Kubeflow pipelines flag')
 
   args, _ = parser.parse_known_args(args=argv[1:])
 
@@ -110,14 +117,15 @@ def run_training(argv=None):
         }
     )
     if i % 5000 == 0:
-      print(i, sess.run(
+      train_acc = sess.run(
           accuracy,
           feed_dict={
               feature_data: training_test_data['training_predictors_tf'].values,
               actual_classes: training_test_data['training_classes_tf'].values.reshape(
                   len(training_test_data['training_classes_tf'].values), 2)
           }
-      ))
+      )
+      print(i, train_acc)
   time_dct['end'] = time.time()
   logging.info('training took {0:.2f} sec'.format(time_dct['end'] - time_dct['start']))
 
@@ -128,7 +136,8 @@ def run_training(argv=None):
       actual_classes: training_test_data['test_classes_tf'].values.reshape(
           len(training_test_data['test_classes_tf'].values), 2)
   }
-  metrics.tf_confusion_matrix(model, actual_classes, sess, feed_dict)
+  test_acc = metrics.tf_confusion_matrix(model, actual_classes, sess,
+                                         feed_dict)['accuracy']
 
   # create signature for TensorFlow Serving
   logging.info('Exporting model for tensorflow-serving...')
@@ -145,6 +154,22 @@ def run_training(argv=None):
   # save model on GCS
   logging.info("uploading to " + args.bucket + "/" + export_path)
   storage_helper.upload_to_storage(args.bucket, export_path)
+
+  if args.kfp:
+      metrics_info = {
+          'metrics': [{
+              'name': 'accuracy-train',
+              'numberValue': float(train_acc),
+              'format': "PERCENTAGE"
+          }, {
+              'name': 'accuracy-test',
+              'numberValue': float(test_acc),
+              'format': "PERCENTAGE"
+          }]}
+      with file_io.FileIO('/mlpipeline-metrics.json', 'w') as f:
+            json.dump(metrics_info, f)
+
+  logging.info('upload of the preprocessed data on GCS completed..')
 
   # remove local files
   shutil.rmtree(export_path)
