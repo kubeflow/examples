@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM tensorflow/tensorflow:1.8.0-devel-gpu-py3
+FROM tensorflow/tensorflow:1.15.0-gpu-py3
 
 RUN pip3 install google-cloud-storage==1.10.0 \
                  google-cloud-bigquery==1.6.0 \
