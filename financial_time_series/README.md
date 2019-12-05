@@ -139,7 +139,7 @@ The saved model expects a time series from closing stocks and spits out the pred
 Let's start with a script that populates a request with random numbers to test the service.
 
 ```
-pip3 install numpy tensorflow-serving-api==1.15.0
+pip3 install numpy
 python3 -m serving_requests.request_random
 ```
 
