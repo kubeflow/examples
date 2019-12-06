@@ -9,6 +9,7 @@ import sys
 
 from run_preprocess import run_preprocess
 from run_train import run_training
+from run_deploy import run_deploy
 
 
 
@@ -43,10 +44,10 @@ def parse_arguments(argv):
                       help='number of epochs to train',
                       default=30001)
 
-  parser.add_argument('--version',
+  parser.add_argument('--tag',
                       type=str,
-                      help='version (stored for serving)',
-                      default='1')
+                      help='tag of the model',
+                      default='v1')
 
   args, _ = parser.parse_known_args(args=argv[1:])
 
@@ -65,6 +66,7 @@ def run_preprocess_and_train(argv=None):
   run_preprocess(sys.argv)
   sys.argv.append('--blob_path=data/data_{}.csv'.format(args.cutoff_year))
   run_training(sys.argv)
+  run_deploy(sys.argv)
 
 
 if __name__ == '__main__':

@@ -23,11 +23,9 @@ Please follow the instructions on how to deploy Kubeflow to GKE on the
 
 After the step `kfctl build -V -f ${CONFIG_URI}` make sure you add 
 'https://www.googleapis.com/auth/cloud-platform' to the `VM_OAUTH_SCOPES` in the file `{KF_NAME}/gcp_config/cluster.ninja`. This will allow the machines to make use of the BigQuery API, which we need for our use case as the data is stored in BigQuery, and to store data on Google Cloud Storage. 
-Also we will set `enableNodeAutoprovisioning` to false in this file as we will work with our dedicated gpu-pool. 
-The [node autoprivioning](https://cloud.google.com/kubernetes-engine/docs/how-to/node-auto-provisioning) can be useful to autoscale the cluster with non-user defined node pools.
+Also we will set `enableNodeAutoprovisioning` to false in this file as we will work with our dedicated gpu-pool that Kubeflow deployment foresees. 
+The [node autoprovisioning](https://cloud.google.com/kubernetes-engine/docs/how-to/node-auto-provisioning) can be useful to autoscale the cluster with non-user defined node pools.
 
-Next to this, we also need to update the `{KF_NAME}/gcp_config/iam_bindings.yaml` by adding the roles 'roles/bigquery.admin' and 'roles/storage.admin' for the VM service account so that it is authorized to create a BigQuery job and write files to Google Cloud Storage.
-Last but not least, we also need to update the `cluster-kubeflow.yaml` to enable GPUs on our cluster, set `gpu-pool-max-nodes` to 1 instead of 0.
 
 ### Cloning the Examples 
 
@@ -35,21 +33,6 @@ Clone the examples repository:
 ```
 git clone https://github.com/kubeflow/examples.git
 cd examples/financial_time_series/
-```
-
-Now add the kubeflow deployment config (folder `{KF_NAME}`) to 
-`financial_time_series` folder
- so 
-the folder structure looks as follows:
-
-```
-$ financial_time_series
-.
-├── tensorflow_model
-└── {KF_NAME}
-    ├── .cache
-    ├── gcp_config
-    └── kustomize
 ```
 
 ### Explore the Kubeflow UI
@@ -80,7 +63,7 @@ export TRAIN_PATH=gcr.io/<project>/<image-name>/cpu:v1
 gcloud builds submit --tag $TRAIN_PATH .
 ```
 
-We will create a bucket to store our artifacts:
+We will create a bucket to store our data and model artifacts:
 
 ```
 # create storage bucket that will be used to store models
@@ -129,12 +112,12 @@ POD=`kubectl get pods --selector=app=model | awk '{print $1}' | tail -1`
 kubectl logs -f $POD
 ```
 
-We will do a local test via GRPC to illustrate how to get results from this serving component. Once the pod is up we can set up port-forwarding to our localhost.
+We will do a local test via HTTP to illustrate how to get results from this serving component. Once the pod is up we can set up port-forwarding to our localhost.
 ```
-kubectl port-forward $POD 9000:9000 2>&1 >/dev/null &
+kubectl port-forward $POD 8500:8500 2>&1 >/dev/null &
 ```
 
-Now the only thing we need to do is send a request to ```localhost:9000``` with the expected input of the saved model and it will return a prediction.
+Now the only thing we need to do is send a request to ```localhost:8500``` with the expected input of the saved model and it will return a prediction.
 The saved model expects a time series from closing stocks and spits out the prediction as a 0 (S&P closes positive) or 1 (S&P closes negative) together with the version of the saved model which was memorized upon saving the model.
 Let's start with a script that populates a request with random numbers to test the service.
 
@@ -155,14 +138,12 @@ python3 -m serving_requests.request
 The response should indicate that S&P index is expected to close positive (0) but from the actual data (which is prospected in the notebook mentioned above) we can see that it actually closed negative that day.
 Let's get back to training and see if we can improve our accuracy.
 
-### Running another tf-job and serving update
+### Running another TF-job and serving update
 Most likely a single training job will never be sufficient. It is very common to create a continuous training pipeline to iterate training and verify the output.
 Please have a look at the serving manifest `CPU/tfjob2.yaml` and update the 
 image and bucket reference. 
 This time, we will train a more complex neural network with several hidden layers.
-If you want to avoid a lot of almost duplicate manifest files, you can leverage 
-kustomize to define a base manifest and patch it with overlays according to 
-your needs.
+
 
 ```
 kubectl apply -f CPU/tfjob2.yaml
@@ -177,9 +158,7 @@ kubectl logs -f $POD_NAME
 ```
 
 You should notice that the training now takes a few minutes instead of less than one minute, however the accuracy on the test set is now 72%.
-Our training job uploads the trained model to the serving directory of our running tf-serving component.
-The tf-serving component watches this serving directory and automatically loads the model of the folder with the highest version (as integer).
-Since the newer version has a higher number than the previous one, our tf-serving should have switched to this new model.
+Our training job uploads the trained model to the serving directory of our running TF-serving component.
 Let's see if we get a response from the new version and if the new model gets it right this time.
 
 ```
@@ -190,7 +169,7 @@ The response returns the updated version number '2' and  predicts the correct ou
 
 ### Running TF-job on a GPU
 
-Can we also run the tf-job on a GPU?
+Can we also run the TF-job on a GPU?
 Imagine the training job does not just take a few minutes but rather hours or days.
 In this case we can reduce the training time by using a GPU. The GKE deployment script for Kubeflow automatically adds a GPU-pool that can scale as needed so you don’t need to pay for a GPU when you don’t need it. 
 Note that the Kubeflow deployment also installs the necessary Nvidia drivers for you so there is no need for you to worry about extra GPU device plugins.
@@ -222,12 +201,12 @@ kubectl logs -f $POD_NAME
 ```
 
 ### Kubeflow Pipelines
-Up to now, we clustered the preprocessing and training in a single script to illustrate the TFJobs.
-In practice, most often the preprocessing and training step will separated and they will need to run sequentially.
-In this way, we decouple the preprocessing from the training and can iterate faster different ML flows.
+Up to now, we clustered the preprocessing, training and deploy in a single script to illustrate the TFJobs.
+In practice, most often the preprocessing, training and deploy step will separated and they will need to run sequentially.
 Kubeflow pipelines offers an easy way of chaining these steps together and we will illustrate that here.
-As you can see, the script `run_preprocess_and_train.py` was using the two scripts `run_preprocess.py` and `run_train.py` underlying.
-The idea here is that these two steps will be containerized and chained together by Kubeflow pipelines.
+As you can see, the script `run_preprocess_train_deploy.py` was using the scripts `run_preprocess.py`, `run_train.py` and `run_deploy.py` underlying.
+The idea here is that these three steps will be containerized and chained together by Kubeflow pipelines.
+We will also introduce a condition that we will only deploy the model if the accuracy on the test set surpasses a treshold of 70%.
 
 KFP asks us to compile our pipeline Python3 file into a domain-specific-language. 
 We do that with a tool called dsl-compile that comes with the Python3 SDK. So, first install that SDK:
@@ -236,7 +215,7 @@ We do that with a tool called dsl-compile that comes with the Python3 SDK. So, f
 pip3 install python-dateutil kfp==0.1.36
 ```
 
-Update the `ml_pipeline.py` with the cpu image path that you built in the previous steps and your bucket name.
+Please inspect the `ml_pipline.py` and update the `ml_pipeline.py` with the cpu image path that you built in the previous steps and your bucket name.
 Then, compile the DSL, using:
 
 ```
@@ -248,13 +227,19 @@ We will navigate again back to the Kubeflow UI homepage on `https://<KF_NAME>.en
 
 
 Once the browser is open, upload the tar.gz file. This simply makes the graph available. 
-Next we can create a run and specify the params for the run. Make sure to specify version to 4 to check if this run creates a new saved model.
+Next we can create a run and specify the params for the run. 
 When the pipeline is running, you can inspect the logs:
 
+[UPDATE THIS IMG]
 ![Pipeline UI](./docs/img/pipeline_ui.png "Kubeflow Pipeline UI")
+
+Note that you can also see the accuracy metrics across the different runs.
+[INSERT IMG HERE]
+
+Also check that the 'DeepModel' surpassed the threshold and was deployed by TF-serving whereas the Flatmodel was not deployed as it did not meet the accuracy condition.
+[INSERT IMG HERE]
 
 
 ### Clean up
-To clean up, follow the instructions ['Delete using CLI'](https://www
-.kubeflow.org/docs/gke/deploy/delete-cli/) so that all components are 
+To clean up, follow the instructions ['Delete using CLI'](https://www.kubeflow.org/docs/gke/deploy/delete-cli/) so that all components are 
 deleted in a correct manner.

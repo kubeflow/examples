@@ -38,10 +38,10 @@ def parse_arguments(argv):
                       help='number of epochs to train',
                       default=30001)
 
-  parser.add_argument('--version',
+  parser.add_argument('--tag',
                       type=str,
-                      help='version (stored for serving)',
-                      default='1')
+                      help='tag of the model',
+                      default='v1')
 
   parser.add_argument('--bucket',
                       type=str,
@@ -142,13 +142,13 @@ def run_training(argv=None):
   # create signature for TensorFlow Serving
   logging.info('Exporting model for tensorflow-serving...')
 
-  export_path = os.path.join("model", args.version)
+  export_path = os.path.join("models", args.tag)
   tf.saved_model.simple_save(
       sess,
       export_path,
       inputs={'predictors': feature_data},
       outputs={'prediction': tf.argmax(model, 1),
-               'model-version': tf.constant([str(args.version)])}
+               'model-tag': tf.constant([str(args.tag)])}
   )
 
   # save model on GCS
@@ -169,7 +169,8 @@ def run_training(argv=None):
       with file_io.FileIO('/mlpipeline-metrics.json', 'w') as f:
             json.dump(metrics_info, f)
 
-  logging.info('upload of the preprocessed data on GCS completed..')
+      with open("/tmp/accuracy", "w") as output_file:
+        output_file.write(str(float(test_acc)))
 
   # remove local files
   shutil.rmtree(export_path)

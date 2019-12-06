@@ -15,18 +15,18 @@ spec:
             image: gcr.io/<project>/<image-name>/cpu:v1
             command:
               - python
-              - run_preprocess_and_train.py
+              - run_preprocess_train_deploy.py
               - --model=FlatModel
               - --epochs=30001
               - --bucket=<BUCKET_NAME>
-              - --version=1
+              - --tag=v1
             workingDir: "/opt/workdir"
             env:
             - name: GOOGLE_APPLICATION_CREDENTIALS
-              value: "/etc/secrets/user-gcp-sa.json"
+              value: "/secret/gcp-credentials/user-gcp-sa.json"
             volumeMounts:
             - name: sa
-              mountPath: "/etc/secrets"
+              mountPath: "/secret/gcp-credentials"
               readOnly: true
           volumes:
           - name: sa
