@@ -40,7 +40,7 @@ if [ "x${numPs}" != "x" ]; then
 \     group: kubeflow.org \
 \     kind: TFJob \
 \     name: \$(trainingName) \
-\     version: v1beta2 \
+\     version: v1 \
 \      
 ' kustomization.yaml
   else
@@ -59,7 +59,7 @@ if [ "x${numWorkers}" != "x" ]; then
 \     group: kubeflow.org \
 \     kind: TFJob \
 \     name: \$(trainingName) \
-\     version: v1beta2 \
+\     version: v1 \
 \      
 ' kustomization.yaml
   else

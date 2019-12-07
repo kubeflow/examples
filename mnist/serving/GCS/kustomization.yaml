@@ -3,11 +3,3 @@ kind: Kustomization
 
 bases:
 - ../base
-
-patchesJson6902:
-- path: deployment_patch.yaml
-  target:
-    group: extensions
-    kind: Deployment
-    name: $(svcName)
-    version: v1beta1
