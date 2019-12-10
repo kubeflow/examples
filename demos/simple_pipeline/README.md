@@ -74,7 +74,7 @@ to execute a Study, which defines a search space for performing training with a
 range of different parameters.
 
 Create a Study by applying an
-[example file](https://github.com/kubeflow/katib/blob/master/examples/gpu-example.yaml)
+[example file](https://github.com/kubeflow/examples/blob/master/demos/simple_pipeline/gpu-example-katib.yaml)
 to the cluster:
 
 ```

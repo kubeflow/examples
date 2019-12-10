@@ -14,36 +14,38 @@
 
 
 import kfp.dsl as dsl
+import kfp.gcp as gcp
+from kfp.dsl.types import String
+
 
 @dsl.pipeline(
   name='Github issue summarization',
   description='Demonstrate Tensor2Tensor-based training and TF-Serving'
 )
-def gh_summ(
-  github_token: dsl.PipelineParam = dsl.PipelineParam(
-      name='github-token', value='YOUR_GITHUB_TOKEN_HERE'),
+def gh_summ_serveonly(
+  github_token: String = 'YOUR_GITHUB_TOKEN_HERE',
   ):
 
 
   serve = dsl.ContainerOp(
       name='serve',
-      image='gcr.io/google-samples/ml-pipeline-kubeflow-tfserve',
-      arguments=["--model_name", 'ghsumm-%s' % ('{{workflow.name}}',),
+      image='gcr.io/google-samples/ml-pipeline-kubeflow-tfserve:v2',
+      arguments=["--model_name", 'ghsumm-%s' % (dsl.RUN_ID_PLACEHOLDER,),
           "--model_path",
           'gs://aju-dev-demos-codelabs/kubecon/example_t2t_model/model_output/export'
           ]
-      )
+      ).apply(gcp.use_gcp_secret('user-gcp-sa'))
 
   webapp = dsl.ContainerOp(
       name='webapp',
-      image='gcr.io/google-samples/ml-pipeline-webapp-launcher',
-      arguments=["--model_name", 'ghsumm-%s' % ('{{workflow.name}}',),
+      image='gcr.io/google-samples/ml-pipeline-webapp-launcher:v3ap',
+      arguments=["--model_name", 'ghsumm-%s' % (dsl.RUN_ID_PLACEHOLDER,),
           "--github_token", github_token]
-
       )
+
   webapp.after(serve)
 
 
 if __name__ == '__main__':
   import kfp.compiler as compiler
-  compiler.Compiler().compile(gh_summ, __file__ + '.tar.gz')
+  compiler.Compiler().compile(gh_summ_serveonly, __file__ + '.tar.gz')

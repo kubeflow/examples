@@ -11,6 +11,17 @@ This repository is home to the following types of examples and demos:
 
 ## End-to-end
 
+### [Named Entity Recognition](./named_entity_recognition)
+Author: [Sascha Heyer](https://github.com/saschaheyer)
+
+This example covers the following concepts:
+1. Build reusable pipeline components
+2. Run Kubeflow Pipelines with Jupyter notebooks
+1. Train a Named Entity Recognition model on a Kubernetes cluster
+1. Deploy a Keras model to AI Platform
+1. Use Kubeflow metrics
+1. Use Kubeflow visualizations 
+
 ### [GitHub issue summarization](./github_issue_summarization)
 Author: [Hamel Husain](https://github.com/hamelsmu)
 
@@ -81,7 +92,15 @@ This example covers the following concepts:
 
 ### [Pipelines](./pipelines)
 
-Author: [DanSanche](https://github.com/DanSanche) and [Jin Chi He](https://github.com/jinchihe)
+#### [Simple notebook pipeline](./pipelines/simple-notebook-pipeline)
+Author: [Zane Durante](https://github.com/zanedurante)
+
+This example covers the following concepts:
+1. How to create pipeline components from python functions in jupyter notebook
+2. How to compile and run a pipeline from jupyter notebook
+
+#### [MNIST Pipelines](./pipelines/mnist-pipelines)
+Author: [Dan Sanche](https://github.com/DanSanche) and [Jin Chi He](https://github.com/jinchihe)
 
 This example covers the following concepts:
 1. Run MNIST Pipelines sample on a Google Cloud Platform (GCP).

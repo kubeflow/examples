@@ -15,13 +15,13 @@
   "input": {
     "cross": [
       {
-        "atom": {
+        "pfs": {
 	  "repo": "train",
 	  "glob": "/"
 	}
       },
       {
-	"atom": {
+	"pfs": {
 	  "repo": "pre_process",
 	  "glob": "/"
 	}

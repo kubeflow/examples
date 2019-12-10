@@ -5,7 +5,7 @@ from tensor2tensor.data_generators import problem
 from tensor2tensor.data_generators import text_problems
 
 
-@registry.register_problem
+@registry.register_problem  # pylint: disable=abstract-method
 class GhProblem(text_problems.Text2TextProblem):
   """... predict GH issue title from body..."""
 

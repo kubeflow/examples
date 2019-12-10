@@ -141,13 +141,11 @@ train = dsl.ContainerOp(
         "--tf-batch-size", batch_size,
         "--tf-learning-rate", learning_rate
         ]
-).apply(gcp.use_gcp_secret('user-gcp-sa'))
+)
 ```
 This block defines the 'train' component. A component is made up of a [`kfp.dsl.ContainerOp`](https://github.com/kubeflow/pipelines/blob/master/sdk/python/kfp/dsl/_container_op.py) 
 object with the container path and a name specified. The container image used is defined in the [Dockerfile.model in the MNIST example](https://github.com/kubeflow/examples/blob/master/mnist/Dockerfile.model)
 
-Because the training component needs access to our GCS bucket, it is run with access to our 'user-gcp-sa' secret, which gives 
-read/write access to GCS resources.
 After defining the train component, we also set a number of environment variables for the training script
 
 #### Serve
@@ -160,13 +158,12 @@ serve = dsl.ContainerOp(
         '--model-export-path', model_export_dir,
         '--server-name', "mnist-service"
     ]
-).apply(gcp.use_gcp_secret('user-gcp-sa'))
+)
 ```
 The 'serve' component is slightly different than 'train'. While 'train' runs a single container and then exits, 'serve' runs a container that launches long-living 
 resources in the cluster. The ContainerOP takes two arguments: the path we exported our trained model to, and a server name. Using these, this pipeline component 
 creates a Kubeflow [`tf-serving`](https://github.com/kubeflow/kubeflow/tree/master/kubeflow/tf-serving) service within the cluster. This service lives after the 
 pipeline is complete, and can be seen using `kubectl get all -n kubeflow`. The Dockerfile used to build this container [can be found here](https://github.com/kubeflow/pipelines/blob/master/components/kubeflow/deployer/Dockerfile).
-Like the 'train' component, 'serve' requires access to the 'user-gcp-sa' secret for access to the 'kubectl' command within the container.
 
 The `serve.after(train)` line specifies that this component is to run sequentially after 'train' is complete
 
@@ -183,7 +180,7 @@ web_ui = dsl.ContainerOp(
         '--service-port', '80',
         '--service-type', "LoadBalancer"
     ]
-).apply(gcp.use_gcp_secret('user-gcp-sa'))
+)
 
 web_ui.after(serve)
 ``` 
@@ -195,9 +192,20 @@ After this component is run, a new LoadBalancer is provisioned that gives extern
 
 #### Main Function
 ```
+ steps = [train, serve, web_ui]
+  for step in steps:
+    if platform == 'GCP':
+      step.apply(gcp.use_gcp_secret('user-gcp-sa'))
+    else:
+      step.apply(onprem.mount_pvc(pvc_name, 'local-storage', '/mnt'))
+
 if __name__ == '__main__':
     import kfp.compiler as compiler
     compiler.Compiler().compile(mnist_pipeline, __file__ + '.tar.gz')
 ```
+
+For each step, if run under GCP, it is run with access to 'user-gcp-sa' secret, which gives read/write access to GCS resources (during training) and access to the 'kubectl' command within the container (during serving).
+
+If run on premise, it is run with access to pvc_name that is passed in as pipeline argument.
 
 At the bottom of the script is a main function. This is used to compile the pipeline when the script is run

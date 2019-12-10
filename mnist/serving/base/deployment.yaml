@@ -8,10 +8,13 @@ metadata:
 spec:
   template:
     metadata:
+      annotations:
+        sidecar.istio.io/inject: "false"
       labels:
         app: mnist
         version: v1
     spec:
+      serviceAccount: default-editor
       containers:
       - args:
         - --port=9000

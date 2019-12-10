@@ -51,12 +51,12 @@ vars:
     kind: ConfigMap
     name: mnist-map-monitoring
 - fieldref:
-    fieldPath: data.awsSecretName
+    fieldPath: metadata.name
   name: awsSecretName
   objref:
     apiVersion: v1
-    kind: ConfigMap
-    name: mnist-map-monitoring
+    kind: Secret
+    name: aws-creds
 - fieldref:
     fieldPath: data.awsAccessKeyIDName
   name: awsAccessKeyIDName

@@ -10,80 +10,75 @@ Python Path Requirements:
      * Provides utilities for testing
 
 Manually running the test
- 1. Configure your KUBECONFIG file to point to the desired cluster
- 2. Set --params=name=${NAME},namespace=${NAMESPACE}
-    * name should be the name for your job
-    * namespace should be the namespace to use
- 3. Use the modelBasePath parameter to the model to test.
-     --params=...,modelBasePath=${MODEL_BASE_PATH}
+  pytest deploy_test.py \
+    name=mnist-deploy-test-${BUILD_ID} \
+    namespace=${namespace} \
+    modelBasePath=${modelDir} \
+    exportDir=${modelDir} \
 
 """
 
 import logging
 import os
-import subprocess
+import pytest
 
+from kubernetes.config import kube_config
 from kubernetes import client as k8s_client
-from kubeflow.tf_operator import test_runner #pylint: disable=no-name-in-module
 
-from kubeflow.testing import test_util
 from kubeflow.testing import util
 
-# TODO(jlewi): Should we refactor this to use pytest like predict_test
-# and not depend on test_runner.
-class MnistDeployTest(test_util.TestCase):
-  def __init__(self, args):
-    namespace, name, env = test_runner.parse_runtime_params(args)
-    self.app_dir = args.app_dir
 
-    if not self.app_dir:
-      self.app_dir = os.path.join(os.path.dirname(__file__), "..",
-                                  "serving/GCS")
-      self.app_dir = os.path.abspath(self.app_dir)
-      logging.info("--app_dir not set defaulting to: %s", self.app_dir)
+def test_deploy(record_xml_attribute, deploy_name, namespace, model_dir, export_dir):
 
-    self.env = env
-    self.namespace = namespace
-    self.params = args.params
-    super(MnistDeployTest, self).__init__(class_name="MnistDeployTest",
-                                          name=name)
+  util.set_pytest_junit(record_xml_attribute, "test_deploy")
 
-  def test_serve(self):
-    # We repeat the test multiple times.
-    # This ensures that if we delete the job we can create a new job with the
-    # same name.
-    api_client = k8s_client.ApiClient()
+  util.maybe_activate_service_account()
 
-    # TODO (jinchihe) beflow code will be removed once new test-worker image
-    # is publish in https://github.com/kubeflow/testing/issues/373.
-    kusUrl = 'https://github.com/kubernetes-sigs/kustomize/' \
-         'releases/download/v2.0.3/kustomize_2.0.3_linux_amd64'
-    util.run(['wget', '-O', '/usr/local/bin/kustomize', kusUrl], cwd=self.app_dir)
-    util.run(['chmod', 'a+x', '/usr/local/bin/kustomize'], cwd=self.app_dir)
+  app_dir = os.path.join(os.path.dirname(__file__), "../serving/GCS")
+  app_dir = os.path.abspath(app_dir)
+  logging.info("--app_dir not set defaulting to: %s", app_dir)
 
-    # Apply the components
-    configmap = 'mnist-map-serving'
-    for pair in self.params.split(","):
-      k, v = pair.split("=", 1)
-      if k == "namespace":
-        util.run(['kustomize', 'edit', 'set', k, v], cwd=self.app_dir)
-      else:
-        util.run(['kustomize', 'edit', 'add', 'configmap', configmap,
-                '--from-literal=' + k + '=' + v], cwd=self.app_dir)
+  # TODO (@jinchihe) Using kustomize 2.0.3 to work around below issue:
+  # https://github.com/kubernetes-sigs/kustomize/issues/1295
+  kusUrl = 'https://github.com/kubernetes-sigs/kustomize/' \
+           'releases/download/v2.0.3/kustomize_2.0.3_linux_amd64'
+  util.run(['wget', '-q', '-O', '/usr/local/bin/kustomize', kusUrl], cwd=app_dir)
+  util.run(['chmod', 'a+x', '/usr/local/bin/kustomize'], cwd=app_dir)
 
-    # Seems the util.run cannot handle pipes case, using check_call.
-    subCmd = 'kustomize build ' + self.app_dir + '| kubectl apply -f -'
-    subprocess.check_call(subCmd, shell=True)
+  # TODO (@jinchihe): The kubectl need to be upgraded to 1.14.0 due to below issue.
+  # Invalid object doesn't have additional properties ...
+  kusUrl = 'https://storage.googleapis.com/kubernetes-release/' \
+           'release/v1.14.0/bin/linux/amd64/kubectl'
+  util.run(['wget', '-q', '-O', '/usr/local/bin/kubectl', kusUrl], cwd=app_dir)
+  util.run(['chmod', 'a+x', '/usr/local/bin/kubectl'], cwd=app_dir)
 
-    util.wait_for_deployment(api_client, self.namespace, self.name,
-                             timeout_minutes=4)
+  # Configure custom parameters using kustomize
+  configmap = 'mnist-map-serving'
+  util.run(['kustomize', 'edit', 'set', 'namespace', namespace], cwd=app_dir)
+  util.run(['kustomize', 'edit', 'add', 'configmap', configmap,
+           '--from-literal=name' + '=' + deploy_name], cwd=app_dir)
 
-    # We don't delete the resources. We depend on the namespace being
-    # garbage collected.
+  util.run(['kustomize', 'edit', 'add', 'configmap', configmap,
+            '--from-literal=modelBasePath=' + model_dir], cwd=app_dir)
+  util.run(['kustomize', 'edit', 'add', 'configmap', configmap,
+            '--from-literal=exportDir=' + export_dir], cwd=app_dir)
+
+  # Apply the components
+  util.run(['kustomize', 'build', app_dir, '-o', 'generated.yaml'], cwd=app_dir)
+  util.run(['kubectl', 'apply', '-f', 'generated.yaml'], cwd=app_dir)
+
+  kube_config.load_kube_config()
+  api_client = k8s_client.ApiClient()
+  util.wait_for_deployment(api_client, namespace, deploy_name, timeout_minutes=4)
+
+  # We don't delete the resources. We depend on the namespace being
+  # garbage collected.
 
 if __name__ == "__main__":
-  # TODO(jlewi): It looks like using test_runner we don't exit with an error
-  # if the deployment doesn't succeed. So the Argo workflow continues which
-  # isn't what we want. Might be a good reason to switch to using
-  # pytest.
-  test_runner.main(module=__name__)
+  logging.basicConfig(level=logging.INFO,
+                      format=('%(levelname)s|%(asctime)s'
+                              '|%(pathname)s|%(lineno)d| %(message)s'),
+                      datefmt='%Y-%m-%dT%H:%M:%S',
+                      )
+  logging.getLogger().setLevel(logging.INFO)
+  pytest.main()

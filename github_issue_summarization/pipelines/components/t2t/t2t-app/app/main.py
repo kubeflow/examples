@@ -26,8 +26,6 @@ from flask import jsonify
 from flask import render_template
 from flask import g, request
 
-from googleapiclient import discovery  # pylint: disable=wrong-import-order
-from oauth2client.client import GoogleCredentials  # pylint: disable=wrong-import-order
 import pandas as pd
 
 import tensorflow as tf
@@ -40,8 +38,6 @@ from tensor2tensor.utils import registry
 from tensor2tensor.utils import usr_dir
 from tensor2tensor.serving import serving_utils
 
-credentials = GoogleCredentials.get_application_default()
-api = discovery.build('ml', 'v1', credentials=credentials)
 
 app = Flask(__name__)
 

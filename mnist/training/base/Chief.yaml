@@ -1,4 +1,4 @@
-apiVersion: kubeflow.org/v1beta2
+apiVersion: kubeflow.org/v1
 kind: TFJob
 metadata:
   name: $(trainingName)
@@ -8,7 +8,11 @@ spec:
     Chief:
       replicas: 1
       template:
+        metadata:
+          annotations:
+            sidecar.istio.io/inject: "false"
         spec:
+          serviceAccount: default-editor
           containers:
           - name: tensorflow
             command:
