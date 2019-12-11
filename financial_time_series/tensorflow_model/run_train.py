@@ -156,21 +156,21 @@ def run_training(argv=None):
   storage_helper.upload_to_storage(args.bucket, export_path)
 
   if args.kfp:
-      metrics_info = {
-          'metrics': [{
-              'name': 'accuracy-train',
-              'numberValue': float(train_acc),
-              'format': "PERCENTAGE"
-          }, {
-              'name': 'accuracy-test',
-              'numberValue': float(test_acc),
-              'format': "PERCENTAGE"
-          }]}
-      with file_io.FileIO('/mlpipeline-metrics.json', 'w') as f:
-            json.dump(metrics_info, f)
+    metrics_info = {
+      'metrics': [{
+          'name': 'accuracy-train',
+          'numberValue': float(train_acc),
+          'format': "PERCENTAGE"
+      }, {
+          'name': 'accuracy-test',
+          'numberValue': float(test_acc),
+          'format': "PERCENTAGE"
+      }]}
+    with file_io.FileIO('/mlpipeline-metrics.json', 'w') as f:
+      json.dump(metrics_info, f)
 
-      with open("/tmp/accuracy", "w") as output_file:
-        output_file.write(str(float(test_acc)))
+    with open("/tmp/accuracy", "w") as output_file:
+      output_file.write(str(float(test_acc)))
 
   # remove local files
   shutil.rmtree(export_path)

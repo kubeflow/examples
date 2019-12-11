@@ -4,52 +4,62 @@ Using Kubeflow for Financial Time Series
 In this example, we will walk through the exploration, training and serving of a machine learning model by leveraging Kubeflow's main components. 
 We will use the [Machine Learning with Financial Time Series Data](https://cloud.google.com/solutions/machine-learning-with-financial-time-series-data) use case.
 
+## Goals
+
+There are two primary goals for this tutorial:
+
+*   Demonstrate an End-to-End kubeflow example
+*   Present a financial time series model example
+
+By the end of this tutorial, you should learn how to:
+
+*   Setup a Kubeflow cluster 
+*   Spawn a Jupyter Notebook on the cluster
+*   Train a time-series model using TensorFlow and GPUs on the cluster
+*   Serve the model using [TF Serving](https://www.kubeflow.org/docs/components/serving/tfserving_new/)
+*   Query the model via your local machine
+*   Automate the steps 1/ preprocess, 2/ train and 3/ model deployment through a kubeflow pipeline
+
 ### Pre-requisites
 You can use a Google Cloud Shell to follow the steps outlined below.
 In that case you can skip the requirements below as these depencies are pre-installed.
 You might also need to install ```uuid-runtime``` via ```sudo apt-get install uuid-runtime```.
 
 Alternatively, you can work from your local environment.
-In that case you will need a Linux or Mac environment with Python 3.6.x and install the following requirements
- * Install [Cloud SDK](https://cloud.google.com/sdk/)
- * Install [gcloud](https://cloud.google.com/sdk/gcloud/)
- * Install [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
+In that case you will need a Linux or Mac environment with Python 3.6.x and install the [Cloud SDK](https://cloud.google.com/sdk/).
 
 Independent of the machine that you are using, you will need access to a Google Cloud Project and its GKE resources.
 
 ### Deploying Kubeflow on GKE
 Please follow the instructions on how to deploy Kubeflow to GKE on the 
-[Deploy using CLI](https://www.kubeflow.org/docs/gke/deploy/deploy-cli/) page.
+[Deploy using CLI](https://www.kubeflow.org/docs/gke/deploy/deploy-cli/) page with the following exceptions:
 
-After the step `kfctl build -V -f ${CONFIG_URI}` make sure you add 
+- After the step `kfctl build -V -f ${CONFIG_URI}` make sure you add 
 'https://www.googleapis.com/auth/cloud-platform' to the `VM_OAUTH_SCOPES` in the file `{KF_NAME}/gcp_config/cluster.ninja`. This will allow the machines to make use of the BigQuery API, which we need for our use case as the data is stored in BigQuery, and to store data on Google Cloud Storage. 
-Also we will set `enableNodeAutoprovisioning` to false in this file as we will work with our dedicated gpu-pool that Kubeflow deployment foresees. 
+- After the step `kfctl build -V -f ${CONFIG_URI}` make sure you set `enableNodeAutoprovisioning` to false in  `{KF_NAME}/gcp_config/cluster-kubeflow.yaml` as we will work with our dedicated gpu-pool that Kubeflow deployment foresees. 
 The [node autoprovisioning](https://cloud.google.com/kubernetes-engine/docs/how-to/node-auto-provisioning) can be useful to autoscale the cluster with non-user defined node pools.
 
 
 ### Cloning the Examples 
 
-Clone the examples repository:
+Clone the examples repository and change directory to the financial time series example:
 ```
 git clone https://github.com/kubeflow/examples.git
 cd examples/financial_time_series/
 ```
 
 ### Explore the Kubeflow UI
-After some time (about 10-15 minutes), an endpoint should now be available at `https://<kf_app>.endpoints.<project_id>.cloud.goog/`.
+After some time (about 10-15 minutes), an endpoint should now be available at `https://<KF_NAME>.endpoints.<project_id>.cloud.goog/`.
 From this page you can navigate between the different Kubeflow components.
 
-### Exploration via TF-Hub
-The TF-hub component of Kubeflow allows us to leverage [JupyterHub](https://github.com/jupyterhub/jupyterhub) to investigate the data and start building a feasible machine learning model for the specific problem.
+### Exploration via Jupyter Hub
+The [JupyterHub](https://github.com/jupyterhub/jupyterhub) component of Kubeflow allows us to spin up Jupyter Notebooks quite easily. 
+In the notebook we will investigate the data and start building a feasible machine learning model for the specific problem.
+
 From the Kubeflow starting page, you can click on the `Notebook Servers` tab.
 Make sure you select a namespace on the top left and hit the 'new server' 
 button. You can just fill in an appropiate name and leave all the options to 
-the defaults.
-
-The following steps for running the Jupyter Notebook work better on a local machine kernel as the Google Cloud Shell is not meant to stand up a web socket service and is not configured for that.
-Note that this is not a compulsory step in order to be able to follow the next sections, so if you are working on a Google Cloud Shell you can simply investigate the notebook via the link below.
-
-You can simply upload the [notebook](https://github.com/kubeflow/examples/blob/master/financial_time_series/Financial%20Time%20Series%20with%20Finance%20Data.ipynb) and walk through it step by step to better understand the problem and suggested solution(s).
+the defaults. You can simply upload the [notebook](https://github.com/kubeflow/examples/blob/master/financial_time_series/Financial%20Time%20Series%20with%20Finance%20Data.ipynb) and walk through it step by step to better understand the problem and suggested solution(s).
 In this example, the goal is not focus on the notebook itself but rather on how this notebook is being translated in more scalable training jobs and later on serving.
 
 ### Training at scale with TF-jobs
@@ -58,7 +68,7 @@ In the folder ```tensorflow-model``` you can find these scripts together with a 
 Subsequently we will build a docker image on Google Cloud by running following command:
 
 ```
-cd tensorflow-model/
+cd tensorflow_model/
 export TRAIN_PATH=gcr.io/<project>/<image-name>/cpu:v1
 gcloud builds submit --tag $TRAIN_PATH .
 ```
@@ -93,12 +103,12 @@ In the logs you can see that the trained model is being exported to google cloud
 ### Deploy and serve with TF-serving
 Once the model is trained, the next step will be to deploy it and serve requests.
 We will use the standard TF-serving module that Kubeflow offers.
-Please have a look at the serving manifest `tfserving.yaml`. 
+Please have a look at the serving manifest `tfserving.yaml` and update the bucket name. 
 We will use a ClusterIP to expose the service only inside the cluster. To 
-reach out securely from out of the cluster, you could use the secured 
+reach out securely from outside of the cluster, you could use the secured 
 set-up via the istio ingress-gateway, which 
 Kubeflow offers out-of-the-box. For more information, see the
- [documentation]([documentation](https://www.kubeflow.org/docs/components/serving/tfserving_new/)).
+ [documentation](https://www.kubeflow.org/docs/components/serving/tfserving_new/).
 
 ```
 kubectl apply -f tfserving.yaml
@@ -122,16 +132,16 @@ The saved model expects a time series from closing stocks and spits out the pred
 Let's start with a script that populates a request with random numbers to test the service.
 
 ```
-pip3 install numpy
+pip3 install numpy requests
 python3 -m serving_requests.request_random
 ```
 
-The output should return an integer, 0 or 1 as explained above, and a string that represents the version.
+The output should return an integer, 0 or 1 as explained above, and a string that represents the tag of the model.
 There is another script available that builds a more practical request, with time series data of closing stocks for a certain date.
 In the following script, the same date is used as the one used at the end of the notebook ```Machine Learning with Financial Time Series Data.ipynb``` for comparison reasons.
 
 ```
-pip3 install pandas
+pip3 install -r requirements.txt
 python3 -m serving_requests.request
 ```
 
@@ -157,7 +167,8 @@ POD_NAME=$(kubectl get pods --selector=tf-job-name=tfjob-deep \
 kubectl logs -f $POD_NAME
 ```
 
-You should notice that the training now takes a few minutes instead of less than one minute, however the accuracy on the test set is now 72%.
+You should notice that the training now takes a few minutes instead of less than one minute.
+ The accuracy on the test set is now 72%.
 Our training job uploads the trained model to the serving directory of our running TF-serving component.
 Let's see if we get a response from the new version and if the new model gets it right this time.
 
@@ -165,7 +176,7 @@ Let's see if we get a response from the new version and if the new model gets it
 python3 -m serving_requests.request
 ```
 
-The response returns the updated version number '2' and  predicts the correct output 1, which means the S&P index closes negative, hurray!
+The response returns the model tag 'v2' and  predicts the correct output 1, which means the S&P index closes negative, hurray!
 
 ### Running TF-job on a GPU
 
@@ -192,7 +203,7 @@ kubectl apply -f GPU/tfjob3.yaml
 ```
 
 First the pod will be unschedulable as there are no gpu-pool nodes available. This demand will be recognized by the kubernetes cluster and a node will be created on the gpu-pool automatically.
-Once the pod is up, you can check the logs and verify that the training time is significantly reduced compared to the previous tf-job.
+Once the pod is up, you can check the logs and verify that the training time is reduced compared to the previous tf-job.
 
 ```
 POD_NAME=$(kubectl get pods --selector=tf-job-name=tfjob-deep-gpu \
@@ -208,14 +219,14 @@ As you can see, the script `run_preprocess_train_deploy.py` was using the script
 The idea here is that these three steps will be containerized and chained together by Kubeflow pipelines.
 We will also introduce a condition that we will only deploy the model if the accuracy on the test set surpasses a treshold of 70%.
 
-KFP asks us to compile our pipeline Python3 file into a domain-specific-language. 
+Kubeflow Pipelines asks us to compile our pipeline Python3 file into a domain-specific-language. 
 We do that with a tool called dsl-compile that comes with the Python3 SDK. So, first install that SDK:
 
 ```
 pip3 install python-dateutil kfp==0.1.36
 ```
 
-Please inspect the `ml_pipline.py` and update the `ml_pipeline.py` with the cpu image path that you built in the previous steps and your bucket name.
+Please inspect the `ml_pipline.py` and update the `ml_pipeline.py` with the cpu image path that you built in the previous steps.
 Then, compile the DSL, using:
 
 ```
@@ -223,21 +234,25 @@ python3 ml_pipeline.py
 ```
 
 Now a file `ml_pipeline.py.tar_gz` is generated that we can upload to the kubeflow pipelines UI.
-We will navigate again back to the Kubeflow UI homepage on `https://<KF_NAME>.endpoints.<project_id>.cloud.goog/` and click on the Pipeline dashboard.
+We will navigate again back to the Kubeflow UI homepage on `https://<KF_NAME>.endpoints.<project_id>.cloud.goog/` and click on the 'Pipelines' in the menu on the left side.
 
 
-Once the browser is open, upload the tar.gz file. This simply makes the graph available. 
-Next we can create a run and specify the params for the run. 
+Once the page is open, click 'Upload pipeline' and select the tar.gz file.
+If you click on the pipeline you can inspect the Directed Acyclic Graph (DAG).
+
+![Pipeline Graph](./docs/img/pipeline_graph.png)
+
+Next we can click on the pipeline and create a run. For each run you need to specify the params that you want to use. 
 When the pipeline is running, you can inspect the logs:
 
-[UPDATE THIS IMG]
-![Pipeline UI](./docs/img/pipeline_ui.png "Kubeflow Pipeline UI")
+![Pipeline UI](./docs/img/pipeline_logs.png)
 
-Note that you can also see the accuracy metrics across the different runs.
-[INSERT IMG HERE]
+This run with the less advanced model does not surpass the accuracy threshold and there is no deploy step.
+Note that you can also see the accuracy metrics across the different runs from the Experiments page.
+![Pipeline UI](./docs/img/run_metrics.png)
 
-Also check that the 'DeepModel' surpassed the threshold and was deployed by TF-serving whereas the Flatmodel was not deployed as it did not meet the accuracy condition.
-[INSERT IMG HERE]
+Also check that the more advanced model surpassed the accuracy threshold and was deployed by TF-serving.
+![Pipeline UI](./docs/img/run_with_deploy.png)
 
 
 ### Clean up

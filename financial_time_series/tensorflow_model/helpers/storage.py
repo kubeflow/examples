@@ -44,4 +44,3 @@ def list_blobs(bucket_name, prefix, delimiter=None):
   storage_client = storage.Client()
   return storage_client.list_blobs(bucket_name, prefix=prefix,
                                     delimiter=delimiter)
-

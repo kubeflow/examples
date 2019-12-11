@@ -3,7 +3,7 @@ kind: Service
 metadata:
   labels:
     app: model
-  name: model-service
+  name: tfserving-service
   namespace: kubeflow
 spec:
   ports:
@@ -22,7 +22,7 @@ kind: Deployment
 metadata:
   labels:
     app: model
-  name: model-v1
+  name: tfserving
   namespace: kubeflow
 spec:
   selector:
@@ -41,7 +41,7 @@ spec:
         - --port=9000
         - --rest_api_port=8500
         - --model_name=finance-model
-        - --model_base_path=gs://$BUCKET_NAME/tfserving/
+        - --model_base_path=gs://<BUCKET_NAME>/tfserving/
         command:
         - /usr/bin/tensorflow_model_server
         image: tensorflow/serving:1.11.1
