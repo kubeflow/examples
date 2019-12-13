@@ -32,7 +32,7 @@ def get_ws(tenant_id, service_principal_id,
   return ws
 
 
-def run(mdl_path, model_name, ws, tgs):
+def run(mdl_path, model_name, ws, tags):
   print(ws.get_details())
 
   print('\nSaving model {} to {}'.format(mdl_path, model_name))
@@ -40,7 +40,7 @@ def run(mdl_path, model_name, ws, tgs):
   # Model Path needs to be relative
   mdl_path = relpath(mdl_path, '.')
 
-  Model.register(ws, model_name=model_name, model_path=mdl_path, tags=tgs)
+  Model.register(ws, model_name=model_name, model_path=mdl_path, tags=tags)
   print('Done!')
 
 
@@ -82,7 +82,7 @@ if __name__ == "__main__":
     if i == 'service_principal_password':
       print('{} => **********'.format(i))
     else:
-      print('{} => {}'.format(i, rgs[i]))
+      print('{} => {}'.format(i, wsrgs[i]))
 
   with(open(str(params_path), 'r')) as f:
     tags = json.load(f)

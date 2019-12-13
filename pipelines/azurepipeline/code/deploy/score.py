@@ -11,6 +11,7 @@ from azureml.core.model import Model
 
 
 def init():
+  global model
   if Model.get_model_path('tacosandburritos'):
     model_path = Model.get_model_path('tacosandburritos')
   else:
@@ -22,10 +23,9 @@ def init():
   print('Done!')
 
   print('Initialized model "{}" at {}'.format(model_path, datetime.datetime.now()))
-  return model
 
 
-def run(raw_data, model):
+def run(raw_data):
   prev_time = time.time()
 
   post = json.loads(raw_data)
@@ -77,7 +77,7 @@ if __name__ == "__main__":
     'burrito': 'https://www.exploreveg.org/files/2015/05/sofritas-burrito.jpeg'
   }
 
-  my_model = init()
+  init()
 
   for k, v in images.items():
     print('{} => {}'.format(k, v))
@@ -85,9 +85,9 @@ if __name__ == "__main__":
   info('Taco Test')
   taco = json.dumps({'image': images['tacos']})
   print(taco)
-  run(taco, my_model)
+  run(taco)
 
   info('Burrito Test')
   burrito = json.dumps({'image': images['burrito']})
   print(burrito)
-  run(burrito, my_model)
+  run(burrito)
