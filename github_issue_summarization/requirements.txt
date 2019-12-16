@@ -201,7 +201,7 @@ sympy==1.1.1
 tables==3.4.2
 tabulate==0.8.2
 tblib==1.3.2
-tensorflow-gpu==1.3.0
+tensorflow-gpu==1.15.0
 tensorflow-tensorboard==0.1.8
 termcolor==1.1.0
 terminado==0.6
