@@ -26,11 +26,7 @@ def send_pratical_request(date="2014-08-12"):
       training_test_data[training_test_data.columns[2:]].values[index],
       axis=0).astype(np.float32)
 
-  # send request
-  value, version = request_helper.send_request(input_tensor)
-  # print response
-  print("Prediction : " + str(value))
-  print("Version of model : " + str(version))
+  request_helper.send_request(input_tensor)
 
 
 send_pratical_request()

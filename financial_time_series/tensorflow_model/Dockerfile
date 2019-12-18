@@ -12,9 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM tensorflow/tensorflow:1.8.0-devel-py3
+FROM tensorflow/tensorflow:1.15.0-py3
 
-RUN pip3 install google-cloud-storage==1.10.0 \
+# install gcloud
+RUN apt-get update && apt-get install -y jq
+
+RUN curl https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.tar.gz > /tmp/google-cloud-sdk.tar.gz
+RUN mkdir -p /usr/local/gcloud
+RUN tar -C /usr/local/gcloud -xvf /tmp/google-cloud-sdk.tar.gz
+RUN /usr/local/gcloud/google-cloud-sdk/install.sh
+
+ENV PATH $PATH:/usr/local/gcloud/google-cloud-sdk/bin
+
+# install python packages
+RUN pip3 install google-cloud-storage==1.17.0 \
                  google-cloud-bigquery==1.6.0 \
                  pandas==0.23.4
 

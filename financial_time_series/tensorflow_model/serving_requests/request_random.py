@@ -13,10 +13,6 @@ def send_random_request():
   # create random input
   input_tensor = np.random.rand(1, 24).astype(np.float32)
   # send request
-  value, version = request_helper.send_request(input_tensor)
-  # print response
-  print("Prediction : " + str(value))
-  print("Version of model : " + str(version))
-
+  request_helper.send_request(input_tensor)
 
 send_random_request()
