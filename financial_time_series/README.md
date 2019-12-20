@@ -92,9 +92,9 @@ Next we can launch the tf-job to our Kubeflow cluster and follow the progress vi
 
 ```
 kubectl apply -f CPU/tfjob1.yaml
-POD_NAME=$(kubectl get pods --selector=tf-job-name=tfjob-flat \
+POD_NAME=$(kubectl get pods -n kubeflow --selector=tf-job-name=tfjob-flat \
       --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}')
-kubectl logs -f $POD_NAME
+kubectl logs -f $POD_NAME -n kubeflow
 ```
 
 In the logs you can see that the trained model is being exported to google cloud storage. This saved model will be used later on for serving requests. With these parameters, the accuracy on the test set is approximating about 60%. 
@@ -118,13 +118,13 @@ After running these commands, a deployment and service will be launched on Kuber
 Let's check if the model is loaded successfully.
 
 ```
-POD=`kubectl get pods --selector=app=model | awk '{print $1}' | tail -1`
-kubectl logs -f $POD
+POD=`kubectl get pods -n kubeflow --selector=app=model | awk '{print $1}' | tail -1`
+kubectl logs -f $POD -n kubeflow
 ```
 
 We will do a local test via HTTP to illustrate how to get results from this serving component. Once the pod is up we can set up port-forwarding to our localhost.
 ```
-kubectl port-forward $POD 8500:8500 2>&1 >/dev/null &
+kubectl port-forward $POD 8500:8500 -n kubeflow 2>&1 >/dev/null &
 ```
 
 Now the only thing we need to do is send a request to ```localhost:8500``` with the expected input of the saved model and it will return a prediction.
@@ -162,9 +162,9 @@ kubectl apply -f CPU/tfjob2.yaml
 Verify the logs via:
 
 ```
-POD_NAME=$(kubectl get pods --selector=tf-job-name=tfjob-deep \
+POD_NAME=$(kubectl get pods -n kubeflow --selector=tf-job-name=tfjob-deep \
       --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}')
-kubectl logs -f $POD_NAME
+kubectl logs -f $POD_NAME -n kubeflow
 ```
 
 You should notice that the training now takes a few minutes instead of less than one minute.
@@ -206,9 +206,9 @@ First the pod will be unschedulable as there are no gpu-pool nodes available. Th
 Once the pod is up, you can check the logs and verify that the training time is reduced compared to the previous tf-job.
 
 ```
-POD_NAME=$(kubectl get pods --selector=tf-job-name=tfjob-deep-gpu \
+POD_NAME=$(kubectl get pods -n kubeflow --selector=tf-job-name=tfjob-deep-gpu \
       --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}')
-kubectl logs -f $POD_NAME
+kubectl logs -f $POD_NAME -n kubeflow
 ```
 
 ### Kubeflow Pipelines
