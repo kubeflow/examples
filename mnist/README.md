@@ -6,9 +6,10 @@
   - [Prerequisites](#prerequisites)
     - [Deploy Kubeflow](#deploy-kubeflow)
     - [Local Setup](#local-setup)
+    - [GCP Setup](#gcp-setup)
   - [Modifying existing examples](#modifying-existing-examples)
     - [Prepare model](#prepare-model)
-    - [Build and push model image.](#build-and-push-model-image)
+    - [(Optional) Build and push model image.](#optional-build-and-push-model-image)
   - [Preparing your Kubernetes Cluster](#preparing-your-kubernetes-cluster)
     - [Training your model](#training-your-model)
       - [Local storage](#local-storage)
@@ -53,6 +54,9 @@ You also need the following command line tools:
 
 **Note:** kustomize [v2.0.3](https://github.com/kubernetes-sigs/kustomize/releases/tag/v2.0.3) is recommented since the [problem](https://github.com/kubernetes-sigs/kustomize/issues/1295) in kustomize v2.1.0.
 
+### GCP Setup
+
+If you are using GCP, need to enable [Workload Identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity) to execute below steps.
 
 ## Modifying existing examples
 
@@ -70,9 +74,9 @@ Basically, we must:
 
 The resulting model is [model.py](model.py).
 
-### Build and push model image.
+### (Optional) Build and push model image.
 
-With our code ready, we will now build/push the docker image.
+With our code ready, we will now build/push the docker image, or use the existing image `gcr.io/kubeflow-ci/mnist/model:latest` without building and pushing.
 
 ```
 DOCKER_URL=docker.io/reponame/mytfmodel:tag # Put your docker registry here
@@ -200,7 +204,7 @@ kustomize edit add configmap mnist-map-training --from-literal=name=mnist-train-
 Optionally, if you want to use your custom training image, configurate that as below.
 
 ```
-kustomize edit set image training-image=$DOCKER_URL:$TAG
+kustomize edit set image training-image=$DOCKER_URL
 ```
 
 Next we configure it to run distributed by setting the number of parameter servers and workers to use. The `numPs` means the number of Ps and the `numWorkers` means the number of Worker.
@@ -224,94 +228,6 @@ MODEL_PATH=my-model
 kustomize edit add configmap mnist-map-training --from-literal=modelDir=gs://${BUCKET}/${MODEL_PATH}
 kustomize edit add configmap mnist-map-training --from-literal=exportDir=gs://${BUCKET}/${MODEL_PATH}/export
 ```
-
-In order to write to GCS we need to supply the TFJob with GCP credentials. We do
-this by telling our training code to use a [Google service account](https://cloud.google.com/docs/authentication/production#obtaining_and_providing_service_account_credentials_manually).
-
-If you followed the [getting started guide for GKE](https://www.kubeflow.org/docs/started/getting-started-gke/) 
-then a number of steps have already been performed for you
-
-  1. We created a Google service account named `${DEPLOYMENT}-user`
-
-     * You can run the following command to list all service accounts in your project
-
-       ```
-       gcloud --project=${PROJECT} iam service-accounts list
-       ```
-
-  2. We stored the private key for this account in a K8s secret named `user-gcp-sa`
-
-     * To see the secrets in your cluster
-     
-       ```
-       kubectl get secrets
-       ```
-
-  3. We granted this service account permission to read/write GCS buckets in this project
-
-     * To see the IAM policy you can do
-
-       ```
-       gcloud projects get-iam-policy ${PROJECT} --format=yaml
-       ```
-
-     * The output should look like the following
-
-       ```
-        bindings:
-        ...
-        - members:
-          - serviceAccount:${DEPLOYMENT}-user@${PROJEC}.iam.gserviceaccount.com
-            ...
-          role: roles/storage.admin
-          ...
-        etag: BwV_BqSmSCY=
-        version: 1
-        ```
-
-To use this service account we perform the following steps
-
-  1. Mount the secret `user-gcp-sa` into the pod and configure the mount path of the secret. 
-       ```
-       kustomize edit add configmap mnist-map-training --from-literal=secretName=user-gcp-sa
-       kustomize edit add configmap mnist-map-training --from-literal=secretMountPath=/var/secrets
-       ```
-
-     * Note: ensure your envrionment is pointed at the same `kubeflow` namespace as the `user-gcp-sa` secret
-
-  2. Next we need to set the environment variable `GOOGLE_APPLICATION_CREDENTIALS` so that our code knows where to look for the service account key.
-
-     ```
-     kustomize edit add configmap mnist-map-training --from-literal=GOOGLE_APPLICATION_CREDENTIALS=/var/secrets/user-gcp-sa.json
-     ```
-
-     * If we look at the spec for our job we can see that the environment variable `GOOGLE_APPLICATION_CREDENTIALS` is set.
-
-       ```
-        kustomize build .
-       ```
-       ```
-        apiVersion: kubeflow.org/v1beta2
-        kind: TFJob
-        metadata:
-          ...
-        spec:
-          tfReplicaSpecs:
-            Chief:
-              replicas: 1
-              template:
-                spec:
-                  containers:
-                  - command:
-                    ..
-                    env:
-                    ...
-                    - name: GOOGLE_APPLICATION_CREDENTIALS
-                      value: /var/secrets/user-gcp-sa.json
-                    ...
-                  ...
-            ...
-       ```
 
 
 You can now submit the job
@@ -518,36 +434,6 @@ Assuming you followed the directions above if you used GCS you can use the follo
 ```
 LOGDIR=gs://${BUCKET}/${MODEL_PATH}
 ```
-
-You need to point TensorBoard to GCP credentials to access GCS bucket with model.
-
-  1. Mount the secret `user-gcp-sa` into the pod and configure the mount path of the secret. 
-       ```
-       kustomize edit add configmap mnist-map-monitoring --from-literal=secretName=user-gcp-sa
-       kustomize edit add configmap mnist-map-monitoring --from-literal=secretMountPath=/var/secrets
-       ```
-
-     * Setting this parameter causes a volumeMount and volume to be added to TensorBoard deployment
-
-  2. Next we need to set the environment variable `GOOGLE_APPLICATION_CREDENTIALS` so that our code knows
-     where to look for the service account key.
-
-     ```
-     kustomize edit add configmap mnist-map-monitoring --from-literal=GOOGLE_APPLICATION_CREDENTIALS=/var/secrets/user-gcp-sa.json     
-     ```
-
-     * If we look at the spec for TensorBoard deployment we can see that the environment variable `GOOGLE_APPLICATION_CREDENTIALS` is set.
-
-       ```
-       kustomize build .
-       ```
-       ```
-        ...
-        env:
-        ...
-        - name: GOOGLE_APPLICATION_CREDENTIALS
-          value: /var/secrets/user-gcp-sa.json
-       ```
 
 #### Using S3
 

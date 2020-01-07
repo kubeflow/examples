@@ -7,12 +7,15 @@ spec:
   replicas: 1
   template:
     metadata:
+      annotations:
+        sidecar.istio.io/inject: "false"
       labels:
         app: tensorboard
         tb-job: tensorboard
       name: tensorboard
       namespace: kubeflow
     spec:
+      serviceAccount: default-editor
       containers:
       - command:
         - /usr/local/bin/tensorboard

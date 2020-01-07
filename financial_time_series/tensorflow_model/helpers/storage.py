@@ -37,3 +37,10 @@ def download_blob(bucket_name, source_blob_name, destination_file_name):
   print('Blob {} downloaded to {}.'.format(
     source_blob_name,
     destination_file_name))
+
+
+def list_blobs(bucket_name, prefix, delimiter=None):
+  """Lists all the blobs in the bucket."""
+  storage_client = storage.Client()
+  return storage_client.list_blobs(bucket_name, prefix=prefix,
+                                    delimiter=delimiter)
