@@ -408,7 +408,7 @@ class Builder:
 
     credentials["name"] = "get-credentials"
     if self.cluster_pattern:
-       credentials["container"]["command"] = ["python3",
+      credentials["container"]["command"] = ["python3",
                                              "-m",
                                              "kubeflow.testing."
                                              "get_kf_testing_cluster",
