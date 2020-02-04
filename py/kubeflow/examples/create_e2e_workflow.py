@@ -434,7 +434,7 @@ class Builder:
     elif self.test_target_name == "mnist":
       self._build_tests_dag_mnist()
     else:
-      raise RuntimeError('Invalid test_target_name')
+      raise RuntimeError('Invalid test_target_name ' + self.test_target_name)
 
     # Add a task to run the dag
     dependencies = [credentials["name"]]
