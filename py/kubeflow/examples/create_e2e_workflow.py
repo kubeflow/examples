@@ -429,7 +429,7 @@ class Builder:
 
     #**************************************************************************
     # Run a dag of tests
-    if self.test_target_name == "notebooks":
+    if self.test_target_name.startswith("notebooks"):
       self._build_tests_dag_notebooks()
     elif self.test_target_name == "mnist":
       self._build_tests_dag_mnist()
