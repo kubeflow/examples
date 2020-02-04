@@ -57,7 +57,7 @@ PROW_DICT = argo_build_util.get_prow_dict()
 
 class Builder:
   def __init__(self, name=None, namespace=None, test_target_name=None,
-               bucket=None,
+               bucket=None, cluster_pattern=None,
                **kwargs): # pylint: disable=unused-argument
     """Initialize a builder.
 
@@ -116,6 +116,7 @@ class Builder:
 
     self.bucket = bucket
     self.workflow = None
+    self.cluster_pattern = cluster_pattern
 
   def _build_workflow(self):
     """Create the scaffolding for the Argo workflow"""
@@ -406,12 +407,21 @@ class Builder:
     credentials = argo_build_util.deep_copy(task_template)
 
     credentials["name"] = "get-credentials"
-    credentials["container"]["command"] = ["python3",
-                                           "-m",
-                                           "kubeflow.testing."
-                                           "get_kf_testing_cluster",
-                                           "get-credentials",
-                                           ]
+    if self.cluster_pattern:
+       credentials["container"]["command"] = ["python3",
+                                             "-m",
+                                             "kubeflow.testing."
+                                             "get_kf_testing_cluster",
+                                             "--base=" + self.cluster_pattern,
+                                             "get-credentials",
+                                             ]
+    else:
+      credentials["container"]["command"] = ["python3",
+                                             "-m",
+                                             "kubeflow.testing."
+                                             "get_kf_testing_cluster",
+                                             "get-credentials",
+                                             ]
 
     dependencies = [checkout["name"]]
     argo_build_util.add_task_to_dag(self.workflow, E2E_DAG_NAME, credentials,
