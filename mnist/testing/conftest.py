@@ -10,7 +10,7 @@ def pytest_addoption(parser):
   parser.addoption(
     "--namespace", help=("The namespace to run in. This should correspond to"
                          "a namespace associated with a Kubeflow namespace."),
-    type=str, default="kubeflow-kubeflow-testing")
+    type=str, default="kubeflow-kf-ci-v1-user")
 
   parser.addoption(
     "--repos", help="The repos to checkout; leave blank to use defaults",
