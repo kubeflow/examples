@@ -55,6 +55,8 @@ EXTRA_REPOS = ["kubeflow/testing@HEAD", "kubeflow/tf-operator@HEAD"]
 
 PROW_DICT = argo_build_util.get_prow_dict()
 
+# Dummy
+
 class Builder:
   def __init__(self, name=None, namespace=None, test_target_name=None,
                bucket=None, cluster_pattern=None,
