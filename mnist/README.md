@@ -251,13 +251,13 @@ kubectl apply -f mnist-training.yaml
 You can then check the job status:
 
 ```
-kubectl get tfjobs -o yaml mnist-train-dist
+kubectl get tfjobs -n <your-user-namespace> -o yaml mnist-train-dist
 ```
 
 And to check the logs:
 
 ```
-kubectl logs -f mnist-train-dist-chief-0
+kubectl logs -n <your-user-namespace> -f mnist-train-dist-chief-0
 ```
 
 #### Using S3
