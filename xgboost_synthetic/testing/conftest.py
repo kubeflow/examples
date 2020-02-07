@@ -8,7 +8,7 @@ def pytest_addoption(parser):
     "--namespace", help=("The namespace to run in. This should correspond to"
                          "a namespace associated with a Kubeflow namespace."),
                    type=str,
-    default="kubeflow-kubeflow-testing")
+    default="kubeflow-kf-ci-v1-user")
   parser.addoption(
     "--image", help="Notebook image to use", type=str,
     default="gcr.io/kubeflow-images-public/tensorflow-1.14.0-notebook-gpu"
