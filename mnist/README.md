@@ -229,23 +229,35 @@ kustomize edit add configmap mnist-map-training --from-literal=modelDir=gs://${B
 kustomize edit add configmap mnist-map-training --from-literal=exportDir=gs://${BUCKET}/${MODEL_PATH}/export
 ```
 
-
-You can now submit the job
-
-```
-kustomize build . |kubectl apply -f -
-```
-
-And you can check the job status
+Build a yaml file for the `TFJob` specification based on your kustomize config:
 
 ```
-kubectl get tfjobs -o yaml mnist-train-dist
+kustomize build . > mnist-training.yaml
 ```
 
-And to check the logs 
+Then, in `mnist-training.yaml`, search for this line: `namespace: kubeflow`.
+Edit it to **replace `kubeflow` with the name of your user profile namespace**,
+which will probably have the form `kubeflow-<username>`.  (If you're not sure what this
+namespace is called, you can find it in the top menubar of the Kubeflow Central
+Dashboard.)
+
+After you've updated the namespace, apply the `TFJob` specification to the
+Kubeflow cluster:
 
 ```
-kubectl logs -f mnist-train-dist-chief-0
+kubectl apply -f mnist-training.yaml
+```
+
+You can then check the job status:
+
+```
+kubectl get tfjobs -n <your-user-namespace> -o yaml mnist-train-dist
+```
+
+And to check the logs:
+
+```
+kubectl logs -n <your-user-namespace> -f mnist-train-dist-chief-0
 ```
 
 #### Using S3
