@@ -1,11 +1,11 @@
+kind: ConfigMap
 apiVersion: v1
+metadata:
+  name: mnist-deploy-config
+  namespace: kubeflow
 data:
   monitoring_config.txt: |-
     prometheus_config: {
       enable: true,
       path: "/monitoring/prometheus/metrics"
     }
-kind: ConfigMap
-metadata:
-  name: mnist-deploy-config
-  namespace: kubeflow
