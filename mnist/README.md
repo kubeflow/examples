@@ -3,6 +3,8 @@
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
 - [MNIST on Kubeflow](#mnist-on-kubeflow)
+- [MNIST on Kubeflow on GCP](#mnist-on-kubeflow-on-gcp)
+- [MNIST on other platforms](#mnist-on-other-platforms)
   - [Prerequisites](#prerequisites)
     - [Deploy Kubeflow](#deploy-kubeflow)
     - [Local Setup](#local-setup)
@@ -13,21 +15,17 @@
   - [Preparing your Kubernetes Cluster](#preparing-your-kubernetes-cluster)
     - [Training your model](#training-your-model)
       - [Local storage](#local-storage)
-      - [Using GCS](#using-gcs)
       - [Using S3](#using-s3)
   - [Monitoring](#monitoring)
     - [Tensorboard](#tensorboard)
       - [Local storage](#local-storage-1)
-      - [Using GCS](#using-gcs-1)
       - [Using S3](#using-s3-1)
       - [Deploying TensorBoard](#deploying-tensorboard)
   - [Serving the model](#serving-the-model)
-    - [GCS](#gcs)
     - [S3](#s3)
     - [Local storage](#local-storage-2)
   - [Web Front End](#web-front-end)
     - [Connecting via port forwarding](#connecting-via-port-forwarding)
-    - [Using IAP on GCP](#using-iap-on-gcp)
   - [Conclusion and Next Steps](#conclusion-and-next-steps)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -36,6 +34,45 @@
 # MNIST on Kubeflow
 
 This example guides you through the process of taking an example model, modifying it to run better within Kubeflow, and serving the resulting trained model.
+
+Follow the version of the guide that is specific to how you have deployed Kubeflow
+
+1. [MNIST on Kubeflow on GCP](#gcp)
+1. [MNIST on other platforms](#other)
+
+<a id=gcp></a>
+# MNIST on Kubeflow on GCP
+
+Follow these instructions to run the MNIST tutorial on GCP
+
+1. Follow the [GCP instructions](https://www.kubeflow.org/docs/gke/deploy/) to deploy Kubeflow with IAP
+
+1. Launch a Jupyter notebook
+
+   * The tutorial has been tested using the Jupyter Tensorflow 1.15 image
+
+1. Launch a terminal in Jupyter and clone the kubeflow examples repo
+
+   ```
+   git clone https://github.com/kubeflow/examples.git git_kubeflow-examples
+   ```
+
+   * **Tip** When you start a terminal in Jupyter, run the command `bash` to start
+      a bash terminal which is much more friendly then the default shell
+
+   * **Tip** You can change the URL from '/tree' to '/lab' to switch to using Jupyterlab
+
+1. Open the notebook `mnist/mnist_gcp.ipynb`
+
+1. Follow the notebook to train and deploy MNIST on Kubeflow
+
+<a id=other></a>
+# MNIST on other platforms
+
+The tutorial is currently not up to date for Kubeflow 1.0. Please check the issues
+
+* [kubeflow/examples#724](https://github.com/kubeflow/examples/issues/724) for AWS
+* [kubeflow/examples#725](https://github.com/kubeflow/examples/issues/725) for other platforms
 
 ## Prerequisites
 
@@ -164,100 +201,6 @@ And to check the logs
 
 ```
 kubectl logs mnist-train-local-chief-0
-```
-
-
-#### Using GCS
-
-In this section we describe how to save the model to Google Cloud Storage (GCS).
-
-Storing the model in GCS has the advantages:
-
-* The model is readily available after the job finishes
-* We can run distributed training
-   
-  * Distributed training requires a storage system accessible to all the machines
-
-Enter the `training/GCS` from the `mnist` application directory.
-
-```
-cd training/GCS
-```
-
-Set an environment variable that points to your GCP project Id
-```
-PROJECT=<your project id>
-```
-
-Create a bucket on GCS to store our model. The name must be unique across all GCS buckets
-```
-BUCKET=distributed-$(date +%s)
-gsutil mb gs://$BUCKET/
-```
-
-Give the job a different name (to distinguish it from your job which didn't use GCS)
-
-```
-kustomize edit add configmap mnist-map-training --from-literal=name=mnist-train-dist
-```
-
-Optionally, if you want to use your custom training image, configurate that as below.
-
-```
-kustomize edit set image training-image=$DOCKER_URL
-```
-
-Next we configure it to run distributed by setting the number of parameter servers and workers to use. The `numPs` means the number of Ps and the `numWorkers` means the number of Worker.
-
-```
-../base/definition.sh --numPs 1 --numWorkers 2
-```
-
-Set the training parameters, such as training steps, batch size and learning rate.
-
-```
-kustomize edit add configmap mnist-map-training --from-literal=trainSteps=200
-kustomize edit add configmap mnist-map-training --from-literal=batchSize=100
-kustomize edit add configmap mnist-map-training --from-literal=learningRate=0.01
-```
-
-Now we need to configure parameters and telling the code to save the model to GCS.
-
-```
-MODEL_PATH=my-model
-kustomize edit add configmap mnist-map-training --from-literal=modelDir=gs://${BUCKET}/${MODEL_PATH}
-kustomize edit add configmap mnist-map-training --from-literal=exportDir=gs://${BUCKET}/${MODEL_PATH}/export
-```
-
-Build a yaml file for the `TFJob` specification based on your kustomize config:
-
-```
-kustomize build . > mnist-training.yaml
-```
-
-Then, in `mnist-training.yaml`, search for this line: `namespace: kubeflow`.
-Edit it to **replace `kubeflow` with the name of your user profile namespace**,
-which will probably have the form `kubeflow-<username>`.  (If you're not sure what this
-namespace is called, you can find it in the top menubar of the Kubeflow Central
-Dashboard.)
-
-After you've updated the namespace, apply the `TFJob` specification to the
-Kubeflow cluster:
-
-```
-kubectl apply -f mnist-training.yaml
-```
-
-You can then check the job status:
-
-```
-kubectl get tfjobs -n <your-user-namespace> -o yaml mnist-train-dist
-```
-
-And to check the logs:
-
-```
-kubectl logs -n <your-user-namespace> -f mnist-train-dist-chief-0
 ```
 
 #### Using S3
@@ -426,27 +369,6 @@ kustomize edit add configmap mnist-map-monitoring --from-literal=pvcMountPath=/m
 kustomize edit add configmap mnist-map-monitoring --from-literal=logDir=/mnt
 ```
 
-
-#### Using GCS
-
-Enter the `monitoring/GCS` from the `mnist` application directory.
-
-```
-cd monitoring/GCS
-```
-
-Configure TensorBoard to point to your model location
-
-```
-kustomize edit add configmap mnist-map-monitoring --from-literal=logDir=${LOGDIR}
-```
-
-Assuming you followed the directions above if you used GCS you can use the following value
-
-```
-LOGDIR=gs://${BUCKET}/${MODEL_PATH}
-```
-
 #### Using S3
 
 Enter the `monitoring/S3` from the `mnist` application directory.
@@ -550,64 +472,6 @@ The model code will export the model in saved model format which is suitable for
 
 To serve the model follow the instructions below. The instructins vary slightly based on where you are storing your model (e.g. GCS, S3, PVC). Depending on the storage system we provide different kustomization as a convenience for setting relevant environment variables.
 
-
-### GCS
-
-Here we show to serve the model when it is stored on GCS. This assumes that when you trained the model you set `exportDir` to a GCS URI; if not you can always copy it to GCS using `gsutil`.
-
-Check that a model was exported
-
-```
-EXPORT_DIR=gs://${BUCKET}/${MODEL_PATH}/export
-gsutil ls -r ${EXPORT_DIR}
-```
-
-The output should look something like
-
-```
-${EXPORT_DIR}/1547100373/saved_model.pb
-${EXPORT_DIR}/1547100373/variables/:
-${EXPORT_DIR}/1547100373/variables/
-${EXPORT_DIR}/1547100373/variables/variables.data-00000-of-00001
-${EXPORT_DIR}/1547100373/variables/variables.index
-```
-
-The number `1547100373` is a version number auto-generated by TensorFlow; it will vary on each run but should be monotonically increasing if you save a model to the same location as a previous location.
-
-Enter the `serving/GCS` from the `mnist` application directory.
-```
-cd serving/GCS
-```
-
-Set a different name for the tf-serving.
-
-```
-kustomize edit add configmap mnist-map-serving --from-literal=name=mnist-gcs-dist
-```
-
-Set your model path
-
-```
-kustomize edit add configmap mnist-map-serving --from-literal=modelBasePath=${EXPORT_DIR} 
-```
-
-Deploy it, and run a service to make the deployment accessible to other pods in the cluster
-
-```
-kustomize build . |kubectl apply -f -
-```
-
-You can check the deployment by running
-
-```
-kubectl describe deployments mnist-gcs-dist
-```
-
-The service should make the `mnist-gcs-dist` deployment accessible over port 9000
-
-```
-kubectl describe service mnist-gcs-dist
-```
 
 ### S3
 
@@ -799,16 +663,7 @@ POD_NAME=$(kubectl get pods --selector=app=web-ui --template '{{range .items}}{{
 kubectl port-forward ${POD_NAME} 8080:5000  
 ```
 
-You should now be able to open up the web app at your localhost. [Local Storage](http://localhost:8080) or [GCS](http://localhost:8080/?addr=mnist-gcs-dist) or [S3](http://localhost:8080/?addr=mnist-s3-serving).
-
-
-### Using IAP on GCP
-
-If you are using GCP and have set up IAP then you can access the web UI at
-
-```
-https://${DEPLOYMENT}.endpoints.${PROJECT}.cloud.goog/${NAMESPACE}/mnist/
-```
+You should now be able to open up the web app at your localhost. [Local Storage](http://localhost:8080) or [S3](http://localhost:8080/?addr=mnist-s3-serving).
 
 ## Conclusion and Next Steps
 
