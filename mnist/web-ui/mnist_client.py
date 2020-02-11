@@ -27,7 +27,7 @@ from tensorflow.examples.tutorials.mnist import input_data
 from tensorflow_serving.apis import predict_pb2
 from tensorflow_serving.apis import prediction_service_pb2
 
-from PIL import Image
+from PIL import Image # pylint: disable=wrong-import-order
 
 
 def get_prediction(image, server_host='127.0.0.1', server_port=9000,

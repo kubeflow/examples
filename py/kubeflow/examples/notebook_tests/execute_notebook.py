@@ -12,6 +12,7 @@ def prepare_env():
 
 
 def execute_notebook(notebook_path, parameters=None):
+  import papermill #pylint: disable=import-error
   temp_dir = tempfile.mkdtemp()
   notebook_output_path = os.path.join(temp_dir, "out.ipynb")
   papermill.execute_notebook(notebook_path, notebook_output_path,
@@ -37,7 +38,6 @@ class NotebookExecutor:
       notebook_path: Absolute path of the notebook.
     """
     prepare_env()
-    import papermill #pylint: disable=import-error
     FILE_DIR = os.path.dirname(__file__)
 
     EXPECTED_MGS = [
