@@ -1,0 +1,51 @@
+# A batch job to run a notebook using papermill.
+# TODO(jlewi): We should switch to using Tekton
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: nb-test
+  labels:
+    app: nb-test
+spec:
+  backoffLimit: 1
+  template:
+    metadata:
+      annotations:
+        # TODO(jlewi): Do we really want to disable sidecar injection
+        # in the test? Would it be better to use istio to mimic what happens
+        # in notebooks?
+        sidecar.istio.io/inject: "false"
+      labels:
+        app: nb-test
+    spec:
+      restartPolicy: Never
+      securityContext:
+        runAsUser: 0
+      initContainers:
+      # This init container checks out the source code.
+      - command:
+        - /usr/local/bin/checkout_repos.sh
+        - --repos=kubeflow/examples@$(CHECK_TAG)
+        - --src_dir=/src
+        name: checkout
+        image: gcr.io/kubeflow-ci/test-worker:v20190802-c6f9140-e3b0c4
+        volumeMounts:
+        - mountPath: /src
+          name: src
+      containers:
+      - env:
+        - name: PYTHONPATH
+          value: /src/kubeflow/examples/py/
+      - name: executing-notebooks
+        image: execute-image
+        command: ["python3", "-m",
+                  "kubeflow.examples.notebook_tests.execute_notebook",
+                  "test", "/src/kubeflow/examples/mnist/mnist_gcp.ipynb"]
+        workingDir: /src/kubeflow/examples/py/kubeflow/examples/notebook_tests
+        volumeMounts:
+        - mountPath: /src
+          name: src
+      serviceAccount: default-editor
+      volumes:
+      - name: src
+        emptyDir: {}
