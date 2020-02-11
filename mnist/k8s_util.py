@@ -29,7 +29,7 @@ def _get_result_name(result):
 
   return result_namespace, result_name
 
-def apply_k8s_specs(specs, mode=K8S_CREATE):
+def apply_k8s_specs(specs, mode=K8S_CREATE): # pylint: disable=too-many-branches,too-many-statements
   """Run apply on the provided Kubernetes specs.
 
   Args:
@@ -94,8 +94,6 @@ def apply_k8s_specs(specs, mode=K8S_CREATE):
     create_method = getattr(api, create_method_name)
     replace_method = getattr(api, replace_method_name)
 
-    needs_replace = False
-
     if mode in [K8S_CREATE, K8S_CREATE_OR_REPLACE]:
       try:
         result = create_method(*create_method_args)
@@ -124,23 +122,26 @@ def apply_k8s_specs(specs, mode=K8S_CREATE):
   return results
 
 def get_iap_endpoint():
-    """Return the URL of the IAP endpoint"""
-    
-    extensions = k8s_client.ExtensionsV1beta1Api()
-    kf_ingress = None
-    
-    try:
-      kf_ingress = extensions.read_namespaced_ingress("envoy-ingress", "istio-system")
-    except k8s_rest.ApiException as e:
-        if e.status == 403:
-            logging.warning(f"The service account doesn't have sufficient privileges to get the istio-system ingress. "
-                            f"You will have to manually enter the Kubeflow endpoint. "
-                            f"To make this function work ask someone with cluster priveleges to create an appropriate "
-                            f"clusterrolebinding by running a command.\n"
-                            f"kubectl create --namespace=istio-system rolebinding --clusterrole=kubeflow-view "
-                            "--serviceaccount=$NAMESPACE}:default-editor ${NAMESPACE}-istio-view")
-            return ""
-        else:
-            raise
+  """Return the URL of the IAP endpoint"""
+  extensions = k8s_client.ExtensionsV1beta1Api()
+  kf_ingress = None
 
-    return f"https://{kf_ingress.spec.rules[0].host}"    
+  try:
+    kf_ingress = extensions.read_namespaced_ingress("envoy-ingress", "istio-system")
+  except k8s_rest.ApiException as e:
+    if e.status == 403:
+      logging.warning(f"The service account doesn't have sufficient privileges "
+                      f"to get the istio-system ingress. "
+                      f"You will have to manually enter the Kubeflow endpoint. "
+                      f"To make this function work ask someone with cluster "
+                      f"priveleges to create an appropriate "
+                      f"clusterrolebinding by running a command.\n"
+                      f"kubectl create --namespace=istio-system rolebinding "
+                       "--clusterrole=kubeflow-view "
+                       "--serviceaccount=$NAMESPACE}:default-editor "
+                       "${NAMESPACE}-istio-view")
+      return ""
+
+    raise
+
+  return f"https://{kf_ingress.spec.rules[0].host}"
