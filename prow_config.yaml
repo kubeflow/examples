@@ -55,6 +55,7 @@ workflows:
       - postsubmit
     include_dirs:
       - xgboost_synthetic/*
+      - mnist/*
       - py/kubeflow/examples/create_e2e_workflow.py
 
   # E2E test for various notebooks
@@ -67,17 +68,7 @@ workflows:
       - postsubmit
     include_dirs:
       - xgboost_synthetic/*
+      - mnist/*
       - py/kubeflow/examples/create_e2e_workflow.py
     kwargs:
       cluster_pattern: kf-v1-(?!n\d\d)
-
-  # E2E test for mnist example
-  - py_func: kubeflow.examples.create_e2e_workflow.create_workflow
-    name: mnist
-    job_types:
-      - periodic
-      - presubmit
-      - postsubmit
-    include_dirs:
-      - mnist/*
-      - py/kubeflow/examples/create_e2e_workflow.py
