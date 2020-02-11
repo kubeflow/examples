@@ -1,13 +1,9 @@
 import logging
 import os
-import uuid
-import yaml
 
 import pytest
 
-from kubernetes import client as k8s_client
 from kubeflow.examples.notebook_tests import nb_test_util
-from kubeflow.testing import argo_build_util
 from kubeflow.testing import util
 
 # TODO(jlewi): This test is new; there's some work to be done to make it

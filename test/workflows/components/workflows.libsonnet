@@ -179,10 +179,10 @@
                   //    name: "py-test",
                   //    template: "py-test",
                   // },
-                  {
-                    name: "py-lint",
-                    template: "py-lint",
-                  },
+                  // {
+                  //  name: "py-lint",
+                  //  template: "py-lint",
+                  //},
                 ],
               ],
             },
