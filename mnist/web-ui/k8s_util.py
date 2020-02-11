@@ -78,7 +78,7 @@ def apply_k8s_specs(specs, mode=K8S_CREATE):
       create_method_args = [namespace, spec]
 
       replace_method_name = f"delete_namespaced_{kind_snake}"
-      replace_method_args = [name, namespace, spec]
+      replace_method_args = [name, namespace]
 
     else:
       api = k8s_client.CustomObjectsApi()
@@ -87,9 +87,9 @@ def apply_k8s_specs(specs, mode=K8S_CREATE):
       create_method = getattr(api, create_method_name)
       create_method_args = [group, version, namespace, plural, spec]
 
+      delete_options = k8s_client.V1DeleteOptions()
       replace_method_name = f"delete_namespaced_custom_object"
-      replace_method_args = [group, version, namespace, plural, name, spec]
-
+      replace_method_args = [group, version, namespace, plural, name, delete_options]
 
     create_method = getattr(api, create_method_name)
     replace_method = getattr(api, replace_method_name)
@@ -110,9 +110,15 @@ def apply_k8s_specs(specs, mode=K8S_CREATE):
         else:
           raise
 
+    # Using replace didn't work for virtualservices so we explicitly delete
+    # and then issue a create
     result = replace_method(*replace_method_args)
+    logging.info(f"Deleted {kind} {namespace}.{name}")
+
+    result = create_method(*create_method_args)
     result_namespace, result_name = _get_result_name(result)
-    logging.info(f"Replaced {kind} {result_namespace}.{result_name}")
+    logging.info(f"Created {kind} {result_namespace}.{result_name}")
+    # Now recreate it
     results.append(result)
 
   return results
