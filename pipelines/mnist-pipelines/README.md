@@ -1,5 +1,8 @@
 # MNIST Pipelines GCP
 
+**This example does not currently work properly.  It will be updated or replaced soon.** For more information, see [kubeflow/website #1611](https://github.com/kubeflow/website/issues/1611) and [kubeflow/pipelines #3037](https://github.com/kubeflow/pipelines/issues/3037).
+
+
 This document describes how to run the [MNIST example](https://github.com/kubeflow/examples/tree/master/mnist) on Kubeflow Pipelines on a Google Cloud Platform and on premise cluster.
 
 ## Setup
