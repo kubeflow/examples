@@ -12,8 +12,6 @@ from importlib import reload
 
 from pathlib import Path
 
-FAIRING_PACKAGE = 'git+git://github.com/kubeflow/fairing.git@9b0d4ed4796ba349ac6067bbd802ff1d6454d015' # pylint: disable=line-too-long
-
 TF_OPERATOR_COMMIT = "9238906"
 
 def notebook_setup():
@@ -23,8 +21,8 @@ def notebook_setup():
 
   home = str(Path.home())
 
-  logging.info("pip installing fairing %s", FAIRING_PACKAGE)
-  subprocess.check_call(["pip3", "install", "--user", FAIRING_PACKAGE])
+  logging.info("pip installing requirements.txt")
+  subprocess.check_call(["pip3", "install", "--user", "-r", "requirements.txt"])
 
   clone_dir = os.path.join(home, "git_tf-operator")
   if not os.path.exists(clone_dir):
