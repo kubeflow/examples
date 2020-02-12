@@ -3,14 +3,6 @@
 python_paths:
   - kubeflow/examples/py
 workflows:
-  - app_dir: kubeflow/examples/test/workflows
-    component: workflows
-    name: unittests
-    job_types:
-    - presubmit
-    - postsubmit
-    - periodic
-
   # E2E test for code_search example
   - app_dir: kubeflow/examples/test/workflows
     component: code_search
