@@ -28,7 +28,7 @@ cat path-to-key.json | base64
 
 ## Github action
 
-To run the github action a github workflow has to be added to the following folder from the rot of the repository:
+To run the github action a github workflow has to be added to the following folder from the root of the repository:
 ```
 .github/workflows/your_github_action_file.yml
 ```
