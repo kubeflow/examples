@@ -1,4 +1,4 @@
-# Compile, deploy and run kubeflow pipeline using Github Actions. 
+# Compile, deploy and run Kubeflow Pipeline using Github Actions. 
 
 This tutorial will go through how to use [Github Actions](https://github.com/features/actions) togheter with kubeflow for MLOps. The goal with this set up is to improve speed for test, deployment and also improve versioning and reproducibility. 
 
@@ -6,7 +6,7 @@ The tutorial will be based upon [this](https://github.com/marketplace/actions/ku
 
 ## Initial setup
 Before you start with this tutorial you need to have the following: 
-- A GCP account
+- A GCP account.
 - [Kubeflow set up on GKE](https://www.kubeflow.org/docs/gke/deploy/deploy-cli/) using [IAP](https://www.kubeflow.org/docs/gke/deploy/oauth-setup/). 
 - A service account with access to your Kubeflow deployment, see [here](https://github.com/kubeflow/examples/blob/cookbook/cookbook/pipelines/notebooks/kfp_remote_deploy-IAP.ipynb) section "Setup and configuration"  for example and needed accesses. 
 - The code on GitHub
@@ -28,12 +28,12 @@ cat path-to-key.json | base64
 
 ## Github action
 
-For the github repository add a github action in the following folder from the root of the repository:  
+For the github repository add a github workflow in the following folder from the root of the repository:  
 ```
 .github/workflows/your_github_action_file.yml
 ```
 
-This file should follow the convetion of [github workflows](https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions)
+This file should follow the convention of [github workflows](https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions)
 
 The following is an example of a workflow file(can also be found in the file: "example_workflow.py"). 
 
@@ -74,11 +74,11 @@ jobs:
 
 "Runs on" defines which type of machine should the workflow be executed on, in this case it dont matter since we will use a action(NikeNano/kubeflow-github-action@master) which are containerize. 
 
-A Github workflow is splitted to steps. In this example the first step will check out the code. This is needed in order to be abe to access the source code to the repo which the workflow is applied to. The firts action used is named "uses: actions/checkout@master", master here referst to the master branch of [the repository](https://github.com/actions/checkout) where this action is open sourced. 
+A Github workflow is splitted to steps,. where each step can run a command (python, bash, or whatever is installed on the machine) or a action. In this example the first step will check out the code. This is needed in order to access the source code from the repository. The firts step uses an action named "uses: actions/checkout@master", master here refers to the master branch of [the repository](https://github.com/actions/checkout) where this action is open sourced. 
 
-The following step, named: "Submit Kubeflow pipeline" is the most interesting part for this tutorial. Within this step the connection to kubeflow is set up and depending on the user specified values. (see "with"). If you like to check the source code you can find it [here](https://github.com/NikeNano/kubeflow-github-action)(you can find more info on how to build actions [here](https://help.github.com/en/actions/building-actions)).
+The following step, named: "Submit Kubeflow pipeline" is the most interesting part for this tutorial. Within this step the connection to kubeflow is set up and depending on the user specified values. (see "with"). If you like to check the source code for the action used in this step you can find it [here](https://github.com/NikeNano/kubeflow-github-action)(you can find more info on how to build actions [here](https://help.github.com/en/actions/building-actions)).
 
-For the action you as a user need to specify the followng values in the "with" part: 
+For the action you need to specify the followng values in the "with" part: 
 - KUBEFLOW_URL: The URL to your kubeflow deployment
 - GKE_KEY: Service account with access to kubeflow and rights to deploy, see [here](http://amygdala.github.io/kubeflow/ml/2019/08/22/remote-deploy.html) for example, the credentials needs to be bas64 encode:
 
@@ -97,7 +97,7 @@ cat path-to-key.json | base64
 
 ## Usage
 
-If you use the github workflow defined above, the workflow will be triggered on a push. You can see the workflow running on the tab "Actions" 
+If you use the github workflow defined above, the workflow will be triggered on a push. You can see the workflow running on the tab "Actions". 
 
 ![Alt text](actions_ower_view.png?raw=true "Title")
 _Figure 1_ 
