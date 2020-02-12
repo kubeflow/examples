@@ -1,16 +1,13 @@
 name: Compile, Deploy and Run on Kubeflow
 on: [push]
 
-# Set environmental variables
-
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     steps:
-    - name: checkout files in repo
+    - name: Checkout files in repo
       uses: actions/checkout@master
-
-
+      
     - name: Submit Kubeflow pipeline
       id: kubeflow
       uses: NikeNano/kubeflow-github-action@master
