@@ -99,11 +99,15 @@ cat path-to-key.json | base64
 
 If you use the github workflow defined above, the workflow will be triggered on a push. You can see the workflow running on the tab "Actions" 
 
+Figure 1 shows how the Github Actions view looks, here all historical and current runs are presented. A seperate run can be selected which will forward you as a user to the view presented in Figure 2. 
+
 ![Alt text](actions_ower_view.png?raw=true "Title")
 _Figure 1_
 
+Figure 2 shows the steps in the action workflow and its execution, the green checkmarks indicates that it was succesfull. Each step in the workflow can be futher explored, see Figure 3 in which the "Submit Kubeflow Pipeline" step where selected. 
 ![Alt text](check_action.png?raw=true "Title")
-_Figure 1_
+_Figure 2_
 
+In step 3 the outputs from the step is presented. Here you can see some of the logging for the executed action. 
 ![Alt text](deep_dive.png?raw=true "Title")
-_Figure 1_
+_Figure 3_
