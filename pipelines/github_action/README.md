@@ -1,21 +1,21 @@
 # Compile, deploy and run Kubeflow Pipeline using Github Actions. 
 
-This tutorial will go through how to use [Github Actions](https://github.com/features/actions) togheter with kubeflow for MLOps. The goal with this set up is to improve speed for test, deployment and also improve versioning and reproducibility. 
+This tutorial will go through how to use [Github Actions](https://github.com/features/actions) togheter with kubeflow for MLOps. The goal with this set up is to improve set up speed, simplify deployments, improve versioning and reproducibility. 
 
 The tutorial will be based upon [this](https://github.com/marketplace/actions/kubeflow-compile-deploy-and-run) Github Action. 
 
 ## Initial setup
-Before you start with this tutorial you need to have the following: 
+Before starting with this tutorial the following things have to be in place: 
 - A GCP account.
 - [Kubeflow set up on GKE](https://www.kubeflow.org/docs/gke/deploy/deploy-cli/) using [IAP](https://www.kubeflow.org/docs/gke/deploy/oauth-setup/). 
-- A service account with access to your Kubeflow deployment, see [here](https://github.com/kubeflow/examples/blob/cookbook/cookbook/pipelines/notebooks/kfp_remote_deploy-IAP.ipynb) section "Setup and configuration"  for example and needed accesses. 
-- The code on GitHub
+- A service account with access to your Kubeflow deployment, see [here](https://github.com/kubeflow/examples/blob/cookbook/cookbook/pipelines/notebooks/kfp_remote_deploy-IAP.ipynb) section "Setup and configuration" for example and needed accesses. 
+- The source code in a GitHub repository
 
 ## Add secrets to Github repository
 
-In order to the Github action to have access to your kubeflow deployment you need to add some [secrets to github](https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets).
+In order for the Github action to have access to the kubeflow deployment, [secrets to github has to be added](https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets).
 
-You have to add the following secrets: 
+The following secrets has to be added: 
  - KUBEFLOW_URL - The url to your kubeflow deployment
  - ENCODED_GOOGLE_APPLICATION_CREDENTIALS - Service account with access to kubeflow and rights to deploy, see [here](http://amygdala.github.io/kubeflow/ml/2019/08/22/remote-deploy.html) for example, the credentials needs to be bas64 encode:
 
@@ -28,7 +28,7 @@ cat path-to-key.json | base64
 
 ## Github action
 
-For the github repository add a github workflow in the following folder from the root of the repository:  
+To run the github action a github workflow has to be added to the following folder from the rot of the repository:
 ```
 .github/workflows/your_github_action_file.yml
 ```
@@ -45,7 +45,7 @@ on: [push]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     steps:
     - name: checkout files in repo
       uses: actions/checkout@master
