@@ -23,7 +23,7 @@ spec:
       # This init container checks out the source code.
       - command:
         - /usr/local/bin/checkout_repos.sh
-        - --repos=kubeflow/examples@$(CHECK_TAG),kubeflow/testing@HEAD
+        - --repos=kubeflow/examples@$(CHECK_TAG)
         - --src_dir=/src
         name: checkout
         image: gcr.io/kubeflow-ci/test-worker:v20190802-c6f9140-e3b0c4
@@ -35,9 +35,6 @@ spec:
         image: execute-image
         command: ["python3", "execute_notebook.py"]
         workingDir: /src/kubeflow/examples/xgboost_synthetic/testing
-        env:
-        - name: PYTHONPATH
-          value: /src/kubeflow/testing/py
         volumeMounts:
         - mountPath: /src
           name: src

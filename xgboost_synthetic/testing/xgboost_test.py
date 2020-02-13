@@ -35,12 +35,16 @@ def test_xgboost_synthetic(record_xml_attribute, name, namespace, # pylint: disa
   if not repos:
     repos = argo_build_util.get_repo_from_prow_env()
 
+  repos += ",kubeflow/testing@HEAD"
   logging.info("Repos set to %s", repos)
   job["spec"]["template"]["spec"]["initContainers"][0]["command"] = [
     "/usr/local/bin/checkout_repos.sh",
     "--repos=" + repos,
     "--src_dir=/src",
     "--depth=all",
+  ]
+  job["spec"]["template"]["spec"]["containers"][0]["env"] = [
+    {"name": "PYTHONPATH", "value": "/src/kubeflow/testing/py"},
   ]
   job["spec"]["template"]["spec"]["containers"][0]["image"] = image
   util.load_kube_config(persist_config=False)
