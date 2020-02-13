@@ -33,7 +33,10 @@ def run_notebook_test(notebook_path, expected_messages, parameters=None):
   nb = nbformat.reads(actual_output, as_version=4)
   html_exporter = nbconvert.HTMLExporter()
   (html_output, _) = html_exporter.from_notebook_node(nb)
-  # Write to local/GCS.
+  logger.info(html_output[:10] + "...")
+  html_path = os.path.join(os.path.dirname(output_path), "out.html")
+  with open(html_path, "w") as f:
+    f.write(html_output)
 
   for expected_message in expected_messages:
     if not expected_message in actual_output:
