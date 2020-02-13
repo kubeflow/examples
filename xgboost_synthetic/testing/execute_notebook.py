@@ -34,7 +34,7 @@ def run_notebook_test(notebook_path, expected_messages, parameters=None):
   html_exporter = nbconvert.HTMLExporter()
   (html_output, _) = html_exporter.from_notebook_node(nb)
   logger.info(html_output[:10] + "...")
-  html_path = os.path.join(os.path.dirname(output_path), "out.html")
+  html_path = os.path.join(os.path.dirname(__file__), "out.html")
   with open(html_path, "w") as f:
     f.write(html_output)
 
