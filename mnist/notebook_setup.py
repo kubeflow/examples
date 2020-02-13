@@ -32,17 +32,6 @@ def notebook_setup():
   logging.info(f"Checkout kubeflow/tf-operator @{TF_OPERATOR_COMMIT}")
   subprocess.check_call(["git", "checkout", TF_OPERATOR_COMMIT], cwd=clone_dir)
 
-  logging.info("pip installing fairing %s", FAIRING_PACKAGE)
-  subprocess.check_call(["pip3", "install", "--user", FAIRING_PACKAGE])
-      
-  clone_dir = os.path.join(home, "git_tf-operator")
-  if not os.path.exists(clone_dir):    
-    logging.info("Cloning the tf-operator repo")
-    subprocess.check_call(["git", "clone", "https://github.com/kubeflow/tf-operator.git",
-                           clone_dir])
-  logging.info(f"Checkout kubeflow/tf-operator @{TF_OPERATOR_COMMIT}")
-  subprocess.check_call(["git", "checkout", TF_OPERATOR_COMMIT], cwd=clone_dir)    
-  
   logging.info("Configure docker credentials")
   subprocess.check_call(["gcloud", "auth", "configure-docker", "--quiet"])
   if os.getenv("GOOGLE_APPLICATION_CREDENTIALS"):
