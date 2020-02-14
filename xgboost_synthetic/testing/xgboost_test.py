@@ -92,7 +92,6 @@ def test_xgboost_synthetic(record_xml_attribute, name, namespace, # pylint: disa
   last_condition = final_job.status.conditions[-1]
 
   # Download notebook html to artifacts
-  with open(os.path.join(notebook_artifacts_dir, "notebook.html"), "w") as f:
   notebook_artifacts_path = os.path.join(notebook_artifacts_dir, "notebook.html")
   logging.info("Writing notebook artifact to: %s", notebook_artifacts_path)
   os.makedirs(notebook_artifacts_dir, exist_ok=True)
