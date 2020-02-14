@@ -54,7 +54,7 @@ def test_xgboost_synthetic(record_xml_attribute, name, namespace, # pylint: disa
   logging.info("Tested notebook will be outputed to: %s", output_gcs)
   job["spec"]["template"]["spec"]["containers"][0]["env"] = [
     {"name": "PYTHONPATH", "value": "/src/kubeflow/testing/py"},
-    {"name": "OUTPUT_GCS", "value": output_gcs,
+    {"name": "OUTPUT_GCS", "value": output_gcs},
   ]
   job["spec"]["template"]["spec"]["containers"][0]["image"] = image
   util.load_kube_config(persist_config=False)
