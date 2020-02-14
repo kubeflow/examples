@@ -45,7 +45,7 @@ def test_xgboost_synthetic(record_xml_attribute, name, namespace, # pylint: disa
   ]
 
   output_gcs = "/".join([
-      "gs://kubeflow-ci-deployment/",
+      "gs://kubeflow-ci-deployment",
       "xgboost_synthetic_testing",
       os.getenv("JOB_TYPE"),
       os.getenv("HOSTNAME"),
