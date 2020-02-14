@@ -97,10 +97,14 @@ def test_xgboost_synthetic(record_xml_attribute, name, namespace, # pylint: disa
   os.makedirs(notebook_artifacts_dir, exist_ok=True)
   # Download notebook html to artifacts
   with open(notebook_artifacts_path, "w") as f:
-    storage_client = storage.Client()
-    bucket = storage_client.get_bucket(nb_bucket)
-    blob = bucket.get_blob(nb_path)
-    blob.download_to_file(f)
+    try:
+      storage_client = storage.Client()
+      bucket = storage_client.get_bucket(nb_bucket)
+      blob = bucket.get_blob(nb_path)
+      blob.download_to_file(f)
+    except Exception as e:
+      logging.info("downloading notebook fail: %s", e)
+      raise e
 
   if last_condition.type not in ["Complete"]:
     logging.error("Job didn't complete successfully")
