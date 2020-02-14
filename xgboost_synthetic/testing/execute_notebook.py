@@ -34,10 +34,7 @@ def run_notebook_test(notebook_path, expected_messages, parameters=None):
   nb = nbformat.reads(actual_output, as_version=4)
   html_exporter = nbconvert.HTMLExporter()
   (html_output, _) = html_exporter.from_notebook_node(nb)
-  gcs_path = "gs://kubeflow-ci-deployment/" + "/".join([
-      "xgboost_synthetic_testing",
-      "temp.html"
-  ])
+  gcs_path = os.getenv("OUTPUT_GCS")
   kf_util.upload_to_gcs(html_output, gcs_path)
 
   for expected_message in expected_messages:

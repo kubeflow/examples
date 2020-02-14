@@ -43,8 +43,18 @@ def test_xgboost_synthetic(record_xml_attribute, name, namespace, # pylint: disa
     "--src_dir=/src",
     "--depth=all",
   ]
+
+  output_gcs = "/".join([
+      "gs://kubeflow-ci-deployment/",
+      "xgboost_synthetic_testing",
+      os.getenv("JOB_TYPE"),
+      os.getenv("HOSTNAME"),
+      "notebook.html",
+  ])
+  logging.info("Tested notebook will be outputed to: %s", output_gcs)
   job["spec"]["template"]["spec"]["containers"][0]["env"] = [
     {"name": "PYTHONPATH", "value": "/src/kubeflow/testing/py"},
+    {"name": "OUTPUT_GCS", "value": output_gcs,
   ]
   job["spec"]["template"]["spec"]["containers"][0]["image"] = image
   util.load_kube_config(persist_config=False)
