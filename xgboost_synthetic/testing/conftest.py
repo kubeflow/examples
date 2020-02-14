@@ -16,6 +16,9 @@ def pytest_addoption(parser):
   parser.addoption(
     "--repos", help="The repos to checkout; leave blank to use defaults",
     type=str, default="")
+  parser.addoption(
+    "--notebook_artifacts_dir", help="Directory to store notebook artifacts",
+    type=str, default="")
 
 @pytest.fixture
 def name(request):
@@ -32,3 +35,7 @@ def image(request):
 @pytest.fixture
 def repos(request):
   return request.config.getoption("--repos")
+
+@pytest.fixture
+def notebook_artifacts_dir(request):
+  return request.config.getoption("--notebook_artifacts_dir")

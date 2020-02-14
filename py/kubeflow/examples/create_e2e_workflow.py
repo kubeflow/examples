@@ -251,6 +251,7 @@ class Builder:
                # Test timeout in seconds.
                "--timeout=1800",
                "--junitxml=" + self.artifacts_dir + "/junit_xgboost-synthetic-test.xml",
+               "--notebook_artifacts_dir=" + self.artifacts_dir + "/xgboost-synthetic-test-notebooks",
                ]
 
     dependencies = []
