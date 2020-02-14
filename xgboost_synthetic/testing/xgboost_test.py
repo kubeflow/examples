@@ -6,6 +6,7 @@ import yaml
 
 import pytest
 
+from google.cloud import storage
 from kubernetes import client as k8s_client
 from kubeflow.testing import argo_build_util
 from kubeflow.testing import util
@@ -17,7 +18,7 @@ from kubeflow.testing import util
 # and we want signal in postsubmits and periodics
 @pytest.mark.xfail(os.getenv("JOB_TYPE") == "presubmit", reason="Flaky")
 def test_xgboost_synthetic(record_xml_attribute, name, namespace, # pylint: disable=too-many-branches,too-many-statements
-                           repos, image):
+                           repos, image, notebook_artifacts_dir):
   '''Generate Job and summit.'''
   util.set_pytest_junit(record_xml_attribute, "test_xgboost_synthetic")
 
@@ -44,13 +45,14 @@ def test_xgboost_synthetic(record_xml_attribute, name, namespace, # pylint: disa
     "--depth=all",
   ]
 
-  output_gcs = "/".join([
-      "gs://kubeflow-ci-deployment",
-      "xgboost_synthetic_testing",
-      os.getenv("JOB_TYPE"),
-      os.getenv("HOSTNAME"),
-      "notebook.html",
-  ])
+  nb_bucket = "kubeflow-ci-deployment"
+  nb_path = os.path.join(
+    "xgboost_synthetic_testing",
+    os.getenv("JOB_TYPE"),
+    os.getenv("HOSTNAME"),
+    "notebook.html",
+  )
+  output_gcs = kf_util.to_gcs_uri(nb_bucket, nb_path)
   logging.info("Tested notebook will be outputed to: %s", output_gcs)
   job["spec"]["template"]["spec"]["containers"][0]["env"] = [
     {"name": "PYTHONPATH", "value": "/src/kubeflow/testing/py"},
@@ -88,6 +90,12 @@ def test_xgboost_synthetic(record_xml_attribute, name, namespace, # pylint: disa
     raise RuntimeError("Job {0}.{1}; did not complete".format(namespace, name))
 
   last_condition = final_job.status.conditions[-1]
+
+  # Download notebook html to artifacts
+  with open(os.path.join(notebook_artifacts_dir, os.getenv("HOSTNAME"),
+      "notebook.html"), "w") as f:
+    storage_client = storage.Client()
+    storage_client.download_blob_to_file(output_gcs, f)
 
   if last_condition.type not in ["Complete"]:
     logging.error("Job didn't complete successfully")
