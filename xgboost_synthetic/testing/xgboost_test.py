@@ -99,7 +99,9 @@ def test_xgboost_synthetic(record_xml_attribute, name, namespace, # pylint: disa
   # Download notebook html to artifacts
   with open(notebook_artifacts_path, "w") as f:
     storage_client = storage.Client()
-    storage_client.download_blob_to_file(output_gcs, f)
+    bucket = storage_client.get_bucket(nb_bucket)
+    blob = bucket.get_blob(nb_path)
+    blob.download_to_file(f)
 
   if last_condition.type not in ["Complete"]:
     logging.error("Job didn't complete successfully")
