@@ -50,7 +50,7 @@ def test_xgboost_synthetic(record_xml_attribute, name, namespace, # pylint: disa
     "xgboost_synthetic_testing",
     os.getenv("JOB_TYPE"),
     os.getenv("HOSTNAME"),
-    "notebook.html",
+    "notebook.html"
   )
   output_gcs = kf_util.to_gcs_uri(nb_bucket, nb_path)
   logging.info("Tested notebook will be outputed to: %s", output_gcs)
