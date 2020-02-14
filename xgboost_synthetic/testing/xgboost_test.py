@@ -52,7 +52,7 @@ def test_xgboost_synthetic(record_xml_attribute, name, namespace, # pylint: disa
     os.getenv("HOSTNAME"),
     "notebook.html"
   )
-  output_gcs = kf_util.to_gcs_uri(nb_bucket, nb_path)
+  output_gcs = util.to_gcs_uri(nb_bucket, nb_path)
   logging.info("Tested notebook will be outputed to: %s", output_gcs)
   job["spec"]["template"]["spec"]["containers"][0]["env"] = [
     {"name": "PYTHONPATH", "value": "/src/kubeflow/testing/py"},
