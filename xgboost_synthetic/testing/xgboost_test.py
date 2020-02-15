@@ -6,6 +6,7 @@ import yaml
 
 import pytest
 
+from google.cloud import storage
 from kubernetes import client as k8s_client
 from kubeflow.testing import argo_build_util
 from kubeflow.testing import util
@@ -17,7 +18,7 @@ from kubeflow.testing import util
 # and we want signal in postsubmits and periodics
 @pytest.mark.xfail(os.getenv("JOB_TYPE") == "presubmit", reason="Flaky")
 def test_xgboost_synthetic(record_xml_attribute, name, namespace, # pylint: disable=too-many-branches,too-many-statements
-                           repos, image):
+                           repos, image, notebook_artifacts_dir):
   '''Generate Job and summit.'''
   util.set_pytest_junit(record_xml_attribute, "test_xgboost_synthetic")
 
@@ -35,12 +36,27 @@ def test_xgboost_synthetic(record_xml_attribute, name, namespace, # pylint: disa
   if not repos:
     repos = argo_build_util.get_repo_from_prow_env()
 
+  repos += ",kubeflow/testing@HEAD"
   logging.info("Repos set to %s", repos)
   job["spec"]["template"]["spec"]["initContainers"][0]["command"] = [
     "/usr/local/bin/checkout_repos.sh",
     "--repos=" + repos,
     "--src_dir=/src",
     "--depth=all",
+  ]
+
+  nb_bucket = "kubeflow-ci-deployment"
+  nb_path = os.path.join(
+    "xgboost_synthetic_testing",
+    os.getenv("JOB_TYPE"),
+    os.getenv("HOSTNAME"),
+    "notebook.html"
+  )
+  output_gcs = util.to_gcs_uri(nb_bucket, nb_path)
+  logging.info("Tested notebook will be outputed to: %s", output_gcs)
+  job["spec"]["template"]["spec"]["containers"][0]["env"] = [
+    {"name": "PYTHONPATH", "value": "/src/kubeflow/testing/py"},
+    {"name": "OUTPUT_GCS", "value": output_gcs},
   ]
   job["spec"]["template"]["spec"]["containers"][0]["image"] = image
   util.load_kube_config(persist_config=False)
@@ -74,6 +90,15 @@ def test_xgboost_synthetic(record_xml_attribute, name, namespace, # pylint: disa
     raise RuntimeError("Job {0}.{1}; did not complete".format(namespace, name))
 
   last_condition = final_job.status.conditions[-1]
+
+  # Download notebook html to artifacts
+  notebook_artifacts_path = os.path.join(notebook_artifacts_dir, "notebook.html")
+  logging.info("Writing notebook artifact to: %s", notebook_artifacts_path)
+  os.makedirs(notebook_artifacts_dir, exist_ok=True)
+  storage_client = storage.Client()
+  bucket = storage_client.get_bucket(nb_bucket)
+  blob = bucket.get_blob(nb_path)
+  blob.download_to_filename(notebook_artifacts_path)
 
   if last_condition.type not in ["Complete"]:
     logging.error("Job didn't complete successfully")

@@ -3,11 +3,14 @@ import logging
 import os
 import subprocess
 
+from kubeflow.testing import util as kf_util
 
 logger = logging.getLogger(__name__)
 
 def prepare_env():
   subprocess.check_call(["pip3", "install", "-U", "papermill"])
+  subprocess.check_call(["pip3", "install", "-U", "nbconvert"])
+  subprocess.check_call(["pip3", "install", "-U", "nbformat"])
   subprocess.check_call(["pip3", "install", "-r", "../requirements.txt"])
 
 
@@ -22,7 +25,18 @@ def execute_notebook(notebook_path, parameters=None):
 
 def run_notebook_test(notebook_path, expected_messages, parameters=None):
   output_path = execute_notebook(notebook_path, parameters=parameters)
+
+  import nbformat #pylint: disable=import-error
+  import nbconvert #pylint: disable=import-error
+
   actual_output = open(output_path, 'r').read()
+
+  nb = nbformat.reads(actual_output, as_version=4)
+  html_exporter = nbconvert.HTMLExporter()
+  (html_output, _) = html_exporter.from_notebook_node(nb)
+  gcs_path = os.getenv("OUTPUT_GCS")
+  kf_util.upload_to_gcs(html_output, gcs_path)
+
   for expected_message in expected_messages:
     if not expected_message in actual_output:
       logger.error(actual_output)
