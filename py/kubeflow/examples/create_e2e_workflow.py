@@ -261,82 +261,23 @@ class Builder:
                                                            "xgboost_synthetic",
                                                            "testing")
 
-  def _build_tests_dag_mnist(self):
-    """Build the dag for the set of tests to run mnist TFJob tests."""
-
-    task_template = self._build_task_template()
-
     # ***************************************************************************
-    # Build mnist image
-    step_name = "build-image"
-    train_image_base = "gcr.io/kubeflow-examples/mnist"
-    train_image_tag = "build-" + PROW_DICT['BUILD_ID']
-    command = ["/bin/bash",
-               "-c",
-               "gcloud auth activate-service-account --key-file=$(GOOGLE_APPLICATION_CREDENTIALS) \
-                && make build-gcb IMG=" + train_image_base + " TAG=" + train_image_tag,
-              ]
+    # Test mnist
+    step_name = "mnist"
+    command = ["pytest", "mnist_gcp_test.py",
+               # Increase the log level so that info level log statements show up.
+               "--log-cli-level=info",
+               "--log-cli-format='%(levelname)s|%(asctime)s|%(pathname)s|%(lineno)d| %(message)s'",
+               # Test timeout in seconds.
+               "--timeout=1800",
+               "--junitxml=" + self.artifacts_dir + "/junit_mnist-gcp-test.xml",
+               ]
+
     dependencies = []
-    build_step = self._build_step(step_name, self.workflow, TESTS_DAG_NAME, task_template,
-                                   command, dependencies)
-    build_step["container"]["workingDir"] = os.path.join(self.src_dir, "mnist")
-
-    # ***************************************************************************
-    # Test mnist TFJob
-    step_name = "tfjob-test"
-    # Using python2 to run the test to avoid dependency error.
-    command = ["python2", "-m", "pytest", "tfjob_test.py",
-               # Increase the log level so that info level log statements show up.
-               "--log-cli-level=info",
-               "--log-cli-format='%(levelname)s|%(asctime)s|%(pathname)s|%(lineno)d| %(message)s'",
-               # Test timeout in seconds.
-               "--timeout=1800",
-               "--junitxml=" + self.artifacts_dir + "/junit_tfjob-test.xml",
-               ]
-
-    dependencies = [build_step['name']]
-    tfjob_step = self._build_step(step_name, self.workflow, TESTS_DAG_NAME, task_template,
-                                   command, dependencies)
-    tfjob_step["container"]["workingDir"] = os.path.join(self.src_dir,
-                                                           "mnist",
-                                                           "testing")
-
-    # ***************************************************************************
-    # Test mnist deploy
-    step_name = "deploy-test"
-    command = ["python2", "-m", "pytest", "deploy_test.py",
-               # Increase the log level so that info level log statements show up.
-               "--log-cli-level=info",
-               "--log-cli-format='%(levelname)s|%(asctime)s|%(pathname)s|%(lineno)d| %(message)s'",
-               # Test timeout in seconds.
-               "--timeout=1800",
-               "--junitxml=" + self.artifacts_dir + "/junit_deploy-test.xml",
-               ]
-
-    dependencies = [tfjob_step["name"]]
-    deploy_step = self._build_step(step_name, self.workflow, TESTS_DAG_NAME, task_template,
-                                   command, dependencies)
-    deploy_step["container"]["workingDir"] = os.path.join(self.src_dir,
-                                                           "mnist",
-                                                           "testing")
-    # ***************************************************************************
-    # Test mnist predict
-    step_name = "predict-test"
-    command = ["pytest", "predict_test.py",
-               # Increase the log level so that info level log statements show up.
-               "--log-cli-level=info",
-               "--log-cli-format='%(levelname)s|%(asctime)s|%(pathname)s|%(lineno)d| %(message)s'",
-               # Test timeout in seconds.
-               "--timeout=1800",
-               "--junitxml=" + self.artifacts_dir + "/junit_predict-test.xml",
-               ]
-
-    dependencies = [deploy_step["name"]]
-    predict_step = self._build_step(step_name, self.workflow, TESTS_DAG_NAME, task_template,
-                                   command, dependencies)
-    predict_step["container"]["workingDir"] = os.path.join(self.src_dir,
-                                                           "mnist",
-                                                           "testing")
+    mnist_step = self._build_step(step_name, self.workflow, TESTS_DAG_NAME, task_template,
+                                  command, dependencies)
+    mnist_step["container"]["workingDir"] = os.path.join(
+      self.src_dir, "py/kubeflow/examples/notebook_tests")
 
   def _build_exit_dag(self):
     """Build the exit handler dag"""
@@ -432,8 +373,6 @@ class Builder:
     # Run a dag of tests
     if self.test_target_name.startswith("notebooks"):
       self._build_tests_dag_notebooks()
-    elif self.test_target_name == "mnist":
-      self._build_tests_dag_mnist()
     else:
       raise RuntimeError('Invalid test_target_name ' + self.test_target_name)
 

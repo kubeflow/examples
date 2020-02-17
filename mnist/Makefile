@@ -19,6 +19,8 @@
 # To override variables do
 # make ${TARGET} ${VAR}=${VALUE}
 #
+#
+# TODO(jlewi): We should probably switch to Skaffold and Tekton
 
 # IMG is the base path for images..
 # Individual images will be
