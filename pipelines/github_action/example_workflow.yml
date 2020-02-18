@@ -1,0 +1,24 @@
+name: Compile, Deploy and Run on Kubeflow
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    steps:
+    - name: Checkout files in repo
+      uses: actions/checkout@master
+      
+    - name: Submit Kubeflow pipeline
+      id: kubeflow
+      uses: NikeNano/kubeflow-github-action@master
+      with:
+        KUBEFLOW_URL: ${{ secrets.KUBEFLOW_URL }}
+        ENCODED_GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GKE_KEY }}
+        GOOGLE_APPLICATION_CREDENTIALS: /tmp/gcloud-sa.json
+        CLIENT_ID: ${{ secrets.CLIENT_ID }}
+        PIPELINE_CODE_PATH: "example_pipeline.py"
+        PIPELINE_FUNCTION_NAME: "flipcoin_pipeline"
+        PIPELINE_PARAMETERS_PATH: "parameters.yaml"
+        EXPERIMENT_NAME: "Default"
+        RUN_PIPELINE: True
+        VERSION_GITHUB_SHA: False
