@@ -1,2 +1,3 @@
-git+git://github.com/kubeflow/fairing.git@9b0d4ed4796ba349ac6067bbd802ff1d6454d015
+# Refer to latest commit in github.com/kubeflow/fairing
+git+git://github.com/kubeflow/fairing.git@7e4c23c47a6b0544a722d04e1f9910c2f283a4f6
 retrying==1.3.3
