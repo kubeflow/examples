@@ -14,7 +14,8 @@ from pathlib import Path
 
 TF_OPERATOR_COMMIT = "9238906"
 
-def notebook_setup():
+# add env default to google, we can override it.
+def notebook_setup(platform ='gcp'):
   # Install the SDK
   logging.basicConfig(format='%(message)s')
   logging.getLogger().setLevel(logging.INFO)
@@ -32,14 +33,6 @@ def notebook_setup():
   logging.info(f"Checkout kubeflow/tf-operator @{TF_OPERATOR_COMMIT}")
   subprocess.check_call(["git", "checkout", TF_OPERATOR_COMMIT], cwd=clone_dir)
 
-  logging.info("Configure docker credentials")
-  subprocess.check_call(["gcloud", "auth", "configure-docker", "--quiet"])
-  if os.getenv("GOOGLE_APPLICATION_CREDENTIALS"):
-    logging.info("Activating service account")
-    subprocess.check_call(["gcloud", "auth", "activate-service-account",
-                           "--key-file=" +
-                           os.getenv("GOOGLE_APPLICATION_CREDENTIALS"),
-                           "--quiet"])
   # Installing the python packages locally doesn't appear to have them automatically
   # added the path so we need to manually add the directory
   local_py_path = os.path.join(home, ".local/lib/python3.6/site-packages")
@@ -51,7 +44,20 @@ def notebook_setup():
       # Insert at front because we want to override any installed packages
       sys.path.insert(0, p)
 
+  if platform == 'gcp':
+    setup_gcp()
+
   # Force a reload of kubeflow; since kubeflow is a multi namespace module
   # if we've loaded up some new kubeflow subpackages we need to force a reload to see them.
   import kubeflow
   reload(kubeflow)
+
+def setup_gcp():
+  logging.info("Configure docker credentials")
+  subprocess.check_call(["gcloud", "auth", "configure-docker", "--quiet"])
+  if os.getenv("GOOGLE_APPLICATION_CREDENTIALS"):
+    logging.info("Activating service account")
+    subprocess.check_call(["gcloud", "auth", "activate-service-account",
+                           "--key-file=" +
+                           os.getenv("GOOGLE_APPLICATION_CREDENTIALS"),
+                           "--quiet"])
