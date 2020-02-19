@@ -164,10 +164,10 @@ def get_ingress_endpoint():
                       f"clusterrolebinding by running a command.\n"
                       f"kubectl create --namespace=istio-system rolebinding "
                        "--clusterrole=kubeflow-view "
-                       "--serviceaccount=$NAMESPACE}:default-editor "
+                       "--serviceaccount=${NAMESPACE}:default-editor "
                        "${NAMESPACE}-istio-view")
       return ""
 
     raise
 
-  return f"http://{kf_ingress.status.loadBalancer.ingress[0].hostname}"
+  return f"http://{kf_ingress.status.load_balancer.ingress[0].hostname}"
