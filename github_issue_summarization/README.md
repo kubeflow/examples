@@ -1,4 +1,7 @@
-# End-to-End kubeflow tutorial using a Sequence-to-Sequence model
+# (Deprecated) End-to-End kubeflow tutorial using a Sequence-to-Sequence model
+
+
+> **Note: This example does not currently work correctly, and has been deprecated. It will be updated or replaced soon.**
 
 This example demonstrates how you can use `kubeflow` end-to-end to train and
 serve a Sequence-to-Sequence model on an existing kubernetes cluster. This
