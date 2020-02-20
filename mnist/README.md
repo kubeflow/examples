@@ -4,6 +4,7 @@
 
 - [MNIST on Kubeflow](#mnist-on-kubeflow)
 - [MNIST on Kubeflow on GCP](#mnist-on-kubeflow-on-gcp)
+- [MNIST on Kubeflow on Vanilla k8s](#vanilla)
 - [MNIST on other platforms](#mnist-on-other-platforms)
   - [Prerequisites](#prerequisites)
     - [Deploy Kubeflow](#deploy-kubeflow)
@@ -38,6 +39,7 @@ This example guides you through the process of taking an example model, modifyin
 Follow the version of the guide that is specific to how you have deployed Kubeflow
 
 1. [MNIST on Kubeflow on GCP](#gcp)
+1. [MNIST on Kubeflow on vanilla k8s](#vanilla)
 1. [MNIST on other platforms](#other)
 
 <a id=gcp></a>
@@ -65,6 +67,60 @@ Follow these instructions to run the MNIST tutorial on GCP
 1. Open the notebook `mnist/mnist_gcp.ipynb`
 
 1. Follow the notebook to train and deploy MNIST on Kubeflow
+
+<a id=vanilla></a>
+# MNIST on Kubeflow on Vanilla k8s
+
+1. Follow these [instructions](https://www.kubeflow.org/docs/started/k8s/kfctl-k8s-istio/) to deploy Kubeflow.
+
+1. [Setup docker credentials](#vanilla-docker).
+
+1. Launch a Jupyter Notebook
+
+  * The tutorial is run on Jupyter Tensorflow 1.15 image.
+
+1. Launch a terminal in Jupyter and clone the kubeflow/examples repo
+
+  ```bash
+  git clone https://github.com/kubeflow/examples.git git_kubeflow-examples 
+  ```
+
+1. Open the notebook `mnist/mnist_vanilla_k8s.ipynb`
+
+1. Follow the notebook to train and deploy on MNIST on Kubeflow
+
+<a id=vanilla-docker></a>
+### Prerequisites
+
+### Configure docker credentials
+
+#### Why do we need this?
+
+Kaniko is used by fairing to build the model every time the notebook is run and deploy a fresh model.
+The newly built image is pushed into the DOCKER_REGISTRY and pulled from there by subsequent resources.
+
+Get your docker registry user and password encoded in base64 <br>
+
+`echo -n USER:PASSWORD | base64` <br>
+
+Create a config.json file with your Docker registry url and the previous generated base64 string <br>
+```json
+{
+	"auths": {
+		"https://index.docker.io/v1/": {
+			"auth": "xxxxxxxxxxxxxxx"
+		}
+	}
+}
+```
+
+<br>
+
+### Create a config-map in the namespace you're using with the docker config
+
+`kubectl create --namespace ${NAMESPACE} configmap docker-config --from-file=<path to config.json>`
+
+Source documentation: [Kaniko docs](https://github.com/GoogleContainerTools/kaniko#pushing-to-docker-hub)
 
 <a id=other></a>
 # MNIST on other platforms
