@@ -5,5 +5,5 @@ FROM tensorflow/tensorflow:1.15.2-py3
 ADD model.py /opt/model.py
 RUN chmod +x /opt/model.py
 
-ENTRYPOINT ["/usr/bin/python"]
+ENTRYPOINT ["/usr/bin/python3"]
 CMD ["/opt/model.py"]
