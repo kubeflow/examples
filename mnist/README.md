@@ -4,27 +4,23 @@
 
 - [MNIST on Kubeflow](#mnist-on-kubeflow)
 - [MNIST on Kubeflow on GCP](#mnist-on-kubeflow-on-gcp)
+- [MNIST on Kubeflow for On-Premise Cluster](#mnist-on-kubeflow-for-on-premise-cluster)
 - [MNIST on other platforms](#mnist-on-other-platforms)
   - [Prerequisites](#prerequisites)
     - [Deploy Kubeflow](#deploy-kubeflow)
-    - [Local Setup](#local-setup)
     - [GCP Setup](#gcp-setup)
   - [Modifying existing examples](#modifying-existing-examples)
     - [Prepare model](#prepare-model)
     - [(Optional) Build and push model image.](#optional-build-and-push-model-image)
   - [Preparing your Kubernetes Cluster](#preparing-your-kubernetes-cluster)
     - [Training your model](#training-your-model)
-      - [Local storage](#local-storage)
       - [Using S3](#using-s3)
   - [Monitoring](#monitoring)
     - [Tensorboard](#tensorboard)
-      - [Local storage](#local-storage-1)
       - [Using S3](#using-s3-1)
       - [Deploying TensorBoard](#deploying-tensorboard)
   - [Serving the model](#serving-the-model)
     - [S3](#s3)
-    - [Local storage](#local-storage-2)
-  - [Web Front End](#web-front-end)
     - [Connecting via port forwarding](#connecting-via-port-forwarding)
   - [Conclusion and Next Steps](#conclusion-and-next-steps)
 
@@ -38,7 +34,8 @@ This example guides you through the process of taking an example model, modifyin
 Follow the version of the guide that is specific to how you have deployed Kubeflow
 
 1. [MNIST on Kubeflow on GCP](#gcp)
-1. [MNIST on other platforms](#other)
+2. [MNIST on Kubeflow for On-Premise Cluster](#on-prem)
+3. [MNIST on other platforms](#other)
 
 <a id=gcp></a>
 # MNIST on Kubeflow on GCP
@@ -66,6 +63,28 @@ Follow these instructions to run the MNIST tutorial on GCP
 
 1. Follow the notebook to train and deploy MNIST on Kubeflow
 
+<a id=on-prem></a>
+# MNIST on Kubeflow for On-Premise Cluster
+
+Follow these instructions to run the MNIST tutorial on Premise Clsuter
+
+1. Launch a Jupyter notebook
+
+2. Launch a terminal in Jupyter and clone the kubeflow examples repo
+
+   ```
+   git clone https://github.com/kubeflow/examples.git git_kubeflow-examples
+   ```
+
+   * **Tip** When you start a terminal in Jupyter, run the command `bash` to start
+      a bash terminal which is much more friendly then the default shell
+
+   * **Tip** You can change the URL from '/tree' to '/lab' to switch to using Jupyterlab
+
+3. Open the notebook `mnist/mnist_on_prem.ipynb`
+
+4. Follow the notebook to train and deploy MNIST on Kubeflow
+
 <a id=other></a>
 # MNIST on other platforms
 
@@ -82,14 +101,6 @@ Before we get started there are a few requirements.
 
 Follow the [Getting Started Guide](https://www.kubeflow.org/docs/started/getting-started/) to deploy Kubeflow.
 
-### Local Setup
-
-You also need the following command line tools:
-
-- [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
-- [kustomize](https://kustomize.io/)
-
-**Note:** kustomize [v2.0.3](https://github.com/kubernetes-sigs/kustomize/releases/tag/v2.0.3) is recommented since the [problem](https://github.com/kubernetes-sigs/kustomize/issues/1295) in kustomize v2.1.0.
 
 ### GCP Setup
 
@@ -133,75 +144,6 @@ kubectl config set-context $(kubectl config current-context) --namespace=kubeflo
 ```
 
 ### Training your model
-
-#### Local storage
-
-Let's start by runing the training job on Kubeflow and storing the model in a local storage. 
-
-Fristly, refer to the [document](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) to create Persistent Volume(PV) and Persistent Volume Claim(PVC), the PVC name (${PVC_NAME}) will be used by pods of training and serving for local mode in steps below.
-
-Enter the `training/local` from the `mnist` application directory.
-```
-cd training/local
-```
-
-Give the job a name to indicate it is running locally
-
-```
-kustomize edit add configmap mnist-map-training --from-literal=name=mnist-train-local
-```
-
-Point the job at your custom training image
-
-```
-kustomize edit set image training-image=$DOCKER_URL
-```
-
-Optionally, configure it to run distributed by setting the number of parameter servers and workers to use. The `numPs` means the number of Ps and the `numWorkers` means the number of Worker.
-
-```
-../base/definition.sh --numPs 1 --numWorkers 2
-```
-
-Set the training parameters, such as training steps, batch size and learning rate.
-
-```
-kustomize edit add configmap mnist-map-training --from-literal=trainSteps=200
-kustomize edit add configmap mnist-map-training --from-literal=batchSize=100
-kustomize edit add configmap mnist-map-training --from-literal=learningRate=0.01
-```
-
-To store the the exported model and checkpoints model, configure PVC name and mount piont.
-
-```
-kustomize edit add configmap mnist-map-training --from-literal=pvcName=${PVC_NAME}
-kustomize edit add configmap mnist-map-training --from-literal=pvcMountPath=/mnt
-```
-
-Now we need to configure parameters and telling the code to save the model to PVC.
-
-```
-kustomize edit add configmap mnist-map-training --from-literal=modelDir=/mnt
-kustomize edit add configmap mnist-map-training --from-literal=exportDir=/mnt/export
-```
-
-You can now submit the job 
-
-```
-kustomize build . |kubectl apply -f -
-```
-
-And you can check the job
-
-```
-kubectl get tfjobs -o yaml mnist-train-local
-```
-
-And to check the logs 
-
-```
-kubectl logs mnist-train-local-chief-0
-```
 
 #### Using S3
 
@@ -354,20 +296,6 @@ kubectl logs -f mnist-train-dist-chief-0
 There are various ways to monitor workflow/training job. In addition to using `kubectl` to query for the status of `pods`, some basic dashboards are also available.
 
 ### Tensorboard
-
-#### Local storage
-
-Enter the `monitoring/local` from the `mnist` application directory.
-```
-cd monitoring/local
-```
-
-Configure PVC name, mount point, and set log directory.
-```
-kustomize edit add configmap mnist-map-monitoring --from-literal=pvcName=${PVC_NAME}
-kustomize edit add configmap mnist-map-monitoring --from-literal=pvcMountPath=/mnt
-kustomize edit add configmap mnist-map-monitoring --from-literal=logDir=/mnt
-```
 
 #### Using S3
 
@@ -590,67 +518,6 @@ The service should make the `mnist-s3-serving` deployment accessible over port 9
 
 ```
 kubectl describe service mnist-s3-serving
-```
-
-### Local storage
-
-The section shows how to serve the local model that was stored in PVC while training.
-
-Enter the `serving/local` from the `mnist` application directory.
-
-```
-cd serving/local
-```
-
-Set a different name for the tf-serving.
-
-```
-kustomize edit add configmap mnist-map-serving --from-literal=name=mnist-service-local
-```
-
-Mount the PVC, by default the pvc will be mounted to the `/mnt` of the pod.
-
-```
-kustomize edit add configmap mnist-map-serving --from-literal=pvcName=${PVC_NAME}
-kustomize edit add configmap mnist-map-serving --from-literal=pvcMountPath=/mnt
-```
-
-Configure a filepath for the exported model.
-
-```
-kustomize edit add configmap mnist-map-serving --from-literal=modelBasePath=/mnt/export
-```
-
-Deploy it, and run a service to make the deployment accessible to other pods in the cluster.
-
-```
-kustomize build . |kubectl apply -f -
-```
-
-You can check the deployment by running
-```
-kubectl describe deployments mnist-service-local
-```
-
-The service should make the `mnist-service-local` deployment accessible over port 9000.
-```
-kubectl describe service mnist-service-local
-```
-
-## Web Front End
-
-The example comes with a simple web front end that can be used with your model.
-
-Enter the `front` from the `mnist` application directory.
-
-```
-cd front
-```
-
-To deploy the web front end
-
-```
-kustomize build . |kubectl apply -f -
 ```
 
 ### Connecting via port forwarding
