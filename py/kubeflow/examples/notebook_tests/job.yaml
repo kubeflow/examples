@@ -33,15 +33,15 @@ spec:
         - mountPath: /src
           name: src
       containers:
-      - env:
-        - name: PYTHONPATH
-          value: /src/kubeflow/examples/py/
       - name: executing-notebooks
         image: execute-image
         command: ["python3", "-m",
                   "kubeflow.examples.notebook_tests.execute_notebook",
                   "test", "/src/kubeflow/examples/mnist/mnist_gcp.ipynb"]
         workingDir: /src/kubeflow/examples/py/kubeflow/examples/notebook_tests
+        env:
+        - name: PYTHONPATH
+          value: /src/kubeflow/examples/py/
         volumeMounts:
         - mountPath: /src
           name: src
