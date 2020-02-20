@@ -138,7 +138,7 @@ def get_iap_endpoint():
                       f"clusterrolebinding by running a command.\n"
                       f"kubectl create --namespace=istio-system rolebinding "
                        "--clusterrole=kubeflow-view "
-                       "--serviceaccount=$NAMESPACE}:default-editor "
+                       "--serviceaccount=${NAMESPACE}:default-editor "
                        "${NAMESPACE}-istio-view")
       return ""
 
