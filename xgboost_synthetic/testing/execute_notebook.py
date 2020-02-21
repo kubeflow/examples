@@ -13,7 +13,6 @@ def prepare_env():
   subprocess.check_call(["pip3", "install", "-U", "nbformat"])
   subprocess.check_call(["pip3", "install", "-r", "../requirements.txt"])
 
-
 def execute_notebook(notebook_path, parameters=None):
   temp_dir = tempfile.mkdtemp()
   notebook_output_path = os.path.join(temp_dir, "out.ipynb")
