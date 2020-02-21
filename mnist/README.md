@@ -5,27 +5,11 @@
 - [MNIST on Kubeflow](#mnist-on-kubeflow)
 - [MNIST on Kubeflow on GCP](#mnist-on-kubeflow-on-gcp)
 - [MNIST on Kubeflow on AWS](#mnist-on-kubeflow-on-aws)
-- [MNIST on Kubeflow on Vanilla k8s](#vanilla)
-- [MNIST on other platforms](#mnist-on-other-platforms)
-  - [Prerequisites](#prerequisites)
-    - [Deploy Kubeflow](#deploy-kubeflow)
-    - [Local Setup](#local-setup)
-    - [GCP Setup](#gcp-setup)
-  - [Modifying existing examples](#modifying-existing-examples)
-    - [Prepare model](#prepare-model)
-    - [(Optional) Build and push model image.](#optional-build-and-push-model-image)
-  - [Preparing your Kubernetes Cluster](#preparing-your-kubernetes-cluster)
-    - [Training your model](#training-your-model)
-      - [Local storage](#local-storage)
-  - [Monitoring](#monitoring)
-    - [Tensorboard](#tensorboard)
-      - [Local storage](#local-storage-1)
-      - [Deploying TensorBoard](#deploying-tensorboard)
-  - [Serving the model](#serving-the-model)
-    - [Local storage](#local-storage-2)
-  - [Web Front End](#web-front-end)
-    - [Connecting via port forwarding](#connecting-via-port-forwarding)
-  - [Conclusion and Next Steps](#conclusion-and-next-steps)
+- [MNIST on Kubeflow on Vanilla k8s](#mnist-on-kubeflow-on-vanilla-k8s)
+    - [Prerequisites](#prerequisites)
+    - [Configure docker credentials](#configure-docker-credentials)
+      - [Why do we need this?](#why-do-we-need-this)
+    - [Create a config-map in the namespace you're using with the docker config](#create-a-config-map-in-the-namespace-youre-using-with-the-docker-config)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -146,10 +130,3 @@ Create a config.json file with your Docker registry url and the previous generat
 `kubectl create --namespace ${NAMESPACE} configmap docker-config --from-file=<path to config.json>`
 
 Source documentation: [Kaniko docs](https://github.com/GoogleContainerTools/kaniko#pushing-to-docker-hub)
-
-<a id=other></a>
-# MNIST on other platforms
-
-The tutorial is currently not up to date for Kubeflow 1.0. Please check the issues
-
-* [kubeflow/examples#725](https://github.com/kubeflow/examples/issues/725) for other platforms
