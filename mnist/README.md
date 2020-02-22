@@ -5,6 +5,7 @@
 - [MNIST on Kubeflow](#mnist-on-kubeflow)
 - [MNIST on Kubeflow on GCP](#mnist-on-kubeflow-on-gcp)
 - [MNIST on Kubeflow on AWS](#mnist-on-kubeflow-on-aws)
+- [MNIST on Kubeflow on IBM Cloud](#mnist-on-kubeflow-on-ibm-cloud)
 - [MNIST on Kubeflow on Vanilla k8s](#mnist-on-kubeflow-on-vanilla-k8s)
     - [Prerequisites](#prerequisites)
     - [Configure docker credentials](#configure-docker-credentials)
@@ -22,6 +23,7 @@ Follow the version of the guide that is specific to how you have deployed Kubefl
 
 1. [MNIST on Kubeflow on GCP](#gcp)
 1. [MNIST on Kubeflow on AWS](#aws)
+1. [MNIST on Kubeflow on IBM Cloud](#ibm)
 1. [MNIST on Kubeflow on vanilla k8s](#vanilla)
 1. [MNIST on other platforms](#other)
 
@@ -74,6 +76,34 @@ Follow these instructions to run the MNIST tutorial on AWS
    * **Tip** You can change the URL from '/tree' to '/lab' to switch to using Jupyterlab
 
 1. Open the notebook `mnist/mnist_aws.ipynb`
+
+1. Follow the notebook to train and deploy MNIST on Kubeflow
+
+<a id=ibm></a>
+# MNIST on Kubeflow on IBM Cloud
+
+Follow these instructions to run the MNIST tutorial on IBM Cloud
+
+1. Follow the [IBM Cloud instructions](https://www.kubeflow.org/docs/ibm/install-kubeflow/) to deploy Kubeflow on IBM Cloud
+
+1. Launch a Jupyter notebook
+
+   * For IBM Cloud, the default NFS storage does not support some of the Python package installation. Therefore, we need to create the notebook with `Don't use Persistent Storage for User's home`.
+   * Due to the [Notebook user permission issue](https://github.com/kubeflow/kubeflow/issues/4520), we need to use custom images that were working in the previous version.
+      * The tutorial has been tested on image: `gcr.io/kubeflow-images-public/tensorflow-1.13.1-notebook-cpu:v0.5.0`
+
+1. Launch a terminal in Jupyter and clone the kubeflow examples repo
+
+   ```
+   git clone https://github.com/kubeflow/examples.git git_kubeflow-examples
+   ```
+
+   * **Tip** When you start a terminal in Jupyter, run the command `bash` to start
+      a bash terminal which is much more friendly then the default shell
+
+   * **Tip** You can change the URL from '/tree' to '/lab' to switch to using Jupyterlab
+
+1. Open the notebook `mnist/mnist_ibm.ipynb`
 
 1. Follow the notebook to train and deploy MNIST on Kubeflow
 
