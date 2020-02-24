@@ -16,7 +16,7 @@
 import kfp.dsl as dsl
 import kfp.gcp as gcp
 import kfp.components as comp
-from kfp.dsl.types import GCSPath, String
+# from kfp.dsl.types import GCSPath, String
 
 
 COPY_ACTION = 'copy_data'
@@ -43,12 +43,12 @@ metadata_log_op = comp.load_component_from_url(
 )
 def gh_summ(  #pylint: disable=unused-argument
   train_steps: 'Integer' = 2019300,
-  project: String = 'YOUR_PROJECT_HERE',
-  github_token: String = 'YOUR_GITHUB_TOKEN_HERE',
-  working_dir: GCSPath = 'gs://YOUR_GCS_DIR_HERE',
-  checkpoint_dir: GCSPath = 'gs://aju-dev-demos-codelabs/kubecon/model_output_tbase.bak2019000/',
-  deploy_webapp: String = 'true',
-  data_dir: GCSPath = 'gs://aju-dev-demos-codelabs/kubecon/t2t_data_gh_all/'
+  project: str = 'YOUR_PROJECT_HERE',
+  github_token: str = 'YOUR_GITHUB_TOKEN_HERE',
+  working_dir: 'GCSPath' = 'gs://YOUR_GCS_DIR_HERE',
+  checkpoint_dir: 'GCSPath' = 'gs://aju-dev-demos-codelabs/kubecon/model_output_tbase.bak2019000/',
+  deploy_webapp: str = 'true',
+  data_dir: 'GCSPath' = 'gs://aju-dev-demos-codelabs/kubecon/t2t_data_gh_all/'
   ):
 
 
