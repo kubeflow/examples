@@ -1,0 +1,66 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: mnist-gcp-test
+  namespace: gabrielwen
+  annotations:
+    sidecar.istio.io/inject: "false"
+spec:
+  steps:
+  - name: get-credentials
+    image: gcr.io/kubeflow-ci/test-worker:latest
+    command: ["python3"]
+    args: ["-m", "kubeflow.testing.get_kf_testing_cluster", "get-credentials"]
+    env:
+    - name: PYTHONPATH
+      value: /mnt/test-data-volume/testing/src/kubeflow/examples/py:/mnt/test-data-volume/testing/src/kubeflow/testing/py:/mnt/test-data-volume/testing/src/kubeflow/tf-operator/py
+    - name: GOOGLE_APPLICATION_CREDENTIALS
+      value: /secrets/sa/kubflow-releasing.json
+    volumeMounts:
+    - mountPath: /mnt/test-data-volume
+      name: tekton-testing-pvc
+    - mountPath: /secrets/sa
+      name: kubeflow-releasing-credential
+  - name: mnist-gcp-test
+    image: gcr.io/kubeflow-ci/test-worker:latest
+    command: ["pytest"]
+    args:
+    - mnist_gcp_test.py
+    - --log-cli-level=info
+    - --log-cli-format='%(levelname)s|%(asctime)s|%(pathname)s|%(lineno)d| %(message)s'
+    - --timeout=1800
+    - --junitxml=/mnt/test-data-volume/testing/output/junit_mnist-gcp-test.xml
+    - --repos=kubeflow/examples@HEAD,kubeflow/tf-operator@HEAD
+    - --name=mnist-gcp-test-1
+    workingDir: /mnt/test-data-volume/testing/src/kubeflow/examples/py/kubeflow/examples/notebook_tests
+    env:
+    - name: PYTHONPATH
+      value: /mnt/test-data-volume/testing/src/kubeflow/examples/py:/mnt/test-data-volume/testing/src/kubeflow/testing/py:/mnt/test-data-volume/testing/src/kubeflow/tf-operator/py
+    - name: GOOGLE_APPLICATION_CREDENTIALS
+      value: /secrets/sa/kubflow-releasing.json
+    - name: JOB_TYPE
+      value: manual
+    - name: HOSTNAME
+      value: gabrielwen
+    volumeMounts:
+    - mountPath: /mnt/test-data-volume
+      name: tekton-testing-pvc
+    - mountPath: /secrets/sa
+      name: kubeflow-releasing-credential
+  volumes:
+  - name: tekton-testing-pvc
+    persistentVolumeClaim:
+      claimName: tekton-testing-pvc
+      readOnly: false
+  - name: kubeflow-releasing-credential
+    secret:
+      secretName: kubeflow-releasing
+---
+apiVersion: tekton.dev/v1alpha1
+kind: TaskRun
+metadata:
+  name: mnist-gcp-test-run
+  namespace: gabrielwen
+spec:
+  taskRef:
+    name: mnist-gcp-test
