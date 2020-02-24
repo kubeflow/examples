@@ -31,7 +31,6 @@ spec:
     - --timeout=1800
     - --junitxml=/mnt/test-data-volume/testing/output/junit_mnist-gcp-test.xml
     - --repos=kubeflow/examples@HEAD,kubeflow/tf-operator@HEAD
-    - --name=mnist-gcp-test-1
     workingDir: /mnt/test-data-volume/testing/src/kubeflow/examples/py/kubeflow/examples/notebook_tests
     env:
     - name: PYTHONPATH
