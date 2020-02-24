@@ -15,7 +15,7 @@
 
 import kfp.dsl as dsl
 import kfp.gcp as gcp
-from kfp.dsl.types import String
+# from kfp.dsl.types import String
 
 
 @dsl.pipeline(
@@ -23,7 +23,7 @@ from kfp.dsl.types import String
   description='Demonstrate Tensor2Tensor-based training and TF-Serving'
 )
 def gh_summ_serveonly(
-  github_token: String = 'YOUR_GITHUB_TOKEN_HERE',
+  github_token: str = 'YOUR_GITHUB_TOKEN_HERE',
   ):
 
 
