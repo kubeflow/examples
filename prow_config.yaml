@@ -56,8 +56,7 @@ workflows:
     include_dirs:
       - xgboost_synthetic/*
       - mnist/*
-      - py/kubeflow/examples/notebook_tests
-      - py/kubeflow/examples/create_e2e_workflow.py
+      - py/kubeflow/examples/*
 
   # E2E test for various notebooks
   # New notebooks can just add a step to the workflow
