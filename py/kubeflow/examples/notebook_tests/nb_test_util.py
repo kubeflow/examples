@@ -59,12 +59,12 @@ def run_papermill_job(notebook_path, name, namespace, # pylint: disable=too-many
   repos += ",kubeflow/testing@HEAD"
 
   logging.info("Repos set to %s", repos)
-  job["spec"]["template"]["spec"]["initContainers"][0]["command"] = [
-    "/usr/local/bin/checkout_repos.sh",
-    "--repos=" + repos,
-    "--src_dir=/src",
-    "--depth=all",
-  ]
+  # job["spec"]["template"]["spec"]["initContainers"][0]["command"] = [
+  #   "/usr/local/bin/checkout_repos.sh",
+  #   "--repos=" + repos,
+  #   "--src_dir=/src",
+  #   "--depth=all",
+  # ]
 
   job["spec"]["template"]["spec"]["containers"][0]["image"] = image
 
