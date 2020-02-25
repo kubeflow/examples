@@ -19,7 +19,6 @@ def test_mnist_gcp(record_xml_attribute, name, namespace, # pylint: disable=too-
 
   util.set_pytest_junit(record_xml_attribute, "test_mnist_gcp")
 
-  time.sleep(600)
   notebook_path = "kubeflow/examples/mnist/mnist_gcp.ipynb"
   nb_test_util.run_papermill_job(notebook_path, name, namespace, repos, image)
 
