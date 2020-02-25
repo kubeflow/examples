@@ -27,9 +27,9 @@ spec:
       initContainers:
       # This init container checks out the source code.
       - command:
-        - /usr/local/bin/checkout_repos.sh
-        - --repos=kubeflow/examples@$(CHECK_TAG)
-        - --src_dir=/src
+        - tail
+        - -f
+        - /dev/null
         name: checkout
         image: gcr.io/kubeflow-ci/test-worker:v20190802-c6f9140-e3b0c4
         volumeMounts:
