@@ -2,8 +2,8 @@ import datetime
 import logging
 import os
 import uuid
-
 import pytest
+import time
 
 from kubeflow.examples.notebook_tests import nb_test_util
 from kubeflow.testing import util
@@ -19,6 +19,7 @@ def test_mnist_gcp(record_xml_attribute, name, namespace, # pylint: disable=too-
 
   util.set_pytest_junit(record_xml_attribute, "test_mnist_gcp")
 
+  time.sleep(600)
   notebook_path = "kubeflow/examples/mnist/mnist_gcp.ipynb"
   nb_test_util.run_papermill_job(notebook_path, name, namespace, repos, image)
 
