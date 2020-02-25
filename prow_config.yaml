@@ -69,6 +69,6 @@ workflows:
     include_dirs:
       - xgboost_synthetic/*
       - mnist/*
-      - py/kubeflow/examples/create_e2e_workflow.py
+      - py/kubeflow/examples/*
     kwargs:
       cluster_pattern: kf-v1-(?!n\d\d)
