@@ -2,29 +2,46 @@
 
 import datetime
 import logging
+import os
 import uuid
+import tempfile
 import yaml
 
+from google.cloud import storage
 from kubernetes import client as k8s_client
 from kubeflow.testing import argo_build_util
+from kubeflow.testing import prow_artifacts
 from kubeflow.testing import util
 
-def run_papermill_job(name, namespace, # pylint: disable=too-many-branches,too-many-statements
+# This is the bucket where the batch jobs will uploaded an HTML version of the
+# notebook will be written to. The K8s job is running in a Kubeflow cluster
+# so it needs to be a bucket that the kubeflow cluster can write to.
+# This is why we don't write directly to the bucket used for prow artifacts
+NB_BUCKET = "kubeflow-ci-deployment"
+PROJECT = "kbueflow-ci-deployment"
+
+def run_papermill_job(notebook_path, name, namespace, # pylint: disable=too-many-branches,too-many-statements
                       repos, image):
   """Generate a K8s job to run a notebook using papermill
 
   Args:
+    notebook_path: Path to the notebook. This should be in the form
+      "{REPO_OWNER}/{REPO}/path/to/notebook.ipynb"
     name: Name for the K8s job
     namespace: The namespace where the job should run.
-    repos: (Optional) Which repos to checkout; if not specified tries
+    repos: Which repos to checkout; if None or empty tries
       to infer based on PROW environment variables
-    image:
+    image: The docker image to run the notebook in.
   """
 
   util.maybe_activate_service_account()
 
   with open("job.yaml") as hf:
     job = yaml.load(hf)
+
+  if notebook_path.startswith("/"):
+    raise ValueError("notebook_path={0} should not start with /".format(
+        notebook_path))
 
   # We need to checkout the correct version of the code
   # in presubmits and postsubmits. We should check the environment variables
@@ -35,6 +52,12 @@ def run_papermill_job(name, namespace, # pylint: disable=too-many-branches,too-m
   if not repos:
     repos = argo_build_util.get_repo_from_prow_env()
 
+  if not repos:
+    raise ValueError("Could not get repos from prow environment variable "
+                     "and --repos isn't explicitly set")
+
+  repos += ",kubeflow/testing@HEAD"
+
   logging.info("Repos set to %s", repos)
   job["spec"]["template"]["spec"]["initContainers"][0]["command"] = [
     "/usr/local/bin/checkout_repos.sh",
@@ -42,16 +65,55 @@ def run_papermill_job(name, namespace, # pylint: disable=too-many-branches,too-m
     "--src_dir=/src",
     "--depth=all",
   ]
+
   job["spec"]["template"]["spec"]["containers"][0]["image"] = image
+
+  full_notebook_path = os.path.join("/src", notebook_path)
+  job["spec"]["template"]["spec"]["containers"][0]["command"] = [
+    "python3", "-m",
+    "kubeflow.examples.notebook_tests.execute_notebook",
+    "--notebook_path", full_notebook_path]
+
+  job["spec"]["template"]["spec"]["containers"][0][
+      "workingDir"] = os.path.dirname(full_notebook_path)
+
+  # The prow bucket to use for results/artifacts
+  prow_bucket = prow_artifacts.PROW_RESULTS_BUCKET
+
+  if os.getenv("REPO_OWNER") and os.getenv("REPO_NAME"):
+    # Running under prow
+    prow_dir = prow_artifacts.get_gcs_dir(prow_bucket)
+    prow_dir = os.path.join(prow_dir, "artifacts")
+
+    if os.getenv("TEST_TARGET_NAME"):
+      prow_dir = os.path.join(
+        prow_dir, os.getenv("TEST_TARGET_NAME").lstrip("/"))
+    prow_bucket, prow_path = util.split_gcs_uri(prow_dir)
+
+  else:
+    prow_path = "notebook-test" + datetime.datetime.now().strftime("%H%M%S")
+    prow_path = prow_path + "-" + uuid.uuid4().hex[0:3]
+    prow_dir = util.to_gcs_uri(prow_bucket, prow_path)
+
+  prow_path = os.path.join(prow_path, name + ".html")
+  output_gcs = util.to_gcs_uri(NB_BUCKET, prow_path)
+
+  job["spec"]["template"]["spec"]["containers"][0]["env"] = [
+    {"name": "OUTPUT_GCS", "value": output_gcs},
+    {"name": "PYTHONPATH",
+     "value": "/src/kubeflow/testing/py:/src/kubeflow/examples/py"},
+  ]
+
+  logging.info("Notebook will be written to %s", output_gcs)
   util.load_kube_config(persist_config=False)
 
   if name:
     job["metadata"]["name"] = name
   else:
-    job["metadata"]["name"] = ("xgboost-test-" +
+    job["metadata"]["name"] = ("notebook-test-" +
                                datetime.datetime.now().strftime("%H%M%S")
                                + "-" + uuid.uuid4().hex[0:3])
-    name = job["metadata"]["name"]
+  name = job["metadata"]["name"]
 
   job["metadata"]["namespace"] = namespace
 
@@ -70,6 +132,16 @@ def run_papermill_job(name, namespace, # pylint: disable=too-many-branches,too-m
 
   logging.info("Final job:\n%s", yaml.safe_dump(final_job.to_dict()))
 
+  # Download notebook html to artifacts
+  logging.info("Copying %s to bucket %s", output_gcs, prow_bucket)
+
+  storage_client = storage.Client()
+  bucket = storage_client.get_bucket(NB_BUCKET)
+  blob = bucket.get_blob(prow_path)
+
+  destination_bucket = storage_client.get_bucket(prow_bucket)
+  bucket.copy_blob(blob, destination_bucket)
+
   if not final_job.status.conditions:
     raise RuntimeError("Job {0}.{1}; did not complete".format(namespace, name))
 
@@ -78,3 +150,4 @@ def run_papermill_job(name, namespace, # pylint: disable=too-many-branches,too-m
   if last_condition.type not in ["Complete"]:
     logging.error("Job didn't complete successfully")
     raise RuntimeError("Job {0}.{1} failed".format(namespace, name))
+

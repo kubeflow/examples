@@ -1,4 +1,7 @@
 # A batch job to run a notebook using papermill.
+# The YAML is modified by nb_test_util.py to generate a Job specific
+# to a notebook.
+#
 # TODO(jlewi): We should switch to using Tekton
 apiVersion: batch/v1
 kind: Job
@@ -36,8 +39,9 @@ spec:
       - env:
         - name: PYTHONPATH
           value: /src/kubeflow/examples/py/
-      - name: executing-notebooks
+        name: executing-notebooks
         image: execute-image
+        # Command will get overwritten by nb_test_util.py
         command: ["python3", "-m",
                   "kubeflow.examples.notebook_tests.execute_notebook",
                   "test", "/src/kubeflow/examples/mnist/mnist_gcp.ipynb"]
