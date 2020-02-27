@@ -1,0 +1,31 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: checkout
+  namespace: gabrielwen
+  annotations:
+    sidecar.istio.io/inject: "false"
+spec:
+  inputs:
+    params:
+    - name: src-dir
+      type: string
+      description: The path for source codes.
+      default: /mnt/testdir/src
+    - name: repos
+      type: string
+      description:
+        Repositories we need to checkout.
+  steps:
+  - name: git-checkout
+    image: gcr.io/kubeflow-ci/test-worker-py3:789005d
+    command: ["/usr/local/bin/checkout_repos.sh"]
+    args:
+    - --repos=$(inputs.params.repos)
+    - --src_dir=$(inputs.params.src-dir)
+    volumeMounts:
+    - mountPath: $(inputs.params.src-dir)
+      name: tekton-testdir
+  volumes:
+  - name: tekton-testdir
+    emptyDir: {}

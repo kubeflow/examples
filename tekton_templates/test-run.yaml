@@ -1,0 +1,33 @@
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineRun
+metadata:
+  name: pipelinerun-testing
+  namespace: gabrielwen
+spec:
+  pipelineSpec:
+   tasks:
+   - name: xgboost-synthetic-test
+     taskRef:
+      name: pytest
+     params:
+     - name: src-dir
+       value: /mnt/testdir/src/gabrielwen
+     - name: repos
+       value: kubeflow/examples@HEAD,kubeflow/testing@HEAD,kubeflow/tf-operator@HEAD
+     - name: python-path
+       value: /mnt/testdir/src/gabrielwen/kubeflow/examples/py:/mnt/testdir/src/gabrielwen/kubeflow/testing/py:/mnt/testdir/src/gabrielwen/kubeflow/tf-operator/py
+     - name: get-cred-args-array
+       value:
+       - "-m"
+       - "kubeflow.testing.get_kf_testing_cluster"
+       - "get-credentials"
+     - name: pytest-args-array
+       value:
+        - --log-cli-level=info
+        - --log-cli-format='%(levelname)s|%(asctime)s|%(pathname)s|%(lineno)d| %(message)s'
+        - --timeout=1800
+        - --junitxml=/mnt/testdir/output/gabrielwen/junit_xgboost-synthetic-test.xml
+        - --notebook_artifacts_dir=/mnt/testdir/output/gabrielwen/xgboost-synthetic-test-notebooks
+        - --repos=kubeflow/examples@HEAD,kubeflow/tf-operator@HEAD
+     - name: pytest-wdr
+       value: /mnt/testdir/src/gabrielwen/kubeflow/examples/xgboost_synthetic/testing

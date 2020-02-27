@@ -1,0 +1,110 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: pytest
+  namespace: gabrielwen
+  annotations:
+    sidecar.istio.io/inject: "false"
+spec:
+  inputs:
+    params:
+    - name: test-worker-img
+      type: string
+      description: Test worker image.
+      default: gcr.io/kubeflow-ci/test-worker:latest
+    - name: src-dir
+      type: string
+      description: The path for source codes.
+      default: /mnt/testdir/src
+    - name: repos
+      type: string
+      description:
+        Repositories we need to checkout.
+    - name: python-path
+      type: string
+      description:
+        PYTHONPATH env.
+    - name: gcp-sa-dir
+      type: string
+      description:
+        GOOGLE_APPLICATION_CREDENTIALS path.
+      default: /secrets/sa
+    - name: get-cred-cmd
+      type: string
+      description:
+        Command used to run get-credentials.
+      default: python3
+    - name: get-cred-args-array
+      type: array
+      description:
+        Args passed into get-credentials cmd.
+    - name: pytest-args-array
+      type: array
+      description:
+        Args passed into pytest.
+    - name: pytest-wdr
+      type: string
+      description:
+        WorkingDir of pytest.
+    - name: test_job_type
+      type: string
+      description:
+        Job type of the test, from prow.
+      default: manual
+    - name: test_hostname
+      type: string
+      description:
+        host name of the test, from prow.
+      default: manual-testing
+  steps:
+  - name: git-checkout
+    image: $(inputs.params.test-worker-img)
+    command: ["/usr/local/bin/checkout_repos.sh"]
+    args:
+    - --repos=$(inputs.params.repos)
+    - --src_dir=$(inputs.params.src-dir)
+    volumeMounts:
+    - mountPath: $(inputs.params.src-dir)
+      name: testing-dir
+  - name: get-credentials
+    image: $(inputs.params.test-worker-img)
+    command: ["$(inputs.params.get-cred-cmd)"]
+    args: ["$(inputs.params.get-cred-args-array)"]
+    env:
+    - name: PYTHONPATH
+      value: $(inputs.params.python-path)
+    - name: GOOGLE_APPLICATION_CREDENTIALS
+      value: $(inputs.params.gcp-sa-dir)/kubflow-releasing.json
+    volumeMounts:
+    - mountPath: $(inputs.params.src-dir)
+      name: testing-dir
+    - mountPath: $(inputs.params.gcp-sa-dir)
+      name: kubeflow-releasing-credential
+  - name: run-pytest
+    image: $(inputs.params.test-worker-img)
+    script: |
+      #!/usr/bin/env bash
+      cd $1
+      shift
+      pytest "$@"
+    args: [$(inputs.params.pytest-wdr), "$(inputs.params.pytest-args-array)"]
+    env:
+    - name: PYTHONPATH
+      value: $(inputs.params.python-path)
+    - name: GOOGLE_APPLICATION_CREDENTIALS
+      value: $(inputs.params.gcp-sa-dir)/kubflow-releasing.json
+    - name: JOB_TYPE
+      value: $(inputs.params.test_job_type)
+    - name: HOSTNAME
+      value: $(inputs.params.test_hostname)
+    volumeMounts:
+    - mountPath: $(inputs.params.src-dir)
+      name: testing-dir
+    - mountPath: $(inputs.params.gcp-sa-dir)
+      name: kubeflow-releasing-credential
+  volumes:
+  - name: testing-dir
+    emptyDir: {}
+  - name: kubeflow-releasing-credential
+    secret:
+      secretName: kubeflow-releasing
