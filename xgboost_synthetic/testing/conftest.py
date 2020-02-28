@@ -11,8 +11,8 @@ def pytest_addoption(parser):
     default="kubeflow-kf-ci-v1-user")
   parser.addoption(
     "--image", help="Notebook image to use", type=str,
-    default="gcr.io/kubeflow-images-public/tensorflow-1.14.0-notebook-gpu"
-    ":v0.7.0")
+    default="gcr.io/kubeflow-images-public/tensorflow-2.1.0-notebook-gpu"
+    ":1.0.0")
   parser.addoption(
     "--repos", help="The repos to checkout; leave blank to use defaults",
     type=str, default="")
