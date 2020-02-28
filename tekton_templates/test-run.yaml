@@ -6,7 +6,7 @@ metadata:
 spec:
   pipelineSpec:
    tasks:
-   - name: xgboost-synthetic-test
+   - name: xgboost-synthetic
      taskRef:
       name: pytest
      params:
@@ -23,6 +23,7 @@ spec:
        - "get-credentials"
      - name: pytest-args-array
        value:
+        - xgboost_test.py
         - --log-cli-level=info
         - --log-cli-format='%(levelname)s|%(asctime)s|%(pathname)s|%(lineno)d| %(message)s'
         - --timeout=1800
@@ -31,3 +32,27 @@ spec:
         - --repos=kubeflow/examples@HEAD,kubeflow/tf-operator@HEAD
      - name: pytest-wdr
        value: /mnt/testdir/src/gabrielwen/kubeflow/examples/xgboost_synthetic/testing
+   - name: mnist-gcp
+     taskRef:
+      name: pytest
+     params:
+     - name: src-dir
+       value: /mnt/testdir/src/gabrielwen
+     - name: repos
+       value: kubeflow/examples@HEAD,kubeflow/testing@HEAD,kubeflow/tf-operator@HEAD
+     - name: python-path
+       value: /mnt/testdir/src/gabrielwen/kubeflow/examples/py:/mnt/testdir/src/gabrielwen/kubeflow/testing/py:/mnt/testdir/src/gabrielwen/kubeflow/tf-operator/py
+     - name: get-cred-args-array
+       value:
+       - "-m"
+       - "kubeflow.testing.get_kf_testing_cluster"
+       - "get-credentials"
+     - name: pytest-args-array
+       value:
+        - mnist_gcp_test.py
+        - --log-cli-level=info
+        - --log-cli-format='%(levelname)s|%(asctime)s|%(pathname)s|%(lineno)d| %(message)s'
+        - --timeout=1800
+        - --junitxml=/mnt/testdir/output/gabrielwen/junit_xgboost-synthetic-test.xml
+     - name: pytest-wdr
+       value: /mnt/testdir/src/gabrielwen/kubeflow/examples/py/kubeflow/examples/notebook_tests
