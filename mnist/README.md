@@ -1,20 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
-
-- [MNIST on Kubeflow](#mnist-on-kubeflow)
-- [MNIST on Kubeflow on GCP](#mnist-on-kubeflow-on-gcp)
-- [MNIST on Kubeflow on AWS](#mnist-on-kubeflow-on-aws)
-- [MNIST on Kubeflow on IBM Cloud](#mnist-on-kubeflow-on-ibm-cloud)
-- [MNIST on Kubeflow on Vanilla k8s](#mnist-on-kubeflow-on-vanilla-k8s)
-    - [Prerequisites](#prerequisites)
-    - [Configure docker credentials](#configure-docker-credentials)
-      - [Why do we need this?](#why-do-we-need-this)
-    - [Create a config-map in the namespace you're using with the docker config](#create-a-config-map-in-the-namespace-youre-using-with-the-docker-config)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
-
 # MNIST on Kubeflow
 
 This example guides you through the process of taking an example model, modifying it to run better within Kubeflow, and serving the resulting trained model.
@@ -23,7 +6,7 @@ Follow the version of the guide that is specific to how you have deployed Kubefl
 
 1. [MNIST on Kubeflow on GCP](#gcp)
 1. [MNIST on Kubeflow on AWS](#aws)
-1. [MNIST on Kubeflow on AZURE](#azure)
+1. [MNIST on Kubeflow on Azure](#azure)
 1. [MNIST on Kubeflow on IBM Cloud](#ibm)
 1. [MNIST on Kubeflow on vanilla k8s](#vanilla)
 1. [MNIST on other platforms](#other)
