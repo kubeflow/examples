@@ -9,7 +9,6 @@ Follow the version of the guide that is specific to how you have deployed Kubefl
 1. [MNIST on Kubeflow on Azure](#azure)
 1. [MNIST on Kubeflow on IBM Cloud](#ibm)
 1. [MNIST on Kubeflow on vanilla k8s](#vanilla)
-1. [MNIST on other platforms](#other)
 
 <a id=gcp></a>
 # MNIST on Kubeflow on GCP
