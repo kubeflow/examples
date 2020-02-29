@@ -1,20 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
-
-- [MNIST on Kubeflow](#mnist-on-kubeflow)
-- [MNIST on Kubeflow on GCP](#mnist-on-kubeflow-on-gcp)
-- [MNIST on Kubeflow on AWS](#mnist-on-kubeflow-on-aws)
-- [MNIST on Kubeflow on IBM Cloud](#mnist-on-kubeflow-on-ibm-cloud)
-- [MNIST on Kubeflow on Vanilla k8s](#mnist-on-kubeflow-on-vanilla-k8s)
-    - [Prerequisites](#prerequisites)
-    - [Configure docker credentials](#configure-docker-credentials)
-      - [Why do we need this?](#why-do-we-need-this)
-    - [Create a config-map in the namespace you're using with the docker config](#create-a-config-map-in-the-namespace-youre-using-with-the-docker-config)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
-
 # MNIST on Kubeflow
 
 This example guides you through the process of taking an example model, modifying it to run better within Kubeflow, and serving the resulting trained model.
@@ -23,9 +6,9 @@ Follow the version of the guide that is specific to how you have deployed Kubefl
 
 1. [MNIST on Kubeflow on GCP](#gcp)
 1. [MNIST on Kubeflow on AWS](#aws)
+1. [MNIST on Kubeflow on Azure](#azure)
 1. [MNIST on Kubeflow on IBM Cloud](#ibm)
 1. [MNIST on Kubeflow on vanilla k8s](#vanilla)
-1. [MNIST on other platforms](#other)
 
 <a id=gcp></a>
 # MNIST on Kubeflow on GCP
@@ -76,6 +59,34 @@ Follow these instructions to run the MNIST tutorial on AWS
    * **Tip** You can change the URL from '/tree' to '/lab' to switch to using Jupyterlab
 
 1. Open the notebook `mnist/mnist_aws.ipynb`
+
+1. Follow the notebook to train and deploy MNIST on Kubeflow
+
+<a id=azure></a>
+# MNIST on Kubeflow on Azure
+
+Follow these instructions to run the MNIST tutorial on Azure
+
+1. Follow the [Azure instructions](https://www.kubeflow.org/docs/azure/deploy/install-kubeflow/) to deploy Kubeflow on Azure
+
+1. If you do not already have a notebook server, [create a new server](https://www.kubeflow.org/docs/notebooks/setup/)
+
+1. Launch a Jupyter notebook server
+
+   * The tutorial has been tested using the Jupyter Tensorflow 1.15 image
+
+1. Launch a terminal in Jupyter and clone the kubeflow examples repo
+
+   ```
+   git clone https://github.com/kubeflow/examples.git git_kubeflow-examples
+   ```
+
+   * **Tip** When you start a terminal in Jupyter, run the command `bash` to start
+      a bash terminal which is much more friendly then the default shell
+
+   * **Tip** You can change the URL from '/tree' to '/lab' to switch to using Jupyterlab
+
+1. Open the notebook `mnist/mnist_azure.ipynb`
 
 1. Follow the notebook to train and deploy MNIST on Kubeflow
 
