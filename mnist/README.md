@@ -1,36 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
-
-- [MNIST on Kubeflow](#mnist-on-kubeflow)
-- [MNIST on Kubeflow on GCP](#mnist-on-kubeflow-on-gcp)
-- [MNIST on other platforms](#mnist-on-other-platforms)
-  - [Prerequisites](#prerequisites)
-    - [Deploy Kubeflow](#deploy-kubeflow)
-    - [Local Setup](#local-setup)
-    - [GCP Setup](#gcp-setup)
-  - [Modifying existing examples](#modifying-existing-examples)
-    - [Prepare model](#prepare-model)
-    - [(Optional) Build and push model image.](#optional-build-and-push-model-image)
-  - [Preparing your Kubernetes Cluster](#preparing-your-kubernetes-cluster)
-    - [Training your model](#training-your-model)
-      - [Local storage](#local-storage)
-      - [Using S3](#using-s3)
-  - [Monitoring](#monitoring)
-    - [Tensorboard](#tensorboard)
-      - [Local storage](#local-storage-1)
-      - [Using S3](#using-s3-1)
-      - [Deploying TensorBoard](#deploying-tensorboard)
-  - [Serving the model](#serving-the-model)
-    - [S3](#s3)
-    - [Local storage](#local-storage-2)
-  - [Web Front End](#web-front-end)
-    - [Connecting via port forwarding](#connecting-via-port-forwarding)
-  - [Conclusion and Next Steps](#conclusion-and-next-steps)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
-
 # MNIST on Kubeflow
 
 This example guides you through the process of taking an example model, modifying it to run better within Kubeflow, and serving the resulting trained model.
@@ -38,7 +5,10 @@ This example guides you through the process of taking an example model, modifyin
 Follow the version of the guide that is specific to how you have deployed Kubeflow
 
 1. [MNIST on Kubeflow on GCP](#gcp)
-1. [MNIST on other platforms](#other)
+1. [MNIST on Kubeflow on AWS](#aws)
+1. [MNIST on Kubeflow on Azure](#azure)
+1. [MNIST on Kubeflow on IBM Cloud](#ibm)
+1. [MNIST on Kubeflow on vanilla k8s](#vanilla)
 
 <a id=gcp></a>
 # MNIST on Kubeflow on GCP
@@ -66,605 +36,138 @@ Follow these instructions to run the MNIST tutorial on GCP
 
 1. Follow the notebook to train and deploy MNIST on Kubeflow
 
-<a id=other></a>
-# MNIST on other platforms
+<a id=aws></a>
+# MNIST on Kubeflow on AWS
 
-The tutorial is currently not up to date for Kubeflow 1.0. Please check the issues
+Follow these instructions to run the MNIST tutorial on AWS
 
-* [kubeflow/examples#724](https://github.com/kubeflow/examples/issues/724) for AWS
-* [kubeflow/examples#725](https://github.com/kubeflow/examples/issues/725) for other platforms
+1. Follow the [AWS instructions](https://www.kubeflow.org/docs/aws/deploy/install-kubeflow/) to deploy Kubeflow on AWS
 
-## Prerequisites
+1. Launch a Jupyter notebook
 
-Before we get started there are a few requirements.
+   * The tutorial has been tested using the Jupyter Tensorflow 1.15 image
 
-### Deploy Kubeflow
+1. Launch a terminal in Jupyter and clone the kubeflow examples repo
 
-Follow the [Getting Started Guide](https://www.kubeflow.org/docs/started/getting-started/) to deploy Kubeflow.
+   ```
+   git clone https://github.com/kubeflow/examples.git git_kubeflow-examples
+   ```
 
-### Local Setup
+   * **Tip** When you start a terminal in Jupyter, run the command `bash` to start
+      a bash terminal which is much more friendly then the default shell
 
-You also need the following command line tools:
+   * **Tip** You can change the URL from '/tree' to '/lab' to switch to using Jupyterlab
 
-- [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
-- [kustomize](https://kustomize.io/)
+1. Open the notebook `mnist/mnist_aws.ipynb`
 
-**Note:** kustomize [v2.0.3](https://github.com/kubernetes-sigs/kustomize/releases/tag/v2.0.3) is recommented since the [problem](https://github.com/kubernetes-sigs/kustomize/issues/1295) in kustomize v2.1.0.
+1. Follow the notebook to train and deploy MNIST on Kubeflow
 
-### GCP Setup
+<a id=azure></a>
+# MNIST on Kubeflow on Azure
 
-If you are using GCP, need to enable [Workload Identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity) to execute below steps.
+Follow these instructions to run the MNIST tutorial on Azure
 
-## Modifying existing examples
+1. Follow the [Azure instructions](https://www.kubeflow.org/docs/azure/deploy/install-kubeflow/) to deploy Kubeflow on Azure
 
-Many examples online use models that are unconfigurable, or don't work well in distributed mode. We will modify one of these [examples](https://github.com/tensorflow/tensorflow/blob/9a24e8acfcd8c9046e1abaac9dbf5e146186f4c2/tensorflow/examples/learn/mnist.py) to be better suited for distributed training and model serving.
+1. If you do not already have a notebook server, [create a new server](https://www.kubeflow.org/docs/notebooks/setup/)
 
-### Prepare model
+1. Launch a Jupyter notebook server
 
-There is a delta between existing distributed mnist examples and what's needed to run well as a TFJob.
+   * The tutorial has been tested using the Jupyter Tensorflow 1.15 image
 
-Basically, we must:
+1. Launch a terminal in Jupyter and clone the kubeflow examples repo
 
-1. Add options in order to make the model configurable.
-1. Use `tf.estimator.train_and_evaluate` to enable model exporting and serving.
-1. Define serving signatures for model serving.
+   ```
+   git clone https://github.com/kubeflow/examples.git git_kubeflow-examples
+   ```
 
-The resulting model is [model.py](model.py).
+   * **Tip** When you start a terminal in Jupyter, run the command `bash` to start
+      a bash terminal which is much more friendly then the default shell
 
-### (Optional) Build and push model image.
+   * **Tip** You can change the URL from '/tree' to '/lab' to switch to using Jupyterlab
 
-With our code ready, we will now build/push the docker image, or use the existing image `gcr.io/kubeflow-ci/mnist/model:latest` without building and pushing.
+1. Open the notebook `mnist/mnist_azure.ipynb`
 
-```
-DOCKER_URL=docker.io/reponame/mytfmodel:tag # Put your docker registry here
-docker build . --no-cache  -f Dockerfile.model -t ${DOCKER_URL}
-
-docker push ${DOCKER_URL}
-```
-
-## Preparing your Kubernetes Cluster
-
-With our data and workloads ready, now the cluster must be prepared. We will be deploying the TF Operator, and Argo to help manage our training job.
-
-In the following instructions we will install our required components to a single namespace.  For these instructions we will assume the chosen namespace is `kubeflow`.
-
-```
-kubectl config set-context $(kubectl config current-context) --namespace=kubeflow
-```
-
-### Training your model
-
-#### Local storage
-
-Let's start by runing the training job on Kubeflow and storing the model in a local storage. 
-
-Fristly, refer to the [document](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) to create Persistent Volume(PV) and Persistent Volume Claim(PVC), the PVC name (${PVC_NAME}) will be used by pods of training and serving for local mode in steps below.
-
-Enter the `training/local` from the `mnist` application directory.
-```
-cd training/local
-```
-
-Give the job a name to indicate it is running locally
-
-```
-kustomize edit add configmap mnist-map-training --from-literal=name=mnist-train-local
-```
-
-Point the job at your custom training image
-
-```
-kustomize edit set image training-image=$DOCKER_URL
-```
-
-Optionally, configure it to run distributed by setting the number of parameter servers and workers to use. The `numPs` means the number of Ps and the `numWorkers` means the number of Worker.
-
-```
-../base/definition.sh --numPs 1 --numWorkers 2
-```
-
-Set the training parameters, such as training steps, batch size and learning rate.
-
-```
-kustomize edit add configmap mnist-map-training --from-literal=trainSteps=200
-kustomize edit add configmap mnist-map-training --from-literal=batchSize=100
-kustomize edit add configmap mnist-map-training --from-literal=learningRate=0.01
-```
-
-To store the the exported model and checkpoints model, configure PVC name and mount piont.
-
-```
-kustomize edit add configmap mnist-map-training --from-literal=pvcName=${PVC_NAME}
-kustomize edit add configmap mnist-map-training --from-literal=pvcMountPath=/mnt
-```
-
-Now we need to configure parameters and telling the code to save the model to PVC.
-
-```
-kustomize edit add configmap mnist-map-training --from-literal=modelDir=/mnt
-kustomize edit add configmap mnist-map-training --from-literal=exportDir=/mnt/export
-```
-
-You can now submit the job 
-
-```
-kustomize build . |kubectl apply -f -
-```
-
-And you can check the job
-
-```
-kubectl get tfjobs -o yaml mnist-train-local
-```
-
-And to check the logs 
-
-```
-kubectl logs mnist-train-local-chief-0
-```
-
-#### Using S3
-
-To use S3 we need to configure TensorFlow to use S3 credentials and variables. These credentials will be provided as kubernetes secrets and the variables will be passed in as environment variables. Modify the below values to suit your environment.
-
-Enter the `training/S3` from the `mnist` application directory.
-
-```
-cd training/S3
-```
-
-Give the job a different name (to distinguish it from your job which didn't use S3)
-
-```
-kustomize edit add configmap mnist-map-training --from-literal=name=mnist-train-dist
-```
-
-Optionally, if you want to use your custom training image, configurate that as below.
-
-```
-kustomize edit set image training-image=$DOCKER_URL
-```
-
-Next we configure it to run distributed by setting the number of parameter servers and workers to use. The `numPs` means the number of Ps and the `numWorkers` means the number of Worker.
-
-```
-../base/definition.sh --numPs 1 --numWorkers 2
-```
-
-Set the training parameters, such as training steps, batch size and learning rate.
-
-```
-kustomize edit add configmap mnist-map-training --from-literal=trainSteps=200
-kustomize edit add configmap mnist-map-training --from-literal=batchSize=100
-kustomize edit add configmap mnist-map-training --from-literal=learningRate=0.01
-```
-
-In order to write to S3 we need to supply the TensorFlow code with AWS credentials we also need to set various environment variables configuring access to S3.
-
-  1. Define a bunch of environment variables corresponding to your S3 settings; these will be used in subsequent steps
-
-     ```
-     export S3_ENDPOINT=s3.us-west-2.amazonaws.com  #replace with your s3 endpoint in a host:port format, e.g. minio:9000
-     export AWS_ENDPOINT_URL=https://${S3_ENDPOINT} #use http instead of https for default minio installs
-     export AWS_ACCESS_KEY_ID=xxxxx
-     export AWS_SECRET_ACCESS_KEY=xxxxx
-     export AWS_REGION=us-west-2
-     export BUCKET_NAME=mybucket
-     export S3_USE_HTTPS=1 #set to 0 for default minio installs
-     export S3_VERIFY_SSL=1 #set to 0 for defaul minio installs 
-     export S3_MODEL_PATH_URI=s3://${BUCKET_NAME}/model
-     export S3_MODEL_EXPORT_URI=s3://${BUCKET_NAME}/export
-     ```
-
-  1. Create a K8s secret containing your AWS credentials
-
-     ```
-     kustomize edit add secret aws-creds --from-literal=awsAccessKeyID=${AWS_ACCESS_KEY_ID} \
-       --from-literal=awsSecretAccessKey=${AWS_SECRET_ACCESS_KEY}
-     ```
-
-  1. Pass secrets as environment variables into pod
-
-     ```
-     kustomize edit add configmap mnist-map-training --from-literal=awsAccessKeyIDName=awsAccessKeyID
-     kustomize edit add configmap mnist-map-training --from-literal=awsSecretAccessKeyName=awsSecretAccessKey
-     ```   
-
-  1. Next we need to set a whole bunch of S3 related environment variables so that TensorFlow knows how to talk to S3
-
-     ```
-     kustomize edit add configmap mnist-map-training --from-literal=S3_ENDPOINT=${S3_ENDPOINT}
-     kustomize edit add configmap mnist-map-training --from-literal=AWS_ENDPOINT_URL=${AWS_ENDPOINT_URL}
-     kustomize edit add configmap mnist-map-training --from-literal=AWS_REGION=${AWS_REGION}
-     kustomize edit add configmap mnist-map-training --from-literal=BUCKET_NAME=${BUCKET_NAME}
-     kustomize edit add configmap mnist-map-training --from-literal=S3_USE_HTTPS=${S3_USE_HTTPS}
-     kustomize edit add configmap mnist-map-training --from-literal=S3_VERIFY_SSL=${S3_VERIFY_SSL}
-     kustomize edit add configmap mnist-map-training --from-literal=modelDir=${S3_MODEL_PATH_URI}
-     kustomize edit add configmap mnist-map-training --from-literal=exportDir=${S3_MODEL_EXPORT_URI}
-     ```
-
-     * If we look at the spec for our job we can see that the environment variables related to S3 are set.
-
-       ```
-        kustomize build .
-
-        apiVersion: kubeflow.org/v1beta2
-        kind: TFJob
-        metadata:
-          ...
-        spec:
-          tfReplicaSpecs:
-            Chief:
-              replicas: 1
-              template:
-                spec:
-                  containers:
-                  - command:
-                    ..
-                    env:
-                    ...
-                    - name: S3_ENDPOINT
-                      value: s3.us-west-2.amazonaws.com
-                    - name: AWS_ENDPOINT_URL
-                      value: https://s3.us-west-2.amazonaws.com
-                    - name: AWS_REGION
-                      value: us-west-2
-                    - name: BUCKET_NAME
-                      value: mybucket
-                    - name: S3_USE_HTTPS
-                      value: "1"
-                    - name: S3_VERIFY_SSL
-                      value: "1"
-                    - name: AWS_ACCESS_KEY_ID
-                      valueFrom:
-                        secretKeyRef:
-                          key: awsAccessKeyID
-                          name: aws-creds-somevalue
-                    - name: AWS_SECRET_ACCESS_KEY
-                      valueFrom:
-                        secretKeyRef:
-                          key: awsSecretAccessKey
-                          name: aws-creds-somevalue
-                    ...
-                  ...
-            ...
-       ```
-
-
-You can now submit the job
-
-```
-kustomize build . |kubectl apply -f -
-```
-
-And you can check the job
-
-```
-kubectl get tfjobs -o yaml mnist-train-dist
-```
-
-And to check the logs 
-
-```
-kubectl logs -f mnist-train-dist-chief-0
-```
-
-## Monitoring
-
-There are various ways to monitor workflow/training job. In addition to using `kubectl` to query for the status of `pods`, some basic dashboards are also available.
-
-### Tensorboard
-
-#### Local storage
+1. Follow the notebook to train and deploy MNIST on Kubeflow
 
-Enter the `monitoring/local` from the `mnist` application directory.
-```
-cd monitoring/local
-```
-
-Configure PVC name, mount point, and set log directory.
-```
-kustomize edit add configmap mnist-map-monitoring --from-literal=pvcName=${PVC_NAME}
-kustomize edit add configmap mnist-map-monitoring --from-literal=pvcMountPath=/mnt
-kustomize edit add configmap mnist-map-monitoring --from-literal=logDir=/mnt
-```
-
-#### Using S3
-
-Enter the `monitoring/S3` from the `mnist` application directory.
-
-```
-cd monitoring/S3
-```
-
-Assuming you followed the directions above if you used S3 you can use the following value
-
-```
-LOGDIR=${S3_MODEL_PATH_URI}
-kustomize edit add configmap mnist-map-monitoring --from-literal=logDir=${LOGDIR}
-```
-
-You need to point TensorBoard to AWS credentials to access S3 bucket with model.
-
-  1. Create a K8s secret containing your AWS credentials
-
-     ```
-     kustomize edit add secret aws-creds --from-literal=awsAccessKeyID=${AWS_ACCESS_KEY_ID} \
-       --from-literal=awsSecretAccessKey=${AWS_SECRET_ACCESS_KEY}
-     ```
-
-  1. Pass secrets as environment variables into pod
-
-     ```
-     kustomize edit add configmap mnist-map-monitoring --from-literal=awsAccessKeyIDName=awsAccessKeyID
-     kustomize edit add configmap mnist-map-monitoring --from-literal=awsSecretAccessKeyName=awsSecretAccessKey
-     ```
-
-  1. Next we need to set a whole bunch of S3 related environment variables so that TensorBoard knows how to talk to S3
-
-     ```
-     kustomize edit add configmap mnist-map-monitoring --from-literal=S3_ENDPOINT=${S3_ENDPOINT}
-     kustomize edit add configmap mnist-map-monitoring --from-literal=AWS_ENDPOINT_URL=${AWS_ENDPOINT_URL}
-     kustomize edit add configmap mnist-map-monitoring --from-literal=AWS_REGION=${AWS_REGION}
-     kustomize edit add configmap mnist-map-monitoring --from-literal=BUCKET_NAME=${BUCKET_NAME}
-     kustomize edit add configmap mnist-map-monitoring --from-literal=S3_USE_HTTPS=${S3_USE_HTTPS}
-     kustomize edit add configmap mnist-map-monitoring --from-literal=S3_VERIFY_SSL=${S3_VERIFY_SSL}
-     ```
-
-     * If we look at the spec for TensorBoard deployment we can see that the environment variables related to S3 are set.
-
-       ```
-       kustomize build .
-       ```
-
-       ```
-        ...
-        spec:
-          containers:
-          - command:
-            ..
-            env:
-            ...
-            - name: S3_ENDPOINT
-              value: s3.us-west-2.amazonaws.com
-            - name: AWS_ENDPOINT_URL
-              value: https://s3.us-west-2.amazonaws.com
-            - name: AWS_REGION
-              value: us-west-2
-            - name: BUCKET_NAME
-              value: mybucket
-            - name: S3_USE_HTTPS
-              value: "1"
-            - name: S3_VERIFY_SSL
-              value: "1"
-            - name: AWS_ACCESS_KEY_ID
-              valueFrom:
-                secretKeyRef:
-                  key: awsAccessKeyID
-                  name: aws-creds-somevalue
-            - name: AWS_SECRET_ACCESS_KEY
-              valueFrom:
-                secretKeyRef:
-                  key: awsSecretAccessKey
-                  name: aws-creds-somevalue
-            ...
-       ```
-
-
-#### Deploying TensorBoard
-
-Now you can deploy TensorBoard
-
-```
-kustomize build . | kubectl apply -f -
-```
-
-To access TensorBoard using port-forwarding
-
-```
-kubectl port-forward service/tensorboard-tb 8090:80
-```
-TensorBoard can now be accessed at [http://127.0.0.1:8090](http://127.0.0.1:8090).
-
-## Serving the model
-
-The model code will export the model in saved model format which is suitable for serving with TensorFlow serving.
-
-To serve the model follow the instructions below. The instructins vary slightly based on where you are storing your model (e.g. GCS, S3, PVC). Depending on the storage system we provide different kustomization as a convenience for setting relevant environment variables.
-
-
-### S3
-
-We can also serve the model when it is stored on S3. This assumes that when you trained the model you set `exportDir` to a S3
-URI; if not you can always copy it to S3 using the AWS CLI.
-
-Assuming you followed the directions above, you should have set the following environment variables that will be used in this section:
-
-```
-echo ${S3_MODEL_EXPORT_URI}
-echo ${AWS_REGION}
-echo ${S3_ENDPOINT}
-echo ${S3_USE_HTTPS}
-echo ${S3_VERIFY_SSL}
-```
-
-Check that a model was exported to s3
-
-```
-aws s3 ls ${S3_MODEL_EXPORT_URI} --recursive
-```
-
-The output should look something like
-
-```
-${S3_MODEL_EXPORT_URI}/1547100373/saved_model.pb
-${S3_MODEL_EXPORT_URI}/1547100373/variables/
-${S3_MODEL_EXPORT_URI}/1547100373/variables/variables.data-00000-of-00001
-${S3_MODEL_EXPORT_URI}/1547100373/variables/variables.index
-```
-
-The number `1547100373` is a version number auto-generated by TensorFlow; it will vary on each run but should be monotonically increasing if you save a model to the same location as a previous location.
-
-Enter the `serving/S3` folder from the `mnist` application directory.
-```
-cd serving/S3
-```
-
-Set a different name for the tf-serving.
+<a id=ibm></a>
+# MNIST on Kubeflow on IBM Cloud
 
-```
-kustomize edit add configmap mnist-map-serving --from-literal=name=mnist-s3-serving
-```
-
-Create a K8s secret containing your AWS credentials
-
-```
-kustomize edit add secret aws-creds --from-literal=awsAccessKeyID=${AWS_ACCESS_KEY_ID} \
-  --from-literal=awsSecretAccessKey=${AWS_SECRET_ACCESS_KEY}
-```
-
-Enable serving from S3 by configuring the following ksonnet parameters using the environment variables from above:
-
-```
-kustomize edit add configmap mnist-map-serving --from-literal=s3Enable=1 #This needs to be true for S3 connection to work
-kustomize edit add configmap mnist-map-serving --from-literal=modelBasePath=${S3_MODEL_EXPORT_URI}/ 
-kustomize edit add configmap mnist-map-serving --from-literal=S3_ENDPOINT=${S3_ENDPOINT}
-kustomize edit add configmap mnist-map-serving --from-literal=AWS_REGION=${AWS_REGION}
-kustomize edit add configmap mnist-map-serving --from-literal=S3_USE_HTTPS=${S3_USE_HTTPS}
-kustomize edit add configmap mnist-map-serving --from-literal=S3_VERIFY_SSL=${S3_VERIFY_SSL}
-kustomize edit add configmap mnist-map-serving --from-literal=AWS_ACCESS_KEY_ID=awsAccessKeyID
-kustomize edit add configmap mnist-map-serving --from-literal=AWS_SECRET_ACCESS_KEY=awsSecretAccessKey
-```
-
-If we look at the spec for TensorFlow deployment we can see that the environment variables related to S3 are set.
-```
-kustomize build .
-```
-
-```
-...
-spec:
-  containers:
-  - command:
-    ..
-    env:
-    ...
-    - name: modelBasePath
-      value: s3://mybucket/export/
-    - name: s3Enable
-      value: "1"
-    - name: S3_ENDPOINT
-      value: s3.us-west-2.amazonaws.com
-    - name: AWS_REGION
-      value: us-west-2
-    - name: S3_USE_HTTPS
-      value: "1"
-    - name: S3_VERIFY_SSL
-      value: "1"
-    - name: AWS_ACCESS_KEY_ID
-      valueFrom:
-        secretKeyRef:
-          key: awsAccessKeyID
-          name: aws-creds-somevalue
-    - name: AWS_SECRET_ACCESS_KEY
-      valueFrom:
-        secretKeyRef:
-          key: awsSecretAccessKey
-          name: aws-creds-somevalue
-    ...
-```
-
-Deploy it, and run a service to make the deployment accessible to other pods in the cluster
-
-```
-kustomize build . |kubectl apply -f -
-```
-
-You can check the deployment by running
-
-```
-kubectl describe deployments mnist-s3-serving
-```
+Follow these instructions to run the MNIST tutorial on IBM Cloud
 
-The service should make the `mnist-s3-serving` deployment accessible over port 9000
+1. Follow the [IBM Cloud instructions](https://www.kubeflow.org/docs/ibm/install-kubeflow/) to deploy Kubeflow on IBM Cloud
 
-```
-kubectl describe service mnist-s3-serving
-```
+1. Launch a Jupyter notebook
 
-### Local storage
+   * For IBM Cloud, the default NFS storage does not support some of the Python package installation. Therefore, we need to create the notebook with `Don't use Persistent Storage for User's home`.
+   * Due to the [Notebook user permission issue](https://github.com/kubeflow/kubeflow/issues/4520), we need to use custom images that were working in the previous version.
+      * The tutorial has been tested on image: `gcr.io/kubeflow-images-public/tensorflow-1.13.1-notebook-cpu:v0.5.0`
 
-The section shows how to serve the local model that was stored in PVC while training.
+1. Launch a terminal in Jupyter and clone the kubeflow examples repo
 
-Enter the `serving/local` from the `mnist` application directory.
+   ```
+   git clone https://github.com/kubeflow/examples.git git_kubeflow-examples
+   ```
 
-```
-cd serving/local
-```
+   * **Tip** When you start a terminal in Jupyter, run the command `bash` to start
+      a bash terminal which is much more friendly then the default shell
 
-Set a different name for the tf-serving.
+   * **Tip** You can change the URL from '/tree' to '/lab' to switch to using Jupyterlab
 
-```
-kustomize edit add configmap mnist-map-serving --from-literal=name=mnist-service-local
-```
+1. Open the notebook `mnist/mnist_ibm.ipynb`
 
-Mount the PVC, by default the pvc will be mounted to the `/mnt` of the pod.
+1. Follow the notebook to train and deploy MNIST on Kubeflow
 
-```
-kustomize edit add configmap mnist-map-serving --from-literal=pvcName=${PVC_NAME}
-kustomize edit add configmap mnist-map-serving --from-literal=pvcMountPath=/mnt
-```
+<a id=vanilla></a>
+# MNIST on Kubeflow on Vanilla k8s
 
-Configure a filepath for the exported model.
+1. Follow these [instructions](https://www.kubeflow.org/docs/started/k8s/kfctl-k8s-istio/) to deploy Kubeflow.
 
-```
-kustomize edit add configmap mnist-map-serving --from-literal=modelBasePath=/mnt/export
-```
+1. [Setup docker credentials](#vanilla-docker).
 
-Deploy it, and run a service to make the deployment accessible to other pods in the cluster.
+1. Launch a Jupyter Notebook
 
-```
-kustomize build . |kubectl apply -f -
-```
+  * The tutorial is run on Jupyter Tensorflow 1.15 image.
 
-You can check the deployment by running
-```
-kubectl describe deployments mnist-service-local
-```
+1. Launch a terminal in Jupyter and clone the kubeflow/examples repo
 
-The service should make the `mnist-service-local` deployment accessible over port 9000.
-```
-kubectl describe service mnist-service-local
-```
+  ```bash
+  git clone https://github.com/kubeflow/examples.git git_kubeflow-examples
+  ```
 
-## Web Front End
+1. Open the notebook `mnist/mnist_vanilla_k8s.ipynb`
 
-The example comes with a simple web front end that can be used with your model.
+1. Follow the notebook to train and deploy on MNIST on Kubeflow
 
-Enter the `front` from the `mnist` application directory.
+<a id=vanilla-docker></a>
+### Prerequisites
 
-```
-cd front
-```
+### Configure docker credentials
 
-To deploy the web front end
+#### Why do we need this?
 
-```
-kustomize build . |kubectl apply -f -
-```
+Kaniko is used by fairing to build the model every time the notebook is run and deploy a fresh model.
+The newly built image is pushed into the DOCKER_REGISTRY and pulled from there by subsequent resources.
 
-### Connecting via port forwarding
+Get your docker registry user and password encoded in base64 <br>
 
-To connect to the web app via port-forwarding
+`echo -n USER:PASSWORD | base64` <br>
 
+Create a config.json file with your Docker registry url and the previous generated base64 string <br>
+```json
+{
+	"auths": {
+		"https://index.docker.io/v1/": {
+			"auth": "xxxxxxxxxxxxxxx"
+		}
+	}
+}
 ```
-POD_NAME=$(kubectl get pods --selector=app=web-ui --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}')
 
-kubectl port-forward ${POD_NAME} 8080:5000  
-```
+<br>
 
-You should now be able to open up the web app at your localhost. [Local Storage](http://localhost:8080) or [S3](http://localhost:8080/?addr=mnist-s3-serving).
+### Create a config-map in the namespace you're using with the docker config
 
-## Conclusion and Next Steps
+`kubectl create --namespace ${NAMESPACE} configmap docker-config --from-file=<path to config.json>`
 
-This is an example of what your machine learning can look like. Feel free to play with the tunables and see if you can increase your model's accuracy (increasing `model-train-steps` can go a long way).
+Source documentation: [Kaniko docs](https://github.com/GoogleContainerTools/kaniko#pushing-to-docker-hub)

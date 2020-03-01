@@ -1,0 +1,8 @@
+gcp_bucket: 
+    github_action
+project: 
+    kubeflow-github
+train_data:
+    train_data.csv 
+forecast_data: 
+    forecat_data.csv

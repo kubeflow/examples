@@ -138,10 +138,36 @@ def get_iap_endpoint():
                       f"clusterrolebinding by running a command.\n"
                       f"kubectl create --namespace=istio-system rolebinding "
                        "--clusterrole=kubeflow-view "
-                       "--serviceaccount=$NAMESPACE}:default-editor "
+                       "--serviceaccount=${NAMESPACE}:default-editor "
                        "${NAMESPACE}-istio-view")
       return ""
 
     raise
 
   return f"https://{kf_ingress.spec.rules[0].host}"
+
+## Use by AWS
+def get_ingress_endpoint():
+  """Return the URL of the Ingress endpoint"""
+  extensions = k8s_client.ExtensionsV1beta1Api()
+  kf_ingress = None
+
+  try:
+    kf_ingress = extensions.read_namespaced_ingress("istio-ingress", "istio-system")
+  except k8s_rest.ApiException as e:
+    if e.status == 403:
+      logging.warning(f"The service account doesn't have sufficient privileges "
+                      f"to get the istio-system ingress. "
+                      f"You will have to manually enter the Kubeflow endpoint. "
+                      f"To make this function work ask someone with cluster "
+                      f"priveleges to create an appropriate "
+                      f"clusterrolebinding by running a command.\n"
+                      f"kubectl create --namespace=istio-system rolebinding "
+                       "--clusterrole=kubeflow-view "
+                       "--serviceaccount=${NAMESPACE}:default-editor "
+                       "${NAMESPACE}-istio-view")
+      return ""
+
+    raise
+
+  return f"http://{kf_ingress.status.load_balancer.ingress[0].hostname}"

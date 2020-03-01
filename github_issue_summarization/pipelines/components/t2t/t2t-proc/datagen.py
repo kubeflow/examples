@@ -39,6 +39,16 @@ def copy_local_directory_to_gcs(project, local_path, bucket_name, gcs_path):
     blob = bucket.blob(remote_path)
     blob.upload_from_filename(local_file)
 
+def download_blob(bucket_name, source_blob_name, destination_file_name):
+    """Downloads a blob from the bucket."""
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(bucket_name)
+    blob = bucket.blob(source_blob_name)
+    blob.download_to_filename(destination_file_name)
+    print("Blob {} downloaded to {}.".format(
+            source_blob_name, destination_file_name)
+    )
+
 def main():
   parser = argparse.ArgumentParser(description='ML Trainer')
   parser.add_argument(
@@ -57,13 +67,8 @@ def main():
   local_data_dir = '/ml/t2t_gh_data'
   local_source_data_file = '/ml/gh_data/github_issues.csv'
 
-  data_copy_command1 = ['gsutil', 'cp',
-      'gs://aju-dev-demos-codelabs/kubecon/gh_data/github_issues.csv',
-      local_source_data_file
-      ]
-  print(data_copy_command1)
-  result = subprocess.call(data_copy_command1)
-  print(result)
+  download_blob('aju-dev-demos-codelabs', 'kubecon/gh_data/github_issues.csv',
+      local_source_data_file)
 
   datagen_command = ['t2t-datagen', '--data_dir', local_data_dir, '--t2t_usr_dir',
       '/ml/ghsumm/trainer',
