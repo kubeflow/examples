@@ -17,10 +17,6 @@ def pytest_addoption(parser):
     "--repos", help="The repos to checkout; leave blank to use defaults",
     type=str, default="")
   parser.addoption(
-    "--notebook_name", help=("Name of the notebook test, used to differentiate"
-                             "tests."),
-    type=str, default="")
-  parser.addoption(
     "--notebook_path", help=("Path to the testing notebook file, starting from"
                              "the base directory of examples repository."),
     type=str, default="")
@@ -40,10 +36,6 @@ def image(request):
 @pytest.fixture
 def repos(request):
   return request.config.getoption("--repos")
-
-@pytest.fixture
-def notebook_name(request):
-  return request.config.getoption("--notebook_name")
 
 @pytest.fixture
 def notebook_path(request):
