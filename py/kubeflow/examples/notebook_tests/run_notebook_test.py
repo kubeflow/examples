@@ -11,12 +11,12 @@ from kubeflow.testing import util
 
 def test_run_notebook(record_xml_attribute, notebook_name, namespace, # pylint: disable=too-many-branches,too-many-statements
                       repos, image, notebook_path):
-  junit_name = "_".join("test", notebook_name)
+  junit_name = "_".join(["test", notebook_name])
   util.set_pytest_junit(record_xml_attribute, junit_name)
 
-  name = "-".join(notebook_name,
-                  datetime.datetime.now().strftime("%H%M%S"),
-                  uuid.uuid4().hex[0:3])
+  name = "-".join([notebook_name,
+                   datetime.datetime.now().strftime("%H%M%S"),
+                   uuid.uuid4().hex[0:3]])
 
   util.set_pytest_junit(record_xml_attribute, junit_name)
   nb_tet_util.run_papermill_job(notebook_path, name, namespace, repos, image)
