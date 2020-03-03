@@ -3,6 +3,7 @@
 import datetime
 import logging
 import os
+import re
 import uuid
 
 import pytest
@@ -12,7 +13,8 @@ from kubeflow.testing import util
 
 def test_run_notebook(record_xml_attribute, namespace, # pylint: disable=too-many-branches,too-many-statements
                       repos, image, notebook_path):
-  notebook_name = os.path.basename(notebook_path).replace(".ipynb", "")
+  notebook_name = os.path.basename(
+      notebook_path).replace(".ipynb", "").replace("_", "-")
   junit_name = "_".join(["test", notebook_name])
   util.set_pytest_junit(record_xml_attribute, junit_name)
 
