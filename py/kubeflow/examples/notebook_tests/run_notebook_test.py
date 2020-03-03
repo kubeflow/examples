@@ -1,4 +1,4 @@
-"""Tests for run_notebook."""
+"""Runs notebook ipynb as test."""
 
 import datetime
 import logging
