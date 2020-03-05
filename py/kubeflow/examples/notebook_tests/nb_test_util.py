@@ -105,6 +105,7 @@ def run_papermill_job(notebook_path, name, namespace, # pylint: disable=too-many
      "value": "/src/kubeflow/testing/py:/src/kubeflow/examples/py"},
   ]
 
+  logging.info("GG TEST: prow bucket = %s, prow path = %s", prow_bucket, prow_path)
   logging.info("Notebook will be written to %s", output_gcs)
   util.load_kube_config(persist_config=False)
 
