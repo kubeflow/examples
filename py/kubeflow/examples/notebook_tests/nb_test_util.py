@@ -50,7 +50,8 @@ def run_papermill_job(notebook_path, name, namespace, # pylint: disable=too-many
   # See
   # https://github.com/kubernetes/test-infra/blob/45246b09ed105698aa8fb928b7736d14480def29/prow/jobs.md#job-environment-variables
   if not repos:
-    repos = argo_build_util.get_repo_from_prow_env()
+    # repos = argo_build_util.get_repo_from_prow_env()
+    repos = "kubeflow/examples@HEAD:622"
 
   if not repos:
     raise ValueError("Could not get repos from prow environment variable "
