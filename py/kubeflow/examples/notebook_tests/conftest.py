@@ -20,6 +20,12 @@ def pytest_addoption(parser):
     "--notebook_path", help=("Path to the testing notebook file, starting from"
                              "the base directory of examples repository."),
     type=str, default="")
+  parser.addoption(
+    "--test-target-name", help=("Test target name, used as junit class name."),
+    type=str, default="")
+  parser.addoption(
+    "--artifacts-gcs", help=("GCS to upload artifacts to."),
+    type=str, default="")
 
 @pytest.fixture
 def name(request):
@@ -40,3 +46,11 @@ def repos(request):
 @pytest.fixture
 def notebook_path(request):
   return request.config.getoption("--notebook_path")
+
+@pytest.fixture
+def test_target_name(request):
+  return request.config.getoption("--test-target-name")
+
+@pytest.fixture
+def artifacts_gcs(request):
+  return request.config.getoption("--artifacts-gcs")

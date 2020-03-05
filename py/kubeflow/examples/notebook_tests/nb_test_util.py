@@ -3,8 +3,8 @@
 import datetime
 import logging
 import os
+from urllib.parse import urlencode
 import uuid
-import tempfile
 import yaml
 
 from google.cloud import storage
@@ -20,8 +20,25 @@ from kubeflow.testing import util
 NB_BUCKET = "kubeflow-ci-deployment"
 PROJECT = "kbueflow-ci-deployment"
 
+def logs_for_job(project, job_name):
+  """Get a stack driver link for the job with the specified name."""
+  logs_filter = f"""resource.type="k8s_container"
+   labels."k8s-pod/job-name" = "{job_name}"
+"""
+
+  new_params = {"project": project,
+                # Logs for last 7 days
+                "interval": 'P7D',
+                "advancedFilter": logs_filter}
+
+  query = urlencode(new_params)
+
+  url = "https://console.cloud.google.com/logs/viewer?" + query
+
+  return url
+
 def run_papermill_job(notebook_path, name, namespace, # pylint: disable=too-many-branches,too-many-statements
-                      repos, image):
+                      repos, image, artifacts_gcs="", test_target_name=""):
   """Generate a K8s job to run a notebook using papermill
 
   Args:
@@ -41,7 +58,7 @@ def run_papermill_job(notebook_path, name, namespace, # pylint: disable=too-many
 
   if notebook_path.startswith("/"):
     raise ValueError("notebook_path={0} should not start with /".format(
-        notebook_path))
+      notebook_path))
 
   # We need to checkout the correct version of the code
   # in presubmits and postsubmits. We should check the environment variables
@@ -51,6 +68,7 @@ def run_papermill_job(notebook_path, name, namespace, # pylint: disable=too-many
   # https://github.com/kubernetes/test-infra/blob/45246b09ed105698aa8fb928b7736d14480def29/prow/jobs.md#job-environment-variables
   if not repos:
     repos = argo_build_util.get_repo_from_prow_env()
+    logging.info(f"Using repos {repos}")
 
   if not repos:
     raise ValueError("Could not get repos from prow environment variable "
@@ -75,12 +93,18 @@ def run_papermill_job(notebook_path, name, namespace, # pylint: disable=too-many
     "--notebook_path", full_notebook_path]
 
   job["spec"]["template"]["spec"]["containers"][0][
-      "workingDir"] = os.path.dirname(full_notebook_path)
+    "workingDir"] = os.path.dirname(full_notebook_path)
 
   # The prow bucket to use for results/artifacts
   prow_bucket = prow_artifacts.PROW_RESULTS_BUCKET
 
-  if os.getenv("REPO_OWNER") and os.getenv("REPO_NAME"):
+  if artifacts_gcs:
+    prow_dir = os.path.join(artifacts_gcs, "artifacts")
+    if test_target_name:
+      prow_dir = os.path.join(prow_dir, test_target_name)
+    logging.info("Prow artifacts directory: %s", prow_dir)
+    prow_bucket, prow_path = util.split_gcs_uri(prow_dir)
+  elif os.getenv("REPO_OWNER") and os.getenv("REPO_NAME"):
     # Running under prow
     prow_dir = prow_artifacts.get_gcs_dir(prow_bucket)
     logging.info("Prow artifacts dir: %s", prow_dir)
@@ -128,10 +152,17 @@ def run_papermill_job(notebook_path, name, namespace, # pylint: disable=too-many
   logging.info("Created job %s.%s:\n%s", namespace, name,
                yaml.safe_dump(actual_job.to_dict()))
 
+  logging.info("*********************Job logs************************")
+  logging.info(logs_for_job(PROJECT, name))
+  logging.info("*****************************************************")
   final_job = util.wait_for_job(api_client, namespace, name,
                                 timeout=datetime.timedelta(minutes=30))
 
   logging.info("Final job:\n%s", yaml.safe_dump(final_job.to_dict()))
+
+  logging.info("*********************Job logs************************")
+  logging.info(logs_for_job(PROJECT, name))
+  logging.info("*****************************************************")
 
   # Download notebook html to artifacts
   logging.info("Copying %s to bucket %s", output_gcs, prow_bucket)
@@ -151,4 +182,3 @@ def run_papermill_job(notebook_path, name, namespace, # pylint: disable=too-many
   if last_condition.type not in ["Complete"]:
     logging.error("Job didn't complete successfully")
     raise RuntimeError("Job {0}.{1} failed".format(namespace, name))
-
