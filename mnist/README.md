@@ -95,13 +95,11 @@ Follow these instructions to run the MNIST tutorial on Azure
 
 Follow these instructions to run the MNIST tutorial on IBM Cloud
 
-1. Follow the [IBM Cloud instructions](https://www.kubeflow.org/docs/ibm/install-kubeflow/) to deploy Kubeflow on IBM Cloud
+1. Follow the [IBM Cloud instructions](https://www.kubeflow.org/docs/ibm/install-kubeflow/) to deploy Kubeflow on IBM Cloud with [IBM Cloud Block Storage](https://www.kubeflow.org/docs/ibm/install-kubeflow/#ibm-cloud-block-storage-setup).
 
 1. Launch a Jupyter notebook
 
-   * For IBM Cloud, the default NFS storage does not support some of the Python package installation. Therefore, we need to create the notebook with `Don't use Persistent Storage for User's home`.
-   * Due to the [Notebook user permission issue](https://github.com/kubeflow/kubeflow/issues/4520), we need to use custom images that were working in the previous version.
-      * The tutorial has been tested on image: `gcr.io/kubeflow-images-public/tensorflow-1.13.1-notebook-cpu:v0.5.0`
+   * The tutorial has been tested using the Jupyter Tensorflow 1.15 and 2.1 image with persistent storage.
 
 1. Launch a terminal in Jupyter and clone the kubeflow examples repo
 
