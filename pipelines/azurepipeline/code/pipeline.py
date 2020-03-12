@@ -33,7 +33,7 @@ def tacosandburritos_train(
   # preprocess data
   operations['preprocess'] = dsl.ContainerOp(
     name='preprocess',
-    image='insert your image here',
+    image='insert image name:tag',
     command=['python'],
     arguments=[
       '/scripts/data.py',
@@ -48,7 +48,7 @@ def tacosandburritos_train(
   # train
   operations['training'] = dsl.ContainerOp(
     name='training',
-    image='insert your image here',
+    image='insert image name:tag',
     command=['python'],
     arguments=[
       '/scripts/train.py',
@@ -67,7 +67,7 @@ def tacosandburritos_train(
   # register model
   operations['register'] = dsl.ContainerOp(
     name='register',
-    image='insert your image here',
+    image='insert image name:tag',
     command=['python'],
     arguments=[
       '/scripts/register.py',
@@ -84,30 +84,9 @@ def tacosandburritos_train(
   )
   operations['register'].after(operations['training'])
 
-  operations['profile'] = dsl.ContainerOp(
-    name='profile',
-    image='insert your image here',
-    command=['sh'],
-    arguments=[
-      '/scripts/profile.sh',
-      '-n', profile_name,
-      '-m', model_name,
-      '-i', '/scripts/inferenceconfig.json',
-      '-d', '{"image":"https://www.exploreveg.org/files/2015/05/sofritas-burrito.jpeg"}',
-      '-t', tenant_id,
-      '-r', resource_group,
-      '-w', workspace,
-      '-s', service_principal_id,
-      '-p', service_principal_password,
-      '-u', subscription_id,
-      '-b', persistent_volume_path
-    ]
-  )
-  operations['profile'].after(operations['register'])
-
   operations['deploy'] = dsl.ContainerOp(
     name='deploy',
-    image='insert your image here',
+    image='insert image name:tag',
     command=['sh'],
     arguments=[
       '/scripts/deploy.sh',
@@ -124,7 +103,7 @@ def tacosandburritos_train(
       '-b', persistent_volume_path
     ]
   )
-  operations['deploy'].after(operations['profile'])
+  operations['deploy'].after(operations['register'])
   for _, op_1 in operations.items():
     op_1.container.set_image_pull_policy("Always")
     op_1.add_volume(
