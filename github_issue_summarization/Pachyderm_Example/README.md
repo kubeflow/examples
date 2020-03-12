@@ -34,7 +34,7 @@ To get the example up and running:
 If you get stuck on the example, please reach out the community via:
 
 - [Pachyderm's public Slack team](http://slack.pachyderm.io/)
-- [KubeFlow's public Slack team](https://join.slack.com/t/kubeflow/shared_invite/enQtMjgyMzMxNDgyMTQ5LWUwMTIxNmZlZTk2NGU0MmFiNDE4YWJiMzFiOGNkZGZjZmRlNTExNmUwMmQ2NzMwYzk5YzQxOWQyODBlZGY2OTg)
+- [KubeFlow's public Slack team](https://join.slack.com/t/kubeflow/shared_invite/zt-cpr020z4-PfcAue_2nw67~iIDy7maAQ)
 - a GitHub issue:
   - [here](https://github.com/pachyderm/pachyderm) for Pachyderm
   - [here](https://github.com/kubeflow/kubeflow) for KubeFlow
@@ -431,7 +431,7 @@ Provenance:  __spec__/495a01e3df3a4318bb90b46d307d4009  __spec__/3526704d403041c
 
 KubeFlow:
 
-- Join [KubeFlow's public Slack team](https://join.slack.com/t/kubeflow/shared_invite/enQtMjgyMzMxNDgyMTQ5LWUwMTIxNmZlZTk2NGU0MmFiNDE4YWJiMzFiOGNkZGZjZmRlNTExNmUwMmQ2NzMwYzk5YzQxOWQyODBlZGY2OTg),
+- Join [KubeFlow's public Slack team](https://join.slack.com/t/kubeflow/shared_invite/zt-cpr020z4-PfcAue_2nw67~iIDy7maAQ),
 - Find [KubeFlow on GitHub](https://github.com/kubeflow/kubeflow), and
 - Check out other [KubeFlow examples](https://github.com/kubeflow/examples).
 
