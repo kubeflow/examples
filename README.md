@@ -99,6 +99,15 @@ This example covers the following concepts:
 1. How to create pipeline components from python functions in jupyter notebook
 2. How to compile and run a pipeline from jupyter notebook
 
+#### [Ligtheweight component and container operations](./pipelines/ligtheweight-component-and-container-operations)
+Author: [Johan Hansson](https://github.com/JohanWork)
+
+This example covers the following concepts:
+1. How to create pipeline components from python functions and combining it with
+a container operations in jupyter notebook
+2. How to compile and run a pipeline from jupyter notebook
+
+
 #### [MNIST Pipelines](./pipelines/mnist-pipelines)
 Author: [Dan Sanche](https://github.com/DanSanche) and [Jin Chi He](https://github.com/jinchihe)
 
