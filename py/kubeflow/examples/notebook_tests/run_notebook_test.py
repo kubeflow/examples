@@ -25,7 +25,7 @@ def test_run_notebook(record_xml_attribute, namespace, # pylint: disable=too-man
   util.set_pytest_junit(record_xml_attribute, junit_name)
   nb_test_util.run_papermill_job(notebook_path, name, namespace, repos, image)
 
-  if !os.path.exists(gcs_test_path):
+  if not os.path.exists(gcs_test_path):
     try:
       os.makedirs(gcs_test_path)
     except Exception as e:
