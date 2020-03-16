@@ -12,7 +12,7 @@ from kubeflow.examples.notebook_tests import nb_test_util
 from kubeflow.testing import util
 
 def test_run_notebook(record_xml_attribute, namespace, # pylint: disable=too-many-branches,too-many-statements
-                      repos, image, notebook_path):
+                      repos, image, notebook_path, gcs_test_path):
   notebook_name = os.path.basename(
       notebook_path).replace(".ipynb", "").replace("_", "-")
   junit_name = "_".join(["test", notebook_name])
@@ -24,6 +24,9 @@ def test_run_notebook(record_xml_attribute, namespace, # pylint: disable=too-man
 
   util.set_pytest_junit(record_xml_attribute, junit_name)
   nb_test_util.run_papermill_job(notebook_path, name, namespace, repos, image)
+
+  with open(os.path.join(gcs_test_path, "gg-test.txt"), "w") as f:
+    f.write("GG TEST")
 
 if __name__ == '__main__':
   logging.basicConfig(level=logging.INFO,

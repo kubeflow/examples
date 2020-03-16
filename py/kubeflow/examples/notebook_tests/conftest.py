@@ -20,6 +20,8 @@ def pytest_addoption(parser):
     "--notebook_path", help=("Path to the testing notebook file, starting from"
                              "the base directory of examples repository."),
     type=str, default="")
+  parser.addoption(
+    "--gcs_test_path", help=("Path to testing workspace."))
 
 @pytest.fixture
 def name(request):
@@ -40,3 +42,7 @@ def repos(request):
 @pytest.fixture
 def notebook_path(request):
   return request.config.getoption("--notebook_path")
+
+@pytest.fixture
+def gcs_test_path(request):
+  return request.config.getoption("--gcs_test_path")
