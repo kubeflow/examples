@@ -25,12 +25,13 @@ def test_run_notebook(record_xml_attribute, namespace, # pylint: disable=too-man
   util.set_pytest_junit(record_xml_attribute, junit_name)
   nb_test_util.run_papermill_job(notebook_path, name, namespace, repos, image)
 
-  if not os.path.exists(gcs_test_path):
+  p = os.path.join(gcs_test_path, "artifacts", name)
+  if not os.path.exists(p):
     try:
-      os.makedirs(gcs_test_path)
+      os.makedirs(p)
     except Exception as e:
       logging.info("makedirs failed: %s", e)
-  with open(os.path.join(gcs_test_path, "gg-test.txt"), "w") as f:
+  with open(os.path.join(p, "gg-test.txt"), "w") as f:
     f.write("GG TEST")
 
 if __name__ == '__main__':
