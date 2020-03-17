@@ -31,8 +31,16 @@ def test_run_notebook(record_xml_attribute, namespace, # pylint: disable=too-man
       os.makedirs(p)
     except Exception as e:
       logging.info("makedirs failed: %s", e)
-  with open(os.path.join(p, "gg-test.txt"), "w") as f:
+  with open(os.path.join(p, "file-test.txt"), "w") as f:
     f.write("GG TEST")
+  p = os.path.join(p, "outputs")
+  if not os.path.exists(p):
+    try:
+      os.makedirs(p)
+    except Exception as e:
+      logging.info("makedirs failed: %s", e)
+    with open(os.path.join(p, "second-test.txt"), "w") as f:
+      f.write("GG TEST 2")
 
 if __name__ == '__main__':
   logging.basicConfig(level=logging.INFO,
