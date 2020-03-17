@@ -23,6 +23,7 @@ def test_run_notebook(record_xml_attribute, namespace, # pylint: disable=too-man
                    uuid.uuid4().hex[0:3]])
 
   p = os.path.join(gcs_test_path, "artifacts", name)
+  logging.info("GG writing %s", p)
   if not os.path.exists(p):
     try:
       os.makedirs(p)
