@@ -22,9 +22,6 @@ def test_run_notebook(record_xml_attribute, namespace, # pylint: disable=too-man
                    datetime.datetime.now().strftime("%H%M%S"),
                    uuid.uuid4().hex[0:3]])
 
-  util.set_pytest_junit(record_xml_attribute, junit_name)
-  nb_test_util.run_papermill_job(notebook_path, name, namespace, repos, image)
-
   p = os.path.join(gcs_test_path, "artifacts", name)
   if not os.path.exists(p):
     try:
@@ -41,6 +38,9 @@ def test_run_notebook(record_xml_attribute, namespace, # pylint: disable=too-man
       logging.info("makedirs failed: %s", e)
     with open(os.path.join(p, "second-test.txt"), "w") as f:
       f.write("GG TEST 2")
+
+  util.set_pytest_junit(record_xml_attribute, junit_name)
+  nb_test_util.run_papermill_job(notebook_path, name, namespace, repos, image)
 
 if __name__ == '__main__':
   logging.basicConfig(level=logging.INFO,
