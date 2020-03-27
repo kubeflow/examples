@@ -21,7 +21,8 @@ def pytest_addoption(parser):
                              "the base directory of examples repository."),
     type=str, default="")
   parser.addoption(
-    "--gcs_test_path", help=("Path to testing workspace."))
+    "--test-target-name", help=("Test target name, used as junit class name."),
+    type=str, default="")
 
 @pytest.fixture
 def name(request):
@@ -44,5 +45,5 @@ def notebook_path(request):
   return request.config.getoption("--notebook_path")
 
 @pytest.fixture
-def gcs_test_path(request):
-  return request.config.getoption("--gcs_test_path")
+def test_target_name(request):
+  return request.config.getoption("--test-target-name")

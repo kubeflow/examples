@@ -12,7 +12,7 @@ from kubeflow.examples.notebook_tests import nb_test_util
 from kubeflow.testing import util
 
 def test_run_notebook(record_xml_attribute, namespace, # pylint: disable=too-many-branches,too-many-statements
-                      repos, image, notebook_path, gcs_test_path):
+                      repos, image, notebook_path, test_target_name):
   notebook_name = os.path.basename(
       notebook_path).replace(".ipynb", "").replace("_", "-")
   junit_name = "_".join(["test", notebook_name])
@@ -22,25 +22,6 @@ def test_run_notebook(record_xml_attribute, namespace, # pylint: disable=too-man
                    datetime.datetime.now().strftime("%H%M%S"),
                    uuid.uuid4().hex[0:3]])
 
-  p = os.path.join(gcs_test_path, "artifacts", name)
-  logging.info("GG writing %s", p)
-  if not os.path.exists(p):
-    try:
-      os.makedirs(p)
-    except Exception as e:
-      logging.info("makedirs failed: %s", e)
-  with open(os.path.join(p, "file-test.txt"), "w") as f:
-    f.write("GG TEST")
-  p = os.path.join(p, "outputs")
-  if not os.path.exists(p):
-    try:
-      os.makedirs(p)
-    except Exception as e:
-      logging.info("makedirs failed: %s", e)
-    with open(os.path.join(p, "second-test.txt"), "w") as f:
-      f.write("GG TEST 2")
-
-  util.set_pytest_junit(record_xml_attribute, junit_name)
   nb_test_util.run_papermill_job(notebook_path, name, namespace, repos, image)
 
 if __name__ == '__main__':
