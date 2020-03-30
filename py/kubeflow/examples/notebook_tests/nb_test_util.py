@@ -21,7 +21,7 @@ NB_BUCKET = "kubeflow-ci-deployment"
 PROJECT = "kbueflow-ci-deployment"
 
 def run_papermill_job(notebook_path, name, namespace, # pylint: disable=too-many-branches,too-many-statements
-                      repos, image):
+                      repos, image, artifacts_gcs="", test_target_name=""):
   """Generate a K8s job to run a notebook using papermill
 
   Args:
@@ -81,7 +81,12 @@ def run_papermill_job(notebook_path, name, namespace, # pylint: disable=too-many
   # The prow bucket to use for results/artifacts
   prow_bucket = prow_artifacts.PROW_RESULTS_BUCKET
 
-  if os.getenv("REPO_OWNER") and os.getenv("REPO_NAME"):
+  if artifacts_gcs:
+    prow_dir = os.path.join(artifacts_gcs, "artifacts")
+    if test_target_name:
+      prow_dir = os.path.join(prow_dir, test_target_name)
+    prow_bucket, prow_path = util.split_gcs_uri(prow_dir)
+  elif os.getenv("REPO_OWNER") and os.getenv("REPO_NAME"):
     # Running under prow
     prow_dir = prow_artifacts.get_gcs_dir(prow_bucket)
     logging.info("Prow artifacts dir: %s", prow_dir)
