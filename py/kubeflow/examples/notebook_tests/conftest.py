@@ -23,6 +23,9 @@ def pytest_addoption(parser):
   parser.addoption(
     "--test-target-name", help=("Test target name, used as junit class name."),
     type=str, default="")
+  parser.addoption(
+    "--artifacts-gcs", help=("GCS to upload artifacts to."),
+    type=str, default="")
 
 @pytest.fixture
 def name(request):
@@ -47,3 +50,7 @@ def notebook_path(request):
 @pytest.fixture
 def test_target_name(request):
   return request.config.getoption("--test-target-name")
+
+@pytest.fixture
+def artifacts_gcs(request):
+  return request.config.getoption("--artifacts-gcs")
