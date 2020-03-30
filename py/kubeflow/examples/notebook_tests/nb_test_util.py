@@ -85,6 +85,7 @@ def run_papermill_job(notebook_path, name, namespace, # pylint: disable=too-many
     prow_dir = os.path.join(artifacts_gcs, "artifacts")
     if test_target_name:
       prow_dir = os.path.join(prow_dir, test_target_name)
+    logging.info("Prow artifacts directory: %s", prow_dir)
     prow_bucket, prow_path = util.split_gcs_uri(prow_dir)
   elif os.getenv("REPO_OWNER") and os.getenv("REPO_NAME"):
     # Running under prow
