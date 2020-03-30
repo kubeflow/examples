@@ -16,7 +16,7 @@ def test_run_notebook(record_xml_attribute, namespace, # pylint: disable=too-man
   notebook_name = os.path.basename(
       notebook_path).replace(".ipynb", "").replace("_", "-")
   junit_name = "_".join(["test", notebook_name])
-  util.set_pytest_junit(record_xml_attribute, junit_name)
+  util.set_pytest_junit(record_xml_attribute, junit_name, test_target_name)
 
   name = "-".join([notebook_name,
                    datetime.datetime.now().strftime("%H%M%S"),
