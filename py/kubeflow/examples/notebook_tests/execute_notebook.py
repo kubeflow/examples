@@ -10,7 +10,7 @@ from google.cloud import storage
 from kubeflow.testing import util
 
 def prepare_env():
-  subprocess.check_call(["pip3", "install", "-Iv", "papermill=2.0.0"])
+  subprocess.check_call(["pip3", "install", "-Iv", "papermill==2.0.0"])
   subprocess.check_call(["pip3", "install", "-U", "nbconvert"])
   subprocess.check_call(["pip3", "install", "-U", "nbformat"])
 
