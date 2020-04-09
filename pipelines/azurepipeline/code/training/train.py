@@ -26,10 +26,10 @@ def check_dir(path):
 
 
 def process_image(path, label, img_size):
-  img_raw = tf.io.read_file(path)
-  img_tensor = tf.image.decode_jpeg(img_raw, channels=3)
-  img_final = tf.image.resize(img_tensor, [img_size, img_size]) / 255
-  return img_final, label
+    img_raw = tf.io.read_file(path)
+    img_tensor = tf.image.decode_jpeg(img_raw, channels=3)
+    img_final = tf.image.resize(img_tensor, [img_size, img_size]) / 255
+    return img_final, label
 
 
 def load_dataset(base_path, dset, split=None):
@@ -84,10 +84,9 @@ def run(
 
     # training data
     train_data, train_labels = zip(*train)
-
     train_ds = Dataset.zip((Dataset.from_tensor_slices(list(train_data)),
-                          Dataset.from_tensor_slices(list(train_labels)),
-                          Dataset.from_tensor_slices([img_size]*len(train_data))))
+                            Dataset.from_tensor_slices(list(train_labels)),
+                            Dataset.from_tensor_slices([img_size]*len(train_data))))  # noqa: E501
 
     print(train_ds)
     train_ds = train_ds.map(map_func=process_image,
