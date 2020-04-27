@@ -1,5 +1,6 @@
-# Simple Notebook Pipeline on GCP
-This notebook shows how to compile and run a simple Kubeflow pipeline using Jupyter notebooks combining python (ligthweight components)[https://www.kubeflow.org/docs/pipelines/sdk/lightweight-python-components/] and (container operation)[https://kubeflow-pipelines.readthedocs.io/en/latest/source/kfp.dsl.html#kfp.dsl.ContainerOp].
+# Pipeline combining ligthweight and container operations
+This notebook shows how to compile and run a Kubeflow pipeline using Jupyter notebooks combining python (ligthweight components)[https://www.kubeflow.org/docs/pipelines/sdk/lightweight-python-components/] and (reusable components)[https://www.kubeflow.org/docs/pipelines/sdk/component-development/].
+
 
 ## Setup
 

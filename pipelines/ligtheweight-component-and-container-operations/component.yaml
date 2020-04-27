@@ -1,0 +1,12 @@
+name: Echo variables
+description: Echos the input variables
+inputs:
+  - {name: input_1, type: Float, description: 'Data for Input 1'}
+  - {name: input_2, type: Float, description: 'Data for Input 2'}
+implementation:
+    container:
+      image: library/bash:4.4.23
+      # command is a list of strings (command-line arguments). 
+      # The YAML language has two syntaxes for lists and you can use either of them. 
+      # Here we use the "flow syntax" - comma-separated strings inside square brackets.
+      command: ['sh', '-c','echo "Text 1: $0"; echo "Text 2: $1"',{inputValue: input_1},{inputValue: input_2}]
