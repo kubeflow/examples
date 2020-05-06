@@ -1,4 +1,4 @@
 # Refer to latest commit in github.com/kubeflow/fairing
-git+git://github.com/kubeflow/fairing.git@7e4c23c47a6b0544a722d04e1f9910c2f283a4f6
+git+git://github.com/kubeflow/fairing.git@6717b3d3806c8093adf1186bc819ad887238f287
 retrying==1.3.3
 google-api-core[grpc]>=1.15.0
