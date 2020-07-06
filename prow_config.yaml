@@ -44,3 +44,9 @@ workflows:
       - postsubmit
     include_dirs:
       - pytorch_mnist/*
+
+  - tekton_run: kubeflow/examples/tests/pipeline-runs/mnist-nb-pipeline-run.yaml
+    name: mnist-notebook
+    job_types:
+    - periodic
+    - postsubmit
