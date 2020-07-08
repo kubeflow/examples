@@ -45,7 +45,7 @@ workflows:
     include_dirs:
       - pytorch_mnist/*
 
-  - tekton_run: kubeflow/examples/tests/mnist-nb-pipeline-run.yaml
+  - tekton_run: kubeflow/examples/mnist/tests/mnist-nb-pipeline-run.yaml
     name: mnist-notebook
     job_types:
     - periodic
