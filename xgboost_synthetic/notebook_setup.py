@@ -11,7 +11,6 @@ import subprocess
 from pathlib import Path
 
 KFP_PACKAGE = 'https://storage.googleapis.com/ml-pipeline/release/0.1.32/kfp.tar.gz'
-FAIRING_PACKAGE = 'git+git://github.com/kubeflow/fairing.git@9b0d4ed4796ba349ac6067bbd802ff1d6454d015' # pylint: disable=line-too-long
 
 def notebook_setup():
   # Install the SDK
@@ -22,8 +21,6 @@ def notebook_setup():
   subprocess.check_call(["pip3", "install", "--user", "-r", "requirements.txt"])
   logging.info("pip installing KFP %s", KFP_PACKAGE)
   subprocess.check_call(["pip3", "install", "--user", KFP_PACKAGE, "--upgrade"])
-  logging.info("pip installing fairing %s", FAIRING_PACKAGE)
-  subprocess.check_call(["pip3", "install", "--user", FAIRING_PACKAGE])
 
   logging.info("Configure docker credentials")
   subprocess.check_call(["gcloud", "auth", "configure-docker", "--quiet"])
