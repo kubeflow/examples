@@ -1,6 +1,7 @@
 fire
 gitpython
 google-cloud-storage
+git+git://github.com/kubeflow/fairing.git@v1.0.1
 joblib
 kubeflow-metadata==0.3.1
 numpy
