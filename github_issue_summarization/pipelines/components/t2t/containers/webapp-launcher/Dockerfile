@@ -12,15 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 
-RUN apt-get update -y
+RUN apt-get update \
+  && apt-get install -y python3-pip python3-dev wget unzip \
+  && cd /usr/local/bin \
+  && ln -s /usr/bin/python3 python \
+  && pip3 install --upgrade pip
 
-RUN apt-get install --no-install-recommends -y -q ca-certificates python-dev python-setuptools wget unzip
+# RUN apt-get install -y wget unzip git
 
-RUN easy_install pip
+RUN pip install --upgrade pip
+RUN pip install urllib3 certifi retrying
+RUN pip install google-cloud-storage
 
-RUN pip install pyyaml==3.12 six==1.11.0 requests==2.18.4 tensorflow==1.12.0
 
 RUN wget -nv https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.zip && \
     unzip -qq google-cloud-sdk.zip -d tools && \
@@ -34,14 +39,8 @@ RUN wget -nv https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.zip && \
     tools/google-cloud-sdk/bin/gcloud config set component_manager/disable_update_check true && \
     touch /tools/google-cloud-sdk/lib/third_party/google.py
 
-RUN wget -nv https://github.com/ksonnet/ksonnet/releases/download/v0.11.0/ks_0.11.0_linux_amd64.tar.gz && \
-    tar -xvzf ks_0.11.0_linux_amd64.tar.gz && \
-    mkdir -p /tools/ks/bin && \
-    cp ./ks_0.11.0_linux_amd64/ks /tools/ks/bin && \
-    rm ks_0.11.0_linux_amd64.tar.gz && \
-    rm -r ks_0.11.0_linux_amd64
 
-ENV PATH $PATH:/tools/google-cloud-sdk/bin:/tools/ks/bin
+ENV PATH $PATH:/tools/google-cloud-sdk/bin
 
 ADD build /ml
 
