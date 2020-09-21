@@ -3,7 +3,7 @@
 ## Deploying Kubeflow to Google Cloud Platform
 This example requires a running Kubeflow environment (v0.5.0). The easiest way to setup a Kubeflow environment is by using the [Deployment UI](https://www.kubeflow.org/docs/gke/deploy/deploy-ui/).
 
-## Set enviornment variables
+## Set environment variables
 
 Create the following environment variables, follow the [documenation](https://cloud.google.com/resource-manager/docs/creating-managing-projects#identifying_projects) to get the project id :
 

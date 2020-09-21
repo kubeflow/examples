@@ -1,0 +1,4 @@
+# Approvers for Azure Pipelines example
+approvers:
+  - berndverst
+  - aronchick

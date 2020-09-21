@@ -11,12 +11,7 @@ from kubernetes import client as k8s_client
 from kubeflow.testing import argo_build_util
 from kubeflow.testing import util
 
-# TODO(jlewi): This test is currently failing because various things
-# need to be updated to work with 0.7.0. Until that's fixed we mark it
-# as expected to fail on presubmits. We only mark it as expected to fail
-# on presubmits because if expected failures don't show up in test grid
-# and we want signal in postsubmits and periodics
-@pytest.mark.xfail(os.getenv("JOB_TYPE") == "presubmit", reason="Flaky")
+@pytest.mark.skip(reason="failing after fairing bump, https://github.com/kubeflow/examples/pull/795")
 def test_xgboost_synthetic(record_xml_attribute, name, namespace, # pylint: disable=too-many-branches,too-many-statements
                            repos, image, notebook_artifacts_dir):
   '''Generate Job and summit.'''

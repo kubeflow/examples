@@ -17,4 +17,4 @@ while getopts "m:n:i:d:s:p:u:r:w:t:b:" option;
     esac
 done
 az login --service-principal --username ${SERVICE_PRINCIPAL_ID} --password ${SERVICE_PRINCIPAL_PASSWORD} -t $TENANT_ID
-az ml model deploy -n $MODEL_NAME -m ${MODEL}:1 --ic $INFERENCE_CONFIG --pi ${BASE_PATH}/myprofileresult.json --dc $DEPLOYMENTCONFIG -w $WORKSPACE -g $RESOURCE_GROUP --overwrite -v
+az ml model deploy -n $MODEL_NAME -m ${MODEL}:1 --ic $INFERENCE_CONFIG --dc $DEPLOYMENTCONFIG -w $WORKSPACE -g $RESOURCE_GROUP --overwrite -v

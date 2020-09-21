@@ -45,31 +45,8 @@ workflows:
     include_dirs:
       - pytorch_mnist/*
 
-  # E2E test for various notebooks
-  # New notebooks can just add a step to the workflow
-  - py_func: kubeflow.examples.create_e2e_workflow.create_workflow
-    name: notebooks
+  - tekton_run: kubeflow/examples/mnist/tests/mnist-nb-pipeline-run.yaml
+    name: mnist-notebook
     job_types:
-      - periodic
-      - presubmit
-      - postsubmit
-    include_dirs:
-      - xgboost_synthetic/*
-      - mnist/*
-      - py/kubeflow/examples/notebook_tests
-      - py/kubeflow/examples/create_e2e_workflow.py
-
-  # E2E test for various notebooks
-  # New notebooks can just add a step to the workflow
-  - py_func: kubeflow.examples.create_e2e_workflow.create_workflow
-    name: notebooks-v1
-    job_types:
-      - periodic
-      - presubmit
-      - postsubmit
-    include_dirs:
-      - xgboost_synthetic/*
-      - mnist/*
-      - py/kubeflow/examples/create_e2e_workflow.py
-    kwargs:
-      cluster_pattern: kf-v1-(?!n\d\d)
+    - periodic
+    - postsubmit

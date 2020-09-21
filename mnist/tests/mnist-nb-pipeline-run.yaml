@@ -1,0 +1,47 @@
+# Demo on how to write a pipeline run.
+
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineRun
+metadata:
+  generateName: mnist-
+  namespace: kf-ci
+  labels:
+    pipeline: mnist-notebook
+spec:
+  params:
+  # test-target-name, artifacts-gcs, and junit-path are required for
+  # all the PipelineRuns. For tests spawned by Prow, values of these
+  # params will be injected on the fly.
+  - name: test-target-name
+    value: manual-testinig
+  - name: artifacts-gcs
+    value: gs://kubeflow-ci_temp/jlewi_mnist_testing/2020-0619
+  - name: junit-path
+    value: artifacts/junit_manual-testing
+  - name: testing-cluster-pattern
+    value: 'kf-vbp-.*'
+  - name: testing-cluster-location
+    value: 'us-central1-c'
+  - name: notebook-output
+    value: gs://kubeflow-ci-deployment_ci-temp/mnist_test
+  - name: notebook-path
+    value: mnist/mnist_gcp.ipynb
+  resources:
+  - name: notebook-repo
+    resourceSpec:
+      type: git
+      params:
+      - name: url
+        value: https://github.com/kubeflow/examples.git
+      - name: revision
+        value: master
+  # The image we want to build
+  - name: image
+    resourceSpec:
+      type: image
+      params:
+      - name: url
+        value: gcr.io/kubeflow-ci-deployment/mnist-test
+  pipelineRef:
+    name: notebook-test
+  serviceAccountName: kf-ci
