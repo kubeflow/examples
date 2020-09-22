@@ -33,9 +33,6 @@ train_op = comp.load_component_from_url(
   'https://raw.githubusercontent.com/kubeflow/examples/master/github_issue_summarization/pipelines/components/t2t/train_component.yaml' # pylint: disable=line-too-long
   )
 
-metadata_log_op = comp.load_component_from_url(
-  'https://raw.githubusercontent.com/kubeflow/examples/master/github_issue_summarization/pipelines/components/t2t/metadata_log_component.yaml' # pylint: disable=line-too-long
-  )
 
 @dsl.pipeline(
   name='Github issue summarization',
@@ -60,13 +57,6 @@ def gh_summ(  #pylint: disable=unused-argument
     )
 
 
-  # log_dataset = metadata_log_op(
-  #   log_type=DATASET,
-  #   workspace_name=WORKSPACE_NAME,
-  #   run_name=dsl.RUN_ID_PLACEHOLDER,
-  #   data_uri=data_dir
-  #   )
-
   train = train_op(
     data_dir=data_dir,
     model_dir=copydata.outputs['copy_output_path'],
@@ -74,32 +64,20 @@ def gh_summ(  #pylint: disable=unused-argument
     deploy_webapp=deploy_webapp
     )
 
-
-  # log_model = metadata_log_op(
-  #   log_type=MODEL,
-  #   workspace_name=WORKSPACE_NAME,
-  #   run_name=dsl.RUN_ID_PLACEHOLDER,
-  #   model_uri=train.outputs['train_output_path']
-  #   )
-
   serve = dsl.ContainerOp(
       name='serve',
-      # image='gcr.io/google-samples/ml-pipeline-kubeflow-tfserve:v2',
-      image='gcr.io/aju-vtests2/ml-pipeline-kubeflow-tfserve:v5',
+      image='gcr.io/google-samples/ml-pipeline-kubeflow-tfserve:v5',
       arguments=["--model_name", 'ghsumm-%s' % (dsl.RUN_ID_PLACEHOLDER,),
           "--model_path", train.outputs['train_output_path']
           ]
       )
 
-  # log_dataset.after(copydata)
-  # log_model.after(train)
   train.set_gpu_limit(1)
-  train.set_memory_limit('48G')
 
   with dsl.Condition(train.outputs['launch_server'] == 'true'):
     webapp = dsl.ContainerOp(
         name='webapp',
-        image='gcr.io/aju-vtests2/ml-pipeline-webapp-launcher:v5ap',
+        image='gcr.io/google-samples/ml-pipeline-webapp-launcher:v7ap',
         arguments=["--model_name", 'ghsumm-%s' % (dsl.RUN_ID_PLACEHOLDER,),
             "--github_token", github_token]
 

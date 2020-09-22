@@ -1,27 +1,3 @@
-apiVersion: networking.istio.io/v1alpha3
-kind: VirtualService
-metadata:
-  name: webapp-MODEL_NAME
-spec:
-  gateways:
-  - kubeflow-gateway
-  hosts:
-  - '*'
-  http:
-  - match:
-    - uri:
-        prefix: /webapp/
-    rewrite:
-      uri: /
-    route:
-    - destination:
-        host: MODEL_NAME-webappsvc.KUBEFLOW_NAMESPACE.svc.cluster.local
-        port:
-          number: 80
-    timeout: 300s
-
----
-
 apiVersion: v1
 kind: Service
 metadata:
@@ -71,7 +47,7 @@ spec:
       #     secretName: user-gcp-sa
       containers:
       - name: MODEL_NAME-webapp
-        image: gcr.io/google-samples/ml-pipeline-t2tapp:v3ap
+        image: gcr.io/google-samples/ml-pipeline-t2tapp:vap8
         # env:
         # - name: GOOGLE_APPLICATION_CREDENTIALS
         #   value: /secret/gcp-credentials/user-gcp-sa.json
