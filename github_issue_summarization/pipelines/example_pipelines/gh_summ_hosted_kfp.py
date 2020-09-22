@@ -16,12 +16,10 @@
 import kfp.dsl as dsl
 import kfp.gcp as gcp
 import kfp.components as comp
-# from kfp.dsl.types import GCSPath, String
 
 
 COPY_ACTION = 'copy_data'
 TRAIN_ACTION = 'train'
-WORKSPACE_NAME = 'ws_gh_summ'
 DATASET = 'dataset'
 MODEL = 'model'
 
