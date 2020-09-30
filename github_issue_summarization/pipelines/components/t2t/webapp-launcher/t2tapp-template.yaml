@@ -47,7 +47,7 @@ spec:
       #     secretName: user-gcp-sa
       containers:
       - name: MODEL_NAME-webapp
-        image: gcr.io/google-samples/ml-pipeline-t2tapp:vap8
+        image: gcr.io/google-samples/ml-pipeline-t2tapp:vap9
         # env:
         # - name: GOOGLE_APPLICATION_CREDENTIALS
         #   value: /secret/gcp-credentials/user-gcp-sa.json

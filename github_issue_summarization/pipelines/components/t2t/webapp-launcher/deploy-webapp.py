@@ -36,11 +36,12 @@ def main():
                            'If not set, assuming this runs in a GKE container and current ' +
                            'cluster is used.')
   parser.add_argument('--zone', type=str, help='zone of the kubeflow cluster.')
+  parser.add_argument('--namespace', type=str, default='default')
   args = parser.parse_args()
 
-  KUBEFLOW_NAMESPACE = 'kubeflow'
+  # KUBEFLOW_NAMESPACE = 'kubeflow'
 
-  print("using model name: %s and namespace: %s" % (args.model_name, KUBEFLOW_NAMESPACE))
+  print("using model name: %s and namespace: %s" % (args.model_name, args.namespace))
 
   logging.getLogger().setLevel(logging.INFO)
   args_dict = vars(args)
@@ -70,7 +71,7 @@ def main():
     with open(target_file, "w") as target:
       data = f.read()
       changed = data.replace('MODEL_NAME', args.model_name)
-      changed1 = changed.replace('KUBEFLOW_NAMESPACE', KUBEFLOW_NAMESPACE).replace(
+      changed1 = changed.replace('KUBEFLOW_NAMESPACE', args.namespace).replace(
         'GITHUB_TOKEN', args.github_token).replace(
         'DATA_DIR', 'gs://aju-dev-demos-codelabs/kubecon/t2t_data_gh_all/')
       target.write(changed1)

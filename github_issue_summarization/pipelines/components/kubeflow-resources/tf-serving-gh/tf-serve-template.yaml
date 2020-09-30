@@ -46,10 +46,10 @@ spec:
         app: MODEL_NAME
         version: v1
     spec:
-      volumes:
-      - name: gcp-credentials-user-gcp-sa
-        secret:
-          secretName: user-gcp-sa
+      # volumes:
+      # - name: gcp-credentials-user-gcp-sa
+      #   secret:
+      #     secretName: user-gcp-sa
       containers:
       - args:
         - --port=9000

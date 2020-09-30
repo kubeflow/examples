@@ -64,9 +64,9 @@ def gh_summ(  #pylint: disable=unused-argument
 
   serve = dsl.ContainerOp(
       name='serve',
-      image='gcr.io/google-samples/ml-pipeline-kubeflow-tfserve:v5',
+      image='gcr.io/google-samples/ml-pipeline-kubeflow-tfserve:v6',
       arguments=["--model_name", 'ghsumm-%s' % (dsl.RUN_ID_PLACEHOLDER,),
-          "--model_path", train.outputs['train_output_path']
+          "--model_path", train.outputs['train_output_path'], "--namespace", 'default'
           ]
       )
 
@@ -75,9 +75,9 @@ def gh_summ(  #pylint: disable=unused-argument
   with dsl.Condition(train.outputs['launch_server'] == 'true'):
     webapp = dsl.ContainerOp(
         name='webapp',
-        image='gcr.io/google-samples/ml-pipeline-webapp-launcher:v7ap',
+        image='gcr.io/google-samples/ml-pipeline-webapp-launcher:v1',
         arguments=["--model_name", 'ghsumm-%s' % (dsl.RUN_ID_PLACEHOLDER,),
-            "--github_token", github_token]
+            "--github_token", github_token, "--namespace", 'default']
 
         )
     webapp.after(serve)
