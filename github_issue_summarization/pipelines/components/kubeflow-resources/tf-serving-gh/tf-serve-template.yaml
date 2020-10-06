@@ -28,7 +28,7 @@ spec:
     app: MODEL_NAME
   type: ClusterIP
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
@@ -37,16 +37,19 @@ metadata:
   namespace: KUBEFLOW_NAMESPACE
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: MODEL_NAME
   template:
     metadata:
       labels:
         app: MODEL_NAME
         version: v1
     spec:
-      volumes:
-      - name: gcp-credentials-user-gcp-sa
-        secret:
-          secretName: user-gcp-sa
+      # volumes:
+      # - name: gcp-credentials-user-gcp-sa
+      #   secret:
+      #     secretName: user-gcp-sa
       containers:
       - args:
         - --port=9000
@@ -56,15 +59,15 @@ spec:
         command:
         - /usr/bin/tensorflow_model_server
         image: tensorflow/serving
-        env:
-        - name: GOOGLE_APPLICATION_CREDENTIALS
-          value: /secret/gcp-credentials/user-gcp-sa.json
-        - name: CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE
-          value: /secret/gcp-credentials/user-gcp-sa.json
-        volumeMounts:
-        - mountPath: /secret/gcp-credentials
-          name: gcp-credentials-user-gcp-sa
-        imagePullPolicy: IfNotPresent
+        # env:
+        # - name: GOOGLE_APPLICATION_CREDENTIALS
+        #   value: /secret/gcp-credentials/user-gcp-sa.json
+        # - name: CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE
+        #   value: /secret/gcp-credentials/user-gcp-sa.json
+        # volumeMounts:
+        # - mountPath: /secret/gcp-credentials
+        #   name: gcp-credentials-user-gcp-sa
+        imagePullPolicy: Always
         livenessProbe:
           initialDelaySeconds: 30
           periodSeconds: 30

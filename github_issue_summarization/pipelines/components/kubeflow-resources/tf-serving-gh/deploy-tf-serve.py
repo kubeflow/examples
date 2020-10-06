@@ -40,9 +40,10 @@ def main():
                            'If not set, assuming this runs in a GKE container and current ' +
                            'cluster is used.')
   parser.add_argument('--zone', type=str, help='zone of the kubeflow cluster.')
+  parser.add_argument('--namespace', type=str, default='default')
   args = parser.parse_args()
 
-  KUBEFLOW_NAMESPACE = 'kubeflow'
+  # KUBEFLOW_NAMESPACE = 'kubeflow'
 
   # Make sure model dir exists before proceeding
   retries = 0
@@ -90,7 +91,7 @@ def main():
     with open(target_file, "w") as target:
       data = f.read()
       changed = data.replace('MODEL_NAME', args.model_name)
-      changed1 = changed.replace('KUBEFLOW_NAMESPACE', KUBEFLOW_NAMESPACE)
+      changed1 = changed.replace('KUBEFLOW_NAMESPACE', args.namespace)
       changed2 = changed1.replace('MODEL_PATH', args.model_path)
       target.write(changed2)
 

@@ -1,27 +1,3 @@
-apiVersion: networking.istio.io/v1alpha3
-kind: VirtualService
-metadata:
-  name: webapp-MODEL_NAME
-spec:
-  gateways:
-  - kubeflow-gateway
-  hosts:
-  - '*'
-  http:
-  - match:
-    - uri:
-        prefix: /webapp/
-    rewrite:
-      uri: /
-    route:
-    - destination:
-        host: MODEL_NAME-webappsvc.KUBEFLOW_NAMESPACE.svc.cluster.local
-        port:
-          number: 80
-    timeout: 300s
-
----
-
 apiVersion: v1
 kind: Service
 metadata:
@@ -50,33 +26,36 @@ spec:
 
 ---
 
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: MODEL_NAME-webapp
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: ghsumm
   template:
     metadata:
       labels:
         app: ghsumm
         role: frontend
     spec:
-      volumes:
-      - name: gcp-credentials-user-gcp-sa
-        secret:
-          secretName: user-gcp-sa
+      # volumes:
+      # - name: gcp-credentials-user-gcp-sa
+      #   secret:
+      #     secretName: user-gcp-sa
       containers:
       - name: MODEL_NAME-webapp
-        image: gcr.io/google-samples/ml-pipeline-t2tapp:v3ap
-        env:
-        - name: GOOGLE_APPLICATION_CREDENTIALS
-          value: /secret/gcp-credentials/user-gcp-sa.json
-        - name: CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE
-          value: /secret/gcp-credentials/user-gcp-sa.json
-        volumeMounts:
-        - mountPath: /secret/gcp-credentials
-          name: gcp-credentials-user-gcp-sa
+        image: gcr.io/google-samples/ml-pipeline-t2tapp:vap9
+        # env:
+        # - name: GOOGLE_APPLICATION_CREDENTIALS
+        #   value: /secret/gcp-credentials/user-gcp-sa.json
+        # - name: CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE
+        #   value: /secret/gcp-credentials/user-gcp-sa.json
+        # volumeMounts:
+        # - mountPath: /secret/gcp-credentials
+        #   name: gcp-credentials-user-gcp-sa
         # resources:
         #   limits:
         #     nvidia.com/gpu: 1
