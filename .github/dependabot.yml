@@ -1,0 +1,440 @@
+updates:
+- assignees:
+  - jinchihe
+  - jlewi
+  directory: demos/yelp_demo
+  open-pull-requests-limit: 10
+  package-ecosystem: docker
+  schedule:
+    interval: daily
+- assignees:
+  - karthikv2k
+  directory: pipelines/mnist-pipelines/deploy-service
+  open-pull-requests-limit: 10
+  package-ecosystem: docker
+  schedule:
+    interval: daily
+- assignees:
+  - berndverst
+  - aronchick
+  directory: pipelines/azurepipeline/code/training
+  open-pull-requests-limit: 10
+  package-ecosystem: docker
+  schedule:
+    interval: daily
+- assignees:
+  - berndverst
+  - aronchick
+  directory: pipelines/azurepipeline/code/deploy
+  open-pull-requests-limit: 10
+  package-ecosystem: docker
+  schedule:
+    interval: daily
+- assignees:
+  - berndverst
+  - aronchick
+  directory: pipelines/azurepipeline/code/preprocess
+  open-pull-requests-limit: 10
+  package-ecosystem: docker
+  schedule:
+    interval: daily
+- assignees:
+  - berndverst
+  - aronchick
+  directory: pipelines/azurepipeline/code/register
+  open-pull-requests-limit: 10
+  package-ecosystem: docker
+  schedule:
+    interval: daily
+- assignees:
+  - dsdinter
+  - jlewi
+  - texasmichelle
+  directory: pytorch_mnist
+  open-pull-requests-limit: 10
+  package-ecosystem: docker
+  schedule:
+    interval: daily
+- assignees:
+  - dsdinter
+  - jlewi
+  - texasmichelle
+  directory: pytorch_mnist/training/ddp/mnist
+  open-pull-requests-limit: 10
+  package-ecosystem: docker
+  schedule:
+    interval: daily
+- assignees:
+  - dsdinter
+  - jlewi
+  - texasmichelle
+  directory: pytorch_mnist/web-ui
+  open-pull-requests-limit: 10
+  package-ecosystem: docker
+  schedule:
+    interval: daily
+- assignees:
+  - jinchihe
+  - jlewi
+  directory: mnist
+  open-pull-requests-limit: 10
+  package-ecosystem: docker
+  schedule:
+    interval: daily
+- assignees:
+  - jinchihe
+  - jlewi
+  directory: mnist/web-ui
+  open-pull-requests-limit: 10
+  package-ecosystem: docker
+  schedule:
+    interval: daily
+- assignees:
+  - Svendegroote91
+  directory: financial_time_series/tensorflow_model
+  open-pull-requests-limit: 10
+  package-ecosystem: docker
+  schedule:
+    interval: daily
+- assignees:
+  - Svendegroote91
+  directory: financial_time_series/tensorflow_model/CPU
+  open-pull-requests-limit: 10
+  package-ecosystem: docker
+  schedule:
+    interval: daily
+- assignees:
+  - Svendegroote91
+  directory: financial_time_series/tensorflow_model/GPU
+  open-pull-requests-limit: 10
+  package-ecosystem: docker
+  schedule:
+    interval: daily
+- assignees:
+  - jinchihe
+  - jlewi
+  directory: xgboost_synthetic
+  open-pull-requests-limit: 10
+  package-ecosystem: docker
+  schedule:
+    interval: daily
+- assignees:
+  - jinchihe
+  - jlewi
+  directory: named_entity_recognition/components/deploy
+  open-pull-requests-limit: 10
+  package-ecosystem: docker
+  schedule:
+    interval: daily
+- assignees:
+  - jinchihe
+  - jlewi
+  directory: named_entity_recognition/components/preprocess
+  open-pull-requests-limit: 10
+  package-ecosystem: docker
+  schedule:
+    interval: daily
+- assignees:
+  - jinchihe
+  - jlewi
+  directory: named_entity_recognition/components/train
+  open-pull-requests-limit: 10
+  package-ecosystem: docker
+  schedule:
+    interval: daily
+- assignees:
+  - richardsliu
+  - zhenghuiwang
+  directory: xgboost_ames_housing
+  open-pull-requests-limit: 10
+  package-ecosystem: docker
+  schedule:
+    interval: daily
+- assignees:
+  - richardsliu
+  - zhenghuiwang
+  directory: xgboost_ames_housing/test
+  open-pull-requests-limit: 10
+  package-ecosystem: docker
+  schedule:
+    interval: daily
+- assignees:
+  - ChanYiLin
+  - gaocegege
+  - terrytangyuan
+  directory: tensorflow_cuj/text_classification
+  open-pull-requests-limit: 10
+  package-ecosystem: docker
+  schedule:
+    interval: daily
+- assignees:
+  - ChanYiLin
+  - gaocegege
+  - terrytangyuan
+  directory: tensorflow_cuj/neural_machine_translation
+  open-pull-requests-limit: 10
+  package-ecosystem: docker
+  schedule:
+    interval: daily
+- assignees:
+  - jinchihe
+  - jlewi
+  directory: codelab-image
+  open-pull-requests-limit: 10
+  package-ecosystem: docker
+  schedule:
+    interval: daily
+- assignees:
+  - jinchihe
+  - jlewi
+  directory: github_issue_summarization/pipelines/components/t2t/containers/t2t_proc
+  open-pull-requests-limit: 10
+  package-ecosystem: docker
+  schedule:
+    interval: daily
+- assignees:
+  - jinchihe
+  - jlewi
+  directory: github_issue_summarization/pipelines/components/t2t/containers/t2t_app
+  open-pull-requests-limit: 10
+  package-ecosystem: docker
+  schedule:
+    interval: daily
+- assignees:
+  - jinchihe
+  - jlewi
+  directory: github_issue_summarization/pipelines/components/t2t/containers/base
+  open-pull-requests-limit: 10
+  package-ecosystem: docker
+  schedule:
+    interval: daily
+- assignees:
+  - jinchihe
+  - jlewi
+  directory: github_issue_summarization/pipelines/components/t2t/containers/metadata-logger
+  open-pull-requests-limit: 10
+  package-ecosystem: docker
+  schedule:
+    interval: daily
+- assignees:
+  - jinchihe
+  - jlewi
+  directory: github_issue_summarization/pipelines/components/t2t/containers/t2t_train
+  open-pull-requests-limit: 10
+  package-ecosystem: docker
+  schedule:
+    interval: daily
+- assignees:
+  - jinchihe
+  - jlewi
+  directory: github_issue_summarization/pipelines/components/t2t/containers/webapp-launcher
+  open-pull-requests-limit: 10
+  package-ecosystem: docker
+  schedule:
+    interval: daily
+- assignees:
+  - jinchihe
+  - jlewi
+  directory: github_issue_summarization/pipelines/components/kubeflow-resources/containers/tf-serving-gh
+  open-pull-requests-limit: 10
+  package-ecosystem: docker
+  schedule:
+    interval: daily
+- assignees:
+  - jinchihe
+  - jlewi
+  directory: github_issue_summarization/Pachyderm_Example/code
+  open-pull-requests-limit: 10
+  package-ecosystem: docker
+  schedule:
+    interval: daily
+- assignees:
+  - jinchihe
+  - jlewi
+  directory: github_issue_summarization/workflow
+  open-pull-requests-limit: 10
+  package-ecosystem: docker
+  schedule:
+    interval: daily
+- assignees:
+  - jinchihe
+  - jlewi
+  directory: github_issue_summarization/docker
+  open-pull-requests-limit: 10
+  package-ecosystem: docker
+  schedule:
+    interval: daily
+- assignees:
+  - jinchihe
+  - jlewi
+  directory: github_issue_summarization/notebooks
+  open-pull-requests-limit: 10
+  package-ecosystem: docker
+  schedule:
+    interval: daily
+- assignees:
+  - jinchihe
+  - jlewi
+  directory: object_detection/docker
+  open-pull-requests-limit: 10
+  package-ecosystem: docker
+  schedule:
+    interval: daily
+- assignees:
+  - IronPan
+  directory: code_search/docker/t2t
+  open-pull-requests-limit: 10
+  package-ecosystem: docker
+  schedule:
+    interval: daily
+- assignees:
+  - IronPan
+  directory: code_search/docker/ui
+  open-pull-requests-limit: 10
+  package-ecosystem: docker
+  schedule:
+    interval: daily
+- assignees:
+  - IronPan
+  directory: code_search/docker/ks
+  open-pull-requests-limit: 10
+  package-ecosystem: docker
+  schedule:
+    interval: daily
+- assignees:
+  - IronPan
+  directory: code_search/src/ui
+  open-pull-requests-limit: 10
+  package-ecosystem: npm
+  schedule:
+    interval: daily
+- assignees:
+  - jinchihe
+  - jlewi
+  directory: demos/yelp_demo/ui
+  open-pull-requests-limit: 10
+  package-ecosystem: pip
+  schedule:
+    interval: daily
+- assignees:
+  - karthikv2k
+  directory: pipelines/mnist-pipelines
+  open-pull-requests-limit: 10
+  package-ecosystem: pip
+  schedule:
+    interval: daily
+- assignees:
+  - berndverst
+  - aronchick
+  directory: pipelines/azurepipeline/code/training
+  open-pull-requests-limit: 10
+  package-ecosystem: pip
+  schedule:
+    interval: daily
+- assignees:
+  - berndverst
+  - aronchick
+  directory: pipelines/azurepipeline/code/preprocess
+  open-pull-requests-limit: 10
+  package-ecosystem: pip
+  schedule:
+    interval: daily
+- assignees:
+  - berndverst
+  - aronchick
+  directory: pipelines/azurepipeline/code/register
+  open-pull-requests-limit: 10
+  package-ecosystem: pip
+  schedule:
+    interval: daily
+- assignees:
+  - dsdinter
+  - jlewi
+  - texasmichelle
+  directory: pytorch_mnist/serving/seldon-wrapper
+  open-pull-requests-limit: 10
+  package-ecosystem: pip
+  schedule:
+    interval: daily
+- assignees:
+  - jinchihe
+  - jlewi
+  directory: mnist
+  open-pull-requests-limit: 10
+  package-ecosystem: pip
+  schedule:
+    interval: daily
+- assignees:
+  - Svendegroote91
+  directory: financial_time_series/tensorflow_model
+  open-pull-requests-limit: 10
+  package-ecosystem: pip
+  schedule:
+    interval: daily
+- assignees:
+  - jinchihe
+  - jlewi
+  directory: xgboost_synthetic
+  open-pull-requests-limit: 10
+  package-ecosystem: pip
+  schedule:
+    interval: daily
+- assignees:
+  - richardsliu
+  - zhenghuiwang
+  directory: xgboost_ames_housing/seldon_serve
+  open-pull-requests-limit: 10
+  package-ecosystem: pip
+  schedule:
+    interval: daily
+- assignees:
+  - ChanYiLin
+  - gaocegege
+  - terrytangyuan
+  directory: tensorflow_cuj/text_classification
+  open-pull-requests-limit: 10
+  package-ecosystem: pip
+  schedule:
+    interval: daily
+- assignees:
+  - ChanYiLin
+  - gaocegege
+  - terrytangyuan
+  directory: tensorflow_cuj/neural_machine_translation
+  open-pull-requests-limit: 10
+  package-ecosystem: pip
+  schedule:
+    interval: daily
+- assignees:
+  - jinchihe
+  - jlewi
+  directory: github_issue_summarization
+  open-pull-requests-limit: 10
+  package-ecosystem: pip
+  schedule:
+    interval: daily
+- assignees:
+  - jinchihe
+  - jlewi
+  directory: github_issue_summarization/Pachyderm_Example/code
+  open-pull-requests-limit: 10
+  package-ecosystem: pip
+  schedule:
+    interval: daily
+- assignees:
+  - jinchihe
+  - jlewi
+  directory: github_issue_summarization/docker/flask_web
+  open-pull-requests-limit: 10
+  package-ecosystem: pip
+  schedule:
+    interval: daily
+- assignees:
+  - jinchihe
+  - jlewi
+  directory: github_issue_summarization/notebooks
+  open-pull-requests-limit: 10
+  package-ecosystem: pip
+  schedule:
+    interval: daily
+version: 2
