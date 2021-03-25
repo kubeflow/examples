@@ -169,7 +169,7 @@ python-dateutil==2.6.1
 python-Levenshtein==0.12.0
 pytz==2017.3
 PyWavelets==0.5.2
-PyYAML==3.12
+PyYAML==5.4
 pyzmq==16.0.2
 QtAwesome==0.4.4
 qtconsole==4.3.1
