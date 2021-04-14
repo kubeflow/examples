@@ -17,3 +17,4 @@ dependencies:
   - tensorflow==2.0.0-alpha0
   - Pillow
   - requests
+  - h5py==2.10.0
