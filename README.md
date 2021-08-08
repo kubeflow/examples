@@ -1,148 +1,68 @@
-# kubeflow-examples
+# Chinese-multiperson-voice-recognition-using-transfer-learning
+This is an example of applying transfer learning to the Chinese multi-person voice recognition application.  Transfer learning is an AI technique used to enhance the training accuracy of use cases when the dataset is small or the training accuracy is low given the high noise of the original dataset.  Multi-person voice recognition is known to contain high noise in the dataset.  Chinese voice voice recognition has gained much progress recently thanks to the effort by the big name company such as Google.  However many issues remain unsolved.  Multi-person Chinese voice recognition is one of them.  This example provieds not only multi-person Chinese voice sample dataset, but applied a transfer learning technique to the CNN trained model of the Chinese voice samples dataset.  Satisfactory results can be achieved through transfer learning after an initial CNN training.
+This example provides a feasibility evidence of the transfer learning techniques, and it is our wish to convert the transfer learning technique to a Kubeflow asset through this illustration case.  A transfer learning pipeline will be constructed to make kubeflow user easy to adapt to their model for training accuracy enhancement.  Eventually, other users can benefit from such convenient features of the kubeflow resources.
 
-A repository to share extended Kubeflow examples and tutorials to demonstrate machine learning
-concepts, data science workflows, and Kubeflow deployments. The examples illustrate the happy path,
-acting as a starting point for new users and a reference guide for experienced users.
+usage briefing:
+1.Process audio files and convert them into spectrograms.
+2.Establish experimental data, divide them into 3 categories, and set them into CNN network training.
+3.Perform two training sessions to improve accuracy.
+4.Compare training methods.
 
-This repository is home to the following types of examples and demos:
-* [End-to-end](#end-to-end)
-* [Component-focused](#component-focused)
-* [Demos](#demos)
+Tools used:
+1. TensorFlow
+2. Anaconda
+3. Python3.7
 
-## End-to-end
+1. preprocess(spectrograms production)
 
-### [Named Entity Recognition](./named_entity_recognition)
-Author: [Sascha Heyer](https://github.com/saschaheyer)
+![image](https://user-images.githubusercontent.com/58965086/122675714-48a34700-d20d-11eb-81d7-865209ac8367.png)
 
-This example covers the following concepts:
-1. Build reusable pipeline components
-2. Run Kubeflow Pipelines with Jupyter notebooks
-1. Train a Named Entity Recognition model on a Kubernetes cluster
-1. Deploy a Keras model to AI Platform
-1. Use Kubeflow metrics
-1. Use Kubeflow visualizations 
+2. import spectrogram files.
+![image](https://user-images.githubusercontent.com/58965086/122675748-712b4100-d20d-11eb-96cd-1523b9329020.png)
 
-### [GitHub issue summarization](./github_issue_summarization)
-Author: [Hamel Husain](https://github.com/hamelsmu)
+![image](https://user-images.githubusercontent.com/58965086/122675762-8011f380-d20d-11eb-90db-f7b8942571d5.png)
 
-This example covers the following concepts:
-1. Natural Language Processing (NLP) with Keras and Tensorflow
-1. Connecting to Jupyterhub
-1. Shared persistent storage
-1. Training a Tensorflow model
-    1. CPU
-    1. GPU
-1. Serving with Seldon Core
-1. Flask front-end
+3. build training dataset:
+divide the dataset into training, validation, and testing sets.
 
-### [Pachyderm Example - GitHub issue summarization](./github_issue_summarization/Pachyderm_Example)
-Author: [Nick Harvey](https://github.com/Nick-Harvey) & [Daniel Whitenack](https://github.com/dwhitena)
+![image](https://user-images.githubusercontent.com/58965086/122675818-b8b1cd00-d20d-11eb-836a-08fa3e870823.png)
 
-This example covers the following concepts:
-1. A production pipeline for pre-processing, training, and model export
-1. CI/CD for model binaries, building and deploying a docker image for serving in Seldon
-1. Full tracking of what data produced which model, and what model is being used for inference
-1. Automatic updates of models based on changes to training data or code
-1. Training with single node Tensorflow and distributed TF-jobs
+4. build CNN taining:
 
-### [Pytorch MNIST](./pytorch_mnist)
-Author: [David Sabater](https://github.com/dsdinter)
+![image](https://user-images.githubusercontent.com/58965086/122675838-d54e0500-d20d-11eb-8076-8dc78600a779.png)
 
-This example covers the following concepts:
-1. Distributed Data Parallel (DDP) training with Pytorch on CPU and GPU
-1. Shared persistent storage
-1. Training a Pytorch model
-    1. CPU
-    1. GPU
-1. Serving with Seldon Core
-1. Flask front-end
+5. first training
+![image](https://user-images.githubusercontent.com/58965086/122675851-e565e480-d20d-11eb-8ad4-4dada12f70a0.png)
+![image](https://user-images.githubusercontent.com/58965086/122675854-ea2a9880-d20d-11eb-82f8-4ad9fc506386.png)
 
-### [MNIST](./mnist)
+6. first training result:
+![image](https://user-images.githubusercontent.com/58965086/122675877-03cbe000-d20e-11eb-8f64-1c4ad9cec5a8.png)
 
-Author: [Elson Rodriguez](https://github.com/elsonrodriguez)
+7. visualize the result
+![image](https://user-images.githubusercontent.com/58965086/122675890-1b0acd80-d20e-11eb-84da-1793cac58fe2.png)
 
-This example covers the following concepts:
-1. Image recognition of handwritten digits
-1. S3 storage
-1. Training automation with Argo
-1. Monitoring with Argo UI and Tensorboard
-1. Serving with Tensorflow
+![image](https://user-images.githubusercontent.com/58965086/122675896-2100ae80-d20e-11eb-8901-240b7d9b3566.png)
 
-### [Distributed Object Detection](./object_detection)
+8. import VGG16 model
+![image](https://user-images.githubusercontent.com/58965086/122675911-37a70580-d20e-11eb-95ab-a4a652fa79ab.png)
+![image](https://user-images.githubusercontent.com/58965086/122675916-3e357d00-d20e-11eb-99ab-a5d22facba9c.png)
 
-Author: [Daniel Castellanos](https://github.com/ldcastell)
+9. use conv_base model to extract features and labels
+![image](https://user-images.githubusercontent.com/58965086/122675969-7937b080-d20e-11eb-885d-c5f202b3457a.png)
 
-This example covers the following concepts:
-1. Gathering and preparing the data for model training using K8s jobs
-1. Using Kubeflow tf-job and tf-operator to launch a distributed object training job
-1. Serving the model through Kubeflow's tf-serving
+10. training
+![image](https://user-images.githubusercontent.com/58965086/122676010-92d8f800-d20e-11eb-8826-5b599bc78b4b.png)
 
-### [Financial Time Series](./financial_time_series)
+11. visualize the results
+![image](https://user-images.githubusercontent.com/58965086/122676032-a71cf500-d20e-11eb-82fc-a2a468340a53.png)
 
-Author: [Sven Degroote](https://github.com/Svendegroote91)
+12. build confusion matrix
+![image](https://user-images.githubusercontent.com/58965086/122676055-c1ef6980-d20e-11eb-81af-c394696124c7.png)
 
-This example covers the following concepts:
-1. Deploying Kubeflow to a GKE cluster
-2. Exploration via JupyterHub (prospect data, preprocess data, develop ML model)
-3. Training several tensorflow models at scale with TF-jobs
-4. Deploy and serve with TF-serving
-5. Iterate training and serving
-6. Training on GPU
-7. Using Kubeflow Pipelines to automate ML workflow
+13. visualiz the confusion matrix
+![image](https://user-images.githubusercontent.com/58965086/122676069-d7fd2a00-d20e-11eb-8dcb-064f8406e9a4.png)
 
-### [Pipelines](./pipelines)
+14. sample Chinese multiperson voice spectrogram files are added
+15. sample VGG16 transfer learning code: vgg16.ipynb is added to the repository 
+ 
 
-#### [Simple notebook pipeline](./pipelines/simple-notebook-pipeline)
-Author: [Zane Durante](https://github.com/zanedurante)
-
-This example covers the following concepts:
-1. How to create pipeline components from python functions in jupyter notebook
-2. How to compile and run a pipeline from jupyter notebook
-
-#### [MNIST Pipelines](./pipelines/mnist-pipelines)
-Author: [Dan Sanche](https://github.com/DanSanche) and [Jin Chi He](https://github.com/jinchihe)
-
-This example covers the following concepts:
-1. Run MNIST Pipelines sample on a Google Cloud Platform (GCP).
-2. Run MNIST Pipelines sample for on premises cluster.
-
-## Component-focused
-
-### [XGBoost - Ames housing price prediction](./xgboost_ames_housing)
-Author: [Puneith Kaul](https://github.com/puneith)
-
-This example covers the following concepts:
-1. Training an XGBoost model
-1. Shared persistent storage
-1. GCS and GKE
-1. Serving with Seldon Core
-
-## Demos
-
-Demos are for showing Kubeflow or one of its components publicly, with the
-intent of highlighting product vision, not necessarily teaching. In contrast,
-the goal of the **examples** is to provide a self-guided walkthrough of
-Kubeflow or one of its components, for the purpose of teaching you how to
-install and use the product.
-
-In an *example*, all commands should be embedded in the process and explained.
-In a *demo*, most details should be done behind the scenes, to optimize for
- on-stage rhythm and limited timing.
-
-You can find the demos in the [`/demos` directory](demos/).
-
-## Third-party hosted
-
-| Source | Example | Description |
-| ------ | ------- | ----------- |
-| | | | |
-
-## Get Involved
-
-* [Slack](https://join.slack.com/t/kubeflow/shared_invite/zt-cpr020z4-PfcAue_2nw67~iIDy7maAQ)
-* [Twitter](http://twitter.com/kubeflow)
-* [Mailing List](https://groups.google.com/forum/#!forum/kubeflow-discuss)
-
-In the interest of fostering an open and welcoming environment, we as contributors and maintainers pledge to making participation in our project and our community a harassment-free experience for everyone, regardless of age, body size, disability, ethnicity, gender identity and expression, level of experience, education, socio-economic status, nationality, personal appearance, race, religion, or sexual identity and orientation.
-
-The Kubeflow community is guided by our [Code of Conduct](https://github.com/kubeflow/community/blob/master/CODE_OF_CONDUCT.md), which we encourage everybody to read before participating.
