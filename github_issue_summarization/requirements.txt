@@ -7,7 +7,7 @@ annoy==1.10.0
 asn1crypto==0.22.0
 astroid==1.5.3
 astropy==2.0.2
-Babel==2.5.0
+Babel==2.9.1
 backports.functools-lru-cache==1.4
 backports.shutil-get-terminal-size==1.0.0
 bcolz==1.1.2
