@@ -71,7 +71,7 @@ Next, you can change the owner of the .kube and .minikube folders. \
 In this way, subsequent commands related to kubectl and minikube do not need to add sudo. \
 The line with the second red exclamation mark indicates the storage location of .kube and .minikube.
 ```Bash
-sudo chown –R <user_name> .kube .minikube
+sudo chown -R <user_name> .kube .minikube
 ```
 You can enter ls -l -a to confirm, the first name is the owner and the second name is the group.
 ```Bash
