@@ -69,7 +69,7 @@ Follow these instructions to run the MNIST tutorial on Azure
 
 1. Follow the [Azure instructions](https://www.kubeflow.org/docs/azure/deploy/install-kubeflow/) to deploy Kubeflow on Azure
 
-1. If you do not already have a notebook server, [create a new server](https://www.kubeflow.org/docs/notebooks/setup/)
+1. If you do not already have a notebook server, [create a new server](https://www.kubeflow.org/docs/components/notebooks/setup/)
 
 1. Launch a Jupyter notebook server
 
@@ -95,7 +95,7 @@ Follow these instructions to run the MNIST tutorial on Azure
 
 Follow these instructions to run the MNIST tutorial on IBM Cloud
 
-1. Follow the [IBM Cloud instructions](https://www.kubeflow.org/docs/ibm/install-kubeflow/) to deploy Kubeflow on IBM Cloud with [IBM Cloud Block Storage](https://www.kubeflow.org/docs/ibm/install-kubeflow/#ibm-cloud-block-storage-setup).
+1. Follow the [IBM Cloud instructions](https://www.kubeflow.org/docs/distributions/ibm/deploy/) to deploy Kubeflow on IBM Cloud with [IBM Cloud Block Storage](https://www.kubeflow.org/docs/ibm/install-kubeflow/#ibm-cloud-block-storage-setup).
 
 1. Launch a Jupyter notebook
 
