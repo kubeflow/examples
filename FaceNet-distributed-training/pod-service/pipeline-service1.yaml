@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: pipeline-worker-1
+  namespace: kubeflow-user-example-com 
+spec:
+  type: NodePort
+  ports:
+  - port: 3000
+    nodePort: 30391
+    protocol: TCP
+    targetPort: 3000
+  selector: 
+    pod-name: worker-1

@@ -1,0 +1,1174 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: triplet-training-pipeline-
+  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.4.0, pipelines.kubeflow.org/pipeline_compilation_time: '2021-10-11T05:57:05.692612',
+    pipelines.kubeflow.org/pipeline_spec: '{"description": "triplet training test.",
+      "name": "triplet_training pipeline"}'}
+  labels: {pipelines.kubeflow.org/kfp_sdk_version: 1.4.0}
+spec:
+  entrypoint: triplet-training-pipeline
+  templates:
+  - name: distributed-training-worker1
+    container:
+      args: [--start-time-string, '{{inputs.parameters.load-data-start_time_string}}',
+        '----output-paths', /tmp/outputs/model_path/data]
+      command:
+      - sh
+      - -ec
+      - |
+        program_path=$(mktemp)
+        printf "%s" "$0" > "$program_path"
+        python3 -u "$program_path" "$@"
+      - "def distributed_training_worker1(start_time_string):\n    import numpy as\
+        \ np\n    import sys\n    import time\n    import tensorflow as tf\n    import\
+        \ json\n    import os\n    sys.path.append(\"./\")\n    sys.path.append(\"\
+        /persist-log\")\n    from config import img_size, channel, faces_data_dir,\
+        \ FREEZE_LAYERS, classify, facenet_weight_path\n    from inception_resnet_v1\
+        \ import InceptionResNetV1\n    from itertools import permutations\n    from\
+        \ tqdm import tqdm\n    from tensorflow.keras import backend as K\n    from\
+        \ sklearn.manifold import TSNE\n\n    #load data from pvc in the container\n\
+        \    data = np.load('/persist-log/triplet-data.npz')\n    X_train, X_test\
+        \ = data['arr_0'], data['arr_1']\n\n    def training_model(in_shape,freeze_layers,weights_path):\n\
+        \n        def create_base_network(in_dims,freeze_layers,weights_path):\n \
+        \           model = InceptionResNetV1(input_shape=in_dims, weights_path=weights_path)\n\
+        \            print('layer length: ', len(model.layers))\n            for layer\
+        \ in model.layers[:freeze_layers]:\n                layer.trainable = False\n\
+        \            for layer in model.layers[freeze_layers:]:\n                layer.trainable\
+        \ = True\n            return model\n\n        def triplet_loss(y_true,y_pred,alpha=0.4):\n\
+        \            total_lenght = y_pred.shape.as_list()[-1]\n            anchor\
+        \ = y_pred[:, 0:int(total_lenght * 1 / 3)]\n            positive = y_pred[:,\
+        \ int(total_lenght * 1 / 3):int(total_lenght * 2 / 3)]\n            negative\
+        \ = y_pred[:, int(total_lenght * 2 / 3):int(total_lenght * 3 / 3)]\n     \
+        \       # distance between the anchor and the positive\n            pos_dist\
+        \ = K.sum(K.square(anchor - positive), axis=1)\n            # distance between\
+        \ the anchor and the negative\n            neg_dist = K.sum(K.square(anchor\
+        \ - negative), axis=1)\n            # compute loss\n            basic_loss\
+        \ = pos_dist - neg_dist + alpha\n            loss = K.maximum(basic_loss,\
+        \ 0.0)\n            return loss\n        # define triplet input layers\n \
+        \       anchor_input = tf.keras.layers.Input(in_shape, name='anchor_input')\n\
+        \        positive_input = tf.keras.layers.Input(in_shape, name='positive_input')\n\
+        \        negative_input = tf.keras.layers.Input(in_shape, name='negative_input')\n\
+        \        Shared_DNN = create_base_network(in_shape, freeze_layers, weights_path)\n\
+        \        # Shared_DNN.summary()\n        # encoded inputs\n        encoded_anchor\
+        \ = Shared_DNN(anchor_input)\n        encoded_positive = Shared_DNN(positive_input)\n\
+        \        encoded_negative = Shared_DNN(negative_input)\n        # output\n\
+        \        merged_vector = tf.keras.layers.concatenate([encoded_anchor, encoded_positive,\
+        \ encoded_negative],axis=-1,name='merged_layer')\n        model = tf.keras.Model(inputs=[anchor_input,\
+        \ positive_input, negative_input], outputs=merged_vector)\n        model.compile(\n\
+        \            optimizer=adam_optim,\n            loss=triplet_loss,\n     \
+        \   )\n        return model\n\n    os.environ['TF_CONFIG'] = json.dumps({'cluster':\
+        \ {'worker': [\"pipeline-worker-1:3000\",\"pipeline-worker-2:3000\",\"pipeline-worker-3:3000\"\
+        ]},'task': {'type': 'worker', 'index': 0}})\n    #os.environ['TF_CONFIG']\
+        \ = json.dumps({'cluster': {'worker': [\"pipeline-worker-1:3000\"]},'task':\
+        \ {'type': 'worker', 'index': 0}})\n\n    strategy = tf.distribute.experimental.MultiWorkerMirroredStrategy(\n\
+        \        tf.distribute.experimental.CollectiveCommunication.RING)\n    NUM_WORKERS\
+        \ = strategy.num_replicas_in_sync\n    print('=================\\r\\nWorkers:\
+        \ ' + str(NUM_WORKERS) + '\\r\\n=================\\r\\n')\n    learn_rate\
+        \ = 0.0001 + NUM_WORKERS * 0.00006\n    adam_optim = tf.keras.optimizers.Adam(lr=learn_rate)\n\
+        \    batch_size = 32* NUM_WORKERS\n    model_path='/persist-log/weight_tfdl.h5'\n\
+        \    print(model_path)\n    callbacks = [tf.keras.callbacks.ModelCheckpoint(model_path,\
+        \ save_weights_only=True, verbose=1)]\n    #X_train=np.array(X_train)\n  \
+        \  #print(type(X_train))\n    with strategy.scope():\n        Anchor = X_train[:,\
+        \ 0, :].reshape(-1, img_size, img_size, channel)\n        Positive = X_train[:,\
+        \ 1, :].reshape(-1, img_size, img_size, channel)\n        Negative = X_train[:,\
+        \ 2, :].reshape(-1, img_size, img_size, channel)\n        Y_dummy = np.empty(Anchor.shape[0])\n\
+        \        model = training_model((img_size, img_size, channel), FREEZE_LAYERS,\
+        \ facenet_weight_path)\n\n    model.fit(x=[Anchor, Positive, Negative],\n\
+        \        y=Y_dummy,\n        # Anchor_test = X_test[:, 0, :].reshape(-1, img_size,\
+        \ img_size, channel)\n        # Positive_test = X_test[:, 1, :].reshape(-1,\
+        \ img_size, img_size, channel)\n        # Negative_test = X_test[:, 2, :].reshape(-1,\
+        \ img_size, img_size, channel)\n        # Y_dummy = np.empty(Anchor.shape[0])\n\
+        \        # Y_dummy2 = np.empty((Anchor_test.shape[0], 1))\n        # validation_data=([Anchor_test,Positive_test,Negative_test],Y_dummy2),\n\
+        \        # validation_split=0.2,\n        batch_size=batch_size,  # old setting:\
+        \ 32\n        # steps_per_epoch=(X_train.shape[0] // batch_size) + 1,\n  \
+        \      epochs=10,\n        callbacks=callbacks\n        )  \n    end = time.time()\n\
+        \    start_time_float=float(start_time_string)\n    print('execution time\
+        \ = ', ((end - start_time_float)/60))\n    return [model_path]\n\ndef _serialize_str(str_value:\
+        \ str) -> str:\n    if not isinstance(str_value, str):\n        raise TypeError('Value\
+        \ \"{}\" has type \"{}\" instead of str.'.format(str(str_value), str(type(str_value))))\n\
+        \    return str_value\n\nimport argparse\n_parser = argparse.ArgumentParser(prog='Distributed\
+        \ training worker1', description='')\n_parser.add_argument(\"--start-time-string\"\
+        , dest=\"start_time_string\", type=str, required=True, default=argparse.SUPPRESS)\n\
+        _parser.add_argument(\"----output-paths\", dest=\"_output_paths\", type=str,\
+        \ nargs=1)\n_parsed_args = vars(_parser.parse_args())\n_output_files = _parsed_args.pop(\"\
+        _output_paths\", [])\n\n_outputs = distributed_training_worker1(**_parsed_args)\n\
+        \n_output_serializers = [\n    _serialize_str,\n\n]\n\nimport os\nfor idx,\
+        \ output_file in enumerate(_output_files):\n    try:\n        os.makedirs(os.path.dirname(output_file))\n\
+        \    except OSError:\n        pass\n    with open(output_file, 'w') as f:\n\
+        \        f.write(_output_serializers[idx](_outputs[idx]))\n"
+      image: mike0355/k8s-facenet-distributed-training:4
+      ports:
+      - {containerPort: 3000, hostPort: 3000}
+      volumeMounts:
+      - {mountPath: /persist-log, name: triplet-trainaing-pvc}
+    inputs:
+      parameters:
+      - {name: load-data-start_time_string}
+      - {name: triplet-trainaing-pvc-name}
+    outputs:
+      parameters:
+      - name: distributed-training-worker1-model_path
+        valueFrom: {path: /tmp/outputs/model_path/data}
+      artifacts:
+      - {name: distributed-training-worker1-model_path, path: /tmp/outputs/model_path/data}
+    nodeSelector: {disktype: worker-1}
+    metadata:
+      labels: {pod-name: worker-1}
+      annotations: {pipelines.kubeflow.org/component_spec: '{"implementation": {"container":
+          {"args": ["--start-time-string", {"inputValue": "start_time_string"}, "----output-paths",
+          {"outputPath": "model_path"}], "command": ["sh", "-ec", "program_path=$(mktemp)\nprintf
+          \"%s\" \"$0\" > \"$program_path\"\npython3 -u \"$program_path\" \"$@\"\n",
+          "def distributed_training_worker1(start_time_string):\n    import numpy
+          as np\n    import sys\n    import time\n    import tensorflow as tf\n    import
+          json\n    import os\n    sys.path.append(\"./\")\n    sys.path.append(\"/persist-log\")\n    from
+          config import img_size, channel, faces_data_dir, FREEZE_LAYERS, classify,
+          facenet_weight_path\n    from inception_resnet_v1 import InceptionResNetV1\n    from
+          itertools import permutations\n    from tqdm import tqdm\n    from tensorflow.keras
+          import backend as K\n    from sklearn.manifold import TSNE\n\n    #load
+          data from pvc in the container\n    data = np.load(''/persist-log/triplet-data.npz'')\n    X_train,
+          X_test = data[''arr_0''], data[''arr_1'']\n\n    def training_model(in_shape,freeze_layers,weights_path):\n\n        def
+          create_base_network(in_dims,freeze_layers,weights_path):\n            model
+          = InceptionResNetV1(input_shape=in_dims, weights_path=weights_path)\n            print(''layer
+          length: '', len(model.layers))\n            for layer in model.layers[:freeze_layers]:\n                layer.trainable
+          = False\n            for layer in model.layers[freeze_layers:]:\n                layer.trainable
+          = True\n            return model\n\n        def triplet_loss(y_true,y_pred,alpha=0.4):\n            total_lenght
+          = y_pred.shape.as_list()[-1]\n            anchor = y_pred[:, 0:int(total_lenght
+          * 1 / 3)]\n            positive = y_pred[:, int(total_lenght * 1 / 3):int(total_lenght
+          * 2 / 3)]\n            negative = y_pred[:, int(total_lenght * 2 / 3):int(total_lenght
+          * 3 / 3)]\n            # distance between the anchor and the positive\n            pos_dist
+          = K.sum(K.square(anchor - positive), axis=1)\n            # distance between
+          the anchor and the negative\n            neg_dist = K.sum(K.square(anchor
+          - negative), axis=1)\n            # compute loss\n            basic_loss
+          = pos_dist - neg_dist + alpha\n            loss = K.maximum(basic_loss,
+          0.0)\n            return loss\n        # define triplet input layers\n        anchor_input
+          = tf.keras.layers.Input(in_shape, name=''anchor_input'')\n        positive_input
+          = tf.keras.layers.Input(in_shape, name=''positive_input'')\n        negative_input
+          = tf.keras.layers.Input(in_shape, name=''negative_input'')\n        Shared_DNN
+          = create_base_network(in_shape, freeze_layers, weights_path)\n        #
+          Shared_DNN.summary()\n        # encoded inputs\n        encoded_anchor =
+          Shared_DNN(anchor_input)\n        encoded_positive = Shared_DNN(positive_input)\n        encoded_negative
+          = Shared_DNN(negative_input)\n        # output\n        merged_vector =
+          tf.keras.layers.concatenate([encoded_anchor, encoded_positive, encoded_negative],axis=-1,name=''merged_layer'')\n        model
+          = tf.keras.Model(inputs=[anchor_input, positive_input, negative_input],
+          outputs=merged_vector)\n        model.compile(\n            optimizer=adam_optim,\n            loss=triplet_loss,\n        )\n        return
+          model\n\n    os.environ[''TF_CONFIG''] = json.dumps({''cluster'': {''worker'':
+          [\"pipeline-worker-1:3000\",\"pipeline-worker-2:3000\",\"pipeline-worker-3:3000\"]},''task'':
+          {''type'': ''worker'', ''index'': 0}})\n    #os.environ[''TF_CONFIG''] =
+          json.dumps({''cluster'': {''worker'': [\"pipeline-worker-1:3000\"]},''task'':
+          {''type'': ''worker'', ''index'': 0}})\n\n    strategy = tf.distribute.experimental.MultiWorkerMirroredStrategy(\n        tf.distribute.experimental.CollectiveCommunication.RING)\n    NUM_WORKERS
+          = strategy.num_replicas_in_sync\n    print(''=================\\r\\nWorkers:
+          '' + str(NUM_WORKERS) + ''\\r\\n=================\\r\\n'')\n    learn_rate
+          = 0.0001 + NUM_WORKERS * 0.00006\n    adam_optim = tf.keras.optimizers.Adam(lr=learn_rate)\n    batch_size
+          = 32* NUM_WORKERS\n    model_path=''/persist-log/weight_tfdl.h5''\n    print(model_path)\n    callbacks
+          = [tf.keras.callbacks.ModelCheckpoint(model_path, save_weights_only=True,
+          verbose=1)]\n    #X_train=np.array(X_train)\n    #print(type(X_train))\n    with
+          strategy.scope():\n        Anchor = X_train[:, 0, :].reshape(-1, img_size,
+          img_size, channel)\n        Positive = X_train[:, 1, :].reshape(-1, img_size,
+          img_size, channel)\n        Negative = X_train[:, 2, :].reshape(-1, img_size,
+          img_size, channel)\n        Y_dummy = np.empty(Anchor.shape[0])\n        model
+          = training_model((img_size, img_size, channel), FREEZE_LAYERS, facenet_weight_path)\n\n    model.fit(x=[Anchor,
+          Positive, Negative],\n        y=Y_dummy,\n        # Anchor_test = X_test[:,
+          0, :].reshape(-1, img_size, img_size, channel)\n        # Positive_test
+          = X_test[:, 1, :].reshape(-1, img_size, img_size, channel)\n        # Negative_test
+          = X_test[:, 2, :].reshape(-1, img_size, img_size, channel)\n        # Y_dummy
+          = np.empty(Anchor.shape[0])\n        # Y_dummy2 = np.empty((Anchor_test.shape[0],
+          1))\n        # validation_data=([Anchor_test,Positive_test,Negative_test],Y_dummy2),\n        #
+          validation_split=0.2,\n        batch_size=batch_size,  # old setting: 32\n        #
+          steps_per_epoch=(X_train.shape[0] // batch_size) + 1,\n        epochs=10,\n        callbacks=callbacks\n        )  \n    end
+          = time.time()\n    start_time_float=float(start_time_string)\n    print(''execution
+          time = '', ((end - start_time_float)/60))\n    return [model_path]\n\ndef
+          _serialize_str(str_value: str) -> str:\n    if not isinstance(str_value,
+          str):\n        raise TypeError(''Value \"{}\" has type \"{}\" instead of
+          str.''.format(str(str_value), str(type(str_value))))\n    return str_value\n\nimport
+          argparse\n_parser = argparse.ArgumentParser(prog=''Distributed training
+          worker1'', description='''')\n_parser.add_argument(\"--start-time-string\",
+          dest=\"start_time_string\", type=str, required=True, default=argparse.SUPPRESS)\n_parser.add_argument(\"----output-paths\",
+          dest=\"_output_paths\", type=str, nargs=1)\n_parsed_args = vars(_parser.parse_args())\n_output_files
+          = _parsed_args.pop(\"_output_paths\", [])\n\n_outputs = distributed_training_worker1(**_parsed_args)\n\n_output_serializers
+          = [\n    _serialize_str,\n\n]\n\nimport os\nfor idx, output_file in enumerate(_output_files):\n    try:\n        os.makedirs(os.path.dirname(output_file))\n    except
+          OSError:\n        pass\n    with open(output_file, ''w'') as f:\n        f.write(_output_serializers[idx](_outputs[idx]))\n"],
+          "image": "mike0355/k8s-facenet-distributed-training:4"}}, "inputs": [{"name":
+          "start_time_string", "type": "String"}], "name": "Distributed training worker1",
+          "outputs": [{"name": "model_path", "type": "String"}]}', pipelines.kubeflow.org/component_ref: '{}',
+        pipelines.kubeflow.org/arguments.parameters: '{"start_time_string": "{{inputs.parameters.load-data-start_time_string}}"}'}
+    volumes:
+    - name: triplet-trainaing-pvc
+      persistentVolumeClaim: {claimName: '{{inputs.parameters.triplet-trainaing-pvc-name}}'}
+  - name: distributed-training-worker2
+    container:
+      args: [--start-time-string, '{{inputs.parameters.load-data-start_time_string}}',
+        '----output-paths', /tmp/outputs/model_path_work2/data]
+      command:
+      - sh
+      - -ec
+      - |
+        program_path=$(mktemp)
+        printf "%s" "$0" > "$program_path"
+        python3 -u "$program_path" "$@"
+      - "def distributed_training_worker2(start_time_string):\n    import numpy as\
+        \ np\n    import sys\n    import time\n    import tensorflow as tf\n    import\
+        \ json\n    import os\n    sys.path.append(\"./\")\n    sys.path.append(\"\
+        /persist-log\")\n    from config import img_size, channel, faces_data_dir,\
+        \ FREEZE_LAYERS, classify, facenet_weight_path\n    from inception_resnet_v1\
+        \ import InceptionResNetV1\n    from itertools import permutations\n    from\
+        \ tqdm import tqdm\n    from tensorflow.keras import backend as K\n    from\
+        \ sklearn.manifold import TSNE\n\n    #load data from pvc in the container\n\
+        \    data = np.load('/persist-log/triplet-data.npz')\n    X_train, X_test\
+        \ = data['arr_0'], data['arr_1']\n\n    def training_model(in_shape,freeze_layers,weights_path):\n\
+        \n        def create_base_network(in_dims,freeze_layers,weights_path):\n \
+        \           model = InceptionResNetV1(input_shape=in_dims, weights_path=weights_path)\n\
+        \            print('layer length: ', len(model.layers))\n            for layer\
+        \ in model.layers[:freeze_layers]:\n                layer.trainable = False\n\
+        \            for layer in model.layers[freeze_layers:]:\n                layer.trainable\
+        \ = True\n            return model\n\n        def triplet_loss(y_true,y_pred,alpha=0.4):\n\
+        \            total_lenght = y_pred.shape.as_list()[-1]\n            anchor\
+        \ = y_pred[:, 0:int(total_lenght * 1 / 3)]\n            positive = y_pred[:,\
+        \ int(total_lenght * 1 / 3):int(total_lenght * 2 / 3)]\n            negative\
+        \ = y_pred[:, int(total_lenght * 2 / 3):int(total_lenght * 3 / 3)]\n     \
+        \       # distance between the anchor and the positive\n            pos_dist\
+        \ = K.sum(K.square(anchor - positive), axis=1)\n            # distance between\
+        \ the anchor and the negative\n            neg_dist = K.sum(K.square(anchor\
+        \ - negative), axis=1)\n            # compute loss\n            basic_loss\
+        \ = pos_dist - neg_dist + alpha\n            loss = K.maximum(basic_loss,\
+        \ 0.0)\n            return loss\n        # define triplet input layers\n \
+        \       anchor_input = tf.keras.layers.Input(in_shape, name='anchor_input')\n\
+        \        positive_input = tf.keras.layers.Input(in_shape, name='positive_input')\n\
+        \        negative_input = tf.keras.layers.Input(in_shape, name='negative_input')\n\
+        \        Shared_DNN = create_base_network(in_shape, freeze_layers, weights_path)\n\
+        \        # Shared_DNN.summary()\n        # encoded inputs\n        encoded_anchor\
+        \ = Shared_DNN(anchor_input)\n        encoded_positive = Shared_DNN(positive_input)\n\
+        \        encoded_negative = Shared_DNN(negative_input)\n        # output\n\
+        \        merged_vector = tf.keras.layers.concatenate([encoded_anchor, encoded_positive,\
+        \ encoded_negative],axis=-1,name='merged_layer')\n        model = tf.keras.Model(inputs=[anchor_input,\
+        \ positive_input, negative_input], outputs=merged_vector)\n        model.compile(\n\
+        \            optimizer=adam_optim,\n            loss=triplet_loss,\n     \
+        \   )\n        return model\n\n    os.environ['TF_CONFIG'] = json.dumps({'cluster':\
+        \ {'worker': [\"pipeline-worker-1:3000\",\"pipeline-worker-2:3000\",\"pipeline-worker-3:3000\"\
+        ]},'task': {'type': 'worker', 'index': 1}})\n\n    strategy = tf.distribute.experimental.MultiWorkerMirroredStrategy(\n\
+        \        tf.distribute.experimental.CollectiveCommunication.RING)\n    NUM_WORKERS\
+        \ = strategy.num_replicas_in_sync\n    print('=================\\r\\nWorkers:\
+        \ ' + str(NUM_WORKERS) + '\\r\\n=================\\r\\n')\n    learn_rate\
+        \ = 0.0001 + NUM_WORKERS * 0.00006\n    adam_optim = tf.keras.optimizers.Adam(lr=learn_rate)\n\
+        \    batch_size = 32* NUM_WORKERS\n    model_path_work2='/persist-log/weight_tfdl.h5'\n\
+        \n    callbacks = [tf.keras.callbacks.ModelCheckpoint(model_path_work2, save_weights_only=True,\
+        \ verbose=1)]\n    #X_train=np.array(X_train)\n    #print(type(X_train))\n\
+        \    with strategy.scope():\n        Anchor = X_train[:, 0, :].reshape(-1,\
+        \ img_size, img_size, channel)\n        Positive = X_train[:, 1, :].reshape(-1,\
+        \ img_size, img_size, channel)\n        Negative = X_train[:, 2, :].reshape(-1,\
+        \ img_size, img_size, channel)\n        Y_dummy = np.empty(Anchor.shape[0])\n\
+        \        model = training_model((img_size, img_size, channel), FREEZE_LAYERS,\
+        \ facenet_weight_path)\n\n    model.fit(x=[Anchor, Positive, Negative],\n\
+        \        y=Y_dummy,\n        # Anchor_test = X_test[:, 0, :].reshape(-1, img_size,\
+        \ img_size, channel)\n        # Positive_test = X_test[:, 1, :].reshape(-1,\
+        \ img_size, img_size, channel)\n        # Negative_test = X_test[:, 2, :].reshape(-1,\
+        \ img_size, img_size, channel)\n        # Y_dummy = np.empty(Anchor.shape[0])\n\
+        \        # Y_dummy2 = np.empty((Anchor_test.shape[0], 1))\n        # validation_data=([Anchor_test,Positive_test,Negative_test],Y_dummy2),\n\
+        \        # validation_split=0.2,\n        batch_size=batch_size,  # old setting:\
+        \ 32\n        # steps_per_epoch=(X_train.shape[0] // batch_size) + 1,\n  \
+        \      epochs=10,\n        callbacks=callbacks\n        )  \n    end = time.time()\n\
+        \    start_time_float=float(start_time_string)\n    print('execution time\
+        \ = ', ((end - start_time_float)/60))\n    return [model_path_work2]\n\ndef\
+        \ _serialize_str(str_value: str) -> str:\n    if not isinstance(str_value,\
+        \ str):\n        raise TypeError('Value \"{}\" has type \"{}\" instead of\
+        \ str.'.format(str(str_value), str(type(str_value))))\n    return str_value\n\
+        \nimport argparse\n_parser = argparse.ArgumentParser(prog='Distributed training\
+        \ worker2', description='')\n_parser.add_argument(\"--start-time-string\"\
+        , dest=\"start_time_string\", type=str, required=True, default=argparse.SUPPRESS)\n\
+        _parser.add_argument(\"----output-paths\", dest=\"_output_paths\", type=str,\
+        \ nargs=1)\n_parsed_args = vars(_parser.parse_args())\n_output_files = _parsed_args.pop(\"\
+        _output_paths\", [])\n\n_outputs = distributed_training_worker2(**_parsed_args)\n\
+        \n_output_serializers = [\n    _serialize_str,\n\n]\n\nimport os\nfor idx,\
+        \ output_file in enumerate(_output_files):\n    try:\n        os.makedirs(os.path.dirname(output_file))\n\
+        \    except OSError:\n        pass\n    with open(output_file, 'w') as f:\n\
+        \        f.write(_output_serializers[idx](_outputs[idx]))\n"
+      image: mike0355/k8s-facenet-distributed-training:4
+      ports:
+      - {containerPort: 3000, hostPort: 3000}
+      volumeMounts:
+      - {mountPath: /persist-log, name: triplet-trainaing-pvc}
+    inputs:
+      parameters:
+      - {name: load-data-start_time_string}
+      - {name: triplet-trainaing-pvc-name}
+    outputs:
+      parameters:
+      - name: distributed-training-worker2-model_path_work2
+        valueFrom: {path: /tmp/outputs/model_path_work2/data}
+      artifacts:
+      - {name: distributed-training-worker2-model_path_work2, path: /tmp/outputs/model_path_work2/data}
+    nodeSelector: {disktype: worker-2}
+    metadata:
+      labels: {pod-name: worker-2}
+      annotations: {pipelines.kubeflow.org/component_spec: '{"implementation": {"container":
+          {"args": ["--start-time-string", {"inputValue": "start_time_string"}, "----output-paths",
+          {"outputPath": "model_path_work2"}], "command": ["sh", "-ec", "program_path=$(mktemp)\nprintf
+          \"%s\" \"$0\" > \"$program_path\"\npython3 -u \"$program_path\" \"$@\"\n",
+          "def distributed_training_worker2(start_time_string):\n    import numpy
+          as np\n    import sys\n    import time\n    import tensorflow as tf\n    import
+          json\n    import os\n    sys.path.append(\"./\")\n    sys.path.append(\"/persist-log\")\n    from
+          config import img_size, channel, faces_data_dir, FREEZE_LAYERS, classify,
+          facenet_weight_path\n    from inception_resnet_v1 import InceptionResNetV1\n    from
+          itertools import permutations\n    from tqdm import tqdm\n    from tensorflow.keras
+          import backend as K\n    from sklearn.manifold import TSNE\n\n    #load
+          data from pvc in the container\n    data = np.load(''/persist-log/triplet-data.npz'')\n    X_train,
+          X_test = data[''arr_0''], data[''arr_1'']\n\n    def training_model(in_shape,freeze_layers,weights_path):\n\n        def
+          create_base_network(in_dims,freeze_layers,weights_path):\n            model
+          = InceptionResNetV1(input_shape=in_dims, weights_path=weights_path)\n            print(''layer
+          length: '', len(model.layers))\n            for layer in model.layers[:freeze_layers]:\n                layer.trainable
+          = False\n            for layer in model.layers[freeze_layers:]:\n                layer.trainable
+          = True\n            return model\n\n        def triplet_loss(y_true,y_pred,alpha=0.4):\n            total_lenght
+          = y_pred.shape.as_list()[-1]\n            anchor = y_pred[:, 0:int(total_lenght
+          * 1 / 3)]\n            positive = y_pred[:, int(total_lenght * 1 / 3):int(total_lenght
+          * 2 / 3)]\n            negative = y_pred[:, int(total_lenght * 2 / 3):int(total_lenght
+          * 3 / 3)]\n            # distance between the anchor and the positive\n            pos_dist
+          = K.sum(K.square(anchor - positive), axis=1)\n            # distance between
+          the anchor and the negative\n            neg_dist = K.sum(K.square(anchor
+          - negative), axis=1)\n            # compute loss\n            basic_loss
+          = pos_dist - neg_dist + alpha\n            loss = K.maximum(basic_loss,
+          0.0)\n            return loss\n        # define triplet input layers\n        anchor_input
+          = tf.keras.layers.Input(in_shape, name=''anchor_input'')\n        positive_input
+          = tf.keras.layers.Input(in_shape, name=''positive_input'')\n        negative_input
+          = tf.keras.layers.Input(in_shape, name=''negative_input'')\n        Shared_DNN
+          = create_base_network(in_shape, freeze_layers, weights_path)\n        #
+          Shared_DNN.summary()\n        # encoded inputs\n        encoded_anchor =
+          Shared_DNN(anchor_input)\n        encoded_positive = Shared_DNN(positive_input)\n        encoded_negative
+          = Shared_DNN(negative_input)\n        # output\n        merged_vector =
+          tf.keras.layers.concatenate([encoded_anchor, encoded_positive, encoded_negative],axis=-1,name=''merged_layer'')\n        model
+          = tf.keras.Model(inputs=[anchor_input, positive_input, negative_input],
+          outputs=merged_vector)\n        model.compile(\n            optimizer=adam_optim,\n            loss=triplet_loss,\n        )\n        return
+          model\n\n    os.environ[''TF_CONFIG''] = json.dumps({''cluster'': {''worker'':
+          [\"pipeline-worker-1:3000\",\"pipeline-worker-2:3000\",\"pipeline-worker-3:3000\"]},''task'':
+          {''type'': ''worker'', ''index'': 1}})\n\n    strategy = tf.distribute.experimental.MultiWorkerMirroredStrategy(\n        tf.distribute.experimental.CollectiveCommunication.RING)\n    NUM_WORKERS
+          = strategy.num_replicas_in_sync\n    print(''=================\\r\\nWorkers:
+          '' + str(NUM_WORKERS) + ''\\r\\n=================\\r\\n'')\n    learn_rate
+          = 0.0001 + NUM_WORKERS * 0.00006\n    adam_optim = tf.keras.optimizers.Adam(lr=learn_rate)\n    batch_size
+          = 32* NUM_WORKERS\n    model_path_work2=''/persist-log/weight_tfdl.h5''\n\n    callbacks
+          = [tf.keras.callbacks.ModelCheckpoint(model_path_work2, save_weights_only=True,
+          verbose=1)]\n    #X_train=np.array(X_train)\n    #print(type(X_train))\n    with
+          strategy.scope():\n        Anchor = X_train[:, 0, :].reshape(-1, img_size,
+          img_size, channel)\n        Positive = X_train[:, 1, :].reshape(-1, img_size,
+          img_size, channel)\n        Negative = X_train[:, 2, :].reshape(-1, img_size,
+          img_size, channel)\n        Y_dummy = np.empty(Anchor.shape[0])\n        model
+          = training_model((img_size, img_size, channel), FREEZE_LAYERS, facenet_weight_path)\n\n    model.fit(x=[Anchor,
+          Positive, Negative],\n        y=Y_dummy,\n        # Anchor_test = X_test[:,
+          0, :].reshape(-1, img_size, img_size, channel)\n        # Positive_test
+          = X_test[:, 1, :].reshape(-1, img_size, img_size, channel)\n        # Negative_test
+          = X_test[:, 2, :].reshape(-1, img_size, img_size, channel)\n        # Y_dummy
+          = np.empty(Anchor.shape[0])\n        # Y_dummy2 = np.empty((Anchor_test.shape[0],
+          1))\n        # validation_data=([Anchor_test,Positive_test,Negative_test],Y_dummy2),\n        #
+          validation_split=0.2,\n        batch_size=batch_size,  # old setting: 32\n        #
+          steps_per_epoch=(X_train.shape[0] // batch_size) + 1,\n        epochs=10,\n        callbacks=callbacks\n        )  \n    end
+          = time.time()\n    start_time_float=float(start_time_string)\n    print(''execution
+          time = '', ((end - start_time_float)/60))\n    return [model_path_work2]\n\ndef
+          _serialize_str(str_value: str) -> str:\n    if not isinstance(str_value,
+          str):\n        raise TypeError(''Value \"{}\" has type \"{}\" instead of
+          str.''.format(str(str_value), str(type(str_value))))\n    return str_value\n\nimport
+          argparse\n_parser = argparse.ArgumentParser(prog=''Distributed training
+          worker2'', description='''')\n_parser.add_argument(\"--start-time-string\",
+          dest=\"start_time_string\", type=str, required=True, default=argparse.SUPPRESS)\n_parser.add_argument(\"----output-paths\",
+          dest=\"_output_paths\", type=str, nargs=1)\n_parsed_args = vars(_parser.parse_args())\n_output_files
+          = _parsed_args.pop(\"_output_paths\", [])\n\n_outputs = distributed_training_worker2(**_parsed_args)\n\n_output_serializers
+          = [\n    _serialize_str,\n\n]\n\nimport os\nfor idx, output_file in enumerate(_output_files):\n    try:\n        os.makedirs(os.path.dirname(output_file))\n    except
+          OSError:\n        pass\n    with open(output_file, ''w'') as f:\n        f.write(_output_serializers[idx](_outputs[idx]))\n"],
+          "image": "mike0355/k8s-facenet-distributed-training:4"}}, "inputs": [{"name":
+          "start_time_string", "type": "String"}], "name": "Distributed training worker2",
+          "outputs": [{"name": "model_path_work2", "type": "String"}]}', pipelines.kubeflow.org/component_ref: '{}',
+        pipelines.kubeflow.org/arguments.parameters: '{"start_time_string": "{{inputs.parameters.load-data-start_time_string}}"}'}
+    volumes:
+    - name: triplet-trainaing-pvc
+      persistentVolumeClaim: {claimName: '{{inputs.parameters.triplet-trainaing-pvc-name}}'}
+  - name: distributed-training-worker3
+    container:
+      args: [--start-time-string, '{{inputs.parameters.load-data-start_time_string}}',
+        '----output-paths', /tmp/outputs/model_path_work3/data]
+      command:
+      - sh
+      - -ec
+      - |
+        program_path=$(mktemp)
+        printf "%s" "$0" > "$program_path"
+        python3 -u "$program_path" "$@"
+      - "def distributed_training_worker3(start_time_string):\n    import numpy as\
+        \ np\n    import sys\n    import time\n    import tensorflow as tf\n    import\
+        \ json\n    import os\n    sys.path.append(\"./\")\n    sys.path.append(\"\
+        /persist-log\")\n    from config import img_size, channel, faces_data_dir,\
+        \ FREEZE_LAYERS, classify, facenet_weight_path\n    from inception_resnet_v1\
+        \ import InceptionResNetV1\n    from itertools import permutations\n    from\
+        \ tqdm import tqdm\n    from tensorflow.keras import backend as K\n    from\
+        \ sklearn.manifold import TSNE\n\n    #load data from pvc in the container\n\
+        \    data = np.load('/persist-log/triplet-data.npz')\n    X_train, X_test\
+        \ = data['arr_0'], data['arr_1']\n\n    def training_model(in_shape,freeze_layers,weights_path):\n\
+        \n        def create_base_network(in_dims,freeze_layers,weights_path):\n \
+        \           model = InceptionResNetV1(input_shape=in_dims, weights_path=weights_path)\n\
+        \            print('layer length: ', len(model.layers))\n            for layer\
+        \ in model.layers[:freeze_layers]:\n                layer.trainable = False\n\
+        \            for layer in model.layers[freeze_layers:]:\n                layer.trainable\
+        \ = True\n            return model\n\n        def triplet_loss(y_true,y_pred,alpha=0.4):\n\
+        \            total_lenght = y_pred.shape.as_list()[-1]\n            anchor\
+        \ = y_pred[:, 0:int(total_lenght * 1 / 3)]\n            positive = y_pred[:,\
+        \ int(total_lenght * 1 / 3):int(total_lenght * 2 / 3)]\n            negative\
+        \ = y_pred[:, int(total_lenght * 2 / 3):int(total_lenght * 3 / 3)]\n     \
+        \       # distance between the anchor and the positive\n            pos_dist\
+        \ = K.sum(K.square(anchor - positive), axis=1)\n            # distance between\
+        \ the anchor and the negative\n            neg_dist = K.sum(K.square(anchor\
+        \ - negative), axis=1)\n            # compute loss\n            basic_loss\
+        \ = pos_dist - neg_dist + alpha\n            loss = K.maximum(basic_loss,\
+        \ 0.0)\n            return loss\n        # define triplet input layers\n \
+        \       anchor_input = tf.keras.layers.Input(in_shape, name='anchor_input')\n\
+        \        positive_input = tf.keras.layers.Input(in_shape, name='positive_input')\n\
+        \        negative_input = tf.keras.layers.Input(in_shape, name='negative_input')\n\
+        \        Shared_DNN = create_base_network(in_shape, freeze_layers, weights_path)\n\
+        \        # Shared_DNN.summary()\n        # encoded inputs\n        encoded_anchor\
+        \ = Shared_DNN(anchor_input)\n        encoded_positive = Shared_DNN(positive_input)\n\
+        \        encoded_negative = Shared_DNN(negative_input)\n        # output\n\
+        \        merged_vector = tf.keras.layers.concatenate([encoded_anchor, encoded_positive,\
+        \ encoded_negative],axis=-1,name='merged_layer')\n        model = tf.keras.Model(inputs=[anchor_input,\
+        \ positive_input, negative_input], outputs=merged_vector)\n        model.compile(\n\
+        \            optimizer=adam_optim,\n            loss=triplet_loss,\n     \
+        \   )\n        return model\n\n    os.environ['TF_CONFIG'] = json.dumps({'cluster':\
+        \ {'worker': [\"pipeline-worker-1:3000\",\"pipeline-worker-2:3000\",\"pipeline-worker-3:3000\"\
+        ]},'task': {'type': 'worker', 'index': 2}})\n\n    strategy = tf.distribute.experimental.MultiWorkerMirroredStrategy(\n\
+        \        tf.distribute.experimental.CollectiveCommunication.RING)\n    NUM_WORKERS\
+        \ = strategy.num_replicas_in_sync\n    print('=================\\r\\nWorkers:\
+        \ ' + str(NUM_WORKERS) + '\\r\\n=================\\r\\n')\n    learn_rate\
+        \ = 0.0001 + NUM_WORKERS * 0.00006\n    adam_optim = tf.keras.optimizers.Adam(lr=learn_rate)\n\
+        \    batch_size = 32* NUM_WORKERS\n    model_path_work3='/persist-log/weight_tfdl.h5'\n\
+        \    callbacks = [tf.keras.callbacks.ModelCheckpoint(model_path_work3, save_weights_only=True,\
+        \ verbose=1)]\n    #X_train=np.array(X_train)\n    #print(type(X_train))\n\
+        \    with strategy.scope():\n        Anchor = X_train[:, 0, :].reshape(-1,\
+        \ img_size, img_size, channel)\n        Positive = X_train[:, 1, :].reshape(-1,\
+        \ img_size, img_size, channel)\n        Negative = X_train[:, 2, :].reshape(-1,\
+        \ img_size, img_size, channel)\n        Y_dummy = np.empty(Anchor.shape[0])\n\
+        \        model = training_model((img_size, img_size, channel), FREEZE_LAYERS,\
+        \ facenet_weight_path)\n\n    model.fit(x=[Anchor, Positive, Negative],\n\
+        \        y=Y_dummy,\n        # Anchor_test = X_test[:, 0, :].reshape(-1, img_size,\
+        \ img_size, channel)\n        # Positive_test = X_test[:, 1, :].reshape(-1,\
+        \ img_size, img_size, channel)\n        # Negative_test = X_test[:, 2, :].reshape(-1,\
+        \ img_size, img_size, channel)\n        # Y_dummy = np.empty(Anchor.shape[0])\n\
+        \        # Y_dummy2 = np.empty((Anchor_test.shape[0], 1))\n        # validation_data=([Anchor_test,Positive_test,Negative_test],Y_dummy2),\n\
+        \        # validation_split=0.2,\n        batch_size=batch_size,  # old setting:\
+        \ 32\n        # steps_per_epoch=(X_train.shape[0] // batch_size) + 1,\n  \
+        \      epochs=10,\n        callbacks=callbacks\n        )  \n    end = time.time()\n\
+        \    start_time_float=float(start_time_string)\n    print('execution time\
+        \ = ', ((end - start_time_float)/60))\n    return [model_path_work3]\n\ndef\
+        \ _serialize_str(str_value: str) -> str:\n    if not isinstance(str_value,\
+        \ str):\n        raise TypeError('Value \"{}\" has type \"{}\" instead of\
+        \ str.'.format(str(str_value), str(type(str_value))))\n    return str_value\n\
+        \nimport argparse\n_parser = argparse.ArgumentParser(prog='Distributed training\
+        \ worker3', description='')\n_parser.add_argument(\"--start-time-string\"\
+        , dest=\"start_time_string\", type=str, required=True, default=argparse.SUPPRESS)\n\
+        _parser.add_argument(\"----output-paths\", dest=\"_output_paths\", type=str,\
+        \ nargs=1)\n_parsed_args = vars(_parser.parse_args())\n_output_files = _parsed_args.pop(\"\
+        _output_paths\", [])\n\n_outputs = distributed_training_worker3(**_parsed_args)\n\
+        \n_output_serializers = [\n    _serialize_str,\n\n]\n\nimport os\nfor idx,\
+        \ output_file in enumerate(_output_files):\n    try:\n        os.makedirs(os.path.dirname(output_file))\n\
+        \    except OSError:\n        pass\n    with open(output_file, 'w') as f:\n\
+        \        f.write(_output_serializers[idx](_outputs[idx]))\n"
+      image: mike0355/k8s-facenet-distributed-training:4
+      ports:
+      - {containerPort: 3000, hostPort: 3000}
+      volumeMounts:
+      - {mountPath: /persist-log, name: triplet-trainaing-pvc}
+    inputs:
+      parameters:
+      - {name: load-data-start_time_string}
+      - {name: triplet-trainaing-pvc-name}
+    outputs:
+      parameters:
+      - name: distributed-training-worker3-model_path_work3
+        valueFrom: {path: /tmp/outputs/model_path_work3/data}
+      artifacts:
+      - {name: distributed-training-worker3-model_path_work3, path: /tmp/outputs/model_path_work3/data}
+    nodeSelector: {disktype: worker-3}
+    metadata:
+      labels: {pod-name: worker-3}
+      annotations: {pipelines.kubeflow.org/component_spec: '{"implementation": {"container":
+          {"args": ["--start-time-string", {"inputValue": "start_time_string"}, "----output-paths",
+          {"outputPath": "model_path_work3"}], "command": ["sh", "-ec", "program_path=$(mktemp)\nprintf
+          \"%s\" \"$0\" > \"$program_path\"\npython3 -u \"$program_path\" \"$@\"\n",
+          "def distributed_training_worker3(start_time_string):\n    import numpy
+          as np\n    import sys\n    import time\n    import tensorflow as tf\n    import
+          json\n    import os\n    sys.path.append(\"./\")\n    sys.path.append(\"/persist-log\")\n    from
+          config import img_size, channel, faces_data_dir, FREEZE_LAYERS, classify,
+          facenet_weight_path\n    from inception_resnet_v1 import InceptionResNetV1\n    from
+          itertools import permutations\n    from tqdm import tqdm\n    from tensorflow.keras
+          import backend as K\n    from sklearn.manifold import TSNE\n\n    #load
+          data from pvc in the container\n    data = np.load(''/persist-log/triplet-data.npz'')\n    X_train,
+          X_test = data[''arr_0''], data[''arr_1'']\n\n    def training_model(in_shape,freeze_layers,weights_path):\n\n        def
+          create_base_network(in_dims,freeze_layers,weights_path):\n            model
+          = InceptionResNetV1(input_shape=in_dims, weights_path=weights_path)\n            print(''layer
+          length: '', len(model.layers))\n            for layer in model.layers[:freeze_layers]:\n                layer.trainable
+          = False\n            for layer in model.layers[freeze_layers:]:\n                layer.trainable
+          = True\n            return model\n\n        def triplet_loss(y_true,y_pred,alpha=0.4):\n            total_lenght
+          = y_pred.shape.as_list()[-1]\n            anchor = y_pred[:, 0:int(total_lenght
+          * 1 / 3)]\n            positive = y_pred[:, int(total_lenght * 1 / 3):int(total_lenght
+          * 2 / 3)]\n            negative = y_pred[:, int(total_lenght * 2 / 3):int(total_lenght
+          * 3 / 3)]\n            # distance between the anchor and the positive\n            pos_dist
+          = K.sum(K.square(anchor - positive), axis=1)\n            # distance between
+          the anchor and the negative\n            neg_dist = K.sum(K.square(anchor
+          - negative), axis=1)\n            # compute loss\n            basic_loss
+          = pos_dist - neg_dist + alpha\n            loss = K.maximum(basic_loss,
+          0.0)\n            return loss\n        # define triplet input layers\n        anchor_input
+          = tf.keras.layers.Input(in_shape, name=''anchor_input'')\n        positive_input
+          = tf.keras.layers.Input(in_shape, name=''positive_input'')\n        negative_input
+          = tf.keras.layers.Input(in_shape, name=''negative_input'')\n        Shared_DNN
+          = create_base_network(in_shape, freeze_layers, weights_path)\n        #
+          Shared_DNN.summary()\n        # encoded inputs\n        encoded_anchor =
+          Shared_DNN(anchor_input)\n        encoded_positive = Shared_DNN(positive_input)\n        encoded_negative
+          = Shared_DNN(negative_input)\n        # output\n        merged_vector =
+          tf.keras.layers.concatenate([encoded_anchor, encoded_positive, encoded_negative],axis=-1,name=''merged_layer'')\n        model
+          = tf.keras.Model(inputs=[anchor_input, positive_input, negative_input],
+          outputs=merged_vector)\n        model.compile(\n            optimizer=adam_optim,\n            loss=triplet_loss,\n        )\n        return
+          model\n\n    os.environ[''TF_CONFIG''] = json.dumps({''cluster'': {''worker'':
+          [\"pipeline-worker-1:3000\",\"pipeline-worker-2:3000\",\"pipeline-worker-3:3000\"]},''task'':
+          {''type'': ''worker'', ''index'': 2}})\n\n    strategy = tf.distribute.experimental.MultiWorkerMirroredStrategy(\n        tf.distribute.experimental.CollectiveCommunication.RING)\n    NUM_WORKERS
+          = strategy.num_replicas_in_sync\n    print(''=================\\r\\nWorkers:
+          '' + str(NUM_WORKERS) + ''\\r\\n=================\\r\\n'')\n    learn_rate
+          = 0.0001 + NUM_WORKERS * 0.00006\n    adam_optim = tf.keras.optimizers.Adam(lr=learn_rate)\n    batch_size
+          = 32* NUM_WORKERS\n    model_path_work3=''/persist-log/weight_tfdl.h5''\n    callbacks
+          = [tf.keras.callbacks.ModelCheckpoint(model_path_work3, save_weights_only=True,
+          verbose=1)]\n    #X_train=np.array(X_train)\n    #print(type(X_train))\n    with
+          strategy.scope():\n        Anchor = X_train[:, 0, :].reshape(-1, img_size,
+          img_size, channel)\n        Positive = X_train[:, 1, :].reshape(-1, img_size,
+          img_size, channel)\n        Negative = X_train[:, 2, :].reshape(-1, img_size,
+          img_size, channel)\n        Y_dummy = np.empty(Anchor.shape[0])\n        model
+          = training_model((img_size, img_size, channel), FREEZE_LAYERS, facenet_weight_path)\n\n    model.fit(x=[Anchor,
+          Positive, Negative],\n        y=Y_dummy,\n        # Anchor_test = X_test[:,
+          0, :].reshape(-1, img_size, img_size, channel)\n        # Positive_test
+          = X_test[:, 1, :].reshape(-1, img_size, img_size, channel)\n        # Negative_test
+          = X_test[:, 2, :].reshape(-1, img_size, img_size, channel)\n        # Y_dummy
+          = np.empty(Anchor.shape[0])\n        # Y_dummy2 = np.empty((Anchor_test.shape[0],
+          1))\n        # validation_data=([Anchor_test,Positive_test,Negative_test],Y_dummy2),\n        #
+          validation_split=0.2,\n        batch_size=batch_size,  # old setting: 32\n        #
+          steps_per_epoch=(X_train.shape[0] // batch_size) + 1,\n        epochs=10,\n        callbacks=callbacks\n        )  \n    end
+          = time.time()\n    start_time_float=float(start_time_string)\n    print(''execution
+          time = '', ((end - start_time_float)/60))\n    return [model_path_work3]\n\ndef
+          _serialize_str(str_value: str) -> str:\n    if not isinstance(str_value,
+          str):\n        raise TypeError(''Value \"{}\" has type \"{}\" instead of
+          str.''.format(str(str_value), str(type(str_value))))\n    return str_value\n\nimport
+          argparse\n_parser = argparse.ArgumentParser(prog=''Distributed training
+          worker3'', description='''')\n_parser.add_argument(\"--start-time-string\",
+          dest=\"start_time_string\", type=str, required=True, default=argparse.SUPPRESS)\n_parser.add_argument(\"----output-paths\",
+          dest=\"_output_paths\", type=str, nargs=1)\n_parsed_args = vars(_parser.parse_args())\n_output_files
+          = _parsed_args.pop(\"_output_paths\", [])\n\n_outputs = distributed_training_worker3(**_parsed_args)\n\n_output_serializers
+          = [\n    _serialize_str,\n\n]\n\nimport os\nfor idx, output_file in enumerate(_output_files):\n    try:\n        os.makedirs(os.path.dirname(output_file))\n    except
+          OSError:\n        pass\n    with open(output_file, ''w'') as f:\n        f.write(_output_serializers[idx](_outputs[idx]))\n"],
+          "image": "mike0355/k8s-facenet-distributed-training:4"}}, "inputs": [{"name":
+          "start_time_string", "type": "String"}], "name": "Distributed training worker3",
+          "outputs": [{"name": "model_path_work3", "type": "String"}]}', pipelines.kubeflow.org/component_ref: '{}',
+        pipelines.kubeflow.org/arguments.parameters: '{"start_time_string": "{{inputs.parameters.load-data-start_time_string}}"}'}
+    volumes:
+    - name: triplet-trainaing-pvc
+      persistentVolumeClaim: {claimName: '{{inputs.parameters.triplet-trainaing-pvc-name}}'}
+  - name: load-data
+    container:
+      args: [--log-folder, /persist-log, '----output-paths', /tmp/outputs/start_time_string/data]
+      command:
+      - sh
+      - -ec
+      - |
+        program_path=$(mktemp)
+        printf "%s" "$0" > "$program_path"
+        python3 -u "$program_path" "$@"
+      - "def load_data(log_folder):\n    import numpy as np\n    import time\n   \
+        \ import sys\n    print(\"import done...\")\n    start = time.time()\n   \
+        \ data= np.load(\"triplet-data.npz\")\n    sys.path.append(\"./\")\n\n#  \
+        \  from config import img_size, channel, faces_data_dir, FREEZE_LAYERS, classify,\
+        \ facenet_weight_path   \n#    from inception_resnet_v1 import InceptionResNetV1\n\
+        #    from utils import scatter \n    X_train, X_test = data['arr_0'], data['arr_1']\n\
+        \    print(X_train.shape, X_test.shape)\n    print(\"Saving data...\")\n \
+        \   #print(X_train)\n    #print(X_test)\n    np.savez_compressed('/persist-log/triplet-data.npz',\
+        \ X_train, X_test)\n    print('Save complete ...')\n    start_time_string=str(start)\
+        \ #type is string\n    return [start_time_string]\n\ndef _serialize_str(str_value:\
+        \ str) -> str:\n    if not isinstance(str_value, str):\n        raise TypeError('Value\
+        \ \"{}\" has type \"{}\" instead of str.'.format(str(str_value), str(type(str_value))))\n\
+        \    return str_value\n\nimport argparse\n_parser = argparse.ArgumentParser(prog='Load\
+        \ data', description='')\n_parser.add_argument(\"--log-folder\", dest=\"log_folder\"\
+        , type=str, required=True, default=argparse.SUPPRESS)\n_parser.add_argument(\"\
+        ----output-paths\", dest=\"_output_paths\", type=str, nargs=1)\n_parsed_args\
+        \ = vars(_parser.parse_args())\n_output_files = _parsed_args.pop(\"_output_paths\"\
+        , [])\n\n_outputs = load_data(**_parsed_args)\n\n_output_serializers = [\n\
+        \    _serialize_str,\n\n]\n\nimport os\nfor idx, output_file in enumerate(_output_files):\n\
+        \    try:\n        os.makedirs(os.path.dirname(output_file))\n    except OSError:\n\
+        \        pass\n    with open(output_file, 'w') as f:\n        f.write(_output_serializers[idx](_outputs[idx]))\n"
+      image: mike0355/k8s-facenet-distributed-training:4
+      volumeMounts:
+      - {mountPath: /persist-log, name: triplet-trainaing-pvc}
+    inputs:
+      parameters:
+      - {name: triplet-trainaing-pvc-name}
+    outputs:
+      parameters:
+      - name: load-data-start_time_string
+        valueFrom: {path: /tmp/outputs/start_time_string/data}
+      artifacts:
+      - {name: load-data-start_time_string, path: /tmp/outputs/start_time_string/data}
+    volumes:
+    - name: triplet-trainaing-pvc
+      persistentVolumeClaim: {claimName: '{{inputs.parameters.triplet-trainaing-pvc-name}}'}
+    metadata:
+      annotations: {pipelines.kubeflow.org/component_spec: '{"implementation": {"container":
+          {"args": ["--log-folder", {"inputValue": "log_folder"}, "----output-paths",
+          {"outputPath": "start_time_string"}], "command": ["sh", "-ec", "program_path=$(mktemp)\nprintf
+          \"%s\" \"$0\" > \"$program_path\"\npython3 -u \"$program_path\" \"$@\"\n",
+          "def load_data(log_folder):\n    import numpy as np\n    import time\n    import
+          sys\n    print(\"import done...\")\n    start = time.time()\n    data= np.load(\"triplet-data.npz\")\n    sys.path.append(\"./\")\n\n#    from
+          config import img_size, channel, faces_data_dir, FREEZE_LAYERS, classify,
+          facenet_weight_path   \n#    from inception_resnet_v1 import InceptionResNetV1\n#    from
+          utils import scatter \n    X_train, X_test = data[''arr_0''], data[''arr_1'']\n    print(X_train.shape,
+          X_test.shape)\n    print(\"Saving data...\")\n    #print(X_train)\n    #print(X_test)\n    np.savez_compressed(''/persist-log/triplet-data.npz'',
+          X_train, X_test)\n    print(''Save complete ...'')\n    start_time_string=str(start)
+          #type is string\n    return [start_time_string]\n\ndef _serialize_str(str_value:
+          str) -> str:\n    if not isinstance(str_value, str):\n        raise TypeError(''Value
+          \"{}\" has type \"{}\" instead of str.''.format(str(str_value), str(type(str_value))))\n    return
+          str_value\n\nimport argparse\n_parser = argparse.ArgumentParser(prog=''Load
+          data'', description='''')\n_parser.add_argument(\"--log-folder\", dest=\"log_folder\",
+          type=str, required=True, default=argparse.SUPPRESS)\n_parser.add_argument(\"----output-paths\",
+          dest=\"_output_paths\", type=str, nargs=1)\n_parsed_args = vars(_parser.parse_args())\n_output_files
+          = _parsed_args.pop(\"_output_paths\", [])\n\n_outputs = load_data(**_parsed_args)\n\n_output_serializers
+          = [\n    _serialize_str,\n\n]\n\nimport os\nfor idx, output_file in enumerate(_output_files):\n    try:\n        os.makedirs(os.path.dirname(output_file))\n    except
+          OSError:\n        pass\n    with open(output_file, ''w'') as f:\n        f.write(_output_serializers[idx](_outputs[idx]))\n"],
+          "image": "mike0355/k8s-facenet-distributed-training:4"}}, "inputs": [{"name":
+          "log_folder", "type": "String"}], "name": "Load data", "outputs": [{"name":
+          "start_time_string", "type": "String"}]}', pipelines.kubeflow.org/component_ref: '{}',
+        pipelines.kubeflow.org/arguments.parameters: '{"log_folder": "/persist-log"}'}
+  - name: model-prediction
+    container:
+      args: [--model-path, '{{inputs.parameters.distributed-training-worker1-model_path}}',
+        --model-path-work2, '{{inputs.parameters.distributed-training-worker2-model_path_work2}}',
+        --model-path-work3, '{{inputs.parameters.distributed-training-worker3-model_path_work3}}',
+        '----output-paths', /tmp/outputs/model_path/data]
+      command:
+      - sh
+      - -ec
+      - |
+        program_path=$(mktemp)
+        printf "%s" "$0" > "$program_path"
+        python3 -u "$program_path" "$@"
+      - |
+        def model_prediction(model_path,model_path_work2,model_path_work3):
+            from os import listdir
+            from os.path import isfile
+            import time
+            import numpy as np
+            import cv2
+            from sklearn.manifold import TSNE
+            from scipy.spatial import distance
+            import tensorflow as tf
+            import sys
+            sys.path.append("./")
+            sys.path.append("/persist-log")
+            sys.path.append("/facenet/test")
+            from img_process import align_image, prewhiten
+            from triplet_training import create_base_network
+            from utils import scatter
+            from config import img_size, channel, classify, FREEZE_LAYERS, facenet_weight_path, faces_data_dir
+            anchor_input = tf.keras.Input((img_size, img_size, channel,), name='anchor_input')
+            Shared_DNN = create_base_network((img_size, img_size, channel), FREEZE_LAYERS, facenet_weight_path)
+            encoded_anchor = Shared_DNN(anchor_input)
+
+            model = tf.keras.Model(inputs=anchor_input, outputs=encoded_anchor)
+            model.load_weights(model_path)
+            model.summary()
+            start = time.time()
+            def l2_normalize(x, axis=-1, epsilon=1e-10):
+                output = x / np.sqrt(np.maximum(np.sum(np.square(x), axis=axis, keepdims=True), epsilon))
+                return output
+
+            # Acquire embedding from image
+            def embedding_extractor(img_path):
+                img = cv2.imread(img_path)
+                aligned = align_image(img)
+                #cv2.imwrite("facenet/align/"+"_aligned.jpg", aligned)
+                if aligned is not None:
+                    aligned = aligned.reshape(-1, img_size, img_size, channel)
+
+                    embs = l2_normalize(np.concatenate(model.predict(aligned)))
+                    return embs
+                else:
+                    print(img_path + ' is None')
+                    return None
+
+            testset_dir = 'facenet/test/'
+            items = listdir(testset_dir)
+
+            jpgsList = [x for x in items if isfile(testset_dir + x)]
+            foldersList = [x for x in items if not isfile(testset_dir + x)]
+
+            print(jpgsList)
+            print(foldersList)
+
+            acc_total = 0
+            for i, anch_jpg in enumerate(jpgsList):
+                anchor_path = testset_dir + anch_jpg
+                anch_emb = embedding_extractor(anchor_path)
+
+                for j, clt_folder in enumerate(foldersList):
+                    clt_path = testset_dir + clt_folder + '/'
+                    clt_jpgs = listdir(clt_path)
+                    #print('anchor_path is :',anchor_path)
+                    #print('clt_jpgs is :',clt_jpgs)
+                    #print('clt_path is :',clt_path)
+
+                    str = anch_jpg
+                    computeType = 1 if clt_folder == str.replace('.jpg', '') else 0
+
+                    loss = 0
+                    if computeType == 1:
+                        sum1 = 0
+                        print('==============' + clt_folder + '&' + anch_jpg + '==============')
+                        for k, clt_jpg in enumerate(clt_jpgs):
+                            clt_jpg_path = clt_path + clt_jpg
+                            clt_emb = embedding_extractor(clt_jpg_path)
+                            distanceDiff = distance.euclidean(anch_emb, clt_emb)  # calculate the distance
+                            #print('distance = ', distanceDiff)
+                            sum1 = distanceDiff + sum1
+                            loss = loss + 1 if distanceDiff >= 1 else loss
+
+                        print("sum1", sum1 / 50.0)
+                        print('loss: ', loss)
+                        accuracy = (len(clt_jpgs) - loss) / len(clt_jpgs)
+                        print('accuracy: ', accuracy)
+                        acc_total += accuracy
+                    else:
+                        print('==============' + clt_folder + '&' + anch_jpg + '==============')
+                        sum2 = 0
+                        for k, clt_jpg in enumerate(clt_jpgs):
+                            clt_jpg_path = clt_path + clt_jpg
+                            clt_emb = embedding_extractor(clt_jpg_path)
+                            distanceDiff = distance.euclidean(anch_emb, clt_emb)  # calculate the distance
+                            #print('distance = ', distanceDiff)
+                            loss = loss + 1 if distanceDiff < 1 else loss
+                            sum2 = distanceDiff + sum2
+                        print("sum2", sum2 / 50.0)
+                        print('loss: ', loss)
+                        accuracy = (len(clt_jpgs) - loss) / len(clt_jpgs)
+                        print('accuracy: ', accuracy)
+                        acc_total += accuracy
+
+                    print('--acc_total', acc_total)
+
+            acc_mean = acc_total / 81 * 100
+            print('final acc++------: ', acc_mean)
+            end = time.time()
+            print ('execution time', (end - start))
+
+            return [model_path]
+
+        def _serialize_str(str_value: str) -> str:
+            if not isinstance(str_value, str):
+                raise TypeError('Value "{}" has type "{}" instead of str.'.format(str(str_value), str(type(str_value))))
+            return str_value
+
+        import argparse
+        _parser = argparse.ArgumentParser(prog='Model prediction', description='')
+        _parser.add_argument("--model-path", dest="model_path", type=str, required=True, default=argparse.SUPPRESS)
+        _parser.add_argument("--model-path-work2", dest="model_path_work2", type=str, required=True, default=argparse.SUPPRESS)
+        _parser.add_argument("--model-path-work3", dest="model_path_work3", type=str, required=True, default=argparse.SUPPRESS)
+        _parser.add_argument("----output-paths", dest="_output_paths", type=str, nargs=1)
+        _parsed_args = vars(_parser.parse_args())
+        _output_files = _parsed_args.pop("_output_paths", [])
+
+        _outputs = model_prediction(**_parsed_args)
+
+        _output_serializers = [
+            _serialize_str,
+
+        ]
+
+        import os
+        for idx, output_file in enumerate(_output_files):
+            try:
+                os.makedirs(os.path.dirname(output_file))
+            except OSError:
+                pass
+            with open(output_file, 'w') as f:
+                f.write(_output_serializers[idx](_outputs[idx]))
+      image: mike0355/k8s-facenet-distributed-training:4
+      volumeMounts:
+      - {mountPath: /persist-log, name: triplet-trainaing-pvc}
+    inputs:
+      parameters:
+      - {name: distributed-training-worker1-model_path}
+      - {name: distributed-training-worker2-model_path_work2}
+      - {name: distributed-training-worker3-model_path_work3}
+      - {name: triplet-trainaing-pvc-name}
+    outputs:
+      parameters:
+      - name: model-prediction-model_path
+        valueFrom: {path: /tmp/outputs/model_path/data}
+      artifacts:
+      - {name: model-prediction-model_path, path: /tmp/outputs/model_path/data}
+    volumes:
+    - name: triplet-trainaing-pvc
+      persistentVolumeClaim: {claimName: '{{inputs.parameters.triplet-trainaing-pvc-name}}'}
+    metadata:
+      annotations: {pipelines.kubeflow.org/component_spec: '{"implementation": {"container":
+          {"args": ["--model-path", {"inputValue": "model_path"}, "--model-path-work2",
+          {"inputValue": "model_path_work2"}, "--model-path-work3", {"inputValue":
+          "model_path_work3"}, "----output-paths", {"outputPath": "model_path"}],
+          "command": ["sh", "-ec", "program_path=$(mktemp)\nprintf \"%s\" \"$0\" >
+          \"$program_path\"\npython3 -u \"$program_path\" \"$@\"\n", "def model_prediction(model_path,model_path_work2,model_path_work3):\n    from
+          os import listdir\n    from os.path import isfile\n    import time\n    import
+          numpy as np\n    import cv2\n    from sklearn.manifold import TSNE\n    from
+          scipy.spatial import distance\n    import tensorflow as tf\n    import sys\n    sys.path.append(\"./\")\n    sys.path.append(\"/persist-log\")\n    sys.path.append(\"/facenet/test\")\n    from
+          img_process import align_image, prewhiten\n    from triplet_training import
+          create_base_network\n    from utils import scatter\n    from config import
+          img_size, channel, classify, FREEZE_LAYERS, facenet_weight_path, faces_data_dir\n    anchor_input
+          = tf.keras.Input((img_size, img_size, channel,), name=''anchor_input'')\n    Shared_DNN
+          = create_base_network((img_size, img_size, channel), FREEZE_LAYERS, facenet_weight_path)\n    encoded_anchor
+          = Shared_DNN(anchor_input)\n\n    model = tf.keras.Model(inputs=anchor_input,
+          outputs=encoded_anchor)\n    model.load_weights(model_path)\n    model.summary()\n    start
+          = time.time()\n    def l2_normalize(x, axis=-1, epsilon=1e-10):\n        output
+          = x / np.sqrt(np.maximum(np.sum(np.square(x), axis=axis, keepdims=True),
+          epsilon))\n        return output\n\n    # Acquire embedding from image\n    def
+          embedding_extractor(img_path):\n        img = cv2.imread(img_path)\n        aligned
+          = align_image(img)\n        #cv2.imwrite(\"facenet/align/\"+\"_aligned.jpg\",
+          aligned)\n        if aligned is not None:\n            aligned = aligned.reshape(-1,
+          img_size, img_size, channel)\n\n            embs = l2_normalize(np.concatenate(model.predict(aligned)))\n            return
+          embs\n        else:\n            print(img_path + '' is None'')\n            return
+          None\n\n    testset_dir = ''facenet/test/''\n    items = listdir(testset_dir)\n\n    jpgsList
+          = [x for x in items if isfile(testset_dir + x)]\n    foldersList = [x for
+          x in items if not isfile(testset_dir + x)]\n\n    print(jpgsList)\n    print(foldersList)\n\n    acc_total
+          = 0\n    for i, anch_jpg in enumerate(jpgsList):\n        anchor_path =
+          testset_dir + anch_jpg\n        anch_emb = embedding_extractor(anchor_path)\n\n        for
+          j, clt_folder in enumerate(foldersList):\n            clt_path = testset_dir
+          + clt_folder + ''/''\n            clt_jpgs = listdir(clt_path)\n            #print(''anchor_path
+          is :'',anchor_path)\n            #print(''clt_jpgs is :'',clt_jpgs)\n            #print(''clt_path
+          is :'',clt_path)\n\n            str = anch_jpg\n            computeType
+          = 1 if clt_folder == str.replace(''.jpg'', '''') else 0\n\n            loss
+          = 0\n            if computeType == 1:\n                sum1 = 0\n                print(''==============''
+          + clt_folder + ''&'' + anch_jpg + ''=============='')\n                for
+          k, clt_jpg in enumerate(clt_jpgs):\n                    clt_jpg_path = clt_path
+          + clt_jpg\n                    clt_emb = embedding_extractor(clt_jpg_path)\n                    distanceDiff
+          = distance.euclidean(anch_emb, clt_emb)  # calculate the distance\n                    #print(''distance
+          = '', distanceDiff)\n                    sum1 = distanceDiff + sum1\n                    loss
+          = loss + 1 if distanceDiff >= 1 else loss\n\n                print(\"sum1\",
+          sum1 / 50.0)\n                print(''loss: '', loss)\n                accuracy
+          = (len(clt_jpgs) - loss) / len(clt_jpgs)\n                print(''accuracy:
+          '', accuracy)\n                acc_total += accuracy\n            else:\n                print(''==============''
+          + clt_folder + ''&'' + anch_jpg + ''=============='')\n                sum2
+          = 0\n                for k, clt_jpg in enumerate(clt_jpgs):\n                    clt_jpg_path
+          = clt_path + clt_jpg\n                    clt_emb = embedding_extractor(clt_jpg_path)\n                    distanceDiff
+          = distance.euclidean(anch_emb, clt_emb)  # calculate the distance\n                    #print(''distance
+          = '', distanceDiff)\n                    loss = loss + 1 if distanceDiff
+          < 1 else loss\n                    sum2 = distanceDiff + sum2\n                print(\"sum2\",
+          sum2 / 50.0)\n                print(''loss: '', loss)\n                accuracy
+          = (len(clt_jpgs) - loss) / len(clt_jpgs)\n                print(''accuracy:
+          '', accuracy)\n                acc_total += accuracy\n\n            print(''--acc_total'',
+          acc_total)\n\n    acc_mean = acc_total / 81 * 100\n    print(''final acc++------:
+          '', acc_mean)\n    end = time.time()\n    print (''execution time'', (end
+          - start))\n\n    return [model_path]\n\ndef _serialize_str(str_value: str)
+          -> str:\n    if not isinstance(str_value, str):\n        raise TypeError(''Value
+          \"{}\" has type \"{}\" instead of str.''.format(str(str_value), str(type(str_value))))\n    return
+          str_value\n\nimport argparse\n_parser = argparse.ArgumentParser(prog=''Model
+          prediction'', description='''')\n_parser.add_argument(\"--model-path\",
+          dest=\"model_path\", type=str, required=True, default=argparse.SUPPRESS)\n_parser.add_argument(\"--model-path-work2\",
+          dest=\"model_path_work2\", type=str, required=True, default=argparse.SUPPRESS)\n_parser.add_argument(\"--model-path-work3\",
+          dest=\"model_path_work3\", type=str, required=True, default=argparse.SUPPRESS)\n_parser.add_argument(\"----output-paths\",
+          dest=\"_output_paths\", type=str, nargs=1)\n_parsed_args = vars(_parser.parse_args())\n_output_files
+          = _parsed_args.pop(\"_output_paths\", [])\n\n_outputs = model_prediction(**_parsed_args)\n\n_output_serializers
+          = [\n    _serialize_str,\n\n]\n\nimport os\nfor idx, output_file in enumerate(_output_files):\n    try:\n        os.makedirs(os.path.dirname(output_file))\n    except
+          OSError:\n        pass\n    with open(output_file, ''w'') as f:\n        f.write(_output_serializers[idx](_outputs[idx]))\n"],
+          "image": "mike0355/k8s-facenet-distributed-training:4"}}, "inputs": [{"name":
+          "model_path", "type": "String"}, {"name": "model_path_work2", "type": "String"},
+          {"name": "model_path_work3", "type": "String"}], "name": "Model prediction",
+          "outputs": [{"name": "model_path", "type": "String"}]}', pipelines.kubeflow.org/component_ref: '{}',
+        pipelines.kubeflow.org/arguments.parameters: '{"model_path": "{{inputs.parameters.distributed-training-worker1-model_path}}",
+          "model_path_work2": "{{inputs.parameters.distributed-training-worker2-model_path_work2}}",
+          "model_path_work3": "{{inputs.parameters.distributed-training-worker3-model_path_work3}}"}'}
+  - name: serving
+    container:
+      args: [--model-path, '{{inputs.parameters.model-prediction-model_path}}', --log-folder,
+        /persist-log]
+      command:
+      - sh
+      - -ec
+      - |
+        program_path=$(mktemp)
+        printf "%s" "$0" > "$program_path"
+        python3 -u "$program_path" "$@"
+      - "def serving(model_path, log_folder):\n    from flask import Flask,render_template,url_for,request,redirect,make_response,jsonify\n\
+        \    from werkzeug.utils import secure_filename\n    import os \n    import\
+        \ cv2\n    import sys\n    import time\n    import base64\n    import math\n\
+        \    from datetime import timedelta\n    import numpy as np\n    from os import\
+        \ listdir\n    from os.path import isfile\n    from sklearn.manifold import\
+        \ TSNE\n    from scipy.spatial import distance\n    import tensorflow as tf\n\
+        \n    sys.path.append(\"./\")\n    sys.path.append(\"/persist-log\")\n   \
+        \ sys.path.append(\"/templates\")\n\n    from img_process import align_image,\
+        \ prewhiten\n    from triplet_training import create_base_network\n    from\
+        \ utils import scatter\n    from config import img_size, channel, classify,\
+        \ FREEZE_LAYERS, facenet_weight_path, faces_data_dir\n    serving_time = time.time\n\
+        \    ALLOWED_EXTENSIONS = set(['jpg','JPG'])\n\n    def allowed_file(filename):\n\
+        \        return '.' in filename and filename.rsplit('.',1)[1] in ALLOWED_EXTENSIONS\n\
+        \n    def return_img_stream(img_local_path):\n        img_stream = ''\n  \
+        \      with open(img_local_path,'rb') as img_f:\n            img_stream =\
+        \ img_f.read()\n            img_stream = base64.b64encode(img_stream).decode()\n\
+        \        return img_stream\n\n        # L2 normalization\n    def l2_normalize(x,\
+        \ axis=-1, epsilon=1e-10):\n        output = x / np.sqrt(np.maximum(np.sum(np.square(x),\
+        \ axis=axis, keepdims=True), epsilon))\n        return output\n\n#--------------------------------------------------------------demo.py\
+        \ \n\n    # Acquire embedding from image\n    def embedding_extractor(img_path,model):\n\
+        \        img = cv2.imread(img_path)\n        aligned = align_image(img)\n\
+        \        #cv2.imwrite(\"facenet/align/\"+\"_aligned.jpg\", aligned)\n    \
+        \    if aligned is not None:\n            aligned = aligned.reshape(-1, img_size,\
+        \ img_size, channel)\n\n            embs = l2_normalize(np.concatenate(model.predict(aligned)))\n\
+        \            return embs\n        else:\n            print(img_path + ' is\
+        \ None')\n            return None\n#-------------------------------------------------------------flask\n\
+        \n    app = Flask(__name__, template_folder=\"/templates\")\n\n    app.send_file_max_age_default\
+        \ = timedelta(seconds=1)\n\n    @app.route('/upload',methods=['GET','POST'])\n\
+        \n    def upload():\n        img_stream = ''\n        loss = 0\n        distanceDiffbig\
+        \ = 0\n        distanceDiffsmall = 0\n        distance_sum = 0\n\n       \
+        \ face = ''\n        face2 = ''\n        face3 = ''\n        acc_mean = 0\n\
+        \n        distance_low1 = 0\n        distance_low2 = 0\n        distance_low3\
+        \ = 0\n        distance_show1 = 2\n        distance_show2 = 2\n        distance_show3\
+        \ = 2\n\n        if request.method =='POST':\n            f = request.files['file']\n\
+        \            user_input = request.form.get('name')\n            basepath =\
+        \ os.path.dirname(__file__)\n            sys.path.append('/facenet/test')\n\
+        \            upload_path = os.path.join(basepath,'/facenet/test',secure_filename(f.filename))\n\
+        \            print(basepath)\n            f.save(upload_path)\n          \
+        \  #start = time.time()\n            #model_path = '/persist-log/weight_tfdl.h5'\n\
+        \            anchor_input = tf.keras.Input((img_size, img_size, channel,),\
+        \ name='anchor_input')\n            Shared_DNN = create_base_network((img_size,\
+        \ img_size, channel), FREEZE_LAYERS, facenet_weight_path)\n            encoded_anchor\
+        \ = Shared_DNN(anchor_input)\n\n            model = tf.keras.Model(inputs=anchor_input,\
+        \ outputs=encoded_anchor)\n            model.load_weights(model_path) #/persist-log\n\
+        \            model.summary()\n\n            testset_dir = 'facenet/test/'\n\
+        \            items = listdir(testset_dir)\n\n            jpgsList = [x for\
+        \ x in items if isfile(testset_dir + x)]\n            foldersList = [x for\
+        \ x in items if not isfile(testset_dir + x)]\n\n            print(jpgsList)\n\
+        \            print(foldersList)\n\n            acc_total = 0\n           \
+        \ img_stream = return_img_stream(upload_path)\n            for i, anch_jpg\
+        \ in enumerate(jpgsList):\n                #anchor_path = testset_dir + anch_jpg\n\
+        \                anch_emb = embedding_extractor(upload_path,model)\n\n   \
+        \             for j, clt_folder in enumerate(foldersList):\n             \
+        \       clt_path = testset_dir + clt_folder + '/'\n                    clt_jpgs\
+        \ = listdir(clt_path)\n                    str = anch_jpg\n              \
+        \      print('==============' + clt_folder + '&' + anch_jpg + '==============')\n\
+        \n                    for k, clt_jpg in enumerate(clt_jpgs):\n           \
+        \             clt_jpg_path = clt_path + clt_jpg\n                        clt_emb\
+        \ = embedding_extractor(clt_jpg_path,model)\n                        distanceDiff\
+        \ = distance.euclidean(anch_emb, clt_emb)  # calculate the distance\n    \
+        \                    distance_sum=distance_sum + distanceDiff\n\n        \
+        \                if distanceDiff >= 1:\n                            distanceDiffbig\
+        \ = distanceDiffbig + 1\n\n                        else:\n               \
+        \             distanceDiffsmall = distanceDiffsmall + 1\n\n              \
+        \          if distanceDiffbig >= distanceDiffsmall :\n                   \
+        \         loss = distanceDiffsmall\n\n                        else:\n    \
+        \                        loss = distanceDiffbig\n\n                    distance_sum=distance_sum\
+        \ / 16  \n\n                    if distance_sum < distance_show3: \n\n   \
+        \                     if distance_sum < distance_show2:\n\n              \
+        \              if distance_sum < distance_show1:\n                       \
+        \         distance_show1 = distance_sum\n                                distance_low1\
+        \ = distance_sum\n                                face =  clt_folder\n\n \
+        \                           else:\n                                distance_low2\
+        \ = distance_sum\n                                distance_show2 = distance_sum\n\
+        \                                face2 =  clt_folder\n\n                 \
+        \       else:\n                            distance_show3 = distance_sum\n\
+        \                            distance_low3 = distance_sum\n              \
+        \              face3 = clt_folder\n                    else:\n           \
+        \             distanceDiff = distanceDiff\n\n                    print('distance\
+        \ sum is:', distance_sum)\n                    print('distanceDiffsmall =\
+        \ ', distanceDiffsmall)\n                    print('distanceDiffbig = ', distanceDiffbig)\n\
+        \                    print( distanceDiff)\n\n                    distance_sum\
+        \ = 0\n                    distanceDiffsmall = 0\n                    distanceDiffbig\
+        \ = 0\n                    print('loss: ', loss)\n                    accuracy\
+        \ = (len(clt_jpgs) - loss) / len(clt_jpgs)\n                    acc_total\
+        \ += accuracy\n                    print('face = ', face)\n              \
+        \      print('The first is:',face,'distance is ',distance_low1)\n        \
+        \            print('The Second is:',face2,'distance is ',distance_low2)\n\
+        \                    print('The third is:',face3,'distance is ',distance_low3)\n\
+        \n                distance_low1 = round(distance_low1,2) \n              \
+        \  distance_low2 = round(distance_low2,2)\n                distance_low3 =\
+        \ round(distance_low3,2)\n            acc_mean = acc_total / 9 * 100\n   \
+        \         acc_mean = round(acc_mean,2)\n            print('final acc++------:\
+        \ ', acc_mean)\n            os.remove(upload_path)\n            #end = time.time()\n\
+        \            #print ('execution time', (end - serving_time))\n\n        return\
+        \ render_template('upload.html',img_stream = img_stream, face = face , face2\
+        \ = face2 , face3 = face3 , distance_low1 = distance_low1, distance_low2 =\
+        \ distance_low2 , distance_low3 = distance_low3, acc_mean = acc_mean )\n\n\
+        \    if __name__ == '__main__':\n        app.run(host = '127.0.0.1',port=8987,debug=True)\n\
+        \n    return\n\nimport argparse\n_parser = argparse.ArgumentParser(prog='Serving',\
+        \ description='')\n_parser.add_argument(\"--model-path\", dest=\"model_path\"\
+        , type=str, required=True, default=argparse.SUPPRESS)\n_parser.add_argument(\"\
+        --log-folder\", dest=\"log_folder\", type=str, required=True, default=argparse.SUPPRESS)\n\
+        _parsed_args = vars(_parser.parse_args())\n\n_outputs = serving(**_parsed_args)\n"
+      image: mike0355/k8s-facenet-serving:3
+      volumeMounts:
+      - {mountPath: /persist-log, name: triplet-trainaing-pvc}
+    inputs:
+      parameters:
+      - {name: model-prediction-model_path}
+      - {name: triplet-trainaing-pvc-name}
+    volumes:
+    - name: triplet-trainaing-pvc
+      persistentVolumeClaim: {claimName: '{{inputs.parameters.triplet-trainaing-pvc-name}}'}
+    metadata:
+      annotations: {pipelines.kubeflow.org/component_spec: '{"implementation": {"container":
+          {"args": ["--model-path", {"inputValue": "model_path"}, "--log-folder",
+          {"inputValue": "log_folder"}], "command": ["sh", "-ec", "program_path=$(mktemp)\nprintf
+          \"%s\" \"$0\" > \"$program_path\"\npython3 -u \"$program_path\" \"$@\"\n",
+          "def serving(model_path, log_folder):\n    from flask import Flask,render_template,url_for,request,redirect,make_response,jsonify\n    from
+          werkzeug.utils import secure_filename\n    import os \n    import cv2\n    import
+          sys\n    import time\n    import base64\n    import math\n    from datetime
+          import timedelta\n    import numpy as np\n    from os import listdir\n    from
+          os.path import isfile\n    from sklearn.manifold import TSNE\n    from scipy.spatial
+          import distance\n    import tensorflow as tf\n\n    sys.path.append(\"./\")\n    sys.path.append(\"/persist-log\")\n    sys.path.append(\"/templates\")\n\n    from
+          img_process import align_image, prewhiten\n    from triplet_training import
+          create_base_network\n    from utils import scatter\n    from config import
+          img_size, channel, classify, FREEZE_LAYERS, facenet_weight_path, faces_data_dir\n    serving_time
+          = time.time\n    ALLOWED_EXTENSIONS = set([''jpg'',''JPG''])\n\n    def
+          allowed_file(filename):\n        return ''.'' in filename and filename.rsplit(''.'',1)[1]
+          in ALLOWED_EXTENSIONS\n\n    def return_img_stream(img_local_path):\n        img_stream
+          = ''''\n        with open(img_local_path,''rb'') as img_f:\n            img_stream
+          = img_f.read()\n            img_stream = base64.b64encode(img_stream).decode()\n        return
+          img_stream\n\n        # L2 normalization\n    def l2_normalize(x, axis=-1,
+          epsilon=1e-10):\n        output = x / np.sqrt(np.maximum(np.sum(np.square(x),
+          axis=axis, keepdims=True), epsilon))\n        return output\n\n#--------------------------------------------------------------demo.py
+          \n\n    # Acquire embedding from image\n    def embedding_extractor(img_path,model):\n        img
+          = cv2.imread(img_path)\n        aligned = align_image(img)\n        #cv2.imwrite(\"facenet/align/\"+\"_aligned.jpg\",
+          aligned)\n        if aligned is not None:\n            aligned = aligned.reshape(-1,
+          img_size, img_size, channel)\n\n            embs = l2_normalize(np.concatenate(model.predict(aligned)))\n            return
+          embs\n        else:\n            print(img_path + '' is None'')\n            return
+          None\n#-------------------------------------------------------------flask\n\n    app
+          = Flask(__name__, template_folder=\"/templates\")\n\n    app.send_file_max_age_default
+          = timedelta(seconds=1)\n\n    @app.route(''/upload'',methods=[''GET'',''POST''])\n\n    def
+          upload():\n        img_stream = ''''\n        loss = 0\n        distanceDiffbig
+          = 0\n        distanceDiffsmall = 0\n        distance_sum = 0\n\n        face
+          = ''''\n        face2 = ''''\n        face3 = ''''\n        acc_mean = 0\n\n        distance_low1
+          = 0\n        distance_low2 = 0\n        distance_low3 = 0\n        distance_show1
+          = 2\n        distance_show2 = 2\n        distance_show3 = 2\n\n        if
+          request.method ==''POST'':\n            f = request.files[''file'']\n            user_input
+          = request.form.get(''name'')\n            basepath = os.path.dirname(__file__)\n            sys.path.append(''/facenet/test'')\n            upload_path
+          = os.path.join(basepath,''/facenet/test'',secure_filename(f.filename))\n            print(basepath)\n            f.save(upload_path)\n            #start
+          = time.time()\n            #model_path = ''/persist-log/weight_tfdl.h5''\n            anchor_input
+          = tf.keras.Input((img_size, img_size, channel,), name=''anchor_input'')\n            Shared_DNN
+          = create_base_network((img_size, img_size, channel), FREEZE_LAYERS, facenet_weight_path)\n            encoded_anchor
+          = Shared_DNN(anchor_input)\n\n            model = tf.keras.Model(inputs=anchor_input,
+          outputs=encoded_anchor)\n            model.load_weights(model_path) #/persist-log\n            model.summary()\n\n            testset_dir
+          = ''facenet/test/''\n            items = listdir(testset_dir)\n\n            jpgsList
+          = [x for x in items if isfile(testset_dir + x)]\n            foldersList
+          = [x for x in items if not isfile(testset_dir + x)]\n\n            print(jpgsList)\n            print(foldersList)\n\n            acc_total
+          = 0\n            img_stream = return_img_stream(upload_path)\n            for
+          i, anch_jpg in enumerate(jpgsList):\n                #anchor_path = testset_dir
+          + anch_jpg\n                anch_emb = embedding_extractor(upload_path,model)\n\n                for
+          j, clt_folder in enumerate(foldersList):\n                    clt_path =
+          testset_dir + clt_folder + ''/''\n                    clt_jpgs = listdir(clt_path)\n                    str
+          = anch_jpg\n                    print(''=============='' + clt_folder +
+          ''&'' + anch_jpg + ''=============='')\n\n                    for k, clt_jpg
+          in enumerate(clt_jpgs):\n                        clt_jpg_path = clt_path
+          + clt_jpg\n                        clt_emb = embedding_extractor(clt_jpg_path,model)\n                        distanceDiff
+          = distance.euclidean(anch_emb, clt_emb)  # calculate the distance\n                        distance_sum=distance_sum
+          + distanceDiff\n\n                        if distanceDiff >= 1:\n                            distanceDiffbig
+          = distanceDiffbig + 1\n\n                        else:\n                            distanceDiffsmall
+          = distanceDiffsmall + 1\n\n                        if distanceDiffbig >=
+          distanceDiffsmall :\n                            loss = distanceDiffsmall\n\n                        else:\n                            loss
+          = distanceDiffbig\n\n                    distance_sum=distance_sum / 16  \n\n                    if
+          distance_sum < distance_show3: \n\n                        if distance_sum
+          < distance_show2:\n\n                            if distance_sum < distance_show1:\n                                distance_show1
+          = distance_sum\n                                distance_low1 = distance_sum\n                                face
+          =  clt_folder\n\n                            else:\n                                distance_low2
+          = distance_sum\n                                distance_show2 = distance_sum\n                                face2
+          =  clt_folder\n\n                        else:\n                            distance_show3
+          = distance_sum\n                            distance_low3 = distance_sum\n                            face3
+          = clt_folder\n                    else:\n                        distanceDiff
+          = distanceDiff\n\n                    print(''distance sum is:'', distance_sum)\n                    print(''distanceDiffsmall
+          = '', distanceDiffsmall)\n                    print(''distanceDiffbig =
+          '', distanceDiffbig)\n                    print( distanceDiff)\n\n                    distance_sum
+          = 0\n                    distanceDiffsmall = 0\n                    distanceDiffbig
+          = 0\n                    print(''loss: '', loss)\n                    accuracy
+          = (len(clt_jpgs) - loss) / len(clt_jpgs)\n                    acc_total
+          += accuracy\n                    print(''face = '', face)\n                    print(''The
+          first is:'',face,''distance is '',distance_low1)\n                    print(''The
+          Second is:'',face2,''distance is '',distance_low2)\n                    print(''The
+          third is:'',face3,''distance is '',distance_low3)\n\n                distance_low1
+          = round(distance_low1,2) \n                distance_low2 = round(distance_low2,2)\n                distance_low3
+          = round(distance_low3,2)\n            acc_mean = acc_total / 9 * 100\n            acc_mean
+          = round(acc_mean,2)\n            print(''final acc++------: '', acc_mean)\n            os.remove(upload_path)\n            #end
+          = time.time()\n            #print (''execution time'', (end - serving_time))\n\n        return
+          render_template(''upload.html'',img_stream = img_stream, face = face , face2
+          = face2 , face3 = face3 , distance_low1 = distance_low1, distance_low2 =
+          distance_low2 , distance_low3 = distance_low3, acc_mean = acc_mean )\n\n    if
+          __name__ == ''__main__'':\n        app.run(host = ''127.0.0.1'',port=8987,debug=True)\n\n    return\n\nimport
+          argparse\n_parser = argparse.ArgumentParser(prog=''Serving'', description='''')\n_parser.add_argument(\"--model-path\",
+          dest=\"model_path\", type=str, required=True, default=argparse.SUPPRESS)\n_parser.add_argument(\"--log-folder\",
+          dest=\"log_folder\", type=str, required=True, default=argparse.SUPPRESS)\n_parsed_args
+          = vars(_parser.parse_args())\n\n_outputs = serving(**_parsed_args)\n"],
+          "image": "mike0355/k8s-facenet-serving:3"}}, "inputs": [{"name": "model_path",
+          "type": "String"}, {"name": "log_folder", "type": "String"}], "name": "Serving"}',
+        pipelines.kubeflow.org/component_ref: '{}', pipelines.kubeflow.org/arguments.parameters: '{"log_folder":
+          "/persist-log", "model_path": "{{inputs.parameters.model-prediction-model_path}}"}'}
+  - name: triplet-trainaing-pvc
+    resource:
+      action: create
+      manifest: |
+        apiVersion: v1
+        kind: PersistentVolumeClaim
+        metadata:
+          name: '{{workflow.name}}-newpvc'
+        spec:
+          accessModes:
+          - ReadWriteMany
+          resources:
+            requests:
+              storage: 30Gi
+          storageClassName: managed-nfs-storage
+    outputs:
+      parameters:
+      - name: triplet-trainaing-pvc-manifest
+        valueFrom: {jsonPath: '{}'}
+      - name: triplet-trainaing-pvc-name
+        valueFrom: {jsonPath: '{.metadata.name}'}
+      - name: triplet-trainaing-pvc-size
+        valueFrom: {jsonPath: '{.status.capacity.storage}'}
+  - name: triplet-training-pipeline
+    dag:
+      tasks:
+      - name: distributed-training-worker1
+        template: distributed-training-worker1
+        dependencies: [load-data, triplet-trainaing-pvc]
+        arguments:
+          parameters:
+          - {name: load-data-start_time_string, value: '{{tasks.load-data.outputs.parameters.load-data-start_time_string}}'}
+          - {name: triplet-trainaing-pvc-name, value: '{{tasks.triplet-trainaing-pvc.outputs.parameters.triplet-trainaing-pvc-name}}'}
+      - name: distributed-training-worker2
+        template: distributed-training-worker2
+        dependencies: [load-data, triplet-trainaing-pvc]
+        arguments:
+          parameters:
+          - {name: load-data-start_time_string, value: '{{tasks.load-data.outputs.parameters.load-data-start_time_string}}'}
+          - {name: triplet-trainaing-pvc-name, value: '{{tasks.triplet-trainaing-pvc.outputs.parameters.triplet-trainaing-pvc-name}}'}
+      - name: distributed-training-worker3
+        template: distributed-training-worker3
+        dependencies: [load-data, triplet-trainaing-pvc]
+        arguments:
+          parameters:
+          - {name: load-data-start_time_string, value: '{{tasks.load-data.outputs.parameters.load-data-start_time_string}}'}
+          - {name: triplet-trainaing-pvc-name, value: '{{tasks.triplet-trainaing-pvc.outputs.parameters.triplet-trainaing-pvc-name}}'}
+      - name: load-data
+        template: load-data
+        dependencies: [triplet-trainaing-pvc]
+        arguments:
+          parameters:
+          - {name: triplet-trainaing-pvc-name, value: '{{tasks.triplet-trainaing-pvc.outputs.parameters.triplet-trainaing-pvc-name}}'}
+      - name: model-prediction
+        template: model-prediction
+        dependencies: [distributed-training-worker1, distributed-training-worker2,
+          distributed-training-worker3, triplet-trainaing-pvc]
+        arguments:
+          parameters:
+          - {name: distributed-training-worker1-model_path, value: '{{tasks.distributed-training-worker1.outputs.parameters.distributed-training-worker1-model_path}}'}
+          - {name: distributed-training-worker2-model_path_work2, value: '{{tasks.distributed-training-worker2.outputs.parameters.distributed-training-worker2-model_path_work2}}'}
+          - {name: distributed-training-worker3-model_path_work3, value: '{{tasks.distributed-training-worker3.outputs.parameters.distributed-training-worker3-model_path_work3}}'}
+          - {name: triplet-trainaing-pvc-name, value: '{{tasks.triplet-trainaing-pvc.outputs.parameters.triplet-trainaing-pvc-name}}'}
+      - name: serving
+        template: serving
+        dependencies: [model-prediction, triplet-trainaing-pvc]
+        arguments:
+          parameters:
+          - {name: model-prediction-model_path, value: '{{tasks.model-prediction.outputs.parameters.model-prediction-model_path}}'}
+          - {name: triplet-trainaing-pvc-name, value: '{{tasks.triplet-trainaing-pvc.outputs.parameters.triplet-trainaing-pvc-name}}'}
+      - {name: triplet-trainaing-pvc, template: triplet-trainaing-pvc}
+  arguments:
+    parameters: []
+  serviceAccountName: pipeline-runner
