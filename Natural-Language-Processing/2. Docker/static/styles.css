@@ -1,0 +1,90 @@
+body {
+    background-color: azure;
+    text-align: center;
+    font-family: fantasy;
+}
+
+#title {
+    font-size: 10vh;
+}
+
+#center {
+    margin-left: 10%;
+    margin-right: 10%;
+    width: 80vw;
+    height: 80vh;
+    opacity: 2.0;
+    background-color: blanchedalmond;
+    border: 5px solid #666;
+    border-radius: 50px;
+    box-shadow:-9px 12px 9px black
+}
+
+#input {
+    float: left;
+    width: 50%;
+    height: 100%;
+}
+
+#output {
+    float: right;
+    width: 50%;
+    height: 100%;
+}
+
+.content-title {
+    font-size: 5vh;
+    margin: 2%;
+}
+
+textarea {
+    margin: 5%;
+    width: 90%;
+    font-size: 4vh;
+}
+
+input {
+    width: 30%;
+    height: 10%;
+    font-size: 4vh;
+    font-family: fantasy;
+    background-color: lawngreen;
+    border-radius: 50px;
+}
+
+.content-setting {
+    font-size: 4vh;
+    text-align: left;
+    margin-left: 5%;
+}
+
+#preprocess {
+    border: 5px solid grey;
+    border-radius: 10px;
+    width: 87%;
+    height: 25%;
+    margin: 5%;
+    background-color: white;
+    font-size: 4vh;
+    overflow: auto;
+    word-break: break-all;
+    word-wrap: break-word;
+    text-align: left;
+    font-family: monospace;
+}
+
+table {
+    border: 5px solid grey;
+    border-radius: 10px;
+    font-size: 4vh;
+    margin: 5%;
+    width: 90%;
+    height: 25%;
+    background-color: white;
+}
+
+.predict-title {
+    width: 33.33%;
+    height: 20%;
+    color: green;
+}

@@ -1,0 +1,149 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Kubeflow - NLP</title>
+</head>
+<body>
+    <div id="title">Kubeflow - NLP</div>
+    <div id="center">
+        <div id="input">
+            <div class="content-title">Message</div>
+            <form action="{{ url_for('predict')}}" method="POST" style="height: 70vh;">
+                <textarea name="message" id="message" placeholder="...Please enter here" style="height: 60%;">{% print(message) %}</textarea>
+                <input type="submit" value="Predict">
+            </form>	
+        </div>
+        <div id="output">
+            <div class="content-title">Result</div>
+            <div class="content-setting" style="color: red;">Positive +</div>
+            <div class="content-setting" style="color: blue;">Negative -</div>
+            <div id="preprocess">
+                {% print(data) %}
+            </div>
+            <table border="1">
+                <tr>
+                    <td class="predict-title">Numpy</td>
+                    <td class="predict-title">SKlearn</td>
+                    <td class="predict-title">Pytorch</td>
+                </tr>
+                <tr>
+                    <td>
+                        {% if my_prediction_np == 1%}
+						<div style="font-size: 8vh; color: red;">+</div>
+						{% elif my_prediction_np == 0%}
+						<div style="font-size: 8vh; color: blue;">-</div>
+						{% endif %}
+                    </td>
+                    <td>
+                        {% if my_prediction_skl == 1%}
+						<div style="font-size: 8vh; color: red;">+</div>
+						{% elif my_prediction_skl == 0%}
+						<div style="font-size: 8vh; color: blue;">-</div>
+						{% endif %}
+                    </td>
+                    <td>
+                        {% if my_prediction_toc == 1%}
+						<div style="font-size: 8vh; color: red;">+</div>
+						{% elif my_prediction_toc == 0%}
+						<div style="font-size: 8vh; color: blue;">-</div>
+						{% endif %}
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</body>
+
+<style type="text/css">
+	body {
+		background-color: azure;
+		text-align: center;
+		font-family: fantasy;
+	}
+
+	#title {
+		font-size: 10vh;
+	}
+
+	#center {
+		margin-left: 10%;
+		margin-right: 10%;
+		width: 80vw;
+		height: 80vh;
+		opacity: 2.0;
+		background-color: blanchedalmond;
+		border: 5px solid #666;
+		border-radius: 50px;
+		box-shadow:-9px 12px 9px black
+	}
+
+	#input {
+		float: left;
+		width: 50%;
+		height: 100%;
+	}
+
+	#output {
+		float: right;
+		width: 50%;
+		height: 100%;
+	}
+
+	.content-title {
+		font-size: 5vh;
+		margin: 2%;
+	}
+
+	textarea {
+		margin: 5%;
+		width: 90%;
+		font-size: 4vh;
+	}
+
+	input {
+		width: 30%;
+		height: 10%;
+		font-size: 4vh;
+		font-family: fantasy;
+		background-color: lawngreen;
+		border-radius: 50px;
+	}
+
+	.content-setting {
+		font-size: 4vh;
+		text-align: left;
+		margin-left: 5%;
+	}
+
+	#preprocess {
+		border: 5px solid grey;
+		border-radius: 10px;
+		width: 88.1%;
+		height: 25%;
+		margin: 5%;
+		background-color: white;
+		font-size: 4vh;
+		overflow: auto;
+		word-break: break-all;
+		word-wrap: break-word;
+		text-align: left;
+		font-family: monospace;
+	}
+
+	table {
+		border: 5px solid grey;
+		border-radius: 10px;
+		font-size: 4vh;
+		margin: 5%;
+		width: 90%;
+		height: 25%;
+		background-color: white;
+	}
+
+	.predict-title {
+		width: 33.33%;
+		height: 20%;
+		color: green;
+	}
+</style>
