@@ -1,0 +1,201 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: spark-operator-job-pipeline-
+  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.8.10, pipelines.kubeflow.org/pipeline_compilation_time: '2021-12-14T17:26:58.647651',
+    pipelines.kubeflow.org/pipeline_spec: '{"description": "Spark Operator job pipeline",
+      "name": "Spark Operator job pipeline"}'}
+  labels: {pipelines.kubeflow.org/kfp_sdk_version: 1.8.10}
+spec:
+  entrypoint: spark-operator-job-pipeline
+  templates:
+  - name: apply-kubernetes-object
+    container:
+      args: []
+      command:
+      - bash
+      - -exc
+      - |
+        object_path=$0
+        output_name_path=$1
+        output_kind_path=$2
+        output_object_path=$3
+        mkdir -p "$(dirname "$output_name_path")"
+        mkdir -p "$(dirname "$output_kind_path")"
+        mkdir -p "$(dirname "$output_object_path")"
+        kubectl apply -f "$object_path" --output=json > "$output_object_path"
+
+        < "$output_object_path" jq '.metadata.name' --raw-output > "$output_name_path"
+        < "$output_object_path" jq '.kind' --raw-output > "$output_kind_path"
+      - /tmp/inputs/Object/data
+      - /tmp/outputs/Name/data
+      - /tmp/outputs/Kind/data
+      - /tmp/outputs/Object/data
+      image: bitnami/kubectl:1.17.17
+    inputs:
+      artifacts:
+      - name: Object
+        path: /tmp/inputs/Object/data
+        raw: {data: '{"apiVersion": "sparkoperator.k8s.io/v1beta2", "kind": "SparkApplication",
+            "metadata": {"name": "spark-pi-1639502813", "namespace": "kubeflow"},
+            "spec": {"type": "Scala", "mode": "cluster", "image": "gcr.io/spark-operator/spark:v3.1.1",
+            "imagePullPolicy": "Always", "mainClass": "org.apache.spark.examples.SparkPi",
+            "mainApplicationFile": "local:///opt/spark/examples/jars/spark-examples_2.12-3.1.1.jar",
+            "sparkVersion": "3.1.1", "restartPolicy": {"type": "Never"}, "volumes":
+            [{"name": "test-volume", "hostPath": {"path": "/tmp", "type": "Directory"}}],
+            "driver": {"cores": 1, "coreLimit": "1200m", "memory": "512m", "labels":
+            {"version": "3.1.1"}, "serviceAccount": "spark-sa", "volumeMounts": [{"name":
+            "test-volume", "mountPath": "/tmp"}]}, "executor": {"cores": 1, "instances":
+            2, "memory": "1024m", "labels": {"version": "3.1.1"}, "volumeMounts":
+            [{"name": "test-volume", "mountPath": "/tmp"}]}}}'}
+    outputs:
+      parameters:
+      - name: apply-kubernetes-object-Name
+        valueFrom: {path: /tmp/outputs/Name/data}
+      artifacts:
+      - {name: apply-kubernetes-object-Kind, path: /tmp/outputs/Kind/data}
+      - {name: apply-kubernetes-object-Name, path: /tmp/outputs/Name/data}
+      - {name: apply-kubernetes-object-Object, path: /tmp/outputs/Object/data}
+    metadata:
+      annotations: {author: Alexey Volkov <alexey.volkov@ark-kun.com>, pipelines.kubeflow.org/component_spec: '{"implementation":
+          {"container": {"command": ["bash", "-exc", "object_path=$0\noutput_name_path=$1\noutput_kind_path=$2\noutput_object_path=$3\nmkdir
+          -p \"$(dirname \"$output_name_path\")\"\nmkdir -p \"$(dirname \"$output_kind_path\")\"\nmkdir
+          -p \"$(dirname \"$output_object_path\")\"\nkubectl apply -f \"$object_path\"
+          --output=json > \"$output_object_path\"\n\n< \"$output_object_path\" jq
+          ''.metadata.name'' --raw-output > \"$output_name_path\"\n< \"$output_object_path\"
+          jq ''.kind'' --raw-output > \"$output_kind_path\"\n", {"inputPath": "Object"},
+          {"outputPath": "Name"}, {"outputPath": "Kind"}, {"outputPath": "Object"}],
+          "image": "bitnami/kubectl:1.17.17"}}, "inputs": [{"name": "Object", "type":
+          "JsonObject"}], "metadata": {"annotations": {"author": "Alexey Volkov <alexey.volkov@ark-kun.com>"}},
+          "name": "Apply Kubernetes object", "outputs": [{"name": "Name", "type":
+          "String"}, {"name": "Kind", "type": "String"}, {"name": "Object", "type":
+          "JsonObject"}]}', pipelines.kubeflow.org/component_ref: '{"digest": "31e4123b45bebd4323a4ffd51fea3744046f9be8e77a2ccf06ba09f80359fcf5",
+          "url": "k8s-apply-component.yaml"}', pipelines.kubeflow.org/max_cache_staleness: P0D}
+      labels:
+        pipelines.kubeflow.org/kfp_sdk_version: 1.8.10
+        pipelines.kubeflow.org/pipeline-sdk-type: kfp
+        pipelines.kubeflow.org/enable_caching: "true"
+  - name: condition-2
+    inputs:
+      parameters:
+      - {name: get-kubernetes-object-Name}
+    dag:
+      tasks:
+      - name: graph-graph-component-spark-app-status-1
+        template: graph-graph-component-spark-app-status-1
+        arguments:
+          parameters:
+          - {name: apply-kubernetes-object-Name, value: '{{inputs.parameters.get-kubernetes-object-Name}}'}
+  - name: get-kubernetes-object
+    container:
+      args: []
+      command:
+      - bash
+      - -exc
+      - |
+        object_name=$0
+        object_type=$1
+        output_name_path=$2
+        output_state_path=$3
+        output_object_path=$4
+        mkdir -p "$(dirname "$output_name_path")"
+        mkdir -p "$(dirname "$output_state_path")"
+        mkdir -p "$(dirname "$output_object_path")"
+
+        kubectl get "$object_type" "$object_name" --output=json > "$output_object_path"
+
+        < "$output_object_path" jq '.metadata.name' --raw-output > "$output_name_path"
+        < "$output_object_path" jq '.status.applicationState.state' --raw-output > "$output_state_path"
+      - '{{inputs.parameters.apply-kubernetes-object-Name}}'
+      - sparkapplications
+      - /tmp/outputs/Name/data
+      - /tmp/outputs/ApplicationState/data
+      - /tmp/outputs/Object/data
+      image: bitnami/kubectl:1.17.17
+    inputs:
+      parameters:
+      - {name: apply-kubernetes-object-Name}
+    outputs:
+      parameters:
+      - name: get-kubernetes-object-ApplicationState
+        valueFrom: {path: /tmp/outputs/ApplicationState/data}
+      - name: get-kubernetes-object-Name
+        valueFrom: {path: /tmp/outputs/Name/data}
+      artifacts:
+      - {name: get-kubernetes-object-ApplicationState, path: /tmp/outputs/ApplicationState/data}
+      - {name: get-kubernetes-object-Name, path: /tmp/outputs/Name/data}
+      - {name: get-kubernetes-object-Object, path: /tmp/outputs/Object/data}
+    metadata:
+      annotations: {author: Alexey Volkov <alexey.volkov@ark-kun.com>, pipelines.kubeflow.org/component_spec: '{"implementation":
+          {"container": {"command": ["bash", "-exc", "object_name=$0\nobject_type=$1\noutput_name_path=$2\noutput_state_path=$3\noutput_object_path=$4\nmkdir
+          -p \"$(dirname \"$output_name_path\")\"\nmkdir -p \"$(dirname \"$output_state_path\")\"\nmkdir
+          -p \"$(dirname \"$output_object_path\")\"\n\nkubectl get \"$object_type\"
+          \"$object_name\" --output=json > \"$output_object_path\"\n\n< \"$output_object_path\"
+          jq ''.metadata.name'' --raw-output > \"$output_name_path\"\n< \"$output_object_path\"
+          jq ''.status.applicationState.state'' --raw-output > \"$output_state_path\"\n",
+          {"inputValue": "Name"}, {"inputValue": "Kind"}, {"outputPath": "Name"},
+          {"outputPath": "ApplicationState"}, {"outputPath": "Object"}], "image":
+          "bitnami/kubectl:1.17.17"}}, "inputs": [{"name": "Name", "type": "String"},
+          {"name": "Kind", "type": "String"}], "metadata": {"annotations": {"author":
+          "Alexey Volkov <alexey.volkov@ark-kun.com>"}}, "name": "Get Kubernetes object",
+          "outputs": [{"name": "Name", "type": "String"}, {"name": "ApplicationState",
+          "type": "String"}, {"name": "Object", "type": "JsonObject"}]}', pipelines.kubeflow.org/component_ref: '{"digest":
+          "fde6162e7783ca7b16b16ad04b667ab01a29c1fb133191941312cc4605114a2c", "url":
+          "k8s-get-component.yaml"}', pipelines.kubeflow.org/arguments.parameters: '{"Kind":
+          "sparkapplications", "Name": "{{inputs.parameters.apply-kubernetes-object-Name}}"}',
+        pipelines.kubeflow.org/max_cache_staleness: P0D}
+      labels:
+        pipelines.kubeflow.org/kfp_sdk_version: 1.8.10
+        pipelines.kubeflow.org/pipeline-sdk-type: kfp
+        pipelines.kubeflow.org/enable_caching: "true"
+  - name: graph-graph-component-spark-app-status-1
+    inputs:
+      parameters:
+      - {name: apply-kubernetes-object-Name}
+    dag:
+      tasks:
+      - name: condition-2
+        template: condition-2
+        when: '"{{tasks.get-kubernetes-object.outputs.parameters.get-kubernetes-object-ApplicationState}}"
+          != "COMPLETED"'
+        dependencies: [get-kubernetes-object]
+        arguments:
+          parameters:
+          - {name: get-kubernetes-object-Name, value: '{{tasks.get-kubernetes-object.outputs.parameters.get-kubernetes-object-Name}}'}
+      - name: get-kubernetes-object
+        template: get-kubernetes-object
+        arguments:
+          parameters:
+          - {name: apply-kubernetes-object-Name, value: '{{inputs.parameters.apply-kubernetes-object-Name}}'}
+  - name: print-message
+    container:
+      command: [echo, 'Job {{inputs.parameters.apply-kubernetes-object-Name}} is completed.']
+      image: alpine:3.6
+    inputs:
+      parameters:
+      - {name: apply-kubernetes-object-Name}
+    metadata:
+      labels:
+        pipelines.kubeflow.org/kfp_sdk_version: 1.8.10
+        pipelines.kubeflow.org/pipeline-sdk-type: kfp
+        pipelines.kubeflow.org/enable_caching: "true"
+      annotations: {pipelines.kubeflow.org/max_cache_staleness: P0D}
+  - name: spark-operator-job-pipeline
+    dag:
+      tasks:
+      - {name: apply-kubernetes-object, template: apply-kubernetes-object}
+      - name: graph-graph-component-spark-app-status-1
+        template: graph-graph-component-spark-app-status-1
+        dependencies: [apply-kubernetes-object]
+        arguments:
+          parameters:
+          - {name: apply-kubernetes-object-Name, value: '{{tasks.apply-kubernetes-object.outputs.parameters.apply-kubernetes-object-Name}}'}
+      - name: print-message
+        template: print-message
+        dependencies: [apply-kubernetes-object, graph-graph-component-spark-app-status-1]
+        arguments:
+          parameters:
+          - {name: apply-kubernetes-object-Name, value: '{{tasks.apply-kubernetes-object.outputs.parameters.apply-kubernetes-object-Name}}'}
+  arguments:
+    parameters: []
+  serviceAccountName: pipeline-runner
