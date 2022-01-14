@@ -25,26 +25,26 @@ kubectl apply -f ./scripts/spark-rbac.yaml
  
 ## Access Kubflow/KFP UI
 
-![image](/images/central-ui.png)
+![image](./images/central-ui.png)
 
 ## OR
 
-![image](/images/pipelines-ui.png)
+![image](./images/pipelines-ui.png)
 
 ## Upload pipeline
 
 Upload the spark_job_pipeline.yaml file
 
-![image](/images/upload-pipeline.png)
+![image](./images/upload-pipeline.png)
 
 # Create Run
 
-![image](/images/create-run.png)
+![image](./images/create-run.png)
 
 # Start Pipeline add service account `spark-sa`
 
-![image](/images/start_run.png)
+![image](./images/start_run.png)
 
 # Wait till the execution is finished. check the `print-message` logs to view the result
 
-![image](/images/final-output.png)
+![image](./images/final-output.png)
