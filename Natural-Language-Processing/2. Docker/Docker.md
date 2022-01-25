@@ -3,6 +3,8 @@
 > I have provided a public docker image. < m10913018/nltk_env:2.3.0 > \
 > There are only python packages and html files inside, no code related to natural language processing.
 
+> Note: The docker image has been updated recently, is to add the SVM prediction result in html file, please use the image <dfm871002/nltk_env:2.4.2 > instead.
+
 <img src="https://github.com/WEICHINLIN/Kubeflow---Natural-Language-Processing/blob/main/4.%20Image/NLP.png" alt="NLP"/><br/>
 
 > The font may be displayed differently due to environmental issues, but it does not affect the function. \
