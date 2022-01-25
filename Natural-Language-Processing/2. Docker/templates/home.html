@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -26,6 +25,7 @@
                     <td class="predict-title">Numpy</td>
                     <td class="predict-title">SKlearn</td>
                     <td class="predict-title">Pytorch</td>
+		    <td class="predict-title">SVM</td>
                 </tr>
                 <tr>
                     <td>
@@ -46,6 +46,13 @@
                         {% if my_prediction_toc == 1%}
 						<div style="font-size: 8vh; color: red;">+</div>
 						{% elif my_prediction_toc == 0%}
+						<div style="font-size: 8vh; color: blue;">-</div>
+						{% endif %}
+                    </td>
+                    <td>
+                        {% if my_prediction_svm == 1%}
+						<div style="font-size: 8vh; color: red;">+</div>
+						{% elif my_prediction_svm == 0%}
 						<div style="font-size: 8vh; color: blue;">-</div>
 						{% endif %}
                     </td>
@@ -142,7 +149,7 @@
 	}
 
 	.predict-title {
-		width: 33.33%;
+		width: 25%;
 		height: 20%;
 		color: green;
 	}
