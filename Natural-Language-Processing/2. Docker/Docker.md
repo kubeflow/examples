@@ -12,6 +12,6 @@
 
 # Relevant part
 
-* [About Version](https://github.com/WEICHINLIN/Kubeflow---Natural-Language-Processing/blob/main/README.md)
-* [About Install](https://github.com/WEICHINLIN/Kubeflow---Natural-Language-Processing/blob/main/1.%20Install/Install.md)
+* [About Version](https://github.com/dfm871002/examples/blob/master/Natural-Language-Processing/README.md)
+* [About Install](https://github.com/dfm871002/examples/blob/master/Natural-Language-Processing/1.%20Install/Install.md)
 * [About Jupyter Notebook](https://github.com/dfm871002/examples/blob/master/Natural-Language-Processing/3.%20Jupyter%20Notebook/Jupyter%20Notebook.md)
