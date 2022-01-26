@@ -1,3 +1,11 @@
+## Notice
+
+Blog post: [HELP WANTED: Repackaging Kaggle Getting Started into Kubeflow Examples](https://www.arrikto.com/blog/help-wanted-kaggle-competitors-to-contribute-to-the-open-source-kubeflow-machine-learning-project/)
+
+higlights:
+- We'd like to help bolster the kubeflow/examples repo
+- Help people get involved in open source/kubeflow project/community
+- Give people an opportunity to make a little side hustle income
 # kubeflow-examples
 
 A repository to share extended Kubeflow examples and tutorials to demonstrate machine learning
