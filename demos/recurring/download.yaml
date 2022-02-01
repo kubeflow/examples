@@ -1,0 +1,56 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: pipeline-
+  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.8.11, pipelines.kubeflow.org/pipeline_compilation_time: '2022-01-31T21:51:10.599476',
+    pipelines.kubeflow.org/pipeline_spec: '{"inputs": [{"name": "url"}], "name": "Pipeline"}'}
+  labels: {pipelines.kubeflow.org/kfp_sdk_version: 1.8.11}
+spec:
+  entrypoint: pipeline
+  templates:
+  - name: download
+    container:
+      args: []
+      command:
+      - sh
+      - -exc
+      - |
+        url="$0"
+        path='/tmp/script'
+        curl "$url" -o "$path"
+        chmod 700 "$path"
+        /bin/sh "$path"
+      - '{{inputs.parameters.url}}'
+      image: alpine/curl
+    inputs:
+      parameters:
+      - {name: url}
+    metadata:
+      annotations: {author: Alexander Perlman <mythicalsunlight@gmail.com>, pipelines.kubeflow.org/component_spec: '{"implementation":
+          {"container": {"command": ["sh", "-exc", "url=\"$0\"\npath=''/tmp/script''\ncurl
+          \"$url\" -o \"$path\"\nchmod 700 \"$path\"\n/bin/sh \"$path\"\n", {"inputValue":
+          "Url"}], "image": "alpine/curl"}}, "inputs": [{"name": "Url", "type": "URI"}],
+          "metadata": {"annotations": {"author": "Alexander Perlman <mythicalsunlight@gmail.com>"}},
+          "name": "Download"}', pipelines.kubeflow.org/component_ref: '{"digest":
+          "1bb47e384d056817b16202398d1e5fc8ce02daf1e40f69e3103218402c05437b", "url":
+          "https://raw.githubusercontent.com/droctothorpe/examples/master/demos/recurring/component.yaml"}',
+        pipelines.kubeflow.org/arguments.parameters: '{"Url": "{{inputs.parameters.url}}"}'}
+      labels:
+        pipelines.kubeflow.org/kfp_sdk_version: 1.8.11
+        pipelines.kubeflow.org/pipeline-sdk-type: kfp
+        pipelines.kubeflow.org/enable_caching: "true"
+  - name: pipeline
+    inputs:
+      parameters:
+      - {name: url}
+    dag:
+      tasks:
+      - name: download
+        template: download
+        arguments:
+          parameters:
+          - {name: url, value: '{{inputs.parameters.url}}'}
+  arguments:
+    parameters:
+    - {name: url}
+  serviceAccountName: pipeline-runner
