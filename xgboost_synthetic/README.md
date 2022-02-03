@@ -9,3 +9,6 @@ Kubeflow fairing, pipelines demo using synthetic data. This notebook `build-trai
     ```
 
 1. In the directory `xgboost_synthetic`, open the notebook `build-train-deploy.ipynb`
+    ```
+    cd xgboost_synthetic
+    ```
