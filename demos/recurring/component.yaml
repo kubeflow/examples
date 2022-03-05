@@ -1,0 +1,19 @@
+name: Download
+inputs:
+- {name: Url, type: URI}
+metadata:
+  annotations:
+    author: Alexander Perlman <mythicalsunlight@gmail.com>
+implementation:
+  container:
+    image: alpine/curl 
+    command:
+    - sh
+    - -exc
+    - |
+      url="$0"
+      path='/tmp/script'
+      curl "$url" -o "$path"
+      chmod 700 "$path"
+      /bin/sh "$path"
+    - inputValue: Url

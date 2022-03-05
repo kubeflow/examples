@@ -33,6 +33,6 @@ kustomize version
 
 # Relevant part
 
-* [About Install](https://github.com/WEICHINLIN/Kubeflow---Natural-Language-Processing/blob/main/1.%20Install/Install.md)
-* [About Docker](https://github.com/WEICHINLIN/Kubeflow---Natural-Language-Processing/blob/main/2.%20Docker/Docker.md)
-* [About Jupyter Notebook](https://github.com/WEICHINLIN/Kubeflow---Natural-Language-Processing/blob/main/3.%20Jupyter%20Notebook/Jupyter%20Notebook.md)
+* [About Install](https://github.com/dfm871002/examples/blob/master/Natural-Language-Processing/1.%20Install/Install.md)
+* [About Docker](https://github.com/dfm871002/examples/blob/master/Natural-Language-Processing/2.%20Docker/Docker.md)
+* [About Jupyter Notebook](https://github.com/dfm871002/examples/blob/master/Natural-Language-Processing/3.%20Jupyter%20Notebook/Jupyter%20Notebook.md)
