@@ -1,0 +1,93 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: face-pipeline-
+  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.1.2, pipelines.kubeflow.org/pipeline_compilation_time: '2022-03-27T11:03:51.876586',
+    pipelines.kubeflow.org/pipeline_spec: '{"description": "pipeline to detect facial
+      landmarks", "inputs": [{"name": "trial"}, {"name": "epoch"}, {"name": "patience"}],
+      "name": "face pipeline"}'}
+  labels: {pipelines.kubeflow.org/kfp_sdk_version: 1.1.2}
+spec:
+  entrypoint: face-pipeline
+  templates:
+  - name: evaluate
+    container:
+      command: [python3, eval.py]
+      image: hubdocker76/demoeval:v2
+      volumeMounts:
+      - {mountPath: /data, name: pvc}
+    inputs:
+      parameters:
+      - {name: pvc-name}
+    volumes:
+    - name: pvc
+      persistentVolumeClaim: {claimName: '{{inputs.parameters.pvc-name}}'}
+  - name: face-pipeline
+    inputs:
+      parameters:
+      - {name: epoch}
+      - {name: patience}
+      - {name: trial}
+    dag:
+      tasks:
+      - name: evaluate
+        template: evaluate
+        dependencies: [pvc, train]
+        arguments:
+          parameters:
+          - {name: pvc-name, value: '{{tasks.pvc.outputs.parameters.pvc-name}}'}
+      - {name: pvc, template: pvc}
+      - name: train
+        template: train
+        dependencies: [pvc]
+        arguments:
+          parameters:
+          - {name: epoch, value: '{{inputs.parameters.epoch}}'}
+          - {name: patience, value: '{{inputs.parameters.patience}}'}
+          - {name: pvc-name, value: '{{tasks.pvc.outputs.parameters.pvc-name}}'}
+          - {name: trial, value: '{{inputs.parameters.trial}}'}
+  - name: pvc
+    resource:
+      action: create
+      manifest: |
+        apiVersion: v1
+        kind: PersistentVolumeClaim
+        metadata:
+          name: '{{workflow.name}}-pvc'
+        spec:
+          accessModes:
+          - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi
+    outputs:
+      parameters:
+      - name: pvc-manifest
+        valueFrom: {jsonPath: '{}'}
+      - name: pvc-name
+        valueFrom: {jsonPath: '{.metadata.name}'}
+      - name: pvc-size
+        valueFrom: {jsonPath: '{.status.capacity.storage}'}
+  - name: train
+    container:
+      args: [--trial, '{{inputs.parameters.trial}}', --epoch, '{{inputs.parameters.epoch}}',
+        --patience, '{{inputs.parameters.patience}}']
+      command: [python3, train.py]
+      image: hubdocker76/demotrain:v1
+      volumeMounts:
+      - {mountPath: /data, name: pvc}
+    inputs:
+      parameters:
+      - {name: epoch}
+      - {name: patience}
+      - {name: pvc-name}
+      - {name: trial}
+    volumes:
+    - name: pvc
+      persistentVolumeClaim: {claimName: '{{inputs.parameters.pvc-name}}'}
+  arguments:
+    parameters:
+    - {name: trial}
+    - {name: epoch}
+    - {name: patience}
+  serviceAccountName: pipeline-runner
