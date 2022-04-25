@@ -23,4 +23,8 @@ Kubeflow pipelines connect each components according to how they were passed and
 Finally, the  `create_run_from_pipeline_func` was used to submit pipeline directly from pipeline function
 
 ## To create pipeline
-Navigate to `train` directory, create a folder named `my_data` and put your `training.zip` and `test.zip` data from Kaggle repo in this folder and build docker image using :
+1. Navigate to `data` directory, download compressed kaggle data and put your `training.zip` and `test.zip` data in the data folder.
+2. Open your setup kubeflow cluster and create a notebook server and connect to it.
+3. Clone this repo and navigate to this directory
+4. run the kfp-digit-recognizer notebook from start to finish
+5. View run details immediately after submitting pipeline.
