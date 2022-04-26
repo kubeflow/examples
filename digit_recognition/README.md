@@ -50,11 +50,11 @@ To create pipeline using the Kale JupyterLab extension
 
 3. The notebook's cells are automatically annotated with Kale tags
 
-With the use of Kale tags we define the following:
+   With the use of Kale tags we define the following:
 
-* Pipeline parameters are assigned using the "pipeline parameters" tag
-* The necessary libraries that need to be used throughout the Pipeline are passed through the "imports" tag
-* Notebook cells are assigned to specific Pipeline components (download data, load data, etc.) using the "pipeline step" tag
-* Cell dependencies are defined between the different pipeline steps with the "depends on" flag
+   * Pipeline parameters are assigned using the "pipeline parameters" tag
+   * The necessary libraries that need to be used throughout the Pipeline are passed through the "imports" tag
+   * Notebook cells are assigned to specific Pipeline components (download data, load data, etc.) using the "pipeline step" tag
+   * Cell dependencies are defined between the different pipeline steps with the "depends on" flag
 
 4. Compile and run Notebook using Kale
