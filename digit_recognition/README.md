@@ -40,14 +40,21 @@ Finally, the  `create_run_from_pipeline_func` was used to submit pipeline direct
 # Section 2: kale pipeline
 
 ## To create pipeline on kale
-1. install requirements file
-2. enable kale extension in jupyter lab
-3. the notebooks cells are annotated with kale tags 
-    
-    With the kale tags: 
-    1. pipeline parameters are assigned using the pipeline parameters tag. 
-    2. the necessary libraries to be used through out the pipelines are passed through the imports tag  
-    3. notebook cells are assigned to specific pipeline components (download data, load data, etc.) using the pipeline step tag.
-    4. dependencies are defined between the different pipeline steps
-   
-4. compile and run notebook
+Section 2: Kale Pipeline
+
+To create pipeline using the Kale JupyterLab extension
+
+1. Install the requirements.txt file
+
+2. Enable the Kale extension in JupyterLab
+
+3. The notebook's cells are automatically annotated with Kale tags
+
+With the use of Kale tags we define the following:
+
+* Pipeline parameters are assigned using the "pipeline parameters" tag
+* The necessary libraries that need to be used throughout the Pipeline are passed through the "imports" tag
+* Notebook cells are assigned to specific Pipeline components (download data, load data, etc.) using the "pipeline step" tag
+* Cell dependencies are defined between the different pipeline steps with the "depends on" flag
+
+4. Compile and run Notebook using Kale
