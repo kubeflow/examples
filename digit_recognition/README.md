@@ -37,10 +37,8 @@ Finally, the  `create_run_from_pipeline_func` was used to submit pipeline direct
 
 5. View run details immediately after submitting pipeline.
 
-# Section 2: kale pipeline
 
-## To create pipeline on kale
-Section 2: Kale Pipeline
+# Section 2: Kale Pipeline
 
 To create pipeline using the Kale JupyterLab extension
 
