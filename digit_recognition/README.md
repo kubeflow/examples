@@ -33,7 +33,7 @@ Finally, the  `create_run_from_pipeline_func` was used to submit pipeline direct
 
 3. Clone this repo and navigate to this directory
 
-4. run the digit-recognizer-kfp notebook from start to finish
+4. Run the digit-recognizer-kfp notebook from start to finish
 
 5. View run details immediately after submitting pipeline.
 
