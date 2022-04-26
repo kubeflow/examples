@@ -3,7 +3,7 @@ Download compressed data and sample submission file from https://www.kaggle.com/
 
 replace download link with the repo link where the data is stored https://github-repo/data-dir/{file}.csv.zip?raw=true
 <p>
-<img src="https://github.com/josepholaide/examples/blob/master/digit_recognition/data/img1.PNG?raw=true" alt="kubeflow pipeline" width="850" height="250"/>
+<img src="https://github.com/josepholaide/examples/blob/master/digit_recognition/images/img1.PNG?raw=true" alt="kubeflow pipeline" width="850" height="250"/>
  </p>
 
 # Testing environment
