@@ -2,7 +2,7 @@
 Here we convert the https://www.kaggle.com/competitions/digit-recognizer code to kfp-pipeline 
 The objective of this task is to correctly identify digits from a dataset of tens of thousands of handwritten images.
 
-# Testing environment
+# Testing Environment
 Data Scientists on this project:
 | Name        | version           | 
 | ------------- |:-------------:|
@@ -14,26 +14,26 @@ Data Scientists on this project:
 
 Kfp version used for testing can be installed as `pip install kfp==1.8.11`  
 
-# Section 1: kfp pipeline
+# Section 1: Kfp Pipeline
 
-## kubeflow lightweight component method
+## Kubeflow lightweight component method
 Here, a python function is created to carry out a certain task and the python function is passed inside kfp component method`create_component_from_func`. 
 
 
 ## Kubeflow pipelines
-Kubeflow pipelines connect each components according to how they were passed and creates a pipeline. The kfp `dsl.pipeline` method was used to create a pipeline function. The kkfp component method `InputPath` and `OutputPath` was used to pass data amongst component. 
+Kubeflow pipelines connect each components according to how they were passed and creates a pipeline. The kfp `dsl.pipeline` method was used to create a pipeline function. The kfp component method `InputPath` and `OutputPath` was used to pass data amongst component. 
 
 Finally, the  `create_run_from_pipeline_func` was used to submit pipeline directly from pipeline function
 
-## To create pipeline on kfp
+## To create pipeline on Kfp
 1. Navigate to `data` directory, download compressed kaggle data and put your `training.zip` and `test.zip` data in the data folder.
    Also download `sample_sumbission.csv` and store in the data folder 
    
-2. Open your setup kubeflow cluster and create a notebook server and connect to it.
+2. Open your Kubeflow Cluster, create a Notebook Server and connect to it.
 
 3. Clone this repo and navigate to this directory
 
-4. run the kfp-digit-recognizer notebook from start to finish
+4. run the digit-recognizer-kfp notebook from start to finish
 
 5. View run details immediately after submitting pipeline.
 
@@ -42,11 +42,16 @@ Finally, the  `create_run_from_pipeline_func` was used to submit pipeline direct
 
 To create pipeline using the Kale JupyterLab extension
 
-1. Install the requirements.txt file
 
-2. Enable the Kale extension in JupyterLab
+1. Clone GitHub repo and navigate to this directory
 
-3. The notebook's cells are automatically annotated with Kale tags
+2. Install the requirements.txt file
+
+3. Launch the digit-recognizer-kale.ipynb Notebook
+
+4. Enable the Kale extension in JupyterLab   
+
+5. The notebook's cells are automatically annotated with Kale tags
 
    With the use of Kale tags we define the following:
 
@@ -55,4 +60,4 @@ To create pipeline using the Kale JupyterLab extension
    * Notebook cells are assigned to specific Pipeline components (download data, load data, etc.) using the "pipeline step" tag
    * Cell dependencies are defined between the different pipeline steps with the "depends on" flag
 
-4. Compile and run Notebook using Kale
+6. Compile and run Notebook using Kale
