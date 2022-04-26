@@ -6,7 +6,7 @@ The objective of this task is to correctly identify digits from a dataset of ten
 Data Scientists on this project:
 | Name        | version           | 
 | ------------- |:-------------:|
-| Kubeflow      | v1     |
+| Kubeflow      | v1.4   |
 | kfp           | 1.8.11 |
 | kubeflow-kale | 0.6.0  |
 | pip           | 21.3.1 |
