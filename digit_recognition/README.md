@@ -39,9 +39,11 @@ Finally, the  `create_run_from_pipeline_func` was used to submit pipeline direct
 1. install requirements file
 2. enable kale extension in jupyter lab
 3. the notebooks cells are annotated with kale tags 
+    
     With the kale tags: 
     1. pipeline parameters are assigned. 
     2. the necessary libraries to be used through out the pipelines are passed  
     3. notebook cells are assigned to specific pipeline components (download data, load data, etc.) as pipeline steps.
     4. dependencies are defined between the different pipeline steps
+   
 4. compile and run notebook
