@@ -9,7 +9,7 @@ replace download link with the repo link where the data is stored https://github
 # Testing environment
 | Name        | version           | 
 | ------------- |:-------------:|
-| Kubeflow      | v1     |
+| Kubeflow      | v1.4   |
 | kfp           | 1.8.11 |
 | kubeflow-kale | 0.6.0  |
 
