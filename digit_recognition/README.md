@@ -28,9 +28,13 @@ Finally, the  `create_run_from_pipeline_func` was used to submit pipeline direct
 ## To create pipeline on kfp
 1. Navigate to `data` directory, download compressed kaggle data and put your `training.zip` and `test.zip` data in the data folder.
    Also download `sample_sumbission.csv` and store in the data folder 
+   
 2. Open your setup kubeflow cluster and create a notebook server and connect to it.
+
 3. Clone this repo and navigate to this directory
+
 4. run the kfp-digit-recognizer notebook from start to finish
+
 5. View run details immediately after submitting pipeline.
 
 # Section 2: kale pipeline
