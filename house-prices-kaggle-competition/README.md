@@ -49,20 +49,26 @@ Our pipeline function takes in the Github URL as an input to start with the firs
 
 Pipeline function:
 
-<img src="images/kfp_pipeline_func.PNG">
+<p align="center">
+    <img src="images/kfp_pipeline_func.PNG">
+</p>
+
 
 ### Step 4 : Running the pipeline using kfp.client instance
 
 There are different ways to run pipeline function as mentioned in the [documentation](https://www.kubeflow.org/docs/components/pipelines/sdk/build-pipeline/#compile-and-run-your-pipeline). We would run the pipeline using Kubeflow Pipelines SDK client.
 
-<img src="images/kfp_client.PNG">
+<p align="center">
+    <img src="images/kfp_client.PNG">
+</p>
 
 Once all the cells are executed successfully, you should see two hyperlinks ‘Experiment details’ and ‘Run details’. Click on ‘Run details’ link to observe the pipeline running. 
 
 The final pipeline graph would look as follow:
 
-<img src="images/kfp_pipeline_graph.PNG">
-
+<p align="center">
+    <img src="images/kfp_pipeline_graph.PNG">
+</p>
 
 ## Kale version
 
@@ -72,7 +78,9 @@ For the Kaggle notebook example, we are using Arrikto’s MiniKF to set up Kubef
 
 The kale notebook in the directory is already annotated. To see the annotations open up the Kale Deployment panel and click on the Enable switch button. Once you have it switched on, you should see the following:
 
-<img src="images/kale_deployment_panel.PNG">
+<p align="center">
+    <img src="images/kale_deployment_panel.PNG">
+</p>
 
 Please take time to understand how each cell is annotated by clicking on cell and checking out the tag used and what are it its dependencies. Kale provides us with six tags for annotations:
 
@@ -85,7 +93,9 @@ Please take time to understand how each cell is annotated by clicking on cell an
 
 You can also see the tags being created by checking out the Cell Metadata by clicking on Property Inspector above Kale Deployment Panel button.
 
-<img src="images/kale_cell_metadata.PNG">
+<p align="center">
+    <img src="images/kale_cell_metadata.PNG">
+</p>
 
 ### Step 2: Run the Kubeflow Pipeline
 
@@ -99,7 +109,9 @@ Run the pipeline
 
 In the “Running pipeline” output, click on the “View” hyperlink. This will take you directly to the runtime execution graph where you can watch your pipeline execute and update in real-time.
 
-<img src="images/kale_pipeline_graph.PNG">
+<p align="center">
+    <img src="images/kale_pipeline_graph.PNG">
+</p>
 
 ## Note:
 Both the notebooks have been tested out. Please do report any issue in case of any error happening
