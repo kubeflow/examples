@@ -76,7 +76,7 @@ For the Kaggle notebook example, we are using Arrikto’s MiniKF to set up Kubef
 
 ### Step 1: Annotate the notebook with Kale tags
 
-The kale notebook in the directory is already annotated. To see the annotations open up the Kale Deployment panel and click on the Enable switch button. Once you have it switched on, you should see the following:
+The kale notebook in the directory is already annotated. To see the annotations, open up the Kale Deployment panel and click on the Enable switch button. Once you have it switched on, you should see the following:
 
 <p align="center">
     <img src="images/kale_deployment_panel.PNG">
@@ -101,11 +101,11 @@ You can also see the tags being created by checking out the Cell Metadata by cli
 
 Once you’ve tagged your notebook, click on the “Compile and Run” button in the Kale widget. Kale will perform the following tasks for you:
 
-Validate the notebook
-Take a snapshot
-Compile the notebook
-Upload the pipeline
-Run the pipeline
+- Validate the notebook
+- Take a snapshot
+- Compile the notebook
+- Upload the pipeline
+- Run the pipeline
 
 In the “Running pipeline” output, click on the “View” hyperlink. This will take you directly to the runtime execution graph where you can watch your pipeline execute and update in real-time.
 
