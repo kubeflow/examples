@@ -1,9 +1,9 @@
 # Objective
-Here we convert the https://www.kaggle.com/competitions/digit-recognizer code to kfp-pipeline 
+Here we convert the https://www.kaggle.com/competitions/digit-recognizer code to Kubeflow pipeline 
 The objective of this task is to correctly identify digits from a dataset of tens of thousands of handwritten images.
 
 # Testing Environment
-Data Scientists on this project:
+Environment:
 | Name        | version           | 
 | ------------- |:-------------:|
 | Kubeflow      | v1.4   |
@@ -12,7 +12,7 @@ Data Scientists on this project:
 | pip           | 21.3.1 |
 
 
-Kfp version used for testing can be installed as `pip install kfp==1.8.11`  
+The KFP version used for testing can be installed as `pip install kfp==1.8.11`  
 
 # Section 1: Kfp Pipeline
 
@@ -26,12 +26,13 @@ Kubeflow pipelines connect each components according to how they were passed and
 Finally, the  `create_run_from_pipeline_func` was used to submit pipeline directly from pipeline function
 
 ## To create pipeline on Kfp
-1. Navigate to `data` directory, download compressed kaggle data and put your `training.zip` and `test.zip` data in the data folder.
-   Also download `sample_sumbission.csv` and store in the data folder 
    
-2. Open your Kubeflow Cluster, create a Notebook Server and connect to it.
+1. Open your Kubeflow Cluster, create a Notebook Server and connect to it.
 
-3. Clone this repo and navigate to this directory
+2. Clone this repo and navigate to this directory
+
+3. Navigate to `data` directory, download compressed kaggle data and put your `training.zip` and `test.zip` data in the data folder.
+   Also download `sample_sumbission.csv` and store it in the data folder
 
 4. Run the digit-recognizer-kfp notebook from start to finish
 
