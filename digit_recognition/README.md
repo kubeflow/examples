@@ -37,6 +37,12 @@ Finally, the  `create_run_from_pipeline_func` was used to submit pipeline direct
 
 5. View run details immediately after submitting pipeline.
 
+Pipeline:
+
+<p>
+<img src="https://github.com/josepholaide/examples/blob/master/digit_recognition/images/kfp-pipeline.PNG.PNG?raw=true" alt="kubeflow pipeline" width="400" height="600"/>
+ </p>
+
 
 # Section 2: Kale Pipeline
 
@@ -61,3 +67,9 @@ To create pipeline using the Kale JupyterLab extension
    * Cell dependencies are defined between the different pipeline steps with the "depends on" flag
 
 6. Compile and run Notebook using Kale
+
+Pipeline:
+
+<p>
+<img src="https://github.com/josepholaide/examples/blob/master/digit_recognition/images/kale-pipeline.PNG.PNG?raw=true" alt="kubeflow pipeline" width="400" height="600"/>
+ </p>
