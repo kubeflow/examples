@@ -17,7 +17,7 @@ The KFP version used for testing can be installed as `pip install kfp==1.8.11`
 # Section 1: Kfp Pipeline
 
 ## Kubeflow lightweight component method
-Here, a python function is created to carry out a certain task and the python function is passed inside kfp component method`create_component_from_func`. 
+Here, a python function is created to carry out a certain task and the python function is passed inside a kfp component method`create_component_from_func`. 
 
 
 ## Kubeflow pipelines
