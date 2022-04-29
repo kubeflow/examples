@@ -1,5 +1,5 @@
 # Objective
-Download compressed data and sample submission file from https://www.kaggle.com/competitions/digit-recognizer/data and store here
+To download data, click [here](https://www.kaggle.com/competitions/digit-recognizer/data).
 
 
 # Testing environment
