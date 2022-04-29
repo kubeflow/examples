@@ -21,7 +21,7 @@ Here, a python function is created to carry out a certain task and the python fu
 
 
 ## Kubeflow pipelines
-Kubeflow pipelines connect each components according to how they were passed and creates a pipeline. The kfp `dsl.pipeline` method was used to create a pipeline function. The kfp component method `InputPath` and `OutputPath` was used to pass data amongst component. 
+A Kubeflow pipelines connects each components to create a directed acyclic graph (DAG). The kfp `dsl.pipeline` method was used to create a pipeline function. The kfp component method `InputPath` and `OutputPath` was used to pass data amongst component. 
 
 Finally, the  `create_run_from_pipeline_func` was used to submit pipeline directly from pipeline function
 
