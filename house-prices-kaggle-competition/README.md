@@ -16,7 +16,7 @@ If you don’t already have Kubeflow up and running, we recommend signing up for
 
 ## Initial Steps
 
-1. Please follow the Prerequisites section to get the Kubeflow running.
+1. Please follow the Prerequisites section to get Kubeflow running.
 2. Create and connect to a new Jupyter Notebook server.
 3. Clone this repo so you have access to this directory. Please go through the kfp and kale steps explained below.
 
@@ -26,7 +26,7 @@ To start building out a Kubeflow pipeline, you need to get yourself acquainted w
 
 ### Step 1: Install Kubeflow Pipeline SDK and import the required kfp packages to run the pipeline
 
-From the kfp, we will be using [func_to_container_op](https://kubeflow-pipelines.readthedocs.io/en/stable/source/kfp.components.html#kfp.components.func_to_container_op) which would help in building the factory function from the python function and we will use [InputPath](https://kubeflow-pipelines.readthedocs.io/en/stable/source/kfp.components.html#kfp.components.InputPath) and [OutputPath](https://kubeflow-pipelines.readthedocs.io/en/stable/source/kfp.components.html#kfp.components.OutputPath) from components package to pass the paths of the files or models to these tasks. The [passing of data](https://www.kubeflow.org/docs/components/pipelines/sdk/python-function-components/#pass-data) is being implemented by kfp’s supported data passing mechanism. InputPath and OutputPath is how you pass on the data or model between the components.
+From the kfp, we will be using [func_to_container_op](https://kubeflow-pipelines.readthedocs.io/en/stable/source/kfp.components.html#kfp.components.func_to_container_op) which would help in building the factory function from the python function and we will use [InputPath](https://kubeflow-pipelines.readthedocs.io/en/stable/source/kfp.components.html#kfp.components.InputPath) and [OutputPath](https://kubeflow-pipelines.readthedocs.io/en/stable/source/kfp.components.html#kfp.components.OutputPath) from the components package to pass the paths of the files or models to these tasks. The [passing of data](https://www.kubeflow.org/docs/components/pipelines/sdk/python-function-components/#pass-data) is being implemented by kfp’s supported data passing mechanism. InputPath and OutputPath is how you pass on the data or model between the components.
 
 ### Step 2: Next build out the pipeline components 
 
