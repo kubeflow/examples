@@ -1,5 +1,5 @@
 # Objective
-Here we convert the https://www.kaggle.com/competitions/digit-recognizer code to Kubeflow pipeline 
+Here we convert the https://www.kaggle.com/competitions/digit-recognizer code to a Kubeflow pipeline 
 The objective of this task is to correctly identify digits from a dataset of tens of thousands of handwritten images.
 
 # Testing Environment
@@ -22,7 +22,7 @@ Here, a python function is created to carry out a certain task and the python fu
 
 
 ## Kubeflow pipelines
-A Kubeflow pipelines connects each components to create a directed acyclic graph (DAG). The kfp `dsl.pipeline` method was used to create a pipeline function. The kfp component method `InputPath` and `OutputPath` was used to pass data amongst component. 
+A Kubeflow pipelines connects all components together, to create a directed acyclic graph (DAG). The kfp `dsl.pipeline` method was used to create a pipeline function. The kfp component method `InputPath` and `OutputPath` was used to pass data amongst component. 
 
 Finally, the  `create_run_from_pipeline_func` was used to submit pipeline directly from pipeline function
 
