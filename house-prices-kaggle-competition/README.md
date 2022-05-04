@@ -4,7 +4,7 @@ In this repo we are converting a [notebook](https://www.kaggle.com/code/ryanholb
 
 ## Prerequisites for Building the Kubeflow Pipeline
 
-If you don’t already have Kubeflow up and running, we recommend signing up for a free trial of Kubeflow as a Service. For installation, please follow the instructions mentioned [here](https://www.kubeflow.org/docs/started/installing-kubeflow/). For the following example, we are using Arrikto’s [MiniKF](https://www.arrikto.com/blog/kubeflow/news/minikf-a-fast-and-easy-way-to-deploy-kubeflow-on-your-laptop/), but you should be able to run this example on any Kubeflow distribution.
+If you don’t already have Kubeflow up and running, we recommend signing up for a free trial of Kubeflow as a Service. For installation, please follow the instructions mentioned [here](https://www.arrikto.com/kubeflow-as-a-service/preview/). For the following example, we are using Arrikto’s [MiniKF](https://www.arrikto.com/blog/kubeflow/news/minikf-a-fast-and-easy-way-to-deploy-kubeflow-on-your-laptop/), but you should be able to run this example on any Kubeflow distribution.
 
 ## Testing environment
 
@@ -88,7 +88,7 @@ Please take time to understand how each cell is annotated by clicking on the cel
 - Pipeline Parameters
 - Pipeline Metrics
 - Pipeline Step
-- Skip cell
+- Skip Cell
 
 You can also see the tags being created by checking out the Cell Metadata by clicking on the Property Inspector above the Kale Deployment Panel button.
 
