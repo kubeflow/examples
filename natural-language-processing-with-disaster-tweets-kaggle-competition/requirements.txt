@@ -1,0 +1,8 @@
+seaborn
+nltk
+sklearn
+collection
+gensim
+keras
+tensorflow
+pyspellchecker
