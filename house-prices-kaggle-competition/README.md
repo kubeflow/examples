@@ -113,4 +113,8 @@ In the “Running pipeline” output, click on the “View” hyperlink. This wi
 </p>
 
 ## Note:
-Both the notebooks have been tested out. Please do report any issue in case of an error.
+Both the notebooks have been tested out. In case of any error, please test out with the following docker image. 
+
+Notebook server docker image used: gcr.io/arrikto/jupyter-kale-py36@sha256:dd3f92ca66b46d247e4b9b6a9d84ffbb368646263c2e3909473c3b851f3fe198
+
+If the error persists, please raise an issue.
