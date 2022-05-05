@@ -20,6 +20,38 @@ Docker is used to create an image to run each component in the pipeline.
 
 Kubeflow Pipelines connects each Docker-based component to create a pipeline. Each pipeline is a reproducible workflow wherein we pass input arguments and run the entire workflow.
 
+# Apply Kubernetes secret
+We will use Kaggle API to get input data from Kaggle to Kubeflow pipeline. In order to get this data securly we need to apply a Kubernetes secret
+
+Step1: Create secret
+```
+kubectl create secret generic kaggle-secret --from-literal=KAGGLE_USERNAME=<username> --from-literal=KAGGLE_KEY=<api_token> 
+```
+Step2: create a file named `secret.yaml` as follows:
+```
+apiVersion: "kubeflow.org/v1alpha1"
+kind: PodDefault
+metadata:
+  name: kaggle-access
+spec:
+ selector:
+  matchLabels:
+    kaggle-secret: "true"
+ desc: "kaggle-access"
+ volumeMounts:
+ - name: secret-volume
+   mountPath: /secret/kaggle
+ volumes:
+ - name: secret-volume
+   secret:
+    secretName: kaggle-secret
+```
+Apply this yaml
+```
+kubectl apply -f secret.yaml 
+```
+
+
 # Build the Train and Evaluate images with Docker
 
 Kubeflow relies on Docker images to create pipelines. These images are pushed to a Docker container registry, from which Kubeflow accesses them. For the purposes of this how-to we are going to use Docker Hub as our registry.
@@ -36,7 +68,7 @@ docker build -t <docker_username>/<docker_imagename>:<tag> .
 ```
 For example:
 ```
-docker build -t hubdocker76/demotrain:v4 .
+docker build -t hubdocker76/demotrain:v8 .
 ```
 ## Step 3: Build the Evaluate image
 
@@ -46,7 +78,7 @@ docker build -t <docker_username>/<docker_imagename>:<tag> .
 ```
 For example:
 ```
-docker build -t hubdocker76/demoeval:v2 .
+docker build -t hubdocker76/demoeval:v3 .
 ```
 ## Kubeflow Pipeline
 
