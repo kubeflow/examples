@@ -1,47 +1,67 @@
 # Objective
-Here we convert the https://www.kaggle.com/competitions/facial-keypoints-detection code to kfp-pipeline 
-The objective of this task is to predict keypoint positions on face images
 
-# Testing enviornment
-The pipeline is tested on `Kubeflow 1.4` and `kfp 1.1.2` , it should be compatible with previous releases of Kubeflow . kfp version used for testing is 1.1.2 which can be installed as `pip install kfp==1.1.2`  
+This example is based on the Facial Keypoints Detection Kaggle competition. The objective of this exercise is to predict keypoint positions on face images.
 
-# Components used
+## Environment
 
-## Docker
-Docker is used to create an enviornment to run each component.
+This pipeline was tested using Kubeflow 1.4 and kfp 1.1.2
 
-## Kubeflow pipelines
-Kubeflow pipelines connect each docker component and create a pipeline. Each Kubeflow pipeline is reproducable workflow wherein we pass input arguments and run entire workflow.  
+## Prerequisites for Building the Kubeflow Pipeline
 
-# Docker
-We start with creating a docker account on dockerhub (https://hub.docker.com/). We signup with our individual email. After signup is compelete login to docker using your username and password using the command `docker login` on your terminal
+### Kubeflow
 
-## Build train image
-Navigate to `pipeline-components/train/` and build train docker image using :
+It is assumed that you have Kubeflow installed. 
+
+### Docker
+
+Docker is used to create an image to run each component in the pipeline.
+
+### Kubeflow Pipelines
+
+Kubeflow Pipelines connects each Docker-based component to create a pipeline. Each pipeline is a reproducible workflow wherein we pass input arguments and run the entire workflow.
+
+# Build the Train and Evaluate images with Docker
+
+Kubeflow relies on Docker images to create pipelines. These images are pushed to a Docker container registry, from which Kubeflow accesses them. For the purposes of this how-to we are going to use Docker Hub as our registry.
+
+## Step 1: Log into Docker
+
+Start by creating a Docker account on DockerHub. After signing up, log into Docker using your username and password at the terminal.
+
+## Step 2: Build the Train image
+
+Navigate to the pipeline-components/train/ directory and build the train Docker image using:
 ```
 docker build -t <docker_username>/<docker_imagename>:<tag> .
 ```
-In my case this is:
+For example:
 ```
 docker build -t hubdocker76/demotrain:v4 .
 ```
+## Step 3: Build the Evaluate image
 
-## Build evaluate image
-Navigate to `pipeline-components/eval/` directory and build docker image using :
+Next, navigate to the pipeline-components/eval/ directory and build the evaluate Docker image using:
 ```
 docker build -t <docker_username>/<docker_imagename>:<tag> .
 ```
-In my case this is:
+For example:
 ```
 docker build -t hubdocker76/demoeval:v2 .
 ```
-# Vanilla Kubeflow pipelines
+## Kubeflow Pipeline
 
-Run `python3 facial-keypoints-detection-kfp.py` this will generate a yaml file. which we can upload to Kubeflow pipelines UI and create a Run from it. The same yaml file can also be generated if we run `facial-keypoints-detection-kfp.ipynb` notebook
+Create the yaml file
 
-# Sample pipeline to run on Kubeflow
-Run `python3 facial-keypoints-detection-kfp.py` this will generate yaml file. Please upload this pipeline on Kubeflow and start a Run.
+Run:
+```
+python3 facial-keypoints-detection-kfp.py 
+```
+…this will generate a yaml file. 
 
-# Kale
-Upload `facial-keypoints-detection-kale.ipynb` file to Kubeflow where Kale is enabled and compile and run the notebook. 
+Run the Kubeflow Pipeline
 
+This file can then be uploaded to Kubeflow Pipelines UI from which you can create a Pipeline Run. The same yaml file will also be generated if we run the facial-keypoints-detection-kfp.ipynb notebook in the Notebook Server UI.
+
+# Kubeflow Pipeline with Kale
+
+To run this pipeline using the Kale JupyterLab extension, upload the `facial-keypoints-detection-kale.ipynb` file to your Kubeflow deployment where Kale is enabled. Once uploaded create a folder named `my_data` and paste `test.zip` and `training.zip` from Kaggle into this folder, click “compile and run” to create a pipeline run.

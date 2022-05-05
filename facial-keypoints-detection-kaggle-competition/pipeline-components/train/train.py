@@ -33,9 +33,14 @@ PATIENCE=patience
 
 ### Data Extraction : extract data and save to attached extenal pvc at location /data ###
 
-def download_kaggle_dataset(kaggle_user:str, kaggle_key:str, data_set:str, path:str):
+def download_kaggle_dataset(data_set:str, path:str):
     import os
     import glob
+    with open('/secret/kaggle/KAGGLE_KEY', 'r') as file:
+        kaggle_key = file.read().rstrip()
+    with open('/secret/kaggle/KAGGLE_USERNAME', 'r') as file:
+        kaggle_user = file.read().rstrip()
+        
     os.environ['KAGGLE_USERNAME'] = kaggle_user 
     os.environ['KAGGLE_KEY'] = kaggle_key
 
@@ -44,13 +49,16 @@ def download_kaggle_dataset(kaggle_user:str, kaggle_key:str, data_set:str, path:
     os.chdir(os.environ.get('HOME'))
     os.system("mkdir " + path)
     os.chdir(path)
+    print('\n Authenticating Kaggle Api ....')
     api = KaggleApi()
     api.authenticate()
+    print('Downloading data to /data ....')
     api.competition_download_file('facial-keypoints-detection','training.zip')
     api.competition_download_file('facial-keypoints-detection','test.zip')
 
 
-download_kaggle_dataset("gshock76", "035ae046240a8d9579f9ca02c4ae56e3", "facial-keypoints-detection","/data")
+
+download_kaggle_dataset("facial-keypoints-detection","/data")
 
 
 

@@ -1,6 +1,7 @@
 import kfp
 from kfp import dsl
 
+
 def SendMsg(trial, epoch, patience):
     vop = dsl.VolumeOp(name="pvc",
                        resource_name="pvc", size='5Gi', 
@@ -8,7 +9,7 @@ def SendMsg(trial, epoch, patience):
 
     return dsl.ContainerOp(
         name = 'Train', 
-        image = 'hubdocker76/demotrain:v4', 
+        image = 'hubdocker76/demotrain:v8', 
         command = ['python3', 'train.py'],
         arguments=[
             '--trial', trial,
@@ -34,9 +35,11 @@ def GetMsg(comp1):
     name = 'face pipeline',
     description = 'pipeline to detect facial landmarks')
 def  passing_parameter(trial, epoch, patience):
-    comp1 = SendMsg(trial, epoch, patience)
+    comp1 = SendMsg(trial, epoch, patience).add_pod_label("kaggle-secret", "true")
     comp2 = GetMsg(comp1)
 
 if __name__ == '__main__':
   import kfp.compiler as compiler
   compiler.Compiler().compile(passing_parameter, __file__ + '.yaml')
+
+
