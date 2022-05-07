@@ -41,7 +41,7 @@ Finally, the  `create_run_from_pipeline_func` was used to submit pipeline direct
 ### View Pipeline
 
 <p>
-<img src="https://github.com/josepholaide/examples/blob/master/digit_recognition/images/kfp-pipeline.PNG?raw=true" alt="kubeflow pipeline" width="600" height="700"/>
+<img src="https://github.com/josepholaide/examples/blob/master/digit-recognition-kaggle-competition/images/kfp-pipeline.PNG?raw=true" alt="kubeflow pipeline" width="600" height="700"/>
  </p>
 
 
@@ -72,5 +72,5 @@ To create pipeline using the Kale JupyterLab extension
 ### View Pipeline
 
 <p>
-<img src="https://github.com/josepholaide/examples/blob/master/digit_recognition/images/kale-pipeline.PNG?raw=true" alt="kubeflow pipeline" width="600" height="700"/>
+<img src="https://github.com/josepholaide/examples/blob/master/digit-recognition-kaggle-competition/images/kale-pipeline.PNG?raw=true" alt="kubeflow pipeline" width="600" height="700"/>
  </p>
