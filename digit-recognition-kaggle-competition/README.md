@@ -32,7 +32,7 @@ Finally, the  `create_run_from_pipeline_func` was used to submit pipeline direct
 
 2. Clone this repo and navigate to this directory
 
-3. Navigate to `data` directory, download the compressed kaggle data [here](https://www.kaggle.com/competitions/digit-recognizer/data), store the `training.zip`, `test.zip` and `sample_sumbission.csv` files in the data folder
+3. Navigate to `data` directory, download the compressed kaggle data using this [link](https://www.kaggle.com/competitions/digit-recognizer/data), store the `training.zip`, `test.zip` and `sample_sumbission.csv` files in the data folder
 
 4. Run the digit-recognizer-kfp notebook from start to finish
 
