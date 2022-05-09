@@ -13,7 +13,7 @@ Environment:
 | pip           | 21.3.1 |
 
 
-The KFP version used for testing can be installed as `pip install kfp==1.8.11`  
+The kfp version used for testing can be installed as `pip install kfp==1.8.11`  
 
 # Section 1: KFP Pipeline
 
