@@ -8,7 +8,7 @@ Environment:
 | Name        | version           | 
 | ------------- |:-------------:|
 | Kubeflow      | v1.4   |
-| KFP           | 1.8.11 |
+| kfp           | 1.8.11 |
 | kubeflow-kale | 0.6.0  |
 | pip           | 21.3.1 |
 
@@ -18,15 +18,15 @@ The KFP version used for testing can be installed as `pip install kfp==1.8.11`
 # Section 1: KFP Pipeline
 
 ## Kubeflow lightweight component method
-Here, a python function is created to carry out a certain task and the python function is passed inside a KFP component method`create_component_from_func`. 
+Here, a python function is created to carry out a certain task and the python function is passed inside a kfp component method`create_component_from_func`. 
 
 
 ## Kubeflow pipelines
-A Kubeflow pipelines connects all components together, to create a directed acyclic graph (DAG). The KFP `dsl.pipeline` method was used to create a pipeline function. The KFP component method `InputPath` and `OutputPath` was used to pass data amongst component. 
+A Kubeflow pipelines connects all components together, to create a directed acyclic graph (DAG). The kfp `dsl.pipeline` method was used to create a pipeline function. The kfp component method `InputPath` and `OutputPath` was used to pass data amongst component. 
 
 Finally, the  `create_run_from_pipeline_func` was used to submit pipeline directly from pipeline function
 
-## To create pipeline on KFP
+## To create pipeline on kfp
    
 1. Open your Kubeflow Cluster, create a Notebook Server and connect to it.
 
