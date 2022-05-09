@@ -26,7 +26,7 @@ A Kubeflow pipelines connects all components together, to create a directed acyc
 
 Finally, the  `create_run_from_pipeline_func` was used to submit pipeline directly from pipeline function
 
-## To create pipeline on kfp
+## To create pipeline on KFP
    
 1. Open your Kubeflow Cluster, create a Notebook Server and connect to it.
 
