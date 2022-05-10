@@ -4,7 +4,7 @@ In this repo we are converting a [notebook](https://www.kaggle.com/code/ryanholb
 
 ## Prerequisites for Building the Kubeflow Pipeline
 
-If you don’t already have Kubeflow up and running, we recommend signing up for a free trial of Kubeflow as a Service. For installation, please follow the instructions mentioned [here](https://www.arrikto.com/kubeflow-as-a-service/preview/). For the following example, we are using Arrikto’s [MiniKF](https://www.arrikto.com/blog/kubeflow/news/minikf-a-fast-and-easy-way-to-deploy-kubeflow-on-your-laptop/), but you should be able to run this example on any Kubeflow distribution.
+If you don’t already have Kubeflow up and running, we recommend signing up for a free trial of Arrikto's [Kubeflow as a Service](https://www.arrikto.com/kubeflow-as-a-service/). For the following example, we are using Kubeflow as a Service, but you should be able to run this example on any Kubeflow distribution.
 
 ## Testing environment
 
@@ -71,7 +71,7 @@ The final pipeline graph would look as follow:
 
 ## Kale version
 
-For the Kaggle notebook example, we are using Arrikto’s MiniKF to set up Kubeflow. If you are using MiniKF then Kale comes preinstalled. For users with different Kubeflow setup, you can refer to the Github [link](https://github.com/kubeflow-kale/kale#getting-started) for installing the Kale JupyterLab extension on your setup.
+For the Kaggle notebook example, we are using [Kubeflow as a Service](https://www.arrikto.com/kubeflow-as-a-service/). If you are using Kubeflow as a Service then Kale comes preinstalled. For users with different Kubeflow setup, you can refer to the [GitHub link](https://github.com/kubeflow-kale/kale#getting-started) for installing the Kale JupyterLab extension on your setup.
 
 ### Step 1: Annotate the notebook with Kale tags
 
