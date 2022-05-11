@@ -96,4 +96,4 @@ This file can then be uploaded to Kubeflow Pipelines UI from which you can creat
 
 # Kubeflow Pipeline with Kale
 
-To run this pipeline using the Kale JupyterLab extension, upload the `facial-keypoints-detection-kale.ipynb` file to your Kubeflow deployment where Kale is enabled. Once uploaded create a folder named `my_data` and paste `test.zip` and `training.zip` from Kaggle into this folder, click “compile and run” to create a pipeline run.
+To run this pipeline using the Kale JupyterLab extension, upload the `facial-keypoints-detection-kale.ipynb` file to your Kubeflow deployment where Kale is enabled. Once uploaded run the cell annotated with `skip` tag which downloads the data using Kaggle API and saves the download data to `my_data` folder, click “compile and run” to create a pipeline run.
