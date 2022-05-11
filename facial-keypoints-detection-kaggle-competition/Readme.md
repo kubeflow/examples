@@ -20,14 +20,30 @@ Docker is used to create an image to run each component in the pipeline.
 
 Kubeflow Pipelines connects each Docker-based component to create a pipeline. Each pipeline is a reproducible workflow wherein we pass input arguments and run the entire workflow.
 
-# Apply Kubernetes secret
-We will use Kaggle API to get input data from Kaggle to Kubeflow pipeline. In order to get this data securly we need to apply a Kubernetes secret
+# Apply PodDefault resource
 
-Step1: Create secret
+The input data needed to run this tutorial is been pulled from Kaggle . In order to pull the data we need to create a Kaggle account , user needs to register with his email and password and create a Kaggle username. 
+
+We have successfully registered our Kaggle account. Now, we have to have access the API Token . API access is needed to pull data from Kaggle , to get the API access click on your profile picture on the top right and select “Account” from the menu.
+
+<img width="358" alt="Account" src="https://user-images.githubusercontent.com/17012391/167830480-334e2586-5df1-4cf4-be79-cfcfda5048ac.png">
+
+Scroll down to the “API” section and click “Create New API Token” :
+<img width="926" alt="Screenshot 2022-05-10 at 1 03 34 PM" src="https://user-images.githubusercontent.com/17012391/167830572-a7412306-f0cb-4f1f-8f93-28253a127202.png">
+
+
+This will download a file ‘kaggle.json’ with the following contents :
+username	“My username”
+key	“My key”
+
+Now, substitute your “username” for <username> and your “key” for  <api_token> and create a Kubernetes secret using:  
 ```
 kubectl create secret generic kaggle-secret --from-literal=KAGGLE_USERNAME=<username> --from-literal=KAGGLE_KEY=<api_token> 
 ```
-Step2: create a file named `secret.yaml` as follows:
+
+  
+Step2: Create a `resource.yaml` file with the following code:
+
 ```
 apiVersion: "kubeflow.org/v1alpha1"
 kind: PodDefault
@@ -46,11 +62,11 @@ spec:
    secret:
     secretName: kaggle-secret
 ```
-Apply this yaml
+  
+Apply the yaml with the following command:
 ```
-kubectl apply -f secret.yaml 
+kubectl apply -f resource.yaml 
 ```
-
 
 # Build the Train and Evaluate images with Docker
 
@@ -96,4 +112,4 @@ This file can then be uploaded to Kubeflow Pipelines UI from which you can creat
 
 # Kubeflow Pipeline with Kale
 
-To run this pipeline using the Kale JupyterLab extension, upload the `facial-keypoints-detection-kale.ipynb` file to your Kubeflow deployment where Kale is enabled. Once uploaded run the cell annotated with `skip` tag which downloads the data using Kaggle API and saves the download data (use <username> and <api_token>  as highlighted in the blog to get the data from Kaggle API )to `my_data` folder, click “compile and run” to create a pipeline run.
+To run this pipeline using the Kale JupyterLab extension, upload the `facial-keypoints-detection-kale.ipynb` file to your Kubeflow deployment where Kale is enabled. Once uploaded run the cell annotated with `skip` tag which downloads the data using Kaggle API (use `<username>` and `<api_token>`  as highlighted in `Apply PodDefault resource` step to get get data using Kaggle API) and save the download data to `my_data` folder.   click “compile and run” to create a pipeline run.
