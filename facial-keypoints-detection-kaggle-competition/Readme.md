@@ -48,7 +48,7 @@ kubectl create secret generic kaggle-secret --from-literal=KAGGLE_USERNAME=<user
   
 ## Step2: Create a PodDefault resource
 
-We need a way to inject common data (env vars, volumes) to pods. In Kubeflow we use PodDefault resource which serves this usecase (reference: https://github.com/kubeflow/kubeflow/blob/master/components/admission-webhook/README.md).  Using the PodDefault resource we can attach a secret to our data pulling step container which downloads data using Kaggle API. 
+We need a way to inject common data (env vars, volumes) to pods. In Kubeflow we use PodDefault resource which serves this usecase (reference: https://github.com/kubeflow/kubeflow/blob/master/components/admission-webhook/README.md).  Using the PodDefault resource we can attach a secret to our data pulling step container which downloads data using Kaggle API. We create and apply PodDefault resource as follows :
 
 Create a `resource.yaml` file with the following code:
 
