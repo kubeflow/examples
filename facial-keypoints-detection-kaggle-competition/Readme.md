@@ -35,8 +35,9 @@ Scroll down to the “API” section and click “Create New API Token” :
 
 
 This will download a file ‘kaggle.json’ with the following contents :
-username	“My username”
-key	“My key”
+
+|username	|“My username”|
+|key	|“My key”|
 
 Now, substitute your “username” for `<username>` and your “key” for  `<api_token>` and create a Kubernetes secret using:  
 ```
