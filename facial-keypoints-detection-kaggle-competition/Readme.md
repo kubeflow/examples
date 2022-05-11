@@ -22,6 +22,7 @@ Kubeflow Pipelines connects each Docker-based component to create a pipeline. Ea
 
 # Apply PodDefault resource
 
+## Step 1: Generate Kaggle API token
 The input data needed to run this tutorial is been pulled from Kaggle . In order to pull the data we need to create a Kaggle account , user needs to register with his email and password and create a Kaggle username. 
 
 Once we have successfully registered our Kaggle account. Now, we have to access the API Token . API access is needed to pull data from Kaggle , to get the API access go to you Kaggle profile and click on your profile picture on the top right  we will see this option: 
@@ -45,7 +46,7 @@ kubectl create secret generic kaggle-secret --from-literal=KAGGLE_USERNAME=<user
 ```
 
   
-Step2: Create a `resource.yaml` file with the following code:
+## Step2: Create a `resource.yaml` file with the following code:
 
 ```
 apiVersion: "kubeflow.org/v1alpha1"
