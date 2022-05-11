@@ -24,7 +24,7 @@ Kubeflow Pipelines connects each Docker-based component to create a pipeline. Ea
 
 The input data needed to run this tutorial is been pulled from Kaggle . In order to pull the data we need to create a Kaggle account , user needs to register with his email and password and create a Kaggle username. 
 
-We have successfully registered our Kaggle account. Now, we have to have access the API Token . API access is needed to pull data from Kaggle , to get the API access click on your profile picture on the top right and select “Account” from the menu.
+Once we have successfully registered our Kaggle account. Now, we have to have access the API Token . API access is needed to pull data from Kaggle , to get the API access click on your profile picture on the top right and select “Account” from the menu.
 
 <img width="358" alt="Account" src="https://user-images.githubusercontent.com/17012391/167830480-334e2586-5df1-4cf4-be79-cfcfda5048ac.png">
 
