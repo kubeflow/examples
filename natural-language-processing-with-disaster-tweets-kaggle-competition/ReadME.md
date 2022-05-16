@@ -48,10 +48,10 @@ This function takes mainly three arguments. The first one is the name of the fun
  - Running the pipeline : To run the pipeline we use ```kfp.Client()```, and create an object of the class and then use ```create_run_from_pipeline_func``` function to run the pipeline by passing it the name of the pipeline and the arguments which are required as input.
 
 
-![First Image](https://github.com/AnkitRai-22/natural-language-processing-with-disaster-tweets-kaggle-competition/blob/main/images/Screenshot%20(254).png)
-![Second Iamge](https://github.com/AnkitRai-22/natural-language-processing-with-disaster-tweets-kaggle-competition/blob/main/images/Screenshot%20(255).png)
+![First Image](https://github.com/AnkitRai-22/examples/natural-language-processing-with-disaster-tweets-kaggle-competition/blob/main/images/Screenshot%20(254).png)
+![Second Iamge](https://github.com/AnkitRai-22/examples/natural-language-processing-with-disaster-tweets-kaggle-competition/blob/main/images/Screenshot%20(255).png)
 The final pipeline looks as shown below:<br>
-![Pipeline Iamge](https://github.com/AnkitRai-22/natural-language-processing-with-disaster-tweets-kaggle-competition/blob/main/images/Screenshot%20(263).png)
+![Pipeline Iamge](https://github.com/AnkitRai-22/examples/natural-language-processing-with-disaster-tweets-kaggle-competition/blob/main/images/Screenshot%20(263).png)
 
 ## Running the Kale Version
 
@@ -68,11 +68,11 @@ With Kale you annotate cells (which are logical groupings of code) inside your J
 - **Note:** To make sure the pipeline works perfectly don’t forget to add the name of the component on which it depends. 
 
 For example, in the screenshot below we annotate the code block with ```class_distribution``` and specify that it depends on the ```load_data``` step.
-![Example Annotation Image](https://github.com/AnkitRai-22/natural-language-processing-with-disaster-tweets-kaggle-competition/blob/main/images/Screenshot%20(265).png)
+![Example Annotation Image](https://github.com/AnkitRai-22/examples/natural-language-processing-with-disaster-tweets-kaggle-competition/blob/main/images/Screenshot%20(265).png)
 
 <br><br>
 Here’s the complete list of annotations for the Notebook along with the steps on which they are dependent on:<br><br>
-![Table Annotation Image](https://github.com/AnkitRai-22/natural-language-processing-with-disaster-tweets-kaggle-competition/blob/main/images/Screenshot%20(269).png)
+![Table Annotation Image](https://github.com/AnkitRai-22/examples/natural-language-processing-with-disaster-tweets-kaggle-competition/blob/main/images/Screenshot%20(269).png)
 
 ### Step 2: Running the Kubeflow pipeline
 The steps to deploy the pipeline using Kale are as follows:
@@ -92,7 +92,7 @@ The steps to deploy the pipeline using Kale are as follows:
 ```pip install -r requirements.txt ```
 then click on the "restart the whole kernel and re-rerun the whole notebook"(fast-forward logo-ed) button in the top menu of the notebook.
 
-![Third Image](https://github.com/AnkitRai-22/natural-language-processing-with-disaster-tweets-kaggle-competition/blob/main/images/Screenshot%20(257).png)
-![Fourth Image](https://github.com/AnkitRai-22/natural-language-processing-with-disaster-tweets-kaggle-competition/blob/main/images/Screenshot%20(258).png)
-![Fifth Image](https://github.com/AnkitRai-22/natural-language-processing-with-disaster-tweets-kaggle-competition/blob/main/images/Screenshot%20(259).png)
+![Third Image](https://github.com/AnkitRai-22/examples/natural-language-processing-with-disaster-tweets-kaggle-competition/blob/main/images/Screenshot%20(257).png)
+![Fourth Image](https://github.com/AnkitRai-22/examples/natural-language-processing-with-disaster-tweets-kaggle-competition/blob/main/images/Screenshot%20(258).png)
+![Fifth Image](https://github.com/AnkitRai-22/examples/natural-language-processing-with-disaster-tweets-kaggle-competition/blob/main/images/Screenshot%20(259).png)
 
