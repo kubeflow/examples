@@ -1,6 +1,6 @@
 # Objective
 <br>
-The aim of this project to correctly guide users through a tutorial of converting the https://www.kaggle.com/c/nlp-getting-started competition notebook into a Kubeflow pipeline.<br><br> 
+The aim of this project is to correctly guide users through a tutorial of converting the https://www.kaggle.com/c/nlp-getting-started competition notebook into a Kubeflow pipeline.<br><br> 
 There are 3 different ipynb files in this repo. The one ending with -orig is the original one from the competition, the one ending with -kpf uses vanilla kubeflow to create the pipeline and the one ending with -kale uses kale to build the kubeflow pipeline. <br>
 <br>
 
@@ -72,7 +72,7 @@ For example, in the screenshot below we annotate the code block with ```class_di
 
 <br><br>
 Here’s the complete list of annotations for the Notebook along with the steps on which they are dependent on:<br><br>
-![Table Annotation Image](https://github.com/AnkitRai-22/natural-language-processing-with-disaster-tweets-kaggle-competition/blob/main/images/Screenshot%20(269).png)
+![Table Annotation Image](https://github.com/AnkitRai-22/natural-language-processing-with-disaster-tweets-kaggle-competition/blob/main/images/Screenshot%20(272).png)
 
 ### Step 2: Running the Kubeflow pipeline
 The steps to deploy the pipeline using Kale are as follows:
@@ -86,13 +86,11 @@ The steps to deploy the pipeline using Kale are as follows:
 
 4. In the JupyterLab launcher start a new terminal session to clone the github repo. In the terminal enter the following commands:
 
-```$ git clone https://github.com/AnkitRai-22/natural-language-processing-with-disaster-tweets-kaggle-competition```
+```$ git clone https://github.com/kubeflow/examples/natural-language-processing-with-disaster-tweets-kaggle-competition```
 
 5. After succesfully cloning the repo, double click on the "natural-language-processing-with-disaster-tweets-kaggle-competition" to go to the github repo. Then open the notebook named "natural-language-processing-with-disaster-tweets-kale.ipynb" by double-clicking on this name in the left hand directory structure. To run it first click on the first cell and run the code block containing the following code 
 ```pip install -r requirements.txt ```
 then click on the "restart the whole kernel and re-rerun the whole notebook"(fast-forward logo-ed) button in the top menu of the notebook.
 
-![Third Image](https://github.com/AnkitRai-22/natural-language-processing-with-disaster-tweets-kaggle-competition/blob/main/images/Screenshot%20(257).png)
-![Fourth Image](https://github.com/AnkitRai-22/natural-language-processing-with-disaster-tweets-kaggle-competition/blob/main/images/Screenshot%20(258).png)
-![Fifth Image](https://github.com/AnkitRai-22/natural-language-processing-with-disaster-tweets-kaggle-competition/blob/main/images/Screenshot%20(259).png)
-
+![Third Image](https://github.com/AnkitRai-22/natural-language-processing-with-disaster-tweets-kaggle-competition/blob/main/images/Screenshot%20(270).png)
+![Fourth Image](https://github.com/AnkitRai-22/natural-language-processing-with-disaster-tweets-kaggle-competition/blob/main/images/Screenshot%20(271).png)
