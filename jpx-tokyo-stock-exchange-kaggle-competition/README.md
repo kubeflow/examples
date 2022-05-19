@@ -45,17 +45,17 @@ Finally, the  `create_run_from_pipeline_func` was used to submit pipeline direct
 
 4. Open the digit-recognizer-kfp notebook and pass the ‘api-key’ and ‘username’ in the following cells.
    
-   * enter username
+ * enter username
    
 <p>
 <img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/enter-username.PNG?raw=true" alt="enter username" width="700" height="300"/>
- </p>
+</p>
  
    * enter api key
 
 <p>
 <img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/enter-api-key.PNG?raw=true" alt="enter api key" width="700" height="250"/>
- </p> 
+</p> 
  
 5. Run the digit-recognizer-kfp notebook from start to finish
 
@@ -90,7 +90,7 @@ To create pipeline using the Kale JupyterLab extension
    * After creating a new API token, a kaggle.json file is automatically downloaded, 
       and the json file contains the ‘api-key’ and ‘username’ needed to download the dataset.
    * Upload the JSON file to the Jupyter notebook instance
-   * Pass the JSON file path into the following cell.
+   * Pass the JSON file directory into the following cell.
 <p>
 <img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/pass-kaggle-json-path.PNG?raw=true" alt="pass kaggle json path" width="850" height="250"/>
  </p>
