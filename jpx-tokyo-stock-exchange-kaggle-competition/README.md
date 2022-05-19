@@ -47,12 +47,12 @@ Finally, the  `create_run_from_pipeline_func` was used to submit pipeline direct
    
    1. enter username
 <p>
-<img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/enter-username.PNG?raw=true" alt="enter username" width="600" height="700"/>
+<img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/enter-username.PNG?raw=true" alt="enter username" width="700" height="300"/>
  </p>
  
    2. enter api key
 <p>
-<img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/enter-api-key.PNG?raw=true" alt="enter api key" width="600" height="700"/>
+<img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/enter-api-key.PNG?raw=true" alt="enter api key" width="700" height="300"/>
  </p> 
  
 5. Run the digit-recognizer-kfp notebook from start to finish
@@ -90,7 +90,7 @@ To create pipeline using the Kale JupyterLab extension
    6. Upload the JSON file to the Jupyter notebook instance
    7. Pass the JSON file path into the following cell.
 <p>
-<img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/pass-kaggle-json-path.PNG?raw=true" alt="pass kaggle json path" width="600" height="300"/>
+<img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/pass-kaggle-json-path.PNG?raw=true" alt="pass kaggle json path" width="700" height="300"/>
  </p>
  
 5. The notebook's cells are automatically annotated with Kale tags
