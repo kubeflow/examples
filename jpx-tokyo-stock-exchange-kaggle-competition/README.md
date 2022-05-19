@@ -36,23 +36,25 @@ Finally, the  `create_run_from_pipeline_func` was used to submit pipeline direct
 
 3. Download JPX dataset using Kaggle's API. To do this, do the following:
    
-   1. Login to Kaggle and click on your user profile picture.
-   2. Click on ‘Account’.
-   3. Under ‘Account’, navigate to the ‘API’ section.
-   4. Click ‘Create New API token’.
-   5. After creating a new API token, a kaggle.json file is automatically downloaded, 
+   * Login to Kaggle and click on your user profile picture.
+   * Click on ‘Account’.
+   * Under ‘Account’, navigate to the ‘API’ section.
+   * Click ‘Create New API token’.
+   * After creating a new API token, a kaggle.json file is automatically downloaded, 
       and the json file contains the ‘api-key’ and ‘username’ needed to download the dataset.
 
 4. Open the digit-recognizer-kfp notebook and pass the ‘api-key’ and ‘username’ in the following cells.
    
-   1. enter username
+   * enter username
+   
 <p>
 <img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/enter-username.PNG?raw=true" alt="enter username" width="700" height="300"/>
  </p>
  
-   2. enter api key
+   * enter api key
+
 <p>
-<img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/enter-api-key.PNG?raw=true" alt="enter api key" width="700" height="300"/>
+<img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/enter-api-key.PNG?raw=true" alt="enter api key" width="700" height="250"/>
  </p> 
  
 5. Run the digit-recognizer-kfp notebook from start to finish
@@ -81,16 +83,16 @@ To create pipeline using the Kale JupyterLab extension
 
 5. Download JPX dataset using Kaggle's API. To do this, do the following:
    
-   1. Login to Kaggle and click on your user profile picture.
-   2. Click on ‘Account’.
-   3. Under ‘Account’, navigate to the ‘API’ section.
-   4. Click ‘Create New API token’.
-   5. After creating a new API token, a kaggle.json file is automatically downloaded, 
+   * Login to Kaggle and click on your user profile picture.
+   * Click on ‘Account’.
+   * Under ‘Account’, navigate to the ‘API’ section.
+   * Click ‘Create New API token’.
+   * After creating a new API token, a kaggle.json file is automatically downloaded, 
       and the json file contains the ‘api-key’ and ‘username’ needed to download the dataset.
-   6. Upload the JSON file to the Jupyter notebook instance
-   7. Pass the JSON file path into the following cell.
+   * Upload the JSON file to the Jupyter notebook instance
+   * Pass the JSON file path into the following cell.
 <p>
-<img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/pass-kaggle-json-path.PNG?raw=true" alt="pass kaggle json path" width="700" height="300"/>
+<img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/pass-kaggle-json-path.PNG?raw=true" alt="pass kaggle json path" width="850" height="250"/>
  </p>
  
 5. The notebook's cells are automatically annotated with Kale tags
