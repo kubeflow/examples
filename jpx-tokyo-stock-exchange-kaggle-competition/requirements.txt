@@ -2,4 +2,4 @@ kaggle
 pandas
 tqdm
 lightgbm
-plotly
+scipy
