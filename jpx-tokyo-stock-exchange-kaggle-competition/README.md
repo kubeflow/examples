@@ -88,9 +88,15 @@ Finally, the  [`create_run_from_pipeline_func`](https://kubeflow-pipelines.readt
 <p align=center>
 <img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/kfp-pipeline.PNG?raw=true" alt="kubeflow pipeline" width="600" height="700"/>
  </p>
+ 
+ ### View Pipeline Metric
+
+<p align=center>
+<img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/kfp-metrics.PNG?raw=true" alt="kubeflow pipeline" width="600" height="300"/>
+ </p>
 
 
-# Section 2: Kale Pipeline
+## Section 2: Kale Pipeline
 
 To create pipeline using the Kale JupyterLab extension
 
@@ -153,3 +159,8 @@ To create pipeline using the Kale JupyterLab extension
 <img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/kale-pipeline.PNG?raw=true" alt="kubeflow pipeline" width="600" height="700"/>
  </p>
 
+ ### View Pipeline Metric
+
+<p align=center>
+<img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/kale-metrics.PNG?raw=true" alt="kubeflow pipeline" width="600" height="300"/>
+ </p>
