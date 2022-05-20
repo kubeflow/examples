@@ -61,13 +61,17 @@ Finally, the  [`create_run_from_pipeline_func`](https://kubeflow-pipelines.readt
    
    * Login to Kaggle and click on your user profile picture.
    * Click on ‘Account’.
+   
    <p align=center>
    <img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/kaggle-click-account.PNG?raw=true" alt="enter username" width="900" height="300"/>
    </p>
+   
    * Under ‘Account’, navigate to the ‘API’ section.
+   
    <p align=center>
    <img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/kaggle-create-new-api-token.PNG?raw=true" alt="enter username" width="900" height="300"/>
    </p>
+   
    * Click ‘Create New API token’.
    * After creating a new API token, a kaggle.json file is automatically downloaded, 
       and the json file contains the ‘api-key’ and ‘username’ needed to download the dataset.
