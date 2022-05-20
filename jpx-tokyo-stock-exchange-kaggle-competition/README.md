@@ -1,5 +1,6 @@
 # Objective
-Here we convert the https://www.kaggle.com/competitions/jpx-tokyo-stock-exchange-prediction code to a Kubeflow pipeline 
+Here we are going to convert this [notebook](https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/jpx-tokyo-stock-exchange-prediction-orig.ipynb) on [JPX Tokyo Stock Exchange Prediction](https://www.kaggle.com/competitions/jpx-tokyo-stock-exchange-prediction) to a Kubeflow pipeline.
+
 The objective of this task is to correctly model real future returns of around 2,000 stocks. The stocks are ranked from highest 
 to lowest expected returns and they are evaluated on the difference in returns between the top and bottom 200 stocks.
 
@@ -14,19 +15,40 @@ Environment:
 | pip           | 21.3.1 |
 
 
-The KFP version used for testing can be installed as `pip install kfp==1.8.11`  
+## Overview
 
-# Section 1: KFP Pipeline
+1. KFP Pipeline: Kubeflow lightweight component method
 
-## Kubeflow lightweight component method
-Here, a python function is created to carry out a certain task and the python function is passed inside a kfp component method`create_component_from_func`. 
+   To get started, visit the Kubeflow Pipelines [documentation](https://www.kubeflow.org/docs/components/pipelines/sdk/) 
+   to understand what the pipelines are, its components, pipeline metrics and how to pass data between components in a pipeline. 
+   There are different ways to build out a pipeline component as mentioned [here](https://www.kubeflow.org/docs/components/pipelines/sdk/build-pipeline/#building-pipeline-components). 
+   In the following example, we are going to use the lightweight python functions based components for building our kubeflow pipeline.
 
+2. Kale Pipeline
+
+   To get stated, visit Kale's [documentation](https://docs.arrikto.com/user/kale/index.html) to understand how to use the 
+   Kale user interface (UI) from a Jupyter Notebook to [annotate notebook cells](https://docs.arrikto.com/user/kale/jupyterlab/annotate.html) 
+   and create machine learning pipelines.
+   In the following example, we are going to use the Kale's JupyterLab Extension for building our kubeflow pipeline.
+
+## Section 1: KFP Pipeline
+
+### Kubeflow lightweight component method
+Here, a python function is created to carry out a certain task and the python function is passed inside a kfp component method [`create_component_from_func`](https://kubeflow-pipelines.readthedocs.io/en/latest/source/kfp.components.html#kfp.components.create_component_from_func). 
+
+The different components used in this example are:
+
+- Load data
+- Transform data
+- Feature Engineering
+- Modelling
+- Prediction
 
 ## Kubeflow pipelines
-A Kubeflow pipelines connects all components together, to create a directed acyclic graph (DAG). The kfp `dsl.pipeline` method was used to create a pipeline function. 
-The kfp component method `InputPath` and `OutputPath` was used to pass data amongst component. 
+A Kubeflow pipelines connects all components together, to create a directed acyclic graph (DAG). The kfp [`dsl.pipeline`](https://www.kubeflow.org/docs/components/pipelines/sdk/sdk-overview/) decorator was used to create a pipeline function. 
+The kfp component method [`InputPath`](https://kubeflow-pipelines.readthedocs.io/en/latest/source/kfp.components.html#kfp.components.InputPath) and [`OutputPath`](https://kubeflow-pipelines.readthedocs.io/en/latest/source/kfp.components.html#kfp.components.OutputPath) was used to pass data amongst component in the pipeline. 
 
-Finally, the  `create_run_from_pipeline_func` was used to submit pipeline directly from pipeline function
+Finally, the  [`create_run_from_pipeline_func`](https://kubeflow-pipelines.readthedocs.io/en/stable/source/kfp.client.html) from the KFP SDK Client was used to submit pipeline directly from pipeline function
 
 ## To create pipeline on KFP
    
@@ -47,7 +69,7 @@ Finally, the  `create_run_from_pipeline_func` was used to submit pipeline direct
    
  * enter username
    
-<p>
+<p align=center>
 <img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/enter-username.PNG?raw=true" alt="enter username" width="700" height="300"/>
 </p>
  
@@ -63,7 +85,7 @@ Finally, the  `create_run_from_pipeline_func` was used to submit pipeline direct
 
 ### View Pipeline
 
-<p>
+<p align=center>
 <img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/kfp-pipeline.PNG?raw=true" alt="kubeflow pipeline" width="600" height="700"/>
  </p>
 
@@ -91,12 +113,22 @@ To create pipeline using the Kale JupyterLab extension
       and the json file contains the ‘api-key’ and ‘username’ needed to download the dataset.
    * Upload the JSON file to the Jupyter notebook instance
    * Pass the JSON file directory into the following cell.
-<p>
+<p align=center>
 <img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/pass-kaggle-json-path.PNG?raw=true" alt="pass kaggle json path" width="850" height="250"/>
  </p>
  
 5. The notebook's cells are automatically annotated with Kale tags
 
+   To fully understand the different Kale tags available, visit Kale [documentation](https://docs.arrikto.com/user/kale/jupyterlab/cell-types.html?highlight=pipeline%20metrics#annotate-pipeline-step-cells)
+   
+   Kale provides us with six tags for annotations:
+
+   * Imports
+   * Pipeline Parameters
+   * Pipeline Metrics
+   * Pipeline Step
+   * Skip Cell
+   
    With the use of Kale tags we define the following:
 
    * Pipeline parameters are assigned using the "pipeline parameters" tag
@@ -104,12 +136,20 @@ To create pipeline using the Kale JupyterLab extension
    * Notebook cells are assigned to specific Pipeline components (download data, load data, etc.) using the "pipeline step" tag
    * Cell dependencies are defined between the different pipeline steps with the "depends on" flag
    * Pipeline metrics are assigned using the "pipeline metrics" tag
+   
+   The pipeline steps created in this example:
+
+   * Load data
+   * Transform data
+   * Feature Engineering
+   * Modelling
+   * Prediction
 
 6. Compile and run Notebook using Kale
 
 ### View Pipeline
 
-<p>
+<p align=center>
 <img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/kale-pipeline.PNG?raw=true" alt="kubeflow pipeline" width="600" height="700"/>
  </p>
 
