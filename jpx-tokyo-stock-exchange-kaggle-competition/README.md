@@ -65,7 +65,7 @@ Finally, the  [`create_run_from_pipeline_func`](https://kubeflow-pipelines.readt
    * After creating a new API token, a kaggle.json file is automatically downloaded, 
       and the json file contains the ‘api-key’ and ‘username’ needed to download the dataset.
 
-4. Open the digit-recognizer-kfp notebook and pass the ‘api-key’ and ‘username’ in the following cells.
+4. Open the [digit-recognizer-kfp](https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/jpx-tokyo-stock-exchange-prediction-kfp.ipynb) notebook and pass the ‘api-key’ and ‘username’ in the following cells.
    
  * enter username
    
@@ -99,7 +99,7 @@ To create pipeline using the Kale JupyterLab extension
 
 2. Install the requirements.txt file
 
-3. Launch the digit-recognizer-kale.ipynb Notebook
+3. Launch the [digit-recognizer-kale.ipynb](https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/jpx-tokyo-stock-exchange-prediction-kale.ipynb) Notebook
 
 4. Enable the Kale extension in JupyterLab 
 
