@@ -127,7 +127,7 @@ To create pipeline using the Kale JupyterLab extension
 
    To fully understand the different Kale tags available, visit Kale [documentation](https://docs.arrikto.com/user/kale/jupyterlab/cell-types.html?highlight=pipeline%20metrics#annotate-pipeline-step-cells)
    
-   Kale provides us with six tags for annotations:
+   The following Kale tags were used in this example:
 
    * Imports
    * Pipeline Parameters
