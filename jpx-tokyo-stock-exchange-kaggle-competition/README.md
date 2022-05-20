@@ -162,5 +162,5 @@ To create pipeline using the Kale JupyterLab extension
  ### View Pipeline Metric
 
 <p align=center>
-<img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/kale-metrics.PNG?raw=true" alt="kubeflow pipeline" width="600" height="300"/>
+<img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/kale-metrics.PNG?raw=true" alt="kubeflow pipeline" width="700" height="300"/>
  </p>
