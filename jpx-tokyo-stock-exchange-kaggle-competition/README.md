@@ -26,7 +26,7 @@ Environment:
 
 2. Kale Pipeline
 
-   To get stated, visit Kale's [documentation](https://docs.arrikto.com/user/kale/index.html) to understand how to use the 
+   To get started, visit Kale's [documentation](https://docs.arrikto.com/user/kale/index.html) to understand how to use the 
    Kale user interface (UI) from a Jupyter Notebook to [annotate notebook cells](https://docs.arrikto.com/user/kale/jupyterlab/annotate.html) 
    and create machine learning pipelines.
    In the following example, we are going to use the Kale's JupyterLab Extension for building our kubeflow pipeline.
