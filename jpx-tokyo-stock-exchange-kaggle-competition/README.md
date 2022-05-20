@@ -75,7 +75,7 @@ Finally, the  [`create_run_from_pipeline_func`](https://kubeflow-pipelines.readt
  
    * enter api key
 
-<p>
+<p align=center>
 <img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/enter-api-key.PNG?raw=true" alt="enter api key" width="700" height="250"/>
 </p> 
  
