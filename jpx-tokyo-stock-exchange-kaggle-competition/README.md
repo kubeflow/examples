@@ -20,15 +20,15 @@ Environment:
 1. KFP Pipeline: Kubeflow lightweight component method
 
    To get started, visit the Kubeflow Pipelines [documentation](https://www.kubeflow.org/docs/components/pipelines/sdk/) 
-   to understand what the pipelines are, its components, pipeline metrics and how to pass data between components in a pipeline. 
+   to get acquainted with what pipelines are, its components, pipeline metrics and how to pass data between components in a pipeline. 
    There are different ways to build out a pipeline component as mentioned [here](https://www.kubeflow.org/docs/components/pipelines/sdk/build-pipeline/#building-pipeline-components). 
    In the following example, we are going to use the lightweight python functions based components for building our kubeflow pipeline.
 
 2. Kale Pipeline
 
-   To get started, visit Kale's [documentation](https://docs.arrikto.com/user/kale/index.html) to understand how to use the 
-   Kale user interface (UI) from a Jupyter Notebook to [annotate notebook cells](https://docs.arrikto.com/user/kale/jupyterlab/annotate.html) 
-   and create machine learning pipelines.
+   To get started, visit Kale's [documentation](https://docs.arrikto.com/user/kale/index.html) to get acquainted with the 
+   Kale user interface (UI) from a Jupyter Notebook, [notebook cell annotation](https://docs.arrikto.com/user/kale/jupyterlab/annotate.html) 
+   and how to create a machine learning pipeline using Kale.
    In the following example, we are going to use the Kale's JupyterLab Extension for building our kubeflow pipeline.
 
 ## Section 1: KFP Pipeline
