@@ -13,6 +13,7 @@ Environment:
 | kfp           | 1.8.11 |
 | kubeflow-kale | 0.6.0  |
 | pip           | 21.3.1 |
+| kaggle        | 1.5.12 |
 
 
 ## Overview
