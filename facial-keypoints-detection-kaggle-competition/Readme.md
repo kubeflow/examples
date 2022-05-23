@@ -86,23 +86,25 @@ Start by creating a Docker account on DockerHub. After signing up, log into Dock
 
 ## Step 2: Build the Train image
 
-Navigate to the pipeline-components/train/ directory and build the train Docker image using:
+On your terminal navigate to the pipeline-components/train/ directory and build the train Docker image using:
 ```
-docker build -t <docker_username>/<docker_imagename>:<tag> .
+$ cd pipeline-components/train/
+$ docker build -t <docker_username>/<docker_imagename>:<tag> .
 ```
 For example:
 ```
-docker build -t hubdocker76/demotrain:v8 .
+$ docker build -t hubdocker76/demotrain:v8 .
 ```
 ## Step 3: Build the Evaluate image
 
-Next, navigate to the pipeline-components/eval/ directory and build the evaluate Docker image using:
+Next, on your terminal navigate to the pipeline-components/eval/ directory and build the evaluate Docker image using:
 ```
-docker build -t <docker_username>/<docker_imagename>:<tag> .
+$ cd pipeline-components/eval/
+$ docker build -t <docker_username>/<docker_imagename>:<tag> .
 ```
 For example:
 ```
-docker build -t hubdocker76/demoeval:v3 .
+$ docker build -t hubdocker76/demoeval:v3 .
 ```
 ## Kubeflow Pipeline
 
