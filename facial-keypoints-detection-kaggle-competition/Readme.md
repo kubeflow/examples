@@ -127,9 +127,10 @@ python3 facial-keypoints-detection-kfp.py
 facial-keypoints-detection-kfp.py.yaml
 ```
 
-Run the Kubeflow Pipeline
+## Run the Kubeflow Pipeline
 
-This `facial-keypoints-detection-kfp.py.yaml` file can then be uploaded to Kubeflow Pipelines UI from which you can create a Pipeline Run:
+This `facial-keypoints-detection-kfp.py.yaml` file can then be uploaded to Kubeflow Pipelines UI from which you can create a Pipeline Run. The same yaml file will also be generated if we run the facial-keypoints-detection-kfp.ipynb notebook in the Notebook Server UI.
+
 
 Upload file :
 <img width="1292" alt="Screenshot 2022-05-23 at 10 08 40 PM" src="https://user-images.githubusercontent.com/17012391/169867378-17394de5-c4d7-49e6-bd41-adf02291976d.png">
@@ -137,7 +138,6 @@ Upload file :
 Create Run by selecting pipeline and give this run a name. If there are any run parameters or hyper parameters enter those and then Start the Run.
 <img width="1322" alt="Screenshot 2022-05-23 at 10 10 49 PM" src="https://user-images.githubusercontent.com/17012391/169867569-19f61116-64b8-4bc6-af93-d06488d5d66b.png">
 
-The same yaml file will also be generated if we run the facial-keypoints-detection-kfp.ipynb notebook in the Notebook Server UI.
 
 # Kubeflow Pipeline with Kale
 
