@@ -9,7 +9,7 @@ def SendMsg(trial, epoch, patience):
 
     return dsl.ContainerOp(
         name = 'Train', 
-        image = 'hubdocker76/demotrain:v8', 
+        image = 'hubdocker76/demotrain:v8',   # use this prebuilt image or replace image with your own custom image
         command = ['python3', 'train.py'],
         arguments=[
             '--trial', trial,
@@ -24,7 +24,7 @@ def SendMsg(trial, epoch, patience):
 def GetMsg(comp1):
     return dsl.ContainerOp(
         name = 'Evaluate',
-        image = 'hubdocker76/demoeval:v3',
+        image = 'hubdocker76/demoeval:v3',  # use this prebuilt image or replace image with your own custom image
         pvolumes={
             '/data': comp1.pvolumes['/data']
         },
