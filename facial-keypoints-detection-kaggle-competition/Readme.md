@@ -95,6 +95,10 @@ For example:
 ```
 $ docker build -t hubdocker76/demotrain:v8 .
 ```
+After building push the image using:
+```
+$ docker push hubdocker76/demotrain:v8
+```
 ## Step 3: Build the Evaluate image
 
 Next, on your docker enviornment go to terminal and navigate to the pipeline-components/eval/ directory and build the evaluate Docker image using:
@@ -105,6 +109,10 @@ $ docker build -t <docker_username>/<docker_imagename>:<tag> .
 For example:
 ```
 $ docker build -t hubdocker76/demoeval:v3 .
+```
+After building push the image using:
+```
+$ docker push hubdocker76/demoeval:v3
 ```
 ## Kubeflow Pipeline
 
