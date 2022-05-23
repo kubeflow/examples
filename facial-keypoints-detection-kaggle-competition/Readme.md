@@ -4,7 +4,7 @@ This example is based on the Facial Keypoints Detection Kaggle competition. The 
 
 ## Environment
 
-This pipeline was tested using Kubeflow 1.4 and kfp 1.1.2
+This pipeline was tested using Kubeflow 1.4 and kfp 1.1.2 and x86-64 based system which includes all Intel and AMD based CPU's. ARM based systems are not supported.
 
 ## Prerequisites for Building the Kubeflow Pipeline
 
