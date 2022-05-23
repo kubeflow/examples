@@ -82,11 +82,11 @@ Kubeflow relies on Docker images to create pipelines. These images are pushed to
 
 ## Step 1: Log into Docker
 
-Start by creating a Docker account on DockerHub. After signing up, log into Docker using your username and password at the terminal.
+Start by creating a Docker account on DockerHub (https://hub.docker.com/). After signing up, log into Docker using your username and password at the terminal.
 
 ## Step 2: Build the Train image
 
-On your terminal navigate to the pipeline-components/train/ directory and build the train Docker image using:
+Create a new build enviornment which contains Docker installed as highlighted in step1. After this in your new enviornment, on your terminal navigate to the pipeline-components/train/ directory and build the train Docker image using:
 ```
 $ cd pipeline-components/train/
 $ docker build -t <docker_username>/<docker_imagename>:<tag> .
@@ -97,7 +97,7 @@ $ docker build -t hubdocker76/demotrain:v8 .
 ```
 ## Step 3: Build the Evaluate image
 
-Next, on your terminal navigate to the pipeline-components/eval/ directory and build the evaluate Docker image using:
+Next, on your docker enviornment go to terminal and navigate to the pipeline-components/eval/ directory and build the evaluate Docker image using:
 ```
 $ cd pipeline-components/eval/
 $ docker build -t <docker_username>/<docker_imagename>:<tag> .
