@@ -1,4 +1,4 @@
 pandas
 seaborn
-tensorflow==2.3.0
+tensorflow==2.6.4
 wget
