@@ -63,13 +63,13 @@ Finally, the  [`create_run_from_pipeline_func`](https://kubeflow-pipelines.readt
    * Click on ‘Account’.
    
    <p align=center>
-   <img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/kaggle-click-account.PNG?raw=true" alt="enter username" width="900" height="300"/>
+   <img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/kaggle-click-account.PNG?raw=true" alt="enter username"/>
    </p>
    
    * Under ‘Account’, navigate to the ‘API’ section.
    
    <p align=center>
-   <img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/kaggle-create-new-api-token.PNG?raw=true" alt="enter username" width="900" height="300"/>
+   <img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/kaggle-create-new-api-token.PNG?raw=true" alt="enter username"/>
    </p>
    
    * Click ‘Create New API token’.
@@ -81,13 +81,13 @@ Finally, the  [`create_run_from_pipeline_func`](https://kubeflow-pipelines.readt
  * enter username
    
 <p align=center>
-<img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/enter-username.PNG?raw=true" alt="enter username" width="700" height="300"/>
+<img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/enter-username.PNG?raw=true" alt="enter username"/>
 </p>
  
    * enter api key
 
 <p align=center>
-<img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/enter-api-key.PNG?raw=true" alt="enter api key" width="700" height="250"/>
+<img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/enter-api-key.PNG?raw=true" alt="enter api key"/>
 </p> 
  
 5. Run the digit-recognizer-kfp notebook from start to finish
@@ -97,13 +97,13 @@ Finally, the  [`create_run_from_pipeline_func`](https://kubeflow-pipelines.readt
 ### View Pipeline
 
 <p align=center>
-<img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/kfp-pipeline.PNG?raw=true" alt="kubeflow pipeline" width="600" height="700"/>
+<img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/kfp-pipeline.PNG?raw=true" alt="kubeflow pipeline"/>
  </p>
  
  ### View Pipeline Metric
 
 <p align=center>
-<img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/kfp-metrics.PNG?raw=true" alt="kubeflow pipeline" width="600" height="300"/>
+<img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/kfp-metrics.PNG?raw=true" alt="kubeflow pipeline"/>
  </p>
 
 
@@ -131,7 +131,7 @@ To create pipeline using the Kale JupyterLab extension
    * Upload the JSON file to the Jupyter notebook instance
    * Pass the JSON file directory into the following cell.
 <p align=center>
-<img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/pass-kaggle-json-path.PNG?raw=true" alt="pass kaggle json path" width="850" height="250"/>
+<img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/pass-kaggle-json-path.PNG?raw=true" alt="pass kaggle json path"/>
  </p>
  
 5. The notebook's cells are automatically annotated with Kale tags
@@ -167,11 +167,11 @@ To create pipeline using the Kale JupyterLab extension
 ### View Pipeline
 
 <p align=center>
-<img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/kale-pipeline.PNG?raw=true" alt="kubeflow pipeline" width="600" height="700"/>
+<img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/kale-pipeline.PNG?raw=true" alt="kubeflow pipeline"/>
  </p>
 
  ### View Pipeline Metric
 
 <p align=center>
-<img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/kale-metrics.PNG?raw=true" alt="kubeflow pipeline" width="700" height="300"/>
+<img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/kale-metrics.PNG?raw=true" alt="kubeflow pipeline"/>
  </p>
