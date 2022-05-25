@@ -1,5 +1,5 @@
 # Objective
-Here we are going to convert this [notebook](https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/jpx-tokyo-stock-exchange-prediction-orig.ipynb) on [JPX Tokyo Stock Exchange Prediction](https://www.kaggle.com/competitions/jpx-tokyo-stock-exchange-prediction) to a Kubeflow pipeline.
+In this example we are going to convert this generic [notebook](https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/jpx-tokyo-stock-exchange-prediction-orig.ipynb) based on the [Kaggle JPX Tokyo Stock Exchange Prediction](https://www.kaggle.com/competitions/jpx-tokyo-stock-exchange-prediction) competition into a Kubeflow pipeline.
 
 The objective of this task is to correctly model real future returns of around 2,000 stocks. The stocks are ranked from highest 
 to lowest expected returns and they are evaluated on the difference in returns between the top and bottom 200 stocks.
@@ -23,14 +23,14 @@ Environment:
    To get started, visit the Kubeflow Pipelines [documentation](https://www.kubeflow.org/docs/components/pipelines/sdk/) 
    to get acquainted with what pipelines are, its components, pipeline metrics and how to pass data between components in a pipeline. 
    There are different ways to build out a pipeline component as mentioned [here](https://www.kubeflow.org/docs/components/pipelines/sdk/build-pipeline/#building-pipeline-components). 
-   In the following example, we are going to use the lightweight python functions based components for building our kubeflow pipeline.
+   In the following example, we are going to use the lightweight python functions based components for building our Kubeflow pipeline.
 
 2. Kale Pipeline
 
    To get started, visit Kale's [documentation](https://docs.arrikto.com/user/kale/index.html) to get acquainted with the 
    Kale user interface (UI) from a Jupyter Notebook, [notebook cell annotation](https://docs.arrikto.com/user/kale/jupyterlab/annotate.html) 
    and how to create a machine learning pipeline using Kale.
-   In the following example, we are going to use the Kale's JupyterLab Extension for building our kubeflow pipeline.
+   In the following example, we are going to use the Kale JupyterLab Extension to building our Kubeflow pipeline.
 
 ## Section 1: KFP Pipeline
 
