@@ -156,7 +156,7 @@ python3 -m pip install  kfp==1.1.2
 
 After installing packages create the yaml file
 
-Run these in the venv:
+Inside venv point your terminal to a path which contains our kfp file to build pipeline (facial-keypoints-detection-kfp.py) and run these commands:
 ```
 $ python3 facial-keypoints-detection-kfp.py 
 ```
