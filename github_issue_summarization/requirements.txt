@@ -217,7 +217,7 @@ tornado==4.5.2
 tqdm==4.19.5
 traitlets==4.3.2
 typing==3.6.2
-ujson==1.35
+ujson==5.2.0
 unicodecsv==0.14.1
 Unidecode==1.0.22
 urllib3==1.22
