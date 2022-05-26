@@ -116,7 +116,7 @@ $ docker push hubdocker76/demoeval:v3
 ```
 ## Kubeflow Pipeline
 
-As a needed step we create a virtual enviornment, that contains all components we need to convvert out python code to yaml file.
+As a needed step we create a virtual enviornment, that contains all components we need to convert our python code to yaml file.
 
 Steps to build a python virtual enviornment:
 
