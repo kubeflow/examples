@@ -116,11 +116,49 @@ $ docker push hubdocker76/demoeval:v3
 ```
 ## Kubeflow Pipeline
 
-Create the yaml file
+As a needed step we create a virtual enviornment, that contains all components we need to convvert out python code to yaml file.
 
-Run:
+Steps to build a python virtual enviornment:
+
+Step a) Update pip
 ```
-python3 facial-keypoints-detection-kfp.py 
+python3 -m pip install --upgrade pip
+```
+
+Step b) Install virtualenv
+```
+sudo pip3 install virtualenv
+```
+
+Step c) Check the installed version of venv
+```
+virtualenv --version
+```
+
+Step d) Name your virtual enviornment as kfp
+```
+virtualenv kfp
+```
+
+Step e) Activate your venv.
+```
+source kfp/bin/activate
+```
+
+After this virtual environment will get activated. Now in our activated venv we need to install following packages:
+```
+sudo apt-get update
+sudo apt-get upgrade
+sudo apt-get install -y git python3-pip
+
+python3 -m pip install  kfp==1.1.2
+```
+
+After installing packages create the yaml file
+
+Run these in the venv:
+```
+$ python3 facial-keypoints-detection-kfp.py 
 ```
 …this will generate a yaml file:
 ```
