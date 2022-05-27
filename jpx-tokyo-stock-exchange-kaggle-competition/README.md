@@ -103,9 +103,9 @@ Finally, the  [`create_run_from_pipeline_func`](https://kubeflow-pipelines.readt
    * After successfully deploying the PodDefault, create a new Notebook Server and add the kaggle-secret configuration to the new Notebook Server.
 
 3. Clone this repo and navigate to this directory
-4. Open the [digit-recognizer-kfp](https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/jpx-tokyo-stock-exchange-prediction-kfp.ipynb) notebook 
+4. Open the [jpx-tokyo-stock-exchange-prediction-kfp](https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/jpx-tokyo-stock-exchange-prediction-kfp.ipynb) notebook 
  
-5. Run the digit-recognizer-kfp notebook from start to finish
+5. Run the jpx-tokyo-stock-exchange-prediction-kfp notebook from start to finish
 
 6. View run details immediately after submitting pipeline.
 
@@ -131,7 +131,7 @@ To create pipeline using the Kale JupyterLab extension
 
 2. Install the requirements.txt file
 
-3. Launch the [digit-recognizer-kale.ipynb](https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/jpx-tokyo-stock-exchange-prediction-kale.ipynb) Notebook
+3. Launch the [jpx-tokyo-stock-exchange-prediction-kale.ipynb](https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/jpx-tokyo-stock-exchange-prediction-kale.ipynb) Notebook
 
 4. Enable the Kale extension in JupyterLab 
 
