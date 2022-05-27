@@ -55,9 +55,7 @@ Finally, the  [`create_run_from_pipeline_func`](https://kubeflow-pipelines.readt
    
 1. Open your Kubeflow Cluster, create a Notebook Server and connect to it.
 
-2. Clone this repo and navigate to this directory
-
-3. Download JPX dataset using Kaggle's API. To do this, do the following:
+2. Download JPX dataset using Kaggle's API. To do this, do the following:
    
    * Login to Kaggle and click on your user profile picture.
    * Click on ‘Account’.
@@ -73,22 +71,39 @@ Finally, the  [`create_run_from_pipeline_func`](https://kubeflow-pipelines.readt
    </p>
    
    * Click ‘Create New API token’.
-   * After creating a new API token, a kaggle.json file is automatically downloaded, 
-      and the json file contains the ‘api-key’ and ‘username’ needed to download the dataset.
+   * After creating a new API token, a kaggle.json file is automatically downloaded, and the json file contains the ‘api-key’ and ‘username’ needed to download the dataset.
+    * Create a Kubernetes secret to handle the sensitive API credentials and to prevent you from passing your credentials in plain text to the pipeline notebook.
+    ```
+    !kubectl create secret generic -n <namespace> <secret-name> \ 
+    --from-literal=username=<"username"> --from-literal=password=<"api-key">
+    ```
+    * Create a secret PodDefault YAML file in your Kubeflow namespace.
+    ```
+   apiVersion: "kubeflow.org/v1alpha1"
+   kind: PodDefault
+   metadata:
+   name: kaggle-secret
+   namespace: kubeflow-user
+   spec:
+   selector:
+   matchLabels:
+   kaggle-secret: "true"
+   desc: "kaggle-secret"
+   volumeMounts:
+   - name: secret-volume
+   mountPath: /secret/kaggle-secret
+   readOnly: false
+   volumes:
+   - name: secret-volume
+   secret:
+   secretName: kaggle-secret
+    ```
+   * Apply the YAML file
+   `kubectl apply -f kaggle_pod.yaml` 
+   * After successfully deploying the PodDefault, create a new Notebook Server and add the kaggle-secret configuration to the new Notebook Server.
 
-4. Open the [digit-recognizer-kfp](https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/jpx-tokyo-stock-exchange-prediction-kfp.ipynb) notebook and pass the ‘api-key’ and ‘username’ in the following cells.
-   
- * enter username
-   
-<p align=center>
-<img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/enter-username.PNG?raw=true" alt="enter username"/>
-</p>
- 
-   * enter api key
-
-<p align=center>
-<img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/enter-api-key.PNG?raw=true" alt="enter api key"/>
-</p> 
+3. Clone this repo and navigate to this directory
+4. Open the [digit-recognizer-kfp](https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/jpx-tokyo-stock-exchange-prediction-kfp.ipynb) notebook 
  
 5. Run the digit-recognizer-kfp notebook from start to finish
 
@@ -126,14 +141,38 @@ To create pipeline using the Kale JupyterLab extension
    * Click on ‘Account’.
    * Under ‘Account’, navigate to the ‘API’ section.
    * Click ‘Create New API token’.
-   * After creating a new API token, a kaggle.json file is automatically downloaded, 
-      and the json file contains the ‘api-key’ and ‘username’ needed to download the dataset.
-   * Upload the JSON file to the Jupyter notebook instance
-   * Pass the JSON file directory into the following cell.
-<p align=center>
-<img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/pass-kaggle-json-path.PNG?raw=true" alt="pass kaggle json path"/>
- </p>
- 
+   * After creating a new API token, a kaggle.json file is automatically downloaded, and the json file contains the ‘api-key’ and ‘username’ needed to download the dataset.
+    * Create a Kubernetes secret to handle the sensitive API credentials and to prevent you from passing your credentials in plain text to the pipeline notebook.
+    ```
+    !kubectl create secret generic -n <namespace> <secret-name> \ 
+    --from-literal=username=<"username"> --from-literal=password=<"api-key">
+    ```
+    * Create a secret PodDefault YAML file in your Kubeflow namespace.
+    ```
+   apiVersion: "kubeflow.org/v1alpha1"
+   kind: PodDefault
+   metadata:
+   name: kaggle-secret
+   namespace: kubeflow-user
+   spec:
+   selector:
+   matchLabels:
+   kaggle-secret: "true"
+   desc: "kaggle-secret"
+   volumeMounts:
+   - name: secret-volume
+   mountPath: /secret/kaggle-secret
+   readOnly: false
+   volumes:
+   - name: secret-volume
+   secret:
+   secretName: kaggle-secret
+    ```
+   * Apply the YAML file
+   `kubectl apply -f kaggle_pod.yaml` 
+   * After successfully deploying the PodDefault, create a new Notebook Server and add the kaggle-secret configuration to the new Notebook Server.
+   * The load data step makes use of the kaggle-secret mount path, pulls the secret from this path, and downloads the kaggle data in place.
+   
 5. The notebook's cells are automatically annotated with Kale tags
 
    To fully understand the different Kale tags available, visit Kale [documentation](https://docs.arrikto.com/user/kale/jupyterlab/cell-types.html?highlight=pipeline%20metrics#annotate-pipeline-step-cells)
