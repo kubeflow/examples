@@ -57,8 +57,8 @@ Finally, the  [`create_run_from_pipeline_func`](https://kubeflow-pipelines.readt
 1. Open your Kubeflow Cluster, create a Notebook Server and connect to it.
 
 2. Clone this repo and navigate to this directory.
-3. Open the [digit-recognizer-kfp](https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/jpx-tokyo-stock-exchange-prediction-kfp.ipynb) notebook 
-4. Run the digit-recognizer-kfp notebook from start to finish
+3. Open the [telco-customer-churn-kfp](https://github.com/josepholaide/examples/blob/telco/telco-customer-churn-kaggle-competition/telco-customer-churn-kfp.ipynb) notebook 
+4. Run the telco-customer-churn-kfp notebook from start to finish
 5. View run details immediately after submitting pipeline.
 
 ### View Pipeline
