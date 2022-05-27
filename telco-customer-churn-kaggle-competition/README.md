@@ -86,8 +86,6 @@ To create pipeline using the Kale JupyterLab extension
    The following Kale tags were used in this example:
 
    * Imports
-   * Pipeline Parameters
-   * Pipeline Metrics
    * Pipeline Step
    * Skip Cell
    
