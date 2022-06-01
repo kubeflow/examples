@@ -173,7 +173,12 @@ This `facial-keypoints-detection-kfp.py.yaml` file can then be uploaded to Kubef
 Upload file :
 <img width="1292" alt="Screenshot 2022-05-23 at 10 08 40 PM" src="https://user-images.githubusercontent.com/17012391/169867378-17394de5-c4d7-49e6-bd41-adf02291976d.png">
 
-Create Run by selecting pipeline and give this run a name. If there are any run parameters or hyper parameters enter those and then Start the Run.
+
+Create Run by selecting pipeline and give this run a name. Enter integer values for trial epoch and patience:
+<img width="665" alt="image" src="https://user-images.githubusercontent.com/17012391/171312408-78344166-3b10-491d-b0bb-92adba752407.png">
+
+
+And then Start the Run.
 <img width="1322" alt="Screenshot 2022-05-23 at 10 10 49 PM" src="https://user-images.githubusercontent.com/17012391/169867569-19f61116-64b8-4bc6-af93-d06488d5d66b.png">
 
 
