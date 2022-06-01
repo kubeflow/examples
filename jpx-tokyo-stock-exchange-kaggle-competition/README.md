@@ -152,21 +152,21 @@ To create pipeline using the Kale JupyterLab extension
    apiVersion: "kubeflow.org/v1alpha1"
    kind: PodDefault
    metadata:
-   name: kaggle-secret
-   namespace: kubeflow-user
+     name: kaggle-secret
+     namespace: kubeflow-user
    spec:
-   selector:
-   matchLabels:
-   kaggle-secret: "true"
-   desc: "kaggle-secret"
-   volumeMounts:
-   - name: secret-volume
-   mountPath: /secret/kaggle-secret
-   readOnly: false
-   volumes:
-   - name: secret-volume
-   secret:
-   secretName: kaggle-secret
+    selector:
+     matchLabels:
+       kaggle-secret: "true"
+    desc: "kaggle-secret"
+    volumeMounts:
+    - name: secret-volume
+      mountPath: /secret/kaggle-secret
+      readOnly: false
+    volumes:
+    - name: secret-volume
+      secret:
+       secretName: kaggle-secret
     ```
    * Apply the YAML file
    `kubectl apply -f kaggle_pod.yaml` 
