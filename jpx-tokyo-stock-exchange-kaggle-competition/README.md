@@ -74,8 +74,7 @@ Finally, the  [`create_run_from_pipeline_func`](https://kubeflow-pipelines.readt
    * After creating a new API token, a kaggle.json file is automatically downloaded, and the json file contains the ‘api-key’ and ‘username’ needed to download the dataset.
     * Create a Kubernetes secret to handle the sensitive API credentials and to prevent you from passing your credentials in plain text to the pipeline notebook.
     ```
-    !kubectl create secret generic -n <namespace> <secret-name> \ 
-    --from-literal=username=<"username"> --from-literal=password=<"api-key">
+    !kubectl create secret generic -n kubeflow-user kaggle-secret --from-literal=username=<"username"> --from-literal=password=<"api-key">
     ```
     * Create a secret PodDefault YAML file in your Kubeflow namespace.
     ```
@@ -144,8 +143,7 @@ To create pipeline using the Kale JupyterLab extension
    * After creating a new API token, a kaggle.json file is automatically downloaded, and the json file contains the ‘api-key’ and ‘username’ needed to download the dataset.
     * Create a Kubernetes secret to handle the sensitive API credentials and to prevent you from passing your credentials in plain text to the pipeline notebook.
     ```
-    !kubectl create secret generic -n <namespace> <secret-name> \ 
-    --from-literal=username=<"username"> --from-literal=password=<"api-key">
+    !kubectl create secret generic -n kubeflow-user kaggle-secret --from-literal=username=<"username"> --from-literal=password=<"api-key">
     ```
     * Create a secret PodDefault YAML file in your Kubeflow namespace.
     ```
