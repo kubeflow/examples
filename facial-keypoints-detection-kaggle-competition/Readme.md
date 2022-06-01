@@ -184,4 +184,12 @@ And then Start the Run.
 
 # Kubeflow Pipeline with Kale
 
-To run this pipeline using the Kale JupyterLab extension, upload the `facial-keypoints-detection-kale.ipynb` file to your Kubeflow deployment where Kale is enabled. Once uploaded as a necessary step run the cell annotated with `skip` tag with function `download_kaggle_dataset`, which downloads the data using Kaggle API (use `<username>` and `<api_token>`  as highlighted in `Apply PodDefault resource` step to get get data using Kaggle API) and save the download data to `my_data` folder.   click “compile and run” to create a pipeline run.
+To run this pipeline using the Kale JupyterLab extension, upload the `facial-keypoints-detection-kale.ipynb` file to your Kubeflow deployment where Kale is enabled. Once uploaded as a necessary step run the cell annotated with `skip` tag with function `download_kaggle_dataset`:
+<img width="1432" alt="Screenshot 2022-06-01 at 7 36 09 AM" src="https://user-images.githubusercontent.com/17012391/171313700-8f547830-2fa0-4f1c-9b31-dd4d0e68a606.png">
+
+
+This downloads the data using Kaggle API (use `<username>` and `<api_token>`  as highlighted in `Apply PodDefault resource` step to get get data using Kaggle API) and save the download data to `my_data` folder.
+
+Only after the data is downloaded then click “compile and run” to create a pipeline run.
+
+
