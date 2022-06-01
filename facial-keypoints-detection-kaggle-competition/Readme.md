@@ -188,7 +188,7 @@ To run this pipeline using the Kale JupyterLab extension, upload the `facial-key
 <img width="1432" alt="Screenshot 2022-06-01 at 7 36 09 AM" src="https://user-images.githubusercontent.com/17012391/171313700-8f547830-2fa0-4f1c-9b31-dd4d0e68a606.png">
 
 
-This downloads the data using Kaggle API (use `<username>` and `<api_token>`  as highlighted in `Apply PodDefault resource` step to get get data using Kaggle API) and save the download data to `my_data` folder.
+This downloads the data using Kaggle API (use `<username>` and `<api_token>`  as highlighted in `Apply PodDefault resource` step to  get data using Kaggle API) this saves the download data to `my_data` folder.
 
 Only after the data is downloaded then click “compile and run” to create a pipeline run.
 
