@@ -16,7 +16,7 @@ Environment:
 | kaggle        | 1.5.12 |
 
 
-## Overview
+## Section 1: Overview
 
 1. KFP Pipeline: Kubeflow lightweight component method
 
@@ -31,8 +31,62 @@ Environment:
    Kale user interface (UI) from a Jupyter Notebook, [notebook cell annotation](https://docs.arrikto.com/user/kale/jupyterlab/annotate.html) 
    and how to create a machine learning pipeline using Kale.
    In the following example, we are going to use the Kale JupyterLab Extension to building our Kubeflow pipeline.
+   
+## Section 2: To download data to be used for the KFP Pipeline and Kale Pipeline
 
-## Section 1: KFP Pipeline
+1. Open your Kubeflow Cluster, create a Notebook Server and connect to it.
+
+2. Download JPX dataset using Kaggle's API. To do this, do the following:
+   
+   * Login to Kaggle and click on your user profile picture.
+   * Click on ‘Account’.
+   
+   <p align=center>
+   <img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/kaggle-click-account.PNG?raw=true" alt="kaggle-click-account"/>
+   </p>
+   
+   * Under ‘Account’, navigate to the ‘API’ section.
+   
+   <p align=center>
+   <img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/kaggle-create-new-api-token.PNG?raw=true" alt="kaggle-create-new-api-token"/>
+   </p>
+   
+   * Click ‘Create New API token’.
+   * After creating a new API token, a kaggle.json file is automatically downloaded, and the json file contains the ‘api-key’ and ‘username’ needed to download the dataset.
+    * Create a Kubernetes secret to handle the sensitive API credentials and to prevent you from passing your credentials in plain text to the pipeline notebook.
+    ```
+    !kubectl create secret generic -n kubeflow-user kaggle-secret --from-literal=username=<"username"> --from-literal=password=<"api-key">
+    ```
+    * Create a secret PodDefault YAML file in your Kubeflow namespace.
+    ```
+   apiVersion: "kubeflow.org/v1alpha1"
+   kind: PodDefault
+   metadata:
+     name: kaggle-secret
+     namespace: kubeflow-user
+   spec:
+    selector:
+     matchLabels:
+       kaggle-secret: "true"
+    desc: "kaggle-secret"
+    volumeMounts:
+    - name: secret-volume
+      mountPath: /secret/kaggle-secret
+      readOnly: false
+    volumes:
+    - name: secret-volume
+      secret:
+       secretName: kaggle-secret
+    ```
+   * Apply the pod YAML file
+   `kubectl apply -f kaggle_pod.yaml` 
+   * After successfully deploying the PodDefault, create a new Notebook Server and add the `kaggle-secret` configuration to the new Notebook Server
+     that runs kale or kfp pipeline.
+   <p align=center>
+   <img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/notebook-ui-kaggle-config.png?raw=true" alt="notebook-ui-kaggle-config"/>
+   </p>
+
+## Section 3: KFP Pipeline
 
 ### Kubeflow lightweight component method
 Here, a python function is created to carry out a certain task and the python function is passed inside a kfp component method [`create_component_from_func`](https://kubeflow-pipelines.readthedocs.io/en/latest/source/kfp.components.html#kfp.components.create_component_from_func). 
@@ -53,60 +107,15 @@ Finally, the  [`create_run_from_pipeline_func`](https://kubeflow-pipelines.readt
 
 ## To create pipeline on KFP
    
-1. Open your Kubeflow Cluster, create a Notebook Server and connect to it.
+1. Open your Kubeflow Cluster, create a new Notebook Server and add the `kaggle-secret` configuration to the new Notebook Server.
 
-2. Download JPX dataset using Kaggle's API. To do this, do the following:
-   
-   * Login to Kaggle and click on your user profile picture.
-   * Click on ‘Account’.
-   
-   <p align=center>
-   <img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/kaggle-click-account.PNG?raw=true" alt="enter username"/>
-   </p>
-   
-   * Under ‘Account’, navigate to the ‘API’ section.
-   
-   <p align=center>
-   <img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/kaggle-create-new-api-token.PNG?raw=true" alt="enter username"/>
-   </p>
-   
-   * Click ‘Create New API token’.
-   * After creating a new API token, a kaggle.json file is automatically downloaded, and the json file contains the ‘api-key’ and ‘username’ needed to download the dataset.
-    * Create a Kubernetes secret to handle the sensitive API credentials and to prevent you from passing your credentials in plain text to the pipeline notebook.
-    ```
-    !kubectl create secret generic -n kubeflow-user kaggle-secret --from-literal=username=<"username"> --from-literal=password=<"api-key">
-    ```
-    * Create a secret PodDefault YAML file in your Kubeflow namespace.
-    ```
-   apiVersion: "kubeflow.org/v1alpha1"
-   kind: PodDefault
-   metadata:
-     name: kaggle-secret
-     namespace: kubeflow-user
-   spec:
-    selector:
-     matchLabels:
-       kaggle-secret: "true"
-    desc: "kaggle-secret"
-    volumeMounts:
-    - name: secret-volume
-      mountPath: /secret/kaggle-secret
-      readOnly: false
-    volumes:
-    - name: secret-volume
-      secret:
-       secretName: kaggle-secret
-    ```
-   * Apply the pod YAML file
-   `kubectl apply -f kaggle_pod.yaml` 
-   * After successfully deploying the PodDefault, create a new Notebook Server and add the kaggle-secret configuration to the new Notebook Server.
+2. Create a new Terminal and clone this repo. After cloning navigate to this directory.
 
-3. Clone this repo and navigate to this directory
-4. Open the [jpx-tokyo-stock-exchange-prediction-kfp](https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/jpx-tokyo-stock-exchange-prediction-kfp.ipynb) notebook 
+3. Open the [jpx-tokyo-stock-exchange-prediction-kfp](https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/jpx-tokyo-stock-exchange-prediction-kfp.ipynb) notebook 
  
-5. Run the jpx-tokyo-stock-exchange-prediction-kfp notebook from start to finish
+4. Run the jpx-tokyo-stock-exchange-prediction-kfp notebook from start to finish
 
-6. View run details immediately after submitting pipeline.
+5. View run details immediately after submitting pipeline.
 
 ### View Pipeline
 
@@ -117,61 +126,26 @@ Finally, the  [`create_run_from_pipeline_func`](https://kubeflow-pipelines.readt
  ### View Pipeline Metric
 
 <p align=center>
-<img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/kfp-metrics.PNG?raw=true" alt="kubeflow pipeline"/>
+<img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/kfp-metrics.PNG?raw=true" alt="kubeflow pipeline metrics"/>
  </p>
 
 
-## Section 2: Kale Pipeline
+## Section 4: Kale Pipeline
 
 To create pipeline using the Kale JupyterLab extension
 
 
-1. Clone GitHub repo and navigate to this directory
+1. Open your Kubeflow Cluster, create a new Notebook Server and add the `kaggle-secret` configuration to the new Notebook Server.
 
-2. Install the requirements.txt file
+2. Create a new Terminal and clone this repo. After cloning navigate to this directory.
 
 3. Launch the [jpx-tokyo-stock-exchange-prediction-kale.ipynb](https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/jpx-tokyo-stock-exchange-prediction-kale.ipynb) Notebook
 
-4. Enable the Kale extension in JupyterLab 
+4. Install the requirements.txt file. After installation, restart the kernel.
 
-5. Download JPX dataset using Kaggle's API. To do this, do the following:
-   
-   * Login to Kaggle and click on your user profile picture.
-   * Click on ‘Account’.
-   * Under ‘Account’, navigate to the ‘API’ section.
-   * Click ‘Create New API token’.
-   * After creating a new API token, a kaggle.json file is automatically downloaded, and the json file contains the ‘api-key’ and ‘username’ needed to download the dataset.
-    * Create a Kubernetes secret to handle the sensitive API credentials and to prevent you from passing your credentials in plain text to the pipeline notebook.
-    ```
-    !kubectl create secret generic -n kubeflow-user kaggle-secret --from-literal=username=<"username"> --from-literal=password=<"api-key">
-    ```
-    * Create a secret PodDefault YAML file in your Kubeflow namespace.
-    ```
-   apiVersion: "kubeflow.org/v1alpha1"
-   kind: PodDefault
-   metadata:
-     name: kaggle-secret
-     namespace: kubeflow-user
-   spec:
-    selector:
-     matchLabels:
-       kaggle-secret: "true"
-    desc: "kaggle-secret"
-    volumeMounts:
-    - name: secret-volume
-      mountPath: /secret/kaggle-secret
-      readOnly: false
-    volumes:
-    - name: secret-volume
-      secret:
-       secretName: kaggle-secret
-    ```
-   * Apply the pod YAML file
-   `kubectl apply -f kaggle_pod.yaml` 
-   * After successfully deploying the PodDefault, create a new Notebook Server and add the kaggle-secret configuration to the new Notebook Server.
-   * The load data step makes use of the kaggle-secret mount path, pulls the secret from this path, and downloads the kaggle data in place.
-   
-5. The notebook's cells are automatically annotated with Kale tags
+5. Enable the Kale extension in JupyterLab 
+
+6. The notebook's cells are automatically annotated with Kale tags
 
    To fully understand the different Kale tags available, visit Kale [documentation](https://docs.arrikto.com/user/kale/jupyterlab/cell-types.html?highlight=pipeline%20metrics#annotate-pipeline-step-cells)
    
@@ -199,16 +173,16 @@ To create pipeline using the Kale JupyterLab extension
    * Modelling
    * Prediction
 
-6. Compile and run Notebook using Kale
+7. Compile and run Notebook using Kale
 
 ### View Pipeline
 
 <p align=center>
-<img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/kale-pipeline.PNG?raw=true" alt="kubeflow pipeline"/>
+<img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/kale-pipeline.PNG?raw=true" alt="kale-pipeline"/>
  </p>
 
  ### View Pipeline Metric
 
 <p align=center>
-<img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/kale-metrics.PNG?raw=true" alt="kubeflow pipeline"/>
+<img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/kale-metrics.PNG?raw=true" alt="kale-metrics"/>
  </p>
