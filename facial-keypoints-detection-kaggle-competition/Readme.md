@@ -177,6 +177,8 @@ Upload file :
 Create Run by selecting pipeline and give this run a name. Enter integer values for trial epoch and patience:
 <img width="665" alt="image" src="https://user-images.githubusercontent.com/17012391/171312408-78344166-3b10-491d-b0bb-92adba752407.png">
 
+Ideal values for trial epoch and patience are: trial=5, epoch=8, patience=3
+
 
 And then Start the Run.
 <img width="1322" alt="Screenshot 2022-05-23 at 10 10 49 PM" src="https://user-images.githubusercontent.com/17012391/169867569-19f61116-64b8-4bc6-af93-d06488d5d66b.png">
