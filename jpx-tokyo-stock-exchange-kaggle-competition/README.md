@@ -97,7 +97,7 @@ Finally, the  [`create_run_from_pipeline_func`](https://kubeflow-pipelines.readt
       secret:
        secretName: kaggle-secret
     ```
-   * Apply the YAML file
+   * Apply the pod YAML file
    `kubectl apply -f kaggle_pod.yaml` 
    * After successfully deploying the PodDefault, create a new Notebook Server and add the kaggle-secret configuration to the new Notebook Server.
 
@@ -166,7 +166,7 @@ To create pipeline using the Kale JupyterLab extension
       secret:
        secretName: kaggle-secret
     ```
-   * Apply the YAML file
+   * Apply the pod YAML file
    `kubectl apply -f kaggle_pod.yaml` 
    * After successfully deploying the PodDefault, create a new Notebook Server and add the kaggle-secret configuration to the new Notebook Server.
    * The load data step makes use of the kaggle-secret mount path, pulls the secret from this path, and downloads the kaggle data in place.
