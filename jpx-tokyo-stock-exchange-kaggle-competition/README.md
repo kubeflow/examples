@@ -109,7 +109,7 @@ Finally, the  [`create_run_from_pipeline_func`](https://kubeflow-pipelines.readt
    
 1. Open your Kubeflow Cluster, create a new Notebook Server and add the `kaggle-secret` configuration to the new Notebook Server.
 
-2. Create a new Terminal and clone this repo. After cloning navigate to this directory.
+2. Create a new Terminal and clone this repo. After cloning, navigate to this directory.
 
 3. Open the [jpx-tokyo-stock-exchange-prediction-kfp](https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/jpx-tokyo-stock-exchange-prediction-kfp.ipynb) notebook 
  
@@ -137,7 +137,7 @@ To create pipeline using the Kale JupyterLab extension
 
 1. Open your Kubeflow Cluster, create a new Notebook Server and add the `kaggle-secret` configuration to the new Notebook Server.
 
-2. Create a new Terminal and clone this repo. After cloning navigate to this directory.
+2. Create a new Terminal and clone this repo. After cloning, navigate to this directory.
 
 3. Launch the [jpx-tokyo-stock-exchange-prediction-kale.ipynb](https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/jpx-tokyo-stock-exchange-prediction-kale.ipynb) Notebook
 
