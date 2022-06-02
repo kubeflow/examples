@@ -32,7 +32,7 @@ Environment:
    and how to create a machine learning pipeline using Kale.
    In the following example, we are going to use the Kale JupyterLab Extension to building our Kubeflow pipeline.
    
-## Section 2: To download data to be used for the KFP Pipeline and Kale Pipeline
+## Section 2: To download data to be used for the KFP and Kale Pipeline
 
 1. Open your Kubeflow Cluster, create a Notebook Server and connect to it.
 
