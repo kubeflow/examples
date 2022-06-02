@@ -15,7 +15,7 @@ Environment:
 | pip           | 21.3.1 |
 
 
-## Overview
+## Section 1: Overview
 
 1. KFP Pipeline: Kubeflow lightweight component method
 
@@ -31,7 +31,7 @@ Environment:
    and how to create a machine learning pipeline using Kale.
    In the following example, we are going to use the Kale JupyterLab Extension to building our Kubeflow pipeline.
 
-## Section 1: KFP Pipeline
+## Section 2: KFP Pipeline
 
 ### Kubeflow lightweight component method
 Here, a python function is created to carry out a certain task and the python function is passed inside a kfp component method [`create_component_from_func`](https://kubeflow-pipelines.readthedocs.io/en/latest/source/kfp.components.html#kfp.components.create_component_from_func). 
@@ -64,13 +64,13 @@ Finally, the  [`create_run_from_pipeline_func`](https://kubeflow-pipelines.readt
 ### View Pipeline
 
 <p align=center>
-<img src="https://github.com/josepholaide/examples/blob/telco/telco-customer-churn-kaggle-competition/images/telco-kfp-pipeline.PNG?raw=true" alt="enter username"/>
+<img src="https://github.com/josepholaide/examples/blob/telco/telco-customer-churn-kaggle-competition/images/telco-kfp-pipeline.PNG?raw=true" alt="telco-kfp-pipeline"/>
 </p>
 
 ### View Pipeline Visualization
 
 <p align=center>
-<img src="https://github.com/josepholaide/examples/blob/telco/telco-customer-churn-kaggle-competition/images/telco-kfp-pipeline-visualization.PNG?raw=true" alt="enter username"/>
+<img src="https://github.com/josepholaide/examples/blob/telco/telco-customer-churn-kaggle-competition/images/telco-kfp-pipeline-visualization.PNG?raw=true" alt="telco-kfp-pipeline-visualization"/>
 </p>
 
 ## Section 2: Kale Pipeline
@@ -80,9 +80,9 @@ To create pipeline using the Kale JupyterLab extension
 
 1. Clone GitHub repo and navigate to this directory
 
-2. Install the requirements.txt file
+2. Launch the [telco-customer-churn-kale](https://github.com/josepholaide/examples/blob/telco/telco-customer-churn-kaggle-competition/telco-customer-churn-kale.ipynb) Notebook
 
-3. Launch the [telco-customer-churn-kale](https://github.com/josepholaide/examples/blob/telco/telco-customer-churn-kaggle-competition/telco-customer-churn-kale.ipynb) Notebook
+3. Install the requirements.txt file. After installation, restart kernel.
 
 4. Enable the Kale extension in JupyterLab 
 
@@ -119,11 +119,11 @@ To create pipeline using the Kale JupyterLab extension
 ### View Pipeline
 
 <p align=center>
-<img src="https://github.com/josepholaide/examples/blob/telco/telco-customer-churn-kaggle-competition/images/telco-kale-pipeline.PNG?raw=true" alt="enter username"/>
+<img src="https://github.com/josepholaide/examples/blob/telco/telco-customer-churn-kaggle-competition/images/telco-kale-pipeline.PNG?raw=true" alt="telco-kale-pipeline"/>
 </p>
 
 ### View Pipeline Visualization
 
 <p align=center>
-<img src="https://github.com/josepholaide/examples/blob/telco/telco-customer-churn-kaggle-competition/images/telco-kale-pipeline-visualization.PNG?raw=true" alt="enter username"/>
+<img src="https://github.com/josepholaide/examples/blob/telco/telco-customer-churn-kaggle-competition/images/telco-kale-pipeline-visualization.PNG?raw=true" alt="telco-kale-pipeline-visualization"/>
 </p>
