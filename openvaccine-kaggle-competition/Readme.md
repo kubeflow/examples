@@ -1,6 +1,6 @@
 # Objective
 
-This example is based on the Titanic Kaggle competition. The objective of this exercise is to use machine learning to create a model that predicts which passengers survived the Titanic shipwreck.
+This example is based on the Titanic OpenVaccine competition. The objective of this exercise is to develop models and design rules for RNA degradation.
 
 ## Environment
 
@@ -114,7 +114,7 @@ After building push the image using:
 ```
 $ docker push hubdocker76/titanic-pre-process-data:v1
 ```
-## Step 4: Build the feature engineering image
+## Step 4: Build the train image
 
 Next, on your docker enviornment go to terminal and navigate to the pipeline-components/featureengineering/ directory and build the evaluate Docker image using:
 ```
@@ -129,7 +129,7 @@ After building push the image using:
 ```
 $ docker push hubdocker76/titanic-feature-engg:v6
 ```
-## Step 5: Build the decisiontree image
+## Step 5: Build the evaluate image
 
 Next, on your docker enviornment go to terminal and navigate to the pipeline-components/decisiontree/ directory and build the evaluate Docker image using:
 ```
@@ -145,85 +145,6 @@ After building push the image using:
 $ docker push hubdocker76/titanic-decisiontree:v1
 ```
 
-## Step 6: Build the logistic regression image
-
-Next, on your docker enviornment go to terminal and navigate to the pipeline-components/logisticregression/ directory and build the evaluate Docker image using:
-```
-$ cd pipeline-components/logisticregression/
-$ docker build -t <docker_username>/<docker_imagename>:<tag> .
-```
-For example:
-```
-$ docker build -t hubdocker76/titanic-regression:v1 .
-```
-After building push the image using:
-```
-$ docker push hubdocker76/titanic-regression:v1
-```
-
-## Step 7: Build the naivebayes image
-
-Next, on your docker enviornment go to terminal and navigate to the pipeline-components/naivebayes/ directory and build the evaluate Docker image using:
-```
-$ cd pipeline-components/eval/
-$ docker build -t <docker_username>/<docker_imagename>:<tag> .
-```
-For example:
-```
-$ docker build -t hubdocker76/titanic-bayes:v1 .
-```
-After building push the image using:
-```
-$ docker push hubdocker76/titanic-bayes:v1
-```
-
-## Step 8: Build the randomforest image
-
-Next, on your docker enviornment go to terminal and navigate to the pipeline-components/randomforest/ directory and build the evaluate Docker image using:
-```
-$ cd pipeline-components/randomforest/
-$ docker build -t <docker_username>/<docker_imagename>:<tag> .
-```
-For example:
-```
-$ docker build -t hubdocker76/titanic-randomforest:v1 .
-```
-After building push the image using:
-```
-$ docker push hubdocker76/titanic-randomforest:v1
-```
-
-## Step 9: Build the svm image
-
-Next, on your docker enviornment go to terminal and navigate to the pipeline-components/svm/ directory and build the evaluate Docker image using:
-```
-$ cd pipeline-components/svm/
-$ docker build -t <docker_username>/<docker_imagename>:<tag> .
-```
-For example:
-```
-$ docker build -t hubdocker76/titanic-svm:v1 .
-```
-After building push the image using:
-```
-$ docker push hubdocker76/titanic-svm:v1
-```
-
-## Step 10: Build the decisiontree image
-
-Next, on your docker enviornment go to terminal and navigate to the pipeline-components/eval/ directory and build the evaluate Docker image using:
-```
-$ cd pipeline-components/decisiontree/
-$ docker build -t <docker_username>/<docker_imagename>:<tag> .
-```
-For example:
-```
-$ docker build -t hubdocker76/titanic-decisiontree:v1 .
-```
-After building push the image using:
-```
-$ docker push hubdocker76/titanic-decisiontree:v1
-```
 
 
 ## Kubeflow Pipeline
