@@ -113,8 +113,8 @@ def result_model_op(bayes_acc, regression_acc, random_forest_acc, decision_tree_
     )
 
 @dsl.pipeline(
-   name='Boston Housing Pipeline',
-   description='An example pipeline that trains and logs a regression model.'
+   name='Titanic',
+   description='Kubeflow pipeline of kaggle Titanic competition '
 )
 def boston_pipeline():
     _preprocess_op = preprocess_op().add_pod_label("kaggle-secret", "true")
