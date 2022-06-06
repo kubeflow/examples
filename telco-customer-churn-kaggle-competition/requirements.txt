@@ -1,0 +1,6 @@
+pandas
+seaborn
+lightgbm
+catboost
+xgboost
+wget
