@@ -239,18 +239,18 @@ python3 -m pip install  kfp==1.1.2
 
 After installing packages create the yaml file
 
-Inside venv point your terminal to a path which contains our kfp file to build pipeline (kfp-pipeline.py) and run these commands:
+Inside venv point your terminal to a path which contains our kfp file to build pipeline (titanic-kfp.py) and run these commands:
 ```
-$ python3 kfp-pipeline.py
+$ python3 titanic-kfp.py
 ```
 …this will generate a yaml file:
 ```
-kfp-pipeline.yaml
+titanic-kfp.yaml
 ```
 
 ## Run the Kubeflow Pipeline
 
-This `kfp-pipeline.yaml` file can then be uploaded to Kubeflow Pipelines UI from which you can create a Pipeline Run. The same yaml file will also be generated if we run the facial-keypoints-detection-kfp.ipynb notebook in the Notebook Server UI.
+This `titanic-kfp.yaml` file can then be uploaded to Kubeflow Pipelines UI from which you can create a Pipeline Run. The same yaml file will also be generated if we run the titanic-kfp.ipynb notebook in the Notebook Server UI.
 
 
 Upload file :
