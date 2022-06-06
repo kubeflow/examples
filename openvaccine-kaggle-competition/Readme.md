@@ -207,7 +207,8 @@ Upload file :
 <img width="1292" alt="Screenshot 2022-05-23 at 10 08 40 PM" src="https://user-images.githubusercontent.com/17012391/169867378-17394de5-c4d7-49e6-bd41-adf02291976d.png">
 
 
-
+Specify these parameters before starting a run
+<img width="717" alt="Screenshot 2022-06-06 at 3 03 23 PM" src="https://user-images.githubusercontent.com/17012391/172135481-805f61b0-9417-4bc9-a0f4-0c805d2beb2e.png">
 
 
 And then Start the Run.
