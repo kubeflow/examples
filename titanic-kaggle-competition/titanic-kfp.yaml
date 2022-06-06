@@ -1,0 +1,161 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: boston-housing-pipeline-
+  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.1.2, pipelines.kubeflow.org/pipeline_compilation_time: '2022-06-06T15:35:20.931416',
+    pipelines.kubeflow.org/pipeline_spec: '{"description": "An example pipeline that
+      trains and logs a regression model.", "name": "Boston Housing Pipeline"}'}
+  labels: {pipelines.kubeflow.org/kfp_sdk_version: 1.1.2}
+spec:
+  entrypoint: boston-housing-pipeline
+  templates:
+  - name: bayes
+    container:
+      args: [--train_pickle, /tmp/inputs/input-0/data, --train_label, /tmp/inputs/input-1/data]
+      image: hubdocker76/titanic-bayes:v6
+    inputs:
+      artifacts:
+      - {name: featureengineering-train_pickle_out, path: /tmp/inputs/input-0/data}
+      - {name: featureengineering-train_label_out, path: /tmp/inputs/input-1/data}
+    outputs:
+      artifacts:
+      - {name: bayes-bayes_acc, path: /app/bayes_acc.txt}
+  - name: boston-housing-pipeline
+    dag:
+      tasks:
+      - name: bayes
+        template: bayes
+        dependencies: [featureengineering]
+        arguments:
+          artifacts:
+          - {name: featureengineering-train_label_out, from: '{{tasks.featureengineering.outputs.artifacts.featureengineering-train_label_out}}'}
+          - {name: featureengineering-train_pickle_out, from: '{{tasks.featureengineering.outputs.artifacts.featureengineering-train_pickle_out}}'}
+      - name: decision-tree
+        template: decision-tree
+        dependencies: [featureengineering]
+        arguments:
+          artifacts:
+          - {name: featureengineering-train_label_out, from: '{{tasks.featureengineering.outputs.artifacts.featureengineering-train_label_out}}'}
+          - {name: featureengineering-train_pickle_out, from: '{{tasks.featureengineering.outputs.artifacts.featureengineering-train_pickle_out}}'}
+      - name: featureengineering
+        template: featureengineering
+        dependencies: [preprocess-data]
+        arguments:
+          artifacts:
+          - {name: preprocess-data-test_pickle, from: '{{tasks.preprocess-data.outputs.artifacts.preprocess-data-test_pickle}}'}
+          - {name: preprocess-data-train_pickle, from: '{{tasks.preprocess-data.outputs.artifacts.preprocess-data-train_pickle}}'}
+      - {name: preprocess-data, template: preprocess-data}
+      - name: random-forest
+        template: random-forest
+        dependencies: [featureengineering]
+        arguments:
+          artifacts:
+          - {name: featureengineering-train_label_out, from: '{{tasks.featureengineering.outputs.artifacts.featureengineering-train_label_out}}'}
+          - {name: featureengineering-train_pickle_out, from: '{{tasks.featureengineering.outputs.artifacts.featureengineering-train_pickle_out}}'}
+      - name: regression
+        template: regression
+        dependencies: [featureengineering]
+        arguments:
+          artifacts:
+          - {name: featureengineering-train_label_out, from: '{{tasks.featureengineering.outputs.artifacts.featureengineering-train_label_out}}'}
+          - {name: featureengineering-train_pickle_out, from: '{{tasks.featureengineering.outputs.artifacts.featureengineering-train_pickle_out}}'}
+      - name: results
+        template: results
+        dependencies: [bayes, decision-tree, random-forest, regression, svm]
+        arguments:
+          artifacts:
+          - {name: bayes-bayes_acc, from: '{{tasks.bayes.outputs.artifacts.bayes-bayes_acc}}'}
+          - {name: decision-tree-decision_tree_acc, from: '{{tasks.decision-tree.outputs.artifacts.decision-tree-decision_tree_acc}}'}
+          - {name: random-forest-random_forest_acc, from: '{{tasks.random-forest.outputs.artifacts.random-forest-random_forest_acc}}'}
+          - {name: regression-regression_acc, from: '{{tasks.regression.outputs.artifacts.regression-regression_acc}}'}
+          - {name: svm-svm_acc, from: '{{tasks.svm.outputs.artifacts.svm-svm_acc}}'}
+      - name: svm
+        template: svm
+        dependencies: [featureengineering]
+        arguments:
+          artifacts:
+          - {name: featureengineering-train_label_out, from: '{{tasks.featureengineering.outputs.artifacts.featureengineering-train_label_out}}'}
+          - {name: featureengineering-train_pickle_out, from: '{{tasks.featureengineering.outputs.artifacts.featureengineering-train_pickle_out}}'}
+  - name: decision-tree
+    container:
+      args: [--train_pickle, /tmp/inputs/input-0/data, --train_label, /tmp/inputs/input-1/data]
+      image: hubdocker76/titanic-decision-tree:v1
+    inputs:
+      artifacts:
+      - {name: featureengineering-train_pickle_out, path: /tmp/inputs/input-0/data}
+      - {name: featureengineering-train_label_out, path: /tmp/inputs/input-1/data}
+    outputs:
+      artifacts:
+      - {name: decision-tree-decision_tree_acc, path: /app/decision_tree_acc.txt}
+  - name: featureengineering
+    container:
+      args: [--train_pickle, /tmp/inputs/input-0/data, --test_pickle, /tmp/inputs/input-1/data]
+      image: hubdocker76/titanic-feature-engineering:v8
+    inputs:
+      artifacts:
+      - {name: preprocess-data-train_pickle, path: /tmp/inputs/input-0/data}
+      - {name: preprocess-data-test_pickle, path: /tmp/inputs/input-1/data}
+    outputs:
+      artifacts:
+      - {name: featureengineering-train_label_out, path: /app/train_label_v2}
+      - {name: featureengineering-train_pickle_out, path: /app/train_v2}
+  - name: preprocess-data
+    container:
+      args: []
+      image: hubdocker76/titanic-pre-process-data:v9
+    outputs:
+      artifacts:
+      - {name: preprocess-data-test_pickle, path: /app/test}
+      - {name: preprocess-data-train_pickle, path: /app/train}
+    metadata:
+      labels:
+        kaggle-secret: "true"
+  - name: random-forest
+    container:
+      args: [--train_pickle, /tmp/inputs/input-0/data, --train_label, /tmp/inputs/input-1/data]
+      image: hubdocker76/titanic-randomforest:v4
+    inputs:
+      artifacts:
+      - {name: featureengineering-train_pickle_out, path: /tmp/inputs/input-0/data}
+      - {name: featureengineering-train_label_out, path: /tmp/inputs/input-1/data}
+    outputs:
+      artifacts:
+      - {name: random-forest-random_forest_acc, path: /app/random_forest_acc.txt}
+  - name: regression
+    container:
+      args: [--train_pickle, /tmp/inputs/input-0/data, --train_label, /tmp/inputs/input-1/data]
+      image: hubdocker76/titanic-logistic-regression:v5
+    inputs:
+      artifacts:
+      - {name: featureengineering-train_pickle_out, path: /tmp/inputs/input-0/data}
+      - {name: featureengineering-train_label_out, path: /tmp/inputs/input-1/data}
+    outputs:
+      artifacts:
+      - {name: regression-regression_acc, path: /app/regression_acc.txt}
+  - name: results
+    container:
+      args: [--bayes_acc, /tmp/inputs/input-0/data, --regression_acc, /tmp/inputs/input-1/data,
+        --random_forest_acc, /tmp/inputs/input-2/data, --decision_tree_acc, /tmp/inputs/input-3/data,
+        --svm_acc, /tmp/inputs/input-4/data]
+      image: hubdocker76/titanic-results:v9
+    inputs:
+      artifacts:
+      - {name: bayes-bayes_acc, path: /tmp/inputs/input-0/data}
+      - {name: regression-regression_acc, path: /tmp/inputs/input-1/data}
+      - {name: random-forest-random_forest_acc, path: /tmp/inputs/input-2/data}
+      - {name: decision-tree-decision_tree_acc, path: /tmp/inputs/input-3/data}
+      - {name: svm-svm_acc, path: /tmp/inputs/input-4/data}
+  - name: svm
+    container:
+      args: [--train_pickle, /tmp/inputs/input-0/data, --train_label, /tmp/inputs/input-1/data]
+      image: hubdocker76/titanic-svm:v2
+    inputs:
+      artifacts:
+      - {name: featureengineering-train_pickle_out, path: /tmp/inputs/input-0/data}
+      - {name: featureengineering-train_label_out, path: /tmp/inputs/input-1/data}
+    outputs:
+      artifacts:
+      - {name: svm-svm_acc, path: /app/svm_acc.txt}
+  arguments:
+    parameters: []
+  serviceAccountName: pipeline-runner

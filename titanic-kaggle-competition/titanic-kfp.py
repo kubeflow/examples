@@ -1,126 +1,169 @@
 import kfp
 from kfp import dsl
 
-def LoadData():
-    vop = dsl.VolumeOp(name="pvc",
-                       resource_name="pvc", size='1Gi', 
-                       modes=dsl.VOLUME_MODE_RWO)
+def preprocess_op():
 
     return dsl.ContainerOp(
-        name = 'load-data', 
-        image = 'hubdocker76/titanic-load-data:v2', 
-        command = ['python3', 'load.py'],
-        pvolumes={
-            '/data': vop.volume
+        name='Preprocess Data',
+        image='hubdocker76/titanic-pre-process-data:v9',
+        arguments=[],
+        file_outputs={
+            'train_pickle': '/app/train',
+            'test_pickle': '/app/test',
         }
     )
 
-def PreProcess(comp1):
+def featureengineering_op(train_pickle, test_pickle):
+
     return dsl.ContainerOp(
-        name = 'preprocess',
-        image = 'hubdocker76/titanic-pre-process-data:v1',
-        command = ['python3', 'preprocess.py'],
-        pvolumes = {
-            '/data': comp1.pvolumes['/data']
+        name='featureengineering',
+        image='hubdocker76/titanic-feature-engineering:v8',
+        arguments=[
+            '--train_pickle', train_pickle,
+            '--test_pickle', test_pickle
+        ],
+        file_outputs={
+            'train_pickle_out': '/app/train_v2',
+            'train_label_out': '/app/train_label_v2',
         }
     )
 
-def featurengg(comp2):
+def regression_op(train_pickle_out, train_label_out):
+
     return dsl.ContainerOp(
-        name = 'featureengineering',
-        image = 'hubdocker76/titanic-feature-engg:v6',
-        command = ['python3', 'featureengg.py'],
-        pvolumes={
-            '/data': comp2.pvolumes['/data']
+        name='regression',
+        image='hubdocker76/titanic-logistic-regression:v5',
+        arguments=[
+            '--train_pickle', train_pickle_out,
+            '--train_label', train_label_out,
+        ],
+        file_outputs={
+            'regression_acc': '/app/regression_acc.txt'
         }
     )
 
-def RandomForest(comp3):
+def bayes_op(train_pickle_out, train_label_out):
+
     return dsl.ContainerOp(
-        name = 'RandomForest',
-        image = 'hubdocker76/titanic-randomforest:v1',
-        pvolumes={
-            '/data': comp3.pvolumes['/data']
-        },
-        command = ['python3', 'randomforest.py']
+        name='bayes',
+        image='hubdocker76/titanic-bayes:v6',
+        arguments=[
+            '--train_pickle', train_pickle_out,
+            '--train_label', train_label_out,
+        ],
+        file_outputs={
+            'bayes_acc': '/app/bayes_acc.txt'
+        }
     )
 
-def regression(comp3):
+def random_forest_op(train_pickle_out, train_label_out):
+
     return dsl.ContainerOp(
-        name = 'Logisticregression',
-        image = 'hubdocker76/titanic-regression:v1',
-        pvolumes={
-            '/data': comp3.pvolumes['/data']
-        },
-        command = ['python3', 'regression.py']
+        name='random_forest',
+        image='hubdocker76/titanic-randomforest:v4',
+        arguments=[
+            '--train_pickle', train_pickle_out,
+            '--train_label', train_label_out,
+        ],
+        file_outputs={
+            'random_forest_acc': '/app/random_forest_acc.txt'
+        }
     )
 
-def bayes(comp3):
+def decision_tree_op(train_pickle_out, train_label_out):
+
     return dsl.ContainerOp(
-        name = 'naivebayes',
-        image = 'hubdocker76/titanic-bayes:v1',
-        pvolumes={
-            '/data': comp3.pvolumes['/data']
-        },
-        command = ['python3', 'naivebayes.py']
+        name='decision_tree',
+        image='hubdocker76/titanic-decision-tree:v1',
+        arguments=[
+            '--train_pickle', train_pickle_out,
+            '--train_label', train_label_out,
+        ],
+        file_outputs={
+            'decision_tree_acc': '/app/decision_tree_acc.txt'
+        }
     )
 
-def svm(comp3):
+def svm_op(train_pickle_out, train_label_out):
+
     return dsl.ContainerOp(
-        name = 'svm',
-        image = 'hubdocker76/titanic-svm:v1',
-        pvolumes={
-            '/data': comp3.pvolumes['/data']
-        },
-        command = ['python3', 'svm.py']
+        name='svm',
+        image='hubdocker76/titanic-svm:v2',
+        arguments=[
+            '--train_pickle', train_pickle_out,
+            '--train_label', train_label_out,
+        ],
+        file_outputs={
+            'svm_acc': '/app/svm_acc.txt'
+        }
     )
 
-def decisiontree(comp3):
+def result_model_op(bayes_acc, regression_acc, random_forest_acc, decision_tree_acc, svm_acc):
+
     return dsl.ContainerOp(
-        name = 'decisiontree',
-        image = 'hubdocker76/titanic-decisiontree:v1',
-        pvolumes={
-            '/data': comp3.pvolumes['/data']
-        },
-        command = ['python3', 'decisiontree.py']
+        name='results',
+        image='hubdocker76/titanic-results:v9',
+        arguments=[
+            '--bayes_acc', bayes_acc,
+            '--regression_acc', regression_acc,
+            '--random_forest_acc', random_forest_acc,
+            '--decision_tree_acc', decision_tree_acc,
+            '--svm_acc', svm_acc
+        ]
     )
-
-# def result(comp4, comp5, comp6, comp7, comp8):
-#     return dsl.ContainerOp(
-#         name = 'result',
-#         image = 'hubdocker76/titanic-results:v1',
-#         # comp4, comp5, comp6, comp7, comp8
-#         pvolumes={
-#             '/data': comp8.pvolumes['/data']
-#         },
-#         # arguments=[
-#         #     '--comp4',comp4,
-#         #     '--comp5',comp5,
-#         #     '--comp6',comp6,
-#         #     '--comp7',comp7,
-#         #     '--comp8',comp8
-#         # ],
-        
-        
-#         command = ['python3', 'result.py']
-
-#     )
 
 @dsl.pipeline(
-    name = 'Titanic',
-    description = 'pipeline to run Kaggle titanic challenge')
+   name='Boston Housing Pipeline',
+   description='An example pipeline that trains and logs a regression model.'
+)
+def boston_pipeline():
+    _preprocess_op = preprocess_op().add_pod_label("kaggle-secret", "true")
+    
+    _featureengineering_op = featureengineering_op(
+        dsl.InputArgumentPath(_preprocess_op.outputs['train_pickle']),
+        dsl.InputArgumentPath(_preprocess_op.outputs['test_pickle'])
+    ).after(_preprocess_op)
 
-def  passing_parameter():
-    comp1 = LoadData().add_pod_label("kaggle-secret", "true")
-    comp2 = PreProcess(comp1)
-    comp3 = featurengg(comp2)
-    comp4 = RandomForest(comp3)
-    comp5 = regression(comp3)
-    comp6 = bayes(comp3)
-    comp7 = svm(comp3)
-    comp8 = decisiontree(comp3)
-    # comp9 = result(comp4, comp5, comp6, comp7, comp8)
+    _regression_op = regression_op(
+        dsl.InputArgumentPath(_featureengineering_op.outputs['train_pickle_out']),
+        dsl.InputArgumentPath(_featureengineering_op.outputs['train_label_out'])
+    ).after(_featureengineering_op)
+
+    _bayes_op = bayes_op(
+        dsl.InputArgumentPath(_featureengineering_op.outputs['train_pickle_out']),
+        dsl.InputArgumentPath(_featureengineering_op.outputs['train_label_out'])
+    ).after(_featureengineering_op)
+
+    _random_forest_op = random_forest_op(
+        dsl.InputArgumentPath(_featureengineering_op.outputs['train_pickle_out']),
+        dsl.InputArgumentPath(_featureengineering_op.outputs['train_label_out'])
+    ).after(_featureengineering_op)
+
+    _decision_tree_op = decision_tree_op(
+        dsl.InputArgumentPath(_featureengineering_op.outputs['train_pickle_out']),
+        dsl.InputArgumentPath(_featureengineering_op.outputs['train_label_out'])
+    ).after(_featureengineering_op)
+
+    _svm_op = svm_op(
+        dsl.InputArgumentPath(_featureengineering_op.outputs['train_pickle_out']),
+        dsl.InputArgumentPath(_featureengineering_op.outputs['train_label_out'])
+    ).after(_featureengineering_op)
+
+    # result_model_op(
+    #     dsl.InputArgumentPath(_featureengineering_op.outputs['model'])
+    # ).after(_test_op, _test_op2)
+
+    result_model_op(
+        dsl.InputArgumentPath(_bayes_op.outputs['bayes_acc']),
+        dsl.InputArgumentPath(_regression_op.outputs['regression_acc']),
+        dsl.InputArgumentPath(_random_forest_op.outputs['random_forest_acc']),
+        dsl.InputArgumentPath(_decision_tree_op.outputs['decision_tree_acc']),
+        dsl.InputArgumentPath(_svm_op.outputs['svm_acc'])
+    ).after(_regression_op, _bayes_op, _random_forest_op, _decision_tree_op, _svm_op)
+
+# client = kfp.Client()
+# client.create_run_from_pipeline_func(boston_pipeline, arguments={})
 
 if __name__ == '__main__':
   import kfp.compiler as compiler
-  compiler.Compiler().compile(passing_parameter, __file__[:-3] + '.yaml')
+  compiler.Compiler().compile(boston_pipeline, __file__[:-3] + '.yaml')
