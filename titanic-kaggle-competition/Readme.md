@@ -84,37 +84,22 @@ Kubeflow relies on Docker images to create pipelines. These images are pushed to
 
 Start by creating a Docker account on DockerHub (https://hub.docker.com/). After signing up, Install Docker https://docs.docker.com/get-docker/ and enter  `docker login`  command on your terminal and enter your docker-hub username and password to log into Docker.
 
-## Step 2: Build the loaddata image
+## Step 2: Build the datapreprocessing image
 
-Create a new build enviornment which contains Docker installed as highlighted in step1. After this in your new enviornment, on your terminal navigate to the pipeline-components/train/ directory and build the train Docker image using:
-```
-$ cd pipeline-components/load-data/
-$ docker build -t <docker_username>/<docker_imagename>:<tag> .
-```
-For example:
-```
-$ docker build -t hubdocker76/titanic-load-data:v2 .
-```
-After building push the image using:
-```
-$ docker push hubdocker76/titanic-load-data:v2
-```
-## Step 3: Build the datapreprocessing image
-
-Next, on your docker enviornment go to terminal and navigate to the pipeline-components/pre-process/ directory and build the evaluate Docker image using:
+Create a new build enviornment which contains Docker installed as highlighted in step1. After this in your new enviornment, on your terminal navigate to the pipeline-components/pre-process/ directory and build the evaluate Docker image using:
 ```
 $ cd pipeline-components/pre-process/
 $ docker build -t <docker_username>/<docker_imagename>:<tag> .
 ```
 For example:
 ```
-$ docker build -t hubdocker76/titanic-pre-process-data:v1 .
+$ docker build -t hubdocker76/titanic-pre-process-data:v9 .
 ```
 After building push the image using:
 ```
-$ docker push hubdocker76/titanic-pre-process-data:v1
+$ docker push hubdocker76/titanic-pre-process-data:v9
 ```
-## Step 4: Build the feature engineering image
+## Step 3: Build the feature engineering image
 
 Next, on your docker enviornment go to terminal and navigate to the pipeline-components/featureengineering/ directory and build the evaluate Docker image using:
 ```
@@ -123,13 +108,13 @@ $ docker build -t <docker_username>/<docker_imagename>:<tag> .
 ```
 For example:
 ```
-$ docker build -t hubdocker76/titanic-feature-engg:v6 .
+$ docker build -t hubdocker76/titanic-feature-engineering:v8 .
 ```
 After building push the image using:
 ```
-$ docker push hubdocker76/titanic-feature-engg:v6
+$ docker push hubdocker76/titanic-feature-engineering:v8
 ```
-## Step 5: Build the decisiontree image
+## Step 4: Build the decisiontree image
 
 Next, on your docker enviornment go to terminal and navigate to the pipeline-components/decisiontree/ directory and build the evaluate Docker image using:
 ```
@@ -145,7 +130,7 @@ After building push the image using:
 $ docker push hubdocker76/titanic-decisiontree:v1
 ```
 
-## Step 6: Build the logistic regression image
+## Step 5: Build the logistic regression image
 
 Next, on your docker enviornment go to terminal and navigate to the pipeline-components/logisticregression/ directory and build the evaluate Docker image using:
 ```
@@ -154,14 +139,14 @@ $ docker build -t <docker_username>/<docker_imagename>:<tag> .
 ```
 For example:
 ```
-$ docker build -t hubdocker76/titanic-regression:v1 .
+$ docker build -t hubdocker76/titanic-logistic-regression:v5 .
 ```
 After building push the image using:
 ```
-$ docker push hubdocker76/titanic-regression:v1
+$ docker push hubdocker76/titanic-logistic-regression:v5
 ```
 
-## Step 7: Build the naivebayes image
+## Step 6: Build the naivebayes image
 
 Next, on your docker enviornment go to terminal and navigate to the pipeline-components/naivebayes/ directory and build the evaluate Docker image using:
 ```
@@ -170,14 +155,14 @@ $ docker build -t <docker_username>/<docker_imagename>:<tag> .
 ```
 For example:
 ```
-$ docker build -t hubdocker76/titanic-bayes:v1 .
+$ docker build -t hubdocker76/titanic-bayes:v6 .
 ```
 After building push the image using:
 ```
-$ docker push hubdocker76/titanic-bayes:v1
+$ docker push hubdocker76/titanic-bayes:v6
 ```
 
-## Step 8: Build the randomforest image
+## Step 7: Build the randomforest image
 
 Next, on your docker enviornment go to terminal and navigate to the pipeline-components/randomforest/ directory and build the evaluate Docker image using:
 ```
@@ -186,14 +171,14 @@ $ docker build -t <docker_username>/<docker_imagename>:<tag> .
 ```
 For example:
 ```
-$ docker build -t hubdocker76/titanic-randomforest:v1 .
+$ docker build -t hubdocker76/titanic-randomforest:v4 .
 ```
 After building push the image using:
 ```
-$ docker push hubdocker76/titanic-randomforest:v1
+$ docker push hubdocker76/titanic-randomforest:v4
 ```
 
-## Step 9: Build the svm image
+## Step 8: Build the svm image
 
 Next, on your docker enviornment go to terminal and navigate to the pipeline-components/svm/ directory and build the evaluate Docker image using:
 ```
@@ -202,28 +187,14 @@ $ docker build -t <docker_username>/<docker_imagename>:<tag> .
 ```
 For example:
 ```
-$ docker build -t hubdocker76/titanic-svm:v1 .
+$ docker build -t hubdocker76/titanic-svm:v2 .
 ```
 After building push the image using:
 ```
-$ docker push hubdocker76/titanic-svm:v1
+$ docker push hubdocker76/titanic-svm:v2
 ```
 
-## Step 10: Build the decisiontree image
 
-Next, on your docker enviornment go to terminal and navigate to the pipeline-components/eval/ directory and build the evaluate Docker image using:
-```
-$ cd pipeline-components/decisiontree/
-$ docker build -t <docker_username>/<docker_imagename>:<tag> .
-```
-For example:
-```
-$ docker build -t hubdocker76/titanic-decisiontree:v1 .
-```
-After building push the image using:
-```
-$ docker push hubdocker76/titanic-decisiontree:v1
-```
 
 
 ## Kubeflow Pipeline
@@ -268,18 +239,18 @@ python3 -m pip install  kfp==1.1.2
 
 After installing packages create the yaml file
 
-Inside venv point your terminal to a path which contains our kfp file to build pipeline (facial-keypoints-detection-kfp.py) and run these commands:
+Inside venv point your terminal to a path which contains our kfp file to build pipeline (kfp-pipeline.py) and run these commands:
 ```
-$ python3 titanic-kfp.py 
+$ python3 kfp-pipeline.py
 ```
 …this will generate a yaml file:
 ```
-pipeline.yaml
+kfp-pipeline.yaml
 ```
 
 ## Run the Kubeflow Pipeline
 
-This `pipeline.yaml` file can then be uploaded to Kubeflow Pipelines UI from which you can create a Pipeline Run. The same yaml file will also be generated if we run the facial-keypoints-detection-kfp.ipynb notebook in the Notebook Server UI.
+This `kfp-pipeline.yaml` file can then be uploaded to Kubeflow Pipelines UI from which you can create a Pipeline Run. The same yaml file will also be generated if we run the facial-keypoints-detection-kfp.ipynb notebook in the Notebook Server UI.
 
 
 Upload file :
@@ -292,4 +263,9 @@ Upload file :
 And then Start the Run.
 <img width="1322" alt="Screenshot 2022-05-23 at 10 10 49 PM" src="https://user-images.githubusercontent.com/17012391/169867569-19f61116-64b8-4bc6-af93-d06488d5d66b.png">
 
+
+## Success
+
+After the Run succeeds we will be able to see the following graph:
+<img width="1246" alt="Screenshot 2022-06-06 at 1 50 42 PM" src="https://user-images.githubusercontent.com/17012391/172123438-b079b4d0-ef94-45fb-a0eb-8cb7a17ce597.png">
 
