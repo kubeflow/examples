@@ -48,8 +48,8 @@ def Test(comp3):
 
 
 @dsl.pipeline(
-    name = 'openvaccine',
-    description = 'pipeline to run openvaccine')
+    name = 'blue book for bulldozers',
+    description = 'pipeline to run blue book for bulldozers')
 
 def  passing_parameter():
     comp1 = LoadData().add_pod_label("kaggle-secret", "true")
