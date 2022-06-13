@@ -175,8 +175,18 @@ To create a KFP pipeline using the Kale JupyterLab extension
 
 7. Compile and run the Notebook by hitting the "Compile & Run" in Kale's left panel
 
+<p align=center>
+<img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/jpx-kale-deployment-panel.PNG?raw=true" alt="jpx-kale-deployment-panel"/>
+ </p>
+
 ### View Pipeline
 
+View Pipeline by clicking "View" in Kale's left panel
+
+<p align=center>
+<img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/jpx-view-pipeline.PNG?raw=true" alt="jpx-view-pipeline"/>
+ </p>
+ 
 <p align=center>
 <img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/kale-pipeline.PNG?raw=true" alt="kale-pipeline"/>
  </p>
