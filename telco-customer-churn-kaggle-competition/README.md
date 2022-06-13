@@ -17,14 +17,14 @@ Environment:
 
 ## Section 1: Overview
 
-1. KFP Pipeline: Kubeflow lightweight component method
+1. Vanilla KFP Pipeline: Kubeflow lightweight component method
 
    To get started, visit the Kubeflow Pipelines [documentation](https://www.kubeflow.org/docs/components/pipelines/sdk/) 
    to get acquainted with what pipelines are, its components, pipeline metrics and how to pass data between components in a pipeline. 
    There are different ways to build out a pipeline component as mentioned [here](https://www.kubeflow.org/docs/components/pipelines/sdk/build-pipeline/#building-pipeline-components). 
    In the following example, we are going to use the lightweight python functions based components for building our Kubeflow pipeline.
 
-2. Kale Pipeline
+2. Kale KFP Pipeline
 
    To get started, visit Kale's [documentation](https://docs.arrikto.com/user/kale/index.html) to get acquainted with the 
    Kale user interface (UI) from a Jupyter Notebook, [notebook cell annotation](https://docs.arrikto.com/user/kale/jupyterlab/annotate.html) 
@@ -47,7 +47,7 @@ The different components used in this example are:
 - Ensembling
 
 ## Kubeflow pipelines
-A Kubeflow pipelines connects all components together, to create a directed acyclic graph (DAG). The kfp [`dsl.pipeline`](https://www.kubeflow.org/docs/components/pipelines/sdk/sdk-overview/) decorator was used to create a pipeline function. 
+A Kubeflow pipeline connects all components together, to create a directed acyclic graph (DAG). The kfp [`dsl.pipeline`](https://www.kubeflow.org/docs/components/pipelines/sdk/sdk-overview/) decorator was used to create a pipeline function. 
 The kfp component method [`InputPath`](https://kubeflow-pipelines.readthedocs.io/en/latest/source/kfp.components.html#kfp.components.InputPath) and [`OutputPath`](https://kubeflow-pipelines.readthedocs.io/en/latest/source/kfp.components.html#kfp.components.OutputPath) was used to pass data between components in the pipeline. 
 
 Finally, the  [`create_run_from_pipeline_func`](https://kubeflow-pipelines.readthedocs.io/en/stable/source/kfp.client.html) from the KFP SDK Client was used to submit pipeline directly from pipeline function
