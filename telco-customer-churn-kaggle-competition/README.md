@@ -31,7 +31,7 @@ Environment:
    and how to create a machine learning pipeline using Kale.
    In the following example, we are going to use the Kale JupyterLab Extension to building our Kubeflow pipeline.
 
-## Section 2: KFP Pipeline
+## Section 2: Vanilla KFP Pipeline
 
 ### Kubeflow lightweight component method
 Here, a python function is created to carry out a certain task and the python function is passed inside a kfp component method [`create_component_from_func`](https://kubeflow-pipelines.readthedocs.io/en/latest/source/kfp.components.html#kfp.components.create_component_from_func). 
@@ -52,7 +52,7 @@ The kfp component method [`InputPath`](https://kubeflow-pipelines.readthedocs.io
 
 Finally, the  [`create_run_from_pipeline_func`](https://kubeflow-pipelines.readthedocs.io/en/stable/source/kfp.client.html) from the KFP SDK Client was used to submit pipeline directly from pipeline function
 
-## To create pipeline on KFP
+## To create pipeline using Vanilla KFP
    
 1. Open your Kubeflow Cluster, create a Notebook Server and connect to it.
 
@@ -73,7 +73,7 @@ Finally, the  [`create_run_from_pipeline_func`](https://kubeflow-pipelines.readt
 <img src="https://github.com/josepholaide/examples/blob/telco/telco-customer-churn-kaggle-competition/images/telco-kfp-pipeline-visualization.PNG?raw=true" alt="telco-kfp-pipeline-visualization"/>
 </p>
 
-## Section 2: Kale Pipeline
+## Section 2: Kale KFP Pipeline
 
 To create pipeline using the Kale JupyterLab extension
 
@@ -114,7 +114,7 @@ To create pipeline using the Kale JupyterLab extension
    * Lightgbm Modeling
    * Ensembling
 
-6. Compile and run Notebook using Kale
+6. Compile and run the Notebook by hitting the "Compile & Run" in Kale's left panel
 
 ### View Pipeline
 
