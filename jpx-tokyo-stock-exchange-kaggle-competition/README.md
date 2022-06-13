@@ -86,7 +86,7 @@ Environment:
    <img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/notebook-ui-kaggle-config.png?raw=true" alt="notebook-ui-kaggle-config"/>
    </p>
 
-## Section 3: KFP Pipeline
+## Section 3: Vanilla KFP Pipeline
 
 ### Kubeflow lightweight component method
 Here, a python function is created to carry out a certain task and the python function is passed inside a kfp component method [`create_component_from_func`](https://kubeflow-pipelines.readthedocs.io/en/latest/source/kfp.components.html#kfp.components.create_component_from_func). 
