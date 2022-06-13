@@ -117,10 +117,18 @@ To create pipeline using the Kale JupyterLab extension
 6. Compile and run the Notebook by hitting the "Compile & Run" in Kale's left panel
 
 <p align=center>
-<img src="https://github.com/josepholaide/examples/blob/master/telco-customer-churn-kaggle-competition/images/kale-deployment-panel.PNG?raw=true" alt="tkale-deployment-panel"/>
+<img src="https://github.com/josepholaide/examples/blob/master/telco-customer-churn-kaggle-competition/images/kale-deployment-panel.PNG?raw=true" alt="kale-deployment-panel"/>
 </p>
 
 ### View Pipeline
+
+View Pipeline by clicking "View" in Kale's left panel
+
+<p align=center>
+<img src="https://github.com/josepholaide/examples/blob/master/telco-customer-churn-kaggle-competition/images/view-pipeline.PNG?raw=true" alt="view-pipeline
+"/>
+</p>
+
 
 <p align=center>
 <img src="https://github.com/josepholaide/examples/blob/master/telco-customer-churn-kaggle-competition/images/telco-kale-pipeline.PNG?raw=true" alt="telco-kale-pipeline"/>
