@@ -130,7 +130,7 @@ Finally, the  [`create_run_from_pipeline_func`](https://kubeflow-pipelines.readt
  </p>
 
 
-## Section 4: Kale Pipeline
+## Section 4: Kale KFP Pipeline
 
 To create a KFP pipeline using the Kale JupyterLab extension
 
