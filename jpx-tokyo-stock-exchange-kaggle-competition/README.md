@@ -18,21 +18,21 @@ Environment:
 
 ## Section 1: Overview
 
-1. KFP Pipeline: Kubeflow lightweight component method
+1. Vanilla KFP Pipeline: Kubeflow lightweight component method
 
    To get started, visit the Kubeflow Pipelines [documentation](https://www.kubeflow.org/docs/components/pipelines/sdk/) 
    to get acquainted with what pipelines are, its components, pipeline metrics and how to pass data between components in a pipeline. 
    There are different ways to build out a pipeline component as mentioned [here](https://www.kubeflow.org/docs/components/pipelines/sdk/build-pipeline/#building-pipeline-components). 
    In the following example, we are going to use the lightweight python functions based components for building our Kubeflow pipeline.
 
-2. Kale Pipeline
+2. Kale KFP Pipeline
 
    To get started, visit Kale's [documentation](https://docs.arrikto.com/user/kale/index.html) to get acquainted with the 
    Kale user interface (UI) from a Jupyter Notebook, [notebook cell annotation](https://docs.arrikto.com/user/kale/jupyterlab/annotate.html) 
    and how to create a machine learning pipeline using Kale.
    In the following example, we are going to use the Kale JupyterLab Extension to building our Kubeflow pipeline.
    
-## Section 2: To download data to be used for the KFP and Kale Pipeline
+## Section 2: Prepare environment for data download
 
 1. Open your Kubeflow Cluster, create a Notebook Server and connect to it.
 
@@ -100,12 +100,12 @@ The different components used in this example are:
 - Prediction
 
 ## Kubeflow pipelines
-A Kubeflow pipelines connects all components together, to create a directed acyclic graph (DAG). The kfp [`dsl.pipeline`](https://www.kubeflow.org/docs/components/pipelines/sdk/sdk-overview/) decorator was used to create a pipeline function. 
+A Kubeflow pipeline connects all components together, to create a directed acyclic graph (DAG). The kfp [`dsl.pipeline`](https://www.kubeflow.org/docs/components/pipelines/sdk/sdk-overview/) decorator was used to create a pipeline function. 
 The kfp component method [`InputPath`](https://kubeflow-pipelines.readthedocs.io/en/latest/source/kfp.components.html#kfp.components.InputPath) and [`OutputPath`](https://kubeflow-pipelines.readthedocs.io/en/latest/source/kfp.components.html#kfp.components.OutputPath) was used to pass data between components in the pipeline. 
 
 Finally, the  [`create_run_from_pipeline_func`](https://kubeflow-pipelines.readthedocs.io/en/stable/source/kfp.client.html) from the KFP SDK Client was used to submit pipeline directly from pipeline function
 
-## To create pipeline on KFP
+## To create pipeline using Vanilla KFP
    
 1. Open your Kubeflow Cluster, create a new Notebook Server and add the `kaggle-secret` configuration to the new Notebook Server.
 
@@ -132,7 +132,7 @@ Finally, the  [`create_run_from_pipeline_func`](https://kubeflow-pipelines.readt
 
 ## Section 4: Kale Pipeline
 
-To create pipeline using the Kale JupyterLab extension
+To create a KFP pipeline using the Kale JupyterLab extension
 
 
 1. Open your Kubeflow Cluster, create a new Notebook Server and add the `kaggle-secret` configuration to the new Notebook Server.
@@ -173,7 +173,7 @@ To create pipeline using the Kale JupyterLab extension
    * Modelling
    * Prediction
 
-7. Compile and run Notebook using Kale
+7. Compile and run the Notebook by hitting the "Compile & Run" in Kale's left panel
 
 ### View Pipeline
 
