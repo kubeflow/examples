@@ -93,11 +93,12 @@ Here, a python function is created to carry out a certain task and the python fu
 
 The different components used in this example are:
 
+- Download data
 - Load data
-- Transform data
 - Feature Engineering
+- Merge Assets and Features
 - Modelling
-- Prediction
+- Functions
 
 ## Kubeflow pipelines
 A Kubeflow pipeline connects all components together, to create a directed acyclic graph (DAG). The kfp [`dsl.pipeline`](https://www.kubeflow.org/docs/components/pipelines/sdk/sdk-overview/) decorator was used to create a pipeline function. 
@@ -107,7 +108,16 @@ Finally, the  [`create_run_from_pipeline_func`](https://kubeflow-pipelines.readt
 
 ## To create pipeline using Vanilla KFP
    
-1. Open your Kubeflow Cluster, create a new Notebook Server and add the `kaggle-secret` configuration to the new Notebook Server.
+1. Open your Kubeflow Cluster and do the following: 
+  
+  * Create a new Notebook Server 
+
+  * Set the CPU specification to 8Gi and RAM to 16 Gi
+<p align=center>
+<img src="https://github.com/josepholaide/examples/blob/G-research-crypto-forecasting/G-research-crypto-forecasting-kaggle-competition/images/cpu-ram-spec.PNG?raw=true" alt="cpu/ram spec"/>
+</p>
+  
+  * Add the `kaggle-secret` configuration to the new Notebook Server.
 
 2. Create a new Terminal and clone this repo. After cloning, navigate to this directory.
 
@@ -168,6 +178,7 @@ To create a KFP pipeline using the Kale JupyterLab extension
 
    * Imports
    * Pipeline Parameters
+   * Functions
    * Pipeline Metrics
    * Pipeline Step
    * Skip Cell
@@ -182,11 +193,12 @@ To create a KFP pipeline using the Kale JupyterLab extension
    
    The pipeline steps created in this example:
 
+   * Download data
    * Load data
-   * Transform data
    * Feature Engineering
+   * Merge Assets and Features
    * Modelling
-   * Prediction
+   * Evaluation
 
 7. Compile and run the Notebook by hitting the "Compile & Run" in Kale's left panel
 
