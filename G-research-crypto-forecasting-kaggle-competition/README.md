@@ -110,14 +110,14 @@ Finally, the  [`create_run_from_pipeline_func`](https://kubeflow-pipelines.readt
    
 1. Open your Kubeflow Cluster and do the following: 
   
-  * Create a new Notebook Server 
+     * Create a new Notebook Server 
 
-  * Set the CPU specification to 8Gi and RAM to 16 Gi
-<p align=center>
-<img src="https://github.com/josepholaide/examples/blob/G-research-crypto-forecasting/G-research-crypto-forecasting-kaggle-competition/images/cpu-ram-spec.PNG?raw=true" alt="cpu/ram spec"/>
-</p>
-  
-  * Add the `kaggle-secret` configuration to the new Notebook Server.
+     * Set the CPU specification to 8Gi and RAM to 16 Gi
+   <p align=center>
+   <img src="https://github.com/josepholaide/examples/blob/G-research-crypto-forecasting/G-research-crypto-forecasting-kaggle-competition/images/cpu-ram-spec.PNG?raw=true" alt="cpu/ram spec"/>
+   </p>
+
+     * Add the `kaggle-secret` configuration to the new Notebook Server.
 
 2. Create a new Terminal and clone this repo. After cloning, navigate to this directory.
 
@@ -147,20 +147,20 @@ To create a KFP pipeline using the Kale JupyterLab extension
 
 1. Open your Kubeflow Cluster and do the following: 
   
-  * Create a new Notebook Server 
+     * Create a new Notebook Server 
 
-  * Set the CPU specification to 8Gi and RAM to 16 Gi
-<p align=center>
-<img src="https://github.com/josepholaide/examples/blob/G-research-crypto-forecasting/G-research-crypto-forecasting-kaggle-competition/images/cpu-ram-spec.PNG?raw=true" alt="cpu/ram spec"/>
-</p>
-  
-  * Increase the Workspace Volume to 15Gi 
+     * Set the CPU specification to 8Gi and RAM to 16 Gi
+   <p align=center>
+   <img src="https://github.com/josepholaide/examples/blob/G-research-crypto-forecasting/G-research-crypto-forecasting-kaggle-competition/images/cpu-ram-spec.PNG?raw=true" alt="cpu/ram spec"/>
+   </p>
 
-<p align=center>
-<img src="https://github.com/josepholaide/examples/blob/G-research-crypto-forecasting/G-research-crypto-forecasting-kaggle-competition/images/kale-volume.PNG?raw=true" alt="kale volume"/>
-</p>
-  
-  * Add the `kaggle-secret` configuration to the new Notebook Server.
+     * Increase the Workspace Volume to 15Gi 
+
+   <p align=center>
+   <img src="https://github.com/josepholaide/examples/blob/G-research-crypto-forecasting/G-research-crypto-forecasting-kaggle-competition/images/kale-volume.PNG?raw=true" alt="kale volume"/>
+   </p>
+
+     * Add the `kaggle-secret` configuration to the new Notebook Server.
 
 2. Create a new Terminal and clone this repo. After cloning, navigate to this directory.
 
