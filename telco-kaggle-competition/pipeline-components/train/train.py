@@ -1,3 +1,4 @@
+import joblib
 import tensorflow as tf
 from tensorflow import keras as ks
 import pickle5 as pkl
@@ -24,3 +25,7 @@ model.compile(
 )
 
 model.fit(X_train, y_train, epochs = 10)
+
+
+my_model = model.export_model()
+my_model.save('/data/model', save_format="tf")

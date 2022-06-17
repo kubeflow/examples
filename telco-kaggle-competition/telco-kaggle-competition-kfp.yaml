@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
   generateName: blue-book-for-bulldozers-
-  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.1.2, pipelines.kubeflow.org/pipeline_compilation_time: '2022-06-17T10:05:35.793011',
+  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.1.2, pipelines.kubeflow.org/pipeline_compilation_time: '2022-06-17T19:17:56.534012',
     pipelines.kubeflow.org/pipeline_spec: '{"description": "pipeline to run blue book
       for bulldozers", "name": "blue book for bulldozers"}'}
   labels: {pipelines.kubeflow.org/kfp_sdk_version: 1.1.2}
@@ -19,6 +19,12 @@ spec:
           parameters:
           - {name: pvc-name, value: '{{tasks.pvc.outputs.parameters.pvc-name}}'}
       - {name: pvc, template: pvc}
+      - name: test
+        template: test
+        dependencies: [pvc, train]
+        arguments:
+          parameters:
+          - {name: pvc-name, value: '{{tasks.pvc.outputs.parameters.pvc-name}}'}
       - name: train
         template: train
         dependencies: [preprocess, pvc]
@@ -59,10 +65,22 @@ spec:
         valueFrom: {jsonPath: '{.metadata.name}'}
       - name: pvc-size
         valueFrom: {jsonPath: '{.status.capacity.storage}'}
+  - name: test
+    container:
+      command: [python3, test.py]
+      image: hubdocker76/telco-test:v2
+      volumeMounts:
+      - {mountPath: /data, name: pvc}
+    inputs:
+      parameters:
+      - {name: pvc-name}
+    volumes:
+    - name: pvc
+      persistentVolumeClaim: {claimName: '{{inputs.parameters.pvc-name}}'}
   - name: train
     container:
       command: [python3, train.py]
-      image: hubdocker76/telco-train:v4
+      image: hubdocker76/telco-train:v7
       volumeMounts:
       - {mountPath: /data, name: pvc}
     inputs:
