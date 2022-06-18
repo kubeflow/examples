@@ -1,6 +1,6 @@
 # Objective
 
-This example is based on the Bluebook for bulldozers competition. The objective of this exercise is to predict the sale price of bulldozers sold at auctions.
+This example is based on the Telco Customer Churn competition. 
 
 ## Environment
 
