@@ -149,3 +149,5 @@ And then Start the Run.
 ## Success
 After the pipeline run is successful we will get the following:
 
+<img width="1179" alt="Screenshot 2022-06-18 at 12 26 09 PM" src="https://user-images.githubusercontent.com/17012391/174426648-dd4ae705-b129-4cca-b962-e34c40854d24.png">
+
