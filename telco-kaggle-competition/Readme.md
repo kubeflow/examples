@@ -50,7 +50,7 @@ $ docker push hubdocker76/telco-preprocess:v2
 
 Next, on your docker enviornment go to terminal and navigate to the pipeline-components/train/ directory and build the evaluate Docker image using:
 ```
-$ cd pipeline-components/featureengineering/
+$ cd pipeline-components/train/
 $ docker build -t <docker_username>/<docker_imagename>:<tag> .
 ```
 
@@ -66,16 +66,16 @@ $ docker push hubdocker76/telco-train:v13
 
 Next, on your docker enviornment go to terminal and navigate to the pipeline-components/test/ directory and build the evaluate Docker image using:
 ```
-$ cd pipeline-components/decisiontree/
+$ cd pipeline-components/test/
 $ docker build -t <docker_username>/<docker_imagename>:<tag> .
 ```
 For example:
 ```
-$ docker build -t hubdocker76/bulldozers-test:v6 .
+$ docker build -t hubdocker76/telco-test:v6 .
 ```
 After building push the image using:
 ```
-$ docker push hubdocker76/bulldozers-test:v6
+$ docker push hubdocker76/telco-test:v6
 ```
 
 
