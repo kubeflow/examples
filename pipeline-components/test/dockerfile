@@ -1,0 +1,8 @@
+FROM "tensorflow/tensorflow"
+
+RUN apt-get install -y python3-pip
+RUN pip3 install --upgrade pip
+RUN pip3 install pickle5
+RUN pip3 install pandas
+COPY . /
+
