@@ -1,21 +1,6 @@
 import kfp
 from kfp import dsl
 
-# def LoadData():
-#     vop = dsl.VolumeOp(name="pvc",
-#                        resource_name="pvc", size='1Gi', 
-#                        modes=dsl.VOLUME_MODE_RWO)
-
-#     return dsl.ContainerOp(
-#         name = 'load-data', 
-#         image = 'hubdocker76/bulldozers:v6', 
-#         command = ['python3', 'load.py'],
-
-#         pvolumes={
-#             '/data': vop.volume
-#         }
-#     )
-
 def PreProcess():
     vop = dsl.VolumeOp(name="pvc",
                     resource_name="pvc", size='1Gi', 
@@ -56,7 +41,6 @@ def Test(comp3):
     description = 'pipeline to run blue book for bulldozers')
 
 def  passing_parameter():
-    # comp1 = LoadData().add_pod_label("kaggle-secret", "true")
     comp2 = PreProcess()
     comp3 = Train(comp2)
     comp4 = Test(comp3)
