@@ -20,61 +20,6 @@ Docker is used to create an image to run each component in the pipeline.
 
 Kubeflow Pipelines connects each Docker-based component to create a pipeline. Each pipeline is a reproducible workflow wherein we pass input arguments and run the entire workflow.
 
-# Apply PodDefault resource
-
-## Step 1: Generate Kaggle API token
-The input data needed to run this tutorial is been pulled from Kaggle . In order to pull the data we need to create a Kaggle account , user needs to register with his email and password and create a Kaggle username. 
-
-Once we have successfully registered our Kaggle account. Now, we have to access the API Token . API access is needed to pull data from Kaggle , to get the API access go to you Kaggle profile and click on your profile picture on the top right  we will see this option: 
-
-<img width="358" alt="Account" src="https://user-images.githubusercontent.com/17012391/167830480-334e2586-5df1-4cf4-be79-cfcfda5048ac.png">
-
-Select “Account” from the menu.
-
-Scroll down to the “API” section and click “Create New API Token” :
-<img width="926" alt="Screenshot 2022-05-10 at 1 03 34 PM" src="https://user-images.githubusercontent.com/17012391/167830572-a7412306-f0cb-4f1f-8f93-28253a127202.png">
-
-
-This will download a file ‘kaggle.json’ with the following contents :
-```
-username	“My username”
-key	“My key”
-```
-Now, substitute your “username” for `<username>` and your “key” for  `<api_token>` and create a Kubernetes secret using:  
-```
-kubectl create secret generic kaggle-secret --from-literal=KAGGLE_USERNAME=<username> --from-literal=KAGGLE_KEY=<api_token> 
-```
-
-  
-## Step2: Create a PodDefault resource
-
-We need a way to inject common data (env vars, volumes) to pods. In Kubeflow we use PodDefault resource which serves this usecase (reference: https://github.com/kubeflow/kubeflow/blob/master/components/admission-webhook/README.md).  Using the PodDefault resource we can attach a secret to our data pulling step container which downloads data using Kaggle API. We create and apply PodDefault resource as follows :
-
-Create a `resource.yaml` file with the following code:
-
-```
-apiVersion: "kubeflow.org/v1alpha1"
-kind: PodDefault
-metadata:
-  name: kaggle-access
-spec:
- selector:
-  matchLabels:
-    kaggle-secret: "true"
- desc: "kaggle-access"
- volumeMounts:
- - name: secret-volume
-   mountPath: /secret/kaggle
- volumes:
- - name: secret-volume
-   secret:
-    secretName: kaggle-secret
-```
-  
-Apply the yaml with the following command:
-```
-kubectl apply -f resource.yaml 
-```
 
 # Build the Train and Evaluate images with Docker
 
@@ -84,22 +29,9 @@ Kubeflow relies on Docker images to create pipelines. These images are pushed to
 
 Start by creating a Docker account on DockerHub (https://hub.docker.com/). After signing up, Install Docker https://docs.docker.com/get-docker/ and enter  `docker login`  command on your terminal and enter your docker-hub username and password to log into Docker.
 
-## Step 2: Build the loaddata image
 
-Create a new build enviornment which contains Docker installed as highlighted in step1. After this in your new enviornment, on your terminal navigate to the pipeline-components/train/ directory and build the train Docker image using:
-```
-$ cd pipeline-components/load-data/
-$ docker build -t <docker_username>/<docker_imagename>:<tag> .
-```
-For example:
-```
-$ docker build -t hubdocker76/bulldozers:v6 .
-```
-After building push the image using:
-```
-$ docker push hubdocker76/bulldozers:v6
-```
-## Step 3: Build the datapreprocessing image
+
+## Step 2: Build the datapreprocessing image
 
 Next, on your docker enviornment go to terminal and navigate to the pipeline-components/preprocess/ directory and build the evaluate Docker image using:
 ```
@@ -108,11 +40,11 @@ $ docker build -t <docker_username>/<docker_imagename>:<tag> .
 ```
 For example:
 ```
-$ docker build -t hubdocker76/bulldozers-preprocess:v1 .
+$ docker build -t hubdocker76/telco-preprocess:v2 .
 ```
 After building push the image using:
 ```
-$ docker push hubdocker76/bulldozers-preprocess:v1
+$ docker push hubdocker76/telco-preprocess:v2
 ```
 ## Step 4: Build the Train image
 
@@ -121,13 +53,14 @@ Next, on your docker enviornment go to terminal and navigate to the pipeline-com
 $ cd pipeline-components/featureengineering/
 $ docker build -t <docker_username>/<docker_imagename>:<tag> .
 ```
+
 For example:
 ```
-$ docker build -t hubdocker76/bulldozers-train:v2 .
+$ docker build -t hubdocker76/telco-train:v13 .
 ```
 After building push the image using:
 ```
-$ docker push hubdocker76/bulldozers-train:v2
+$ docker push hubdocker76/telco-train:v13
 ```
 ## Step 5: Build the Test image
 
@@ -138,11 +71,11 @@ $ docker build -t <docker_username>/<docker_imagename>:<tag> .
 ```
 For example:
 ```
-$ docker build -t hubdocker76/bulldozers-test:v2 .
+$ docker build -t hubdocker76/bulldozers-test:v6 .
 ```
 After building push the image using:
 ```
-$ docker push hubdocker76/bulldozers-test:v2
+$ docker push hubdocker76/bulldozers-test:v6
 ```
 
 
@@ -190,16 +123,16 @@ After installing packages create the yaml file
 
 Inside venv point your terminal to a path which contains our kfp file to build pipeline (facial-keypoints-detection-kfp.py) and run these commands:
 ```
-$ python3 blue-book-for-bulldozers-kfp.py 
+$ python3 telco-kaggle-competition-kfp.py
 ```
 …this will generate a yaml file:
 ```
-blue-book-for-bulldozers-kfp.yaml
+telco-kaggle-competition-kfp.yaml
 ```
 
 ## Run the Kubeflow Pipeline
 
-This `blue-book-for-bulldozers-kfp.yaml` file can then be uploaded to Kubeflow Pipelines UI from which you can create a Pipeline Run. The same yaml file will also be generated if we run the blue-book-for-bulldozers-kfp.ipynb notebook in the Notebook Server UI.
+This `telco-kaggle-competition-kfp.yaml` file can then be uploaded to Kubeflow Pipelines UI from which you can create a Pipeline Run. The same yaml file will also be generated if we run the blue-book-for-bulldozers-kfp.ipynb notebook in the Notebook Server UI.
 
 
 Upload file :
