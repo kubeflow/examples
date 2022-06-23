@@ -59,9 +59,9 @@ multipass transfer <multipass_image_name>:<path_to_file> <path_to_your_local_com
 ```
 In my case:
 ```
-multipass transfer ubuntu:/home/ubuntu/Ajinkya/examples-1/bluebook-for-bulldozers-kaggle-competition/blue-book-for-bulldozers-kfp.yaml .
+multipass transfer ubuntu:/home/ubuntu/Ajinkya/examples-1/openvaccine-kaggle-competition/openvaccine-kaggle-competition-kfp.yaml .
 ```
-will transfer `blue-book-for-bulldozers-kfp.yaml` to my current working directory.
+will transfer `openvaccine-kaggle-competition-kfp.yaml` to my current working directory.
 
 
 ## Prerequisites for Building the Kubeflow Pipeline
