@@ -43,7 +43,17 @@ sudo apt-get update
 sudo apt-get upgrade
 sudo apt-get install -y git python3-pip
 ```
-Hence we have setup a Ubuntu virtual enviornment on our M1 Mac. Now, we need Docker to be installed into Multipass virtual enviornment. For this, follow the instructions ((https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-20-04)) and installed docker into the exec'ed multipass . After docker is installed we are good to go and start following this tutorial.
+Hence we have setup a Ubuntu virtual enviornment on our M1 Mac. Now, we need Docker to be installed into Multipass virtual enviornment. For this, follow the instructions ((https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-20-04)) and installed docker into the exec'ed multipass . After docker is installed we are good to go and start following this tutorial. Note tutorial has to be followed inside the exec'ed enviornment as shown in step 3.
+
+After we have followed the pipeline tutorial lets stop the multipass enviornment using 
+```multipass stop ubuntu``` and delete enviornment using ```multipass delete ubuntu```
+
+Tips:
+To get a file from multipass virtual enviornment to local computer use:
+```
+multipass transfer <multipass_image_name>:<path_to_file> <path_to_your_local_computer>
+```
+
 
 ## Prerequisites for Building the Kubeflow Pipeline
 
