@@ -7,7 +7,7 @@ This example is based on the Bluebook for bulldozers competition. The objective 
 This pipeline was tested using Kubeflow 1.4 and kfp 1.1.2 and x86-64 based system which includes all Intel and AMD based CPU's. 
 
 ## For ARM based systems (Macbook M1, M2 series laptops)
-We will install a Ubuntu virtual enviornment using multipass(https://multipass.run/docs/installing-on-macos). 
+To follow this tutorial, we will create a Ubuntu virtual enviornment using multipass(https://multipass.run/docs/installing-on-macos). 
 To install multipass go to https://github.com/canonical/multipass/releases page and download the pkg file. Run this file by following the instructions: 
 
 ![image](https://user-images.githubusercontent.com/17012391/175293039-cbfc3d24-2303-4a7a-ac9b-939294226048.png)
