@@ -82,7 +82,7 @@ Kubeflow relies on Docker images to create pipelines. These images are pushed to
 
 ## Step 1: Log into Docker
 
-Start by creating a Docker account on DockerHub (https://hub.docker.com/). After signing up, Install Docker https://docs.docker.com/get-docker/ and enter  `docker login`  command on your terminal and enter your docker-hub username and password to log into Docker.
+Start by creating a Docker account on DockerHub (https://hub.docker.com/). After signing up, Install Docker https://docs.docker.com/get-docker/ and enter  `sudo docker login`  command on your terminal and enter your docker-hub username and password to log into Docker.
 
 ## Step 2: Build the loaddata image
 
