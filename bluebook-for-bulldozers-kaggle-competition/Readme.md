@@ -8,7 +8,10 @@ This pipeline was tested using Kubeflow 1.4 and kfp 1.1.2 and x86-64 based syste
 
 ## For ARM based systems (Macbook M1, M2 series laptops)
 We will install a Ubuntu virtual enviornment using multipass(https://multipass.run/docs/installing-on-macos). 
-To install multipass go to https://github.com/canonical/multipass/releases page and download the pkg file. Run this file by following the instructions: ![image](https://user-images.githubusercontent.com/17012391/175293039-cbfc3d24-2303-4a7a-ac9b-939294226048.png)
+To install multipass go to https://github.com/canonical/multipass/releases page and download the pkg file. Run this file by following the instructions: 
+
+![image](https://user-images.githubusercontent.com/17012391/175293039-cbfc3d24-2303-4a7a-ac9b-939294226048.png)
+
 After multipass is successfully installed lets start a ubuntu VM. This VM should have following specs:
 ```
  cpus 2 
@@ -16,7 +19,29 @@ After multipass is successfully installed lets start a ubuntu VM. This VM should
  disk 10G
 ```
 
- 
+Make sure your Laptop has these much resources available. Lets, start out ubuntu vm using multipass
+
+Step 1) List available VMs
+```
+multipass list
+```
+Step 2) Start Ubuntu VM
+```
+multipass launch --name ubuntu --cpus 2 --mem 1G --disk 10G
+
+```
+Step 3) exec into ubuntu VM
+```
+multipass shell ubuntu
+```
+
+Step 4) install python3 into the exec'ed enviornment
+```
+sudo apt-get update
+sudo apt-get upgrade
+sudo apt-get install -y git python3-pip
+```
+Hence we have setup a Ubuntu virtual enviornment on our M1 Mac. Now, we need Docker to be installed into Multipass virtual enviornment. For this, follow the instructions ((https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-20-04)) and installed docker into the exec'ed multipass . After docker is installed we are good to go and start following this tutorial.
 
 ## Prerequisites for Building the Kubeflow Pipeline
 
