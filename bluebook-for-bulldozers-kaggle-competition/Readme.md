@@ -118,7 +118,7 @@ $ docker push hubdocker76/bulldozers-preprocess:v1
 
 Next, on your docker enviornment go to terminal and navigate to the pipeline-components/train/ directory and build the evaluate Docker image using:
 ```
-$ cd pipeline-components/featureengineering/
+$ cd pipeline-components/train/
 $ docker build -t <docker_username>/<docker_imagename>:<tag> .
 ```
 For example:
@@ -133,7 +133,7 @@ $ docker push hubdocker76/bulldozers-train:v2
 
 Next, on your docker enviornment go to terminal and navigate to the pipeline-components/test/ directory and build the evaluate Docker image using:
 ```
-$ cd pipeline-components/decisiontree/
+$ cd pipeline-components/test/
 $ docker build -t <docker_username>/<docker_imagename>:<tag> .
 ```
 For example:
