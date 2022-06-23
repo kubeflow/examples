@@ -21,6 +21,8 @@ After multipass is successfully installed lets start a ubuntu VM. This VM should
 
 Make sure your Laptop has these much resources available. Lets, start out ubuntu vm using multipass
 
+Use `multipass version` to check your version 
+
 Step 1) List available VMs
 ```
 multipass list
