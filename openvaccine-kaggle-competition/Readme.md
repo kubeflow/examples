@@ -290,8 +290,8 @@ This error occours for two reasons:
 - Your Kaggle account is not verified with your phone number.
 - Rules for this specific competitions are not accepted.
 
-Lets accept Rules of Bulldozers competition 
-![kaggle-secret-error-02](https://user-images.githubusercontent.com/17012391/175291406-7a30e06d-fc05-44c3-b33c-bccd31b381bd.PNG)
+Lets accept Rules of competition 
+![rules](https://user-images.githubusercontent.com/17012391/175306310-10808262-07ce-4952-8fb0-3b7754e9fb46.png)
 
 Click on "I Understand and Accept". After this you will be prompted to verify your account using your phone number:
 ![kaggle-secret-error-03](https://user-images.githubusercontent.com/17012391/175291608-daad1a47-119a-4e47-b48b-4f878d65ddd7.PNG)
