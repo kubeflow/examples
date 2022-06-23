@@ -4,7 +4,10 @@ This example is based on the Bluebook for bulldozers competition. The objective 
 
 ## Environment
 
-This pipeline was tested using Kubeflow 1.4 and kfp 1.1.2 and x86-64 based system which includes all Intel and AMD based CPU's. ARM based systems are not supported.
+This pipeline was tested using Kubeflow 1.4 and kfp 1.1.2 and x86-64 based system which includes all Intel and AMD based CPU's. 
+
+## For ARM based systems (Macbook M1, M2 series laptops)
+We will install a virtual enviornment using ![multipass](https://multipass.run/docs/installing-on-macos) 
 
 ## Prerequisites for Building the Kubeflow Pipeline
 
@@ -213,7 +216,7 @@ And then Start the Run.
 <img width="1322" alt="Screenshot 2022-05-23 at 10 10 49 PM" src="https://user-images.githubusercontent.com/17012391/169867569-19f61116-64b8-4bc6-af93-d06488d5d66b.png">
 
 ## Frequently encountered errors:
-While running the pipeline as mentioned above ypu may come across this error:
+While running the pipeline as mentioned above you may come across this error:
 ![kaggle-secret-error-01](https://user-images.githubusercontent.com/17012391/175290593-aac58d80-0d9f-47bd-bd20-46e6f5207210.PNG)
 
 errorlog:
