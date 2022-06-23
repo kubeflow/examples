@@ -4,7 +4,65 @@ This example is based on the Titanic OpenVaccine competition. The objective of t
 
 ## Environment
 
-This pipeline was tested using Kubeflow 1.4 and kfp 1.1.2 and x86-64 based system which includes all Intel and AMD based CPU's. ARM based systems are not supported.
+This pipeline was tested using Kubeflow 1.4 and kfp 1.1.2 and x86-64 based system which includes all Intel and AMD based CPU's. 
+
+
+## For ARM based systems (Macbook M1, M2 series laptops)
+To follow this tutorial, we will create a Ubuntu virtual enviornment using multipass(https://multipass.run/docs/installing-on-macos). 
+To install multipass go to https://github.com/canonical/multipass/releases page and download the pkg file. Run this file by following the instructions: 
+
+![image](https://user-images.githubusercontent.com/17012391/175293039-cbfc3d24-2303-4a7a-ac9b-939294226048.png)
+
+After multipass is successfully installed lets start a ubuntu VM. This VM should have following specs:
+```
+ cpus 2 
+ mem 1G 
+ disk 10G
+```
+
+Make sure your Laptop has these much resources available. Lets, start out ubuntu vm using multipass
+
+Use `multipass version` to check your version 
+
+Step 1) List available VMs
+```
+multipass list
+```
+Step 2) Start Ubuntu VM
+```
+multipass launch --name ubuntu --cpus 2 --mem 1G --disk 10G
+
+```
+Step 3) exec into ubuntu VM
+```
+multipass shell ubuntu
+```
+
+Step 4) install python3 into the exec'ed enviornment
+```
+sudo apt-get update
+sudo apt-get upgrade
+sudo apt-get install -y git python3-pip
+```
+Hence we have setup a Ubuntu virtual enviornment on our M1 Mac. Now, we need Docker to be installed into Multipass virtual enviornment. For this, follow the instructions ((https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-20-04)) and installed docker into the exec'ed multipass . After docker is installed we are good to go and start following this tutorial. Note tutorial has to be followed inside the exec'ed enviornment as shown in step 3.
+
+After we have followed the pipeline tutorial lets stop the multipass enviornment using 
+
+```multipass stop ubuntu``` 
+and delete enviornment using 
+```multipass delete ubuntu```
+
+Tips:
+To get a file from multipass virtual enviornment to local computer refer (https://multipass.run/docs/transfer-command) and use:
+```
+multipass transfer <multipass_image_name>:<path_to_file> <path_to_your_local_computer>
+```
+In my case:
+```
+multipass transfer ubuntu:/home/ubuntu/Ajinkya/examples-1/bluebook-for-bulldozers-kaggle-competition/blue-book-for-bulldozers-kfp.yaml .
+```
+will transfer `blue-book-for-bulldozers-kfp.yaml` to my current working directory.
+
 
 ## Prerequisites for Building the Kubeflow Pipeline
 
@@ -215,6 +273,31 @@ And then Start the Run.
 <img width="1322" alt="Screenshot 2022-05-23 at 10 10 49 PM" src="https://user-images.githubusercontent.com/17012391/169867569-19f61116-64b8-4bc6-af93-d06488d5d66b.png">
 
 
-## Output
-A successful run would give us a result:
+## Frequently encountered errors:
+While running the pipeline as mentioned above you may come across this error:
+![kaggle-secret-error-01](https://user-images.githubusercontent.com/17012391/175290593-aac58d80-0d9f-47bd-bd20-46e6f5207210.PNG)
+
+errorlog:
+
+```
+kaggle.rest.ApiException: (403)
+Reason: Forbidden
+HTTP response headers: HTTPHeaderDict({'Content-Type': 'application/json', 'Date': 'Thu, 23 Jun 2022 11:31:18 GMT', 'Access-Control-Allow-Credentials': 'true', 'Set-Cookie': 'ka_sessionid=6817a347c75399a531148e19cad0aaeb; max-age=2626560; path=/, GCLB=CIGths3--ebbUg; path=/; HttpOnly', 'Transfer-Encoding': 'chunked', 'Vary': 
+HTTP response body: b'{"code":403,"message":"You must accept this competition\\u0027s rules before you\\u0027ll be able to download files."}'
+
+```
+This error occours for two reasons:
+- Your Kaggle account is not verified with your phone number.
+- Rules for this specific competitions are not accepted.
+
+Lets accept Rules of Bulldozers competition 
+![kaggle-secret-error-02](https://user-images.githubusercontent.com/17012391/175291406-7a30e06d-fc05-44c3-b33c-bccd31b381bd.PNG)
+
+Click on "I Understand and Accept". After this you will be prompted to verify your account using your phone number:
+![kaggle-secret-error-03](https://user-images.githubusercontent.com/17012391/175291608-daad1a47-119a-4e47-b48b-4f878d65ddd7.PNG)
+
+Add your phone number and Kaggle will send the code to your number, enter this code and verify your account. ( Note: pipeline wont run if your Kaggle account is not verified )
+
+## Success
+After the kaggle account is verified pipeline run is successful we will get the following:
 <img width="1244" alt="Screenshot 2022-06-06 at 3 00 51 PM" src="https://user-images.githubusercontent.com/17012391/172135040-50d6e9f3-d156-4e95-9b9f-492e99108d82.png">
