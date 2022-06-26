@@ -37,8 +37,8 @@ def Test(comp3):
 
 
 @dsl.pipeline(
-    name = 'blue book for bulldozers',
-    description = 'pipeline to run blue book for bulldozers')
+    name = 'telco churn',
+    description = 'pipeline to run telco churn')
 
 def  passing_parameter():
     comp2 = PreProcess()

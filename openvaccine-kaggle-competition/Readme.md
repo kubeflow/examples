@@ -249,7 +249,7 @@ After installing packages create the yaml file
 
 Inside venv point your terminal to a path which contains our kfp file to build pipeline (openvaccine-kfp.py) and run these commands:
 ```
-$ python3 openvaccine-kfp.py
+$ python3 openvaccine-kaggle-competition-kfp.py
 ```
 …this will generate a yaml file:
 ```
