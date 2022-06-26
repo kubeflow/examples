@@ -1,30 +1,15 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: openvaccine-
-  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.1.2, pipelines.kubeflow.org/pipeline_compilation_time: '2022-06-09T23:47:44.091383',
-    pipelines.kubeflow.org/pipeline_spec: '{"description": "pipeline to run openvaccine",
-      "name": "openvaccine"}'}
+  generateName: blue-book-for-bulldozers-
+  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.1.2, pipelines.kubeflow.org/pipeline_compilation_time: '2022-06-26T06:52:09.688014',
+    pipelines.kubeflow.org/pipeline_spec: '{"description": "pipeline to run blue book
+      for bulldozers", "name": "blue book for bulldozers"}'}
   labels: {pipelines.kubeflow.org/kfp_sdk_version: 1.1.2}
 spec:
-  entrypoint: openvaccine
+  entrypoint: blue-book-for-bulldozers
   templates:
-  - name: load-data
-    container:
-      command: [python3, load.py]
-      image: hubdocker76/bulldozers:v6
-      volumeMounts:
-      - {mountPath: /data, name: pvc}
-    inputs:
-      parameters:
-      - {name: pvc-name}
-    metadata:
-      labels:
-        kaggle-secret: "true"
-    volumes:
-    - name: pvc
-      persistentVolumeClaim: {claimName: '{{inputs.parameters.pvc-name}}'}
-  - name: openvaccine
+  - name: blue-book-for-bulldozers
     dag:
       tasks:
       - name: load-data
@@ -52,6 +37,21 @@ spec:
         arguments:
           parameters:
           - {name: pvc-name, value: '{{tasks.pvc.outputs.parameters.pvc-name}}'}
+  - name: load-data
+    container:
+      command: [python3, load.py]
+      image: hubdocker76/bulldozers:v6
+      volumeMounts:
+      - {mountPath: /data, name: pvc}
+    inputs:
+      parameters:
+      - {name: pvc-name}
+    metadata:
+      labels:
+        kaggle-secret: "true"
+    volumes:
+    - name: pvc
+      persistentVolumeClaim: {claimName: '{{inputs.parameters.pvc-name}}'}
   - name: preprocess
     container:
       command: [python3, preprocess.py]
