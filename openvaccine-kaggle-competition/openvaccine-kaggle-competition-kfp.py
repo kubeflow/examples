@@ -9,7 +9,7 @@ def SendMsg():
     return dsl.ContainerOp(
         name = 'load-data', 
         image = 'hubdocker76/openvaccine:v10', 
-        command = ['python3', 'train.py'],
+        command = ['python3', 'load.py'],
 
         pvolumes={
             '/data': vop.volume
