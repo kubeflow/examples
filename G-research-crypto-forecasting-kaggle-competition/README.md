@@ -57,7 +57,7 @@ Environment:
     ```
     !kubectl create secret generic -n kubeflow-user kaggle-secret --from-literal=username=<"username"> --from-literal=password=<"api-key">
     ```
-    * Create a secret PodDefault YAML file in your Kubeflow namespace.
+    * Create a secret PodDefault YAML file named `kaggle_pod.yaml` in your Kubeflow namespace.
     ```
    apiVersion: "kubeflow.org/v1alpha1"
    kind: PodDefault
