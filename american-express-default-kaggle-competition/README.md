@@ -129,13 +129,13 @@ Finally, the  [`create_run_from_pipeline_func`](https://kubeflow-pipelines.readt
 ### View Pipeline
 
 <p align=center>
-<img src="https://github.com/josepholaide/examples/blob/G-research-crypto-forecasting/G-research-crypto-forecasting-kaggle-competition/images/g-research-crypto-forecast-kfp-pipeline.PNG?raw=true" alt="kubeflow pipeline"/>
+<img src="https://github.com/josepholaide/examples/blob/amex/american-express-default-kaggle-competition/images/kfp-pipeline.PNG?raw=true" alt="kubeflow pipeline"/>
  </p>
  
  ### View Pipeline Metric
 
 <p align=center>
-<img src="https://github.com/josepholaide/examples/blob/G-research-crypto-forecasting/G-research-crypto-forecasting-kaggle-competition/images/kfp-pipeline-metrics.PNG?raw=true" alt="kubeflow pipeline metrics"/>
+<img src="https://github.com/josepholaide/examples/blob/amex/american-express-default-kaggle-competition/images/kfp-pipeline-metrics.PNG?raw=true" alt="kubeflow pipeline metrics"/>
  </p>
 
 
@@ -213,11 +213,11 @@ View Pipeline by clicking "View" in Kale's left panel
  </p>
  
 <p align=center>
-<img src="https://github.com/josepholaide/examples/blob/G-research-crypto-forecasting/G-research-crypto-forecasting-kaggle-competition/images/g-research-crypto-forecast-kale-pipeline.PNG?raw=true" alt="kale-pipeline"/>
+<img src="https://github.com/josepholaide/examples/blob/amex/american-express-default-kaggle-competition/images/kale-pipeline.PNGraw=true" alt="kale-pipeline"/>
  </p>
 
  ### View Pipeline Metric
 
 <p align=center>
-<img src="https://github.com/josepholaide/examples/blob/G-research-crypto-forecasting/G-research-crypto-forecasting-kaggle-competition/images/kale-pipeline-metrics.PNG?raw=true" alt="kale-metrics"/>
+<img src="https://github.com/josepholaide/examples/blob/amex/american-express-default-kaggle-competition/images/kale-pipeline-metrics.PNG?raw=true" alt="kale-metrics"/>
  </p>
