@@ -42,7 +42,7 @@ Environment:
    * Click on ‘Account’.
    
    <p align=center>
-   <img src="https://github.com/josepholaide/examples/blob/G-research-crypto-forecasting/G-research-crypto-forecasting-kaggle-competition/images/kaggle-account.PNG?raw=true" alt="kaggle-click-account"/>
+   <img src="https://github.com/josepholaide/examples/blob/amex/american-express-default-kaggle-competition/images/kaggle-account.PNG?raw=true" alt="kaggle-click-account"/>
    </p>
    
    * Under ‘Account’, navigate to the ‘API’ section.
@@ -201,7 +201,7 @@ To create a KFP pipeline using the Kale JupyterLab extension
 7. Compile and run the Notebook by hitting the "Compile & Run" in Kale's left panel
 
 <p align=center>
-<img src="https://github.com/josepholaide/examples/blob/G-research-crypto-forecasting/G-research-crypto-forecasting-kaggle-competition/images/kale-deployment-panel.PNG?raw=true" alt="kale-deployment-panel"/>
+<img src="https://github.com/josepholaide/examples/blob/amex/american-express-default-kaggle-competition/images/kale-deployment-panel.PNG?raw=true" alt="kale-deployment-panel"/>
  </p>
 
 ### View Pipeline
@@ -209,7 +209,7 @@ To create a KFP pipeline using the Kale JupyterLab extension
 View Pipeline by clicking "View" in Kale's left panel
 
 <p align=center>
-<img src="https://github.com/josepholaide/examples/blob/G-research-crypto-forecasting/G-research-crypto-forecasting-kaggle-competition/images/view-pipeline.PNG?raw=true" alt="view-pipeline"/>
+<img src="https://github.com/josepholaide/examples/blob/amex/american-express-default-kaggle-competition/images/view-pipeline.PNG?raw=true" alt="view-pipeline"/>
  </p>
  
 <p align=center>
