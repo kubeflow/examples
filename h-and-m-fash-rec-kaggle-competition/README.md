@@ -130,7 +130,7 @@ Run the first code cell to install all the required packages (not available unde
 
 ### Step 2: Download the data from Kaggle
 
-Run the second code cell to download the relevant data from Kaggle using Kaggle Public API. You will require the API credentials from the kaggle.json file you got earlier in the Initial Steps. For the Kale notebook version, you dom't to have create the secret, just need the API credentials to download the data. Once the code cell is run, you should see a new data directory being created with the zip files downloaded and unzipped. 
+Run the second code cell to download the relevant data from Kaggle using Kaggle Public API. You will require the API credentials from the kaggle.json file you got earlier in the Initial Steps. For the Kale notebook version, you don't have to have create the secret, just need the API credentials to download the data. Once the code cell is run, you should see a new "data" directory being created with the zip files downloaded and unzipped. 
 
 ### Step 3: Annotate the notebook with Kale tags
 
@@ -172,7 +172,7 @@ In the “Running pipeline” output, click on the “View” hyperlink. This wi
 </p>
 
 ## Note:
-Both the notebooks have been tested out. In case of any error, please test out with the following docker image. 
+Both the notebooks have been tested out and the whole pipeline run for both the KFP and the Kale versions take around 2hrs. Most of the time is being consumed in the predictions pipeline stage. In case of any error, please test out with the following docker image. 
 
 Notebook server docker image used: gcr.io/arrikto/jupyter-kale-py36@sha256:dd3f92ca66b46d247e4b9b6a9d84ffbb368646263c2e3909473c3b851f3fe198
 
