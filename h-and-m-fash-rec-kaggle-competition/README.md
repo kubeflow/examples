@@ -124,7 +124,15 @@ The final pipeline graph would look as follow:
 
 For the Kaggle notebook example, we are using [Kubeflow as a Service](https://www.arrikto.com/kubeflow-as-a-service/). If you are using Kubeflow as a Service then Kale comes preinstalled. For users with different Kubeflow setup, you can refer to the [GitHub link](https://github.com/kubeflow-kale/kale#getting-started) for installing the Kale JupyterLab extension on your setup.
 
-### Step 1: Annotate the notebook with Kale tags
+### Step 1: Install all the required packages
+
+Run the first code cell to install all the required packages (not available under the standard python library) by using the requirements.txt file. Restart the kernel after installation.
+
+### Step 2: Download the data from Kaggle
+
+Run the second code cell to download the relevant data from Kaggle using Kaggle Public API. You will require the API credentials from the kaggle.json file you got earlier in the Initial Steps. For the Kale notebook version, you dom't to have create the secret, just need the API credentials to download the data. Once the code cell is run, you should see a new data directory being created with the zip files downloaded and unzipped. 
+
+### Step 3: Annotate the notebook with Kale tags
 
 The Kale notebook in the directory is already annotated. To see the annotations, open up the Kale Deployment panel and click on the Enable switch button. Once you have it switched on, you should see the following:
 
