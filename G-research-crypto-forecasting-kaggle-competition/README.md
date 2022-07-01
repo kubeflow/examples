@@ -112,7 +112,7 @@ Finally, the  [`create_run_from_pipeline_func`](https://kubeflow-pipelines.readt
   
      * Create a new Notebook Server 
 
-     * Set the CPU specification to 8Gi and RAM to 16 Gi
+     * Set the CPU specification to 8 and RAM to 16 GB
    <p align=center>
    <img src="https://github.com/josepholaide/examples/blob/G-research-crypto-forecasting/G-research-crypto-forecasting-kaggle-competition/images/cpu-ram-spec.PNG?raw=true" alt="cpu/ram spec"/>
    </p>
@@ -149,7 +149,7 @@ To create a KFP pipeline using the Kale JupyterLab extension
   
      * Create a new Notebook Server 
 
-     * Set the CPU specification to 8Gi and RAM to 16 Gi
+     * Set the CPU specification to 8 and RAM to 16 GB
    <p align=center>
    <img src="https://github.com/josepholaide/examples/blob/G-research-crypto-forecasting/G-research-crypto-forecasting-kaggle-competition/images/cpu-ram-spec.PNG?raw=true" alt="cpu/ram spec"/>
    </p>
