@@ -130,7 +130,7 @@ Run the first code cell to install all the required packages (not available unde
 
 ### Step 2: Download the data from Kaggle
 
-Run the second code cell to download the relevant data from Kaggle using Kaggle Public API. You will require the API credentials from the kaggle.json file you got earlier in the Initial Steps. For the Kale notebook version, you don't have to have create the secret, just need the API credentials to download the data. Once the code cell is run, you should see a new "data" directory being created with the zip files downloaded and unzipped. 
+Run the second code cell to download the relevant data from Kaggle using Kaggle Public API. You will require the API credentials from the kaggle.json file you got earlier in the Initial Steps. For the Kale notebook version, you don't have to have create the secret, just need the API credentials to download the data. Once the code cell is run, you should see a new "data" directory being created with the zip files downloaded and unzipped. Please ensure that you run the cell only once so you don't create nested directories. Restart the kernel before running the code cell again. 
 
 ### Step 3: Annotate the notebook with Kale tags
 
