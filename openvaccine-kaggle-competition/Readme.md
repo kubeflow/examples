@@ -58,7 +58,7 @@ git clone https://github.com/kubeflow/examples
 
 - Apply created resource using: kubectl apply -f resource.yaml
 
-## Step 9: Explore the load-data directory
+## Step 9: Explore the `load-data` directory
 
 - (Locally) Navigate to the `openvaccine-kaggle-competition/pipeline-components/load-data` directory
 - Open up the `load.py` file
@@ -79,7 +79,7 @@ docker build --platform=linux/amd64 -t <docker_username>/<docker_imagename>:<tag
 docker build -t <docker_username>/<docker_imagename>:<tag> .
 ```
 
-## Step 11: Push the load-data Docker Image to DockerHub
+## Step 11: Push the `load-data` Docker Image to DockerHub
 
 - (Locally) Navigate to the `openvaccine-kaggle-competition/pipeline-components/load-data` directory
 - Push the Docker image if locally you are using arm64 (Apple M1)
@@ -111,6 +111,161 @@ docker build --platform=linux/amd64 -t <docker_username>/<docker_imagename>:<tag
 docker build -t <docker_username>/<docker_imagename>:<tag> .
 ```
 
+## Step 14: Push the `preprocess-data` Docker Image to DockerHub
+
+- (Locally) Navigate to the `openvaccine-kaggle-competition/pipeline-components/preprocess-data` directory
+- Push the Docker image if locally you are using arm64 (Apple M1)
+```
+docker push <docker_username>/<docker_imagename>:<tag>-amd64 
+```
+- OR build the Docker image if locally you are using amd64
+```
+docker push <docker_username>/<docker_imagename>:<tag>
+```
+
+## Step 15: Explore the `model-training` directory
+
+- (Locally) Navigate to the `openvaccine-kaggle-competition/pipeline-components/model-training` directory
+- Open up the `model.py` file
+- Note the code in this file that will perform the actions required in the “train” pipeline step
+
+![image4](https://user-images.githubusercontent.com/17012391/177001740-a63f190c-284e-4328-ba01-17dbdbe61cee.png)
+
+## Step 16: Build the `model-training` Docker Image
+
+- (Locally) Navigate to the `openvaccine-kaggle-competition/pipeline-components/model-training` directory
+- Build the Docker image if locally you are using arm64 (Apple M1)
+```
+docker build --platform=linux/amd64 -t <docker_username>/<docker_imagename>:<tag>-amd64 . 
+```
+- OR build the Docker image if locally you are using amd64
+```
+docker build -t <docker_username>/<docker_imagename>:<tag> .
+```
+
+## Step 17: Push the `model-training` Docker Image to DockerHub
+
+- (Locally) Navigate to the `openvaccine-kaggle-competition/pipeline-components/model-training` directory
+- Push the Docker image if locally you are using arm64 (Apple M1)
+```
+docker push <docker_username>/<docker_imagename>:<tag>-amd64 
+```
+- OR build the Docker image if locally you are using amd64
+```
+docker push <docker_username>/<docker_imagename>:<tag>
+```
+
+## Step 18: Explore the `model-evaluation` directory
+
+- (Locally) Navigate to the `openvaccine-kaggle-competition/pipeline-components/model-evaluation` directory
+- Open up the `eval.py` file
+- Note the code in this file that will perform the actions required in the “test” pipeline step
+
+![image1](https://user-images.githubusercontent.com/17012391/177001951-1f7b13b9-adea-48c1-89a7-d8dc67214133.png)
+
+
+## Step 19: Build the `model-evaluation` Docker Image
+
+- (Locally) Navigate to the `openvaccine-kaggle-competition/pipeline-components/model-evaluation` directory
+- Build the Docker image if locally you are using arm64 (Apple M1)
+```
+docker build --platform=linux/amd64 -t <docker_username>/<docker_imagename>:<tag>-amd64 . 
+```
+- OR build the Docker image if locally you are using amd64
+```
+docker build -t <docker_username>/<docker_imagename>:<tag> .
+```
+
+## Step 20: Push the `model-evaluation` Docker Image to DockerHub
+
+- (Locally) Navigate to the `openvaccine-kaggle-competition/pipeline-components/model-evaluation` directory
+- Push the Docker image if locally you are using arm64 (Apple M1)
+```
+docker push <docker_username>/<docker_imagename>:<tag>-amd64 
+```
+- OR build the Docker image if locally you are using amd64
+```
+docker push <docker_username>/<docker_imagename>:<tag>
+```
+## Step 21: Modify the openvaccine-kaggle-competiton-kfp.py file
+
+- (Kubeflow as a Service) Navigate to the `openvaccine-kaggle-competition` directory
+- Update the `openvaccine-kaggle-competiton-kfp.py` with accurate Docker Image inputs
+
+```
+   return dsl.ContainerOp(
+        name = 'load-data', 
+        image = '<dockerhub username>/<image name>:<tag>',
+
+—-----
+
+def GetMsg(comp1):
+    return dsl.ContainerOp(
+        name = 'preprocess',
+        image = '<dockerhub username>/<image name>:<tag>',
+
+—-----
+
+def Train(comp2, trial, epoch, batchsize, embeddim, hiddendim, dropout, spdropout, trainsequencelength):
+    return dsl.ContainerOp(
+        name = 'train',
+        image = '<dockerhub username>/<image name>:<tag>',
+
+—-----
+
+def Eval(comp1, trial, epoch, batchsize, embeddim, hiddendim, dropout, spdropout, trainsequencelength):
+    return dsl.ContainerOp(
+        name = 'Evaluate',
+  image = '<dockerhub username>/<image name>:<tag>',
+```
+
+## Step 22: Generate a KFP Pipeline yaml File
+
+- (Kubeflow as a Service) Navigate to the `openvaccine-kaggle-competition` directory
+- Run the following command to generate a `yaml` file for the Pipeline:
+```
+python3 openvaccine-kaggle-competition-kfp.py
+```
+<img width="492" alt="image3" src="https://user-images.githubusercontent.com/17012391/177002110-5c0bdfc3-f9cc-453d-84b4-0107f506d54d.png">
+
+Download the `openvaccine-kaggle-competition-kfp.yaml` file that was created to your local `openvaccine-kaggle-competition` directory
+
+## Step 23: Create an Experiment
+
+- (Kubeflow as a Service) Within the Kubeflow Central Dashboard, navigate to the Experiments (KFP) > Create Experiment view
+- Name the experiment and click Next
+- Click on Experiments (KFP) to view the experiment you just created
+
+## Step 24: Create a Pipeline
+
+- (Kubeflow as a Service) Within the Kubeflow Central Dashboard, navigate to the Pipelines > +Upload Pipeline view
+- Name the pipeline
+- Click on Upload a file
+- Upload the local `openvaccine-kaggle-competition-kfp.yaml` file
+- Click Create
+
+## Step 25: Create a Run
+
+- (Kubeflow as a Service) Click on Create Run in the view from the previous step
+- Choose the experiment we created in Step 23
+- Input your desired run parameters. For example:
+```
+TRIAL = 1
+EPOCHS = 2
+BATCH_SIZE = 64
+EMBED_DIM = 100
+HIDDEN_DIM = 128
+DROPOUT = .2
+SP_DROPOUT = .3
+TRAIN_SEQUENCE_LENGTH = 107
+```
+- Click Start
+- Click on the run name to view the runtime execution graph
+
+
+
+
+![image6](https://user-images.githubusercontent.com/17012391/177002214-8258e3fa-e669-43cc-979d-70c1059f6aae.png)
 
 
 
