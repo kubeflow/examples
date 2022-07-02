@@ -221,8 +221,48 @@ def Eval(comp1, trial, epoch, batchsize, embeddim, hiddendim, dropout, spdropout
 
 ## Step 22: Generate a KFP Pipeline yaml File
 
-- (Kubeflow as a Service) Navigate to the `openvaccine-kaggle-competition` directory
-- Run the following command to generate a `yaml` file for the Pipeline:
+As a needed step we create a virtual enviornment, that contains all components we need to convert our python code to yaml file.
+
+Steps to build a python virtual enviornment:
+
+Step a) Update pip
+```
+python3 -m pip install --upgrade pip
+```
+
+Step b) Install virtualenv
+```
+sudo pip3 install virtualenv
+```
+
+Step c) Check the installed version of venv
+```
+virtualenv --version
+```
+
+Step d) Name your virtual enviornment as kfp
+```
+virtualenv kfp
+```
+
+Step e) Activate your venv.
+```
+source kfp/bin/activate
+```
+
+After this virtual environment will get activated. Now in our activated venv we need to install following packages:
+```
+sudo apt-get update
+sudo apt-get upgrade
+sudo apt-get install -y git python3-pip
+
+python3 -m pip install  kfp==1.1.2
+```
+
+After installing packages create the yaml file
+
+Inside venv point your terminal to a path which contains our kfp file to build pipeline (openvaccine-kaggle-competition-kfp.py) and run these commands to generate a `yaml` file for the Pipeline:
+
 ```
 python3 openvaccine-kaggle-competition-kfp.py
 ```
@@ -237,6 +277,7 @@ Download the `openvaccine-kaggle-competition-kfp.yaml` file that was created to 
 - Click on Experiments (KFP) to view the experiment you just created
 
 ## Step 24: Create a Pipeline
+
 
 - (Kubeflow as a Service) Within the Kubeflow Central Dashboard, navigate to the Pipelines > +Upload Pipeline view
 - Name the pipeline
