@@ -221,9 +221,17 @@ def Eval(comp1, trial, epoch, batchsize, embeddim, hiddendim, dropout, spdropout
 
 ## Step 22: Generate a KFP Pipeline yaml File
 
-As a needed step we create a virtual enviornment, that contains all components we need to convert our python code to yaml file. We create this virtual-enviornment in our jupyter-notebook terminal. 
+As a needed step we create a virtual enviornment, that contains all components we need to convert our python code to yaml file.
 
-Steps to build a python virtual enviornment in jupyter notebook-terminal:
+If you are using a MAC use these steps to create needed env:
+```
+curl -O https://bootstrap.pypa.io/get-pip.py
+sudo python3 get-pip.py
+python3 -m pip install kfp==1.1.2
+```
+
+
+Steps to build a python virtual enviornment in Ubuntu:
 
 Step a) Update pip
 ```
