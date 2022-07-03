@@ -189,7 +189,7 @@ docker push <docker_username>/<docker_imagename>:<tag>
 ## Step 21: Modify the blue-book-for-bulldozers-kfp.py file
 
 (Kubeflow as a Service) Navigate to the `bluebook-for-bulldozers-kaggle-competition` directory
-Update the `blue-book-for-bulldozers-kfp.py` with accurate Docker Image inputs
+Update the `bluebook-for-bulldozers-kaggle-competition-kfp.py` with accurate Docker Image inputs
 
 ```
       return dsl.ContainerOp(
@@ -219,17 +219,42 @@ def Test(comp3):
   
   ```
 
+## Step 22: Generate a KFP Pipeline yaml File
 
+- (Locally) Navigate to the `bluebook-for-bulldozers-kaggle-competition` directory and delete the existing `blue-book-for-bulldozers-kaggle-competition-kfp.yaml` file
+- (Kubeflow as a Service) Navigate to the `bluebook-for-bulldozers-kaggle-competition` directory
+- Run the following command to generate a `yaml` file for the Pipeline:
+```
+blue-book-for-bulldozers-kaggle-competition-kfp.py
+```
 
+<img width="496" alt="Screenshot 2022-07-04 at 12 01 51 AM" src="https://user-images.githubusercontent.com/17012391/177052742-4dae4647-b51b-4f36-94b0-3114130c756b.png">
 
+- Download the `bluebook-for-bulldozers-kaggle-competition.yaml` file that was created to your local `bluebook-for-bulldozers-kaggle-competition` directory
+- Make sure the file is recognized as a `yaml` file. Depending on your local system, you might need to remove “py” from the extension
 
+## Step 23: Create an Experiment
 
+- (Kubeflow as a Service) Within the Kubeflow Central Dashboard, navigate to the Experiments (KFP) > Create Experiment view
+- Name the experiment and click Next
+- Click on Experiments (KFP) to view the experiment you just created
 
+## Step 24: Create a Pipeline
 
+- (Kubeflow as a Service) Within the Kubeflow Central Dashboard, navigate to the Pipelines > +Upload Pipeline view
+- Name the pipeline
+- Click on Upload a file
+- Upload the local bluebook-for-bulldozers-kaggle-competition.py.yaml file
+- Click Create
 
+Step 25: Create a Run
 
+- (Kubeflow as a Service) Click on Create Run in the view from the previous step
+- Choose the experiment we created in Step 23
+- Click Start
+- Click on the run name to view the runtime execution graph
 
-
+<img width="285" alt="Screenshot 2022-07-04 at 12 04 43 AM" src="https://user-images.githubusercontent.com/17012391/177052835-d2cde097-7354-4cac-8876-7d89244864d3.png">
 
 
 ## Frequently encountered errors:
