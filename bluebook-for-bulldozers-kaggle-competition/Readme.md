@@ -49,6 +49,62 @@ kubectl create secret generic kaggle-secret --from-literal=KAGGLE_USERNAME=<user
 git clone https://github.com/kubeflow/examples
 ```
 
+## Step 8: Create a PodDefault Resource
+
+- (Kubeflow as a Service) Navigate to the `bluebook-for-bulldozers-kaggle-competition directory`
+- Create a resource.yaml file
+
+
+<img width="660" alt="image3" src="https://user-images.githubusercontent.com/17012391/177049116-b4186ec3-becb-40ea-973a-27bc52f90619.png">
+
+- Apply resource.yaml using `kubectl apply -f resource.yaml`
+
+## Step 9: Explore the load-data directory
+
+- (Locally) Navigate to the `bluebook-for-bulldozers-kaggle-competition/pipeline-components/load-data` directory
+- Open up the `load.py` file
+- Note the code in this file that will perform the actions required in the “load-data” pipeline step
+
+<img width="209" alt="image7" src="https://user-images.githubusercontent.com/17012391/177049222-dab4c362-f06d-42ca-a07c-e61a0b301670.png">
+
+## Step 10: Build the load Docker Image
+
+- (Locally) Navigate to the bluebook-for-bulldozers-kaggle-competition/pipeline-components/load-data directory
+- Build the Docker image if locally you are using arm64 (Apple M1)
+```
+docker build --platform=linux/amd64 -t <docker_username>/<docker_imagename>:<tag>-amd64 . 
+```
+- OR build the Docker image if locally you are using amd64
+```
+docker build -t <docker_username>/<docker_imagename>:<tag> .
+```
+
+## Step 11: Push the load Docker Image to DockerHub
+
+- (Locally) Navigate to the `bluebook-for-bulldozers-kaggle-competition/pipeline-components/load-data` directory
+- Push the Docker image if locally you are using arm64 (Apple M1)
+```
+docker push <docker_username>/<docker_imagename>:<tag>-amd64 
+```
+- OR build the Docker image if locally you are using amd64
+```
+docker push <docker_username>/<docker_imagename>:<tag>
+```
+
+## Step 12: Explore the preprocess directory
+
+- (Locally) Navigate to the `bluebook-for-bulldozers-kaggle-competition/pipeline-components/preprocess` directory
+- Open up the `preprocess.py` file
+- Note the code in this file that will perform the actions required in the “preprocess” pipeline step
+
+
+
+
+
+<img width="209" alt="image5" src="https://user-images.githubusercontent.com/17012391/177049651-623fb24a-69c0-4a28-bbe1-3a360719b9ce.png">
+
+
+
 
 
 
