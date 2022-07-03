@@ -97,18 +97,127 @@ docker push <docker_username>/<docker_imagename>:<tag>
 - Open up the `preprocess.py` file
 - Note the code in this file that will perform the actions required in the “preprocess” pipeline step
 
-
-
-
-
 <img width="209" alt="image5" src="https://user-images.githubusercontent.com/17012391/177049651-623fb24a-69c0-4a28-bbe1-3a360719b9ce.png">
 
+## Step 13: Build the preprocess Docker Image
+
+- (Locally) Navigate to the `bluebook-for-bulldozers-kaggle-competition/pipeline-components/preprocess` directory
+- Build the Docker image if locally you are using arm64 (Apple M1)
+```
+docker build --platform=linux/amd64 -t <docker_username>/<docker_imagename>:<tag>-amd64 . 
+```
+- OR build the Docker image if locally you are using amd64
+```
+docker build -t <docker_username>/<docker_imagename>:<tag> .
+```
+## Step 14: Push the preprocess Docker Image to DockerHub
+
+- (Locally) Navigate to the `bluebook-for-bulldozers-kaggle-competition/pipeline-components/preprocess` directory
+- Push the Docker image if locally you are using arm64 (Apple M1)
+```
+docker push <docker_username>/<docker_imagename>:<tag>-amd64 
+```
+- OR build the Docker image if locally you are using amd64
+```
+docker push <docker_username>/<docker_imagename>:<tag>
+```
+
+## Step 15: Explore the train directory
+
+- (Locally) Navigate to the `bluebook-for-bulldozers-kaggle-competition/pipeline-components/train` directory
+- Open up the train.py file
+- Note the code in this file that will perform the actions required in the “train” pipeline step
 
 
+![image2](https://user-images.githubusercontent.com/17012391/177051233-a32e87db-7771-4b5f-9afe-141063733262.png)
 
+## Step 16: Build the train Docker Image
 
+- (Locally) Navigate to the `bluebook-for-bulldozers-kaggle-competition/pipeline-components/train` directory
+- Build the Docker image if locally you are using arm64 (Apple M1)
+```
+docker build --platform=linux/amd64 -t <docker_username>/<docker_imagename>:<tag>-amd64 . 
+```
+- OR build the Docker image if locally you are using amd64
+```
+docker build -t <docker_username>/<docker_imagename>:<tag> .
+```
 
+## Step 17: Push the train Docker Image to DockerHub
 
+- (Locally) Navigate to the bluebook-for-bulldozers-kaggle-competition/pipeline-components/train directory
+- Push the Docker image if locally you are using arm64 (Apple M1)
+```
+docker push <docker_username>/<docker_imagename>:<tag>-amd64 
+```
+- OR build the Docker image if locally you are using amd64
+```
+docker push <docker_username>/<docker_imagename>:<tag>
+```
+
+## Step 18: Explore the test directory
+
+- (Locally) Navigate to the `bluebook-for-bulldozers-kaggle-competition/pipeline-components/test` directory
+- Open up the `test.py` file
+- Note the code in this file that will perform the actions required in the “test” pipeline step
+
+<img width="237" alt="image6" src="https://user-images.githubusercontent.com/17012391/177051308-31b27ad7-71f3-47af-a068-de381fe64b5b.png">
+
+## Step 19: Build the test Docker Image
+
+- (Locally) Navigate to the `bluebook-for-bulldozers-kaggle-competition/pipeline-components/test` directory
+- Build the Docker image if locally you are using arm64 (Apple M1)
+```
+docker build --platform=linux/amd64 -t <docker_username>/<docker_imagename>:<tag>-amd64 . 
+```
+- OR build the Docker image if locally you are using amd64
+```
+docker build -t <docker_username>/<docker_imagename>:<tag> .
+```
+## Step 20: Push the test Docker Image to DockerHub
+
+- (Locally) Navigate to the `bluebook-for-bulldozers-kaggle-competition/pipeline-components/test` directory
+- Push the Docker image if locally you are using arm64 (Apple M1)
+```
+docker push <docker_username>/<docker_imagename>:<tag>-amd64 
+```
+- OR build the Docker image if locally you are using amd64
+```
+docker push <docker_username>/<docker_imagename>:<tag>
+```
+
+## Step 21: Modify the blue-book-for-bulldozers-kfp.py file
+
+(Kubeflow as a Service) Navigate to the `bluebook-for-bulldozers-kaggle-competition` directory
+Update the `blue-book-for-bulldozers-kfp.py` with accurate Docker Image inputs
+
+```
+      return dsl.ContainerOp(
+        name = 'load-data', 
+        image = '<dockerhub username>/<image name>:<tag>',
+
+—-----
+
+def PreProcess(comp1):
+    return dsl.ContainerOp(
+        name = 'preprocess',
+        image = '<dockerhub username>/<image name>:<tag>',
+
+—-----
+
+def Train(comp2):
+    return dsl.ContainerOp(
+        name = 'train',
+        image = '<dockerhub username>/<image name>:<tag>',
+
+—-----
+
+def Test(comp3):
+    return dsl.ContainerOp(
+        name = 'test',
+  image = '<dockerhub username>/<image name>:<tag>',
+  
+  ```
 
 
 
