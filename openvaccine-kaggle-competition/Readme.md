@@ -4,7 +4,7 @@ This example is based on the Titanic OpenVaccine competition. The objective of t
 
 ## Environment
 
-This pipeline was tested using Kubeflow 1.4 and kfp 1.1.2 and x86-64 based system which includes all Intel and AMD based CPU's. 
+This pipeline was tested using Kubeflow 1.4 and kfp 1.1.2 and x86-64 and ARM based system which includes all Intel and AMD based CPU's and M1/M2 series Macbooks. 
 
 ## Step 1: Setup Kubeflow as a Service
 
