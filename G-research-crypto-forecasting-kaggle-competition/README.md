@@ -35,6 +35,8 @@ Environment:
 ## Section 2: Prepare environment for data download
 
 1. Open your Kubeflow Cluster, create a Notebook Server and connect to it.
+   * Fill in your Notebook server name and leave the rest as default.
+   * Launch Notebook Server.
 
 2. Download G-research dataset using Kaggle's API. To do this, do the following:
    
