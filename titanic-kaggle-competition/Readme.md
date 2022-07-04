@@ -431,7 +431,7 @@ Download the `titanic-kaggle-competition-kfp.yaml` file that was created to your
 - (Kubeflow as a Service) Within the Kubeflow Central Dashboard, navigate to the Pipelines > +Upload Pipeline view
 - Name the pipeline
 - Click on Upload a file
-- Upload the local `titanic-kfp.yaml` file
+- Upload the local `titanic-kaggle-competition-kfp.yaml` file
 - Click Create
 
 
