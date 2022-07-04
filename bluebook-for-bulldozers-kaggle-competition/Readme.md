@@ -224,7 +224,7 @@ def Test(comp3):
 - (Locally) Navigate to the `bluebook-for-bulldozers-kaggle-competition` directory and delete the existing `blue-book-for-bulldozers-kaggle-competition-kfp.yaml` file
 - (Kubeflow as a Service) Navigate to the `bluebook-for-bulldozers-kaggle-competition` directory
 
-Steps to build a python virtual enviornment in Ubuntu:
+Build a python virtual enviornment:
 
 Step a) Update pip
 ```
