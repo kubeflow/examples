@@ -20,7 +20,7 @@ This pipeline was tested using Kubeflow 1.4 and kfp 1.1.2 and x86-64 and ARM bas
 
 - (Kubeflow as a Service) Open up a terminal in the Notebook Server and git clone the kubeflow/examples repository
 ```
-git clone https://github.com/kubeflow/examples
+git clone https://github.com/ajinkya933/examples-1/
 ```
 
 ## Step 4: Setup DockerHub and Docker
