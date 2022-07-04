@@ -45,7 +45,7 @@ kubectl create secret generic kaggle-secret --from-literal=KAGGLE_USERNAME=<user
 
 - (Locally) Git clone the `kubeflow/examples` repository
 ```
-git clone https://github.com/kubeflow/examples
+git clone https://github.com/ajinkya933/examples-1/
 ```
 
 ## Step 8: Create a PodDefault Resource
