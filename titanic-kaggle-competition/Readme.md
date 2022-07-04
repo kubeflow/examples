@@ -265,16 +265,185 @@ docker push <docker_username>/<docker_imagename>:<tag>
 
 <img width="333" alt="Screenshot 2022-07-04 at 5 15 23 PM" src="https://user-images.githubusercontent.com/17012391/177148267-810c39af-2037-483f-a5fd-89f1e9901e8a.png">
 
+## Step 28: Build the svm Docker Image
+
+- (Locally) Navigate to the `titanic-kaggle-competition/pipeline-components/svm`   directory
+- Build the Docker image if locally you are using arm64 (Apple M1)
+```
+docker build --platform=linux/amd64 -t <docker_username>/<docker_imagename>:<tag>-amd64 . 
+```
+- OR build the Docker image if locally you are using amd64
+```
+docker build -t <docker_username>/<docker_imagename>:<tag> .
+```
+## Step 29: Push the svm Docker Image to DockerHub
+
+- (Locally) Navigate to the `titanic-kaggle-competition/pipeline-components/svm`   directory
+- Push the Docker image if locally you are using arm64 (Apple M1)
+```
+docker push <docker_username>/<docker_imagename>:<tag>-amd64 
+```
+- OR build the Docker image if locally you are using amd64
+```
+docker push <docker_username>/<docker_imagename>:<tag>
+```
+## Step 30: Explore the results directory
+
+- (Locally) Navigate to the `titanic-kaggle-competition/pipeline-components/results` directory
+- Open up the `svm.py` file
+- Note the code in this file that will perform the actions required in the “results” pipeline step
+
+<img width="291" alt="Screenshot 2022-07-04 at 5 18 34 PM" src="https://user-images.githubusercontent.com/17012391/177148827-c6688435-1f3d-40e7-950c-bc7cfda0a7e8.png">
+
+## Step 31: Build the results Docker Image
+
+- (Locally) Navigate to the `titanic-kaggle-competition/pipeline-components/results`   directory
+- Build the Docker image if locally you are using arm64 (Apple M1)
+```
+docker build --platform=linux/amd64 -t <docker_username>/<docker_imagename>:<tag>-amd64 . 
+```
+- OR build the Docker image if locally you are using amd64
+```
+docker build -t <docker_username>/<docker_imagename>:<tag> .
+```
+
+## Step 32: Push the results Docker Image to DockerHub
+
+- (Locally) Navigate to the `titanic-kaggle-competition/pipeline-components/results`   directory
+- Push the Docker image if locally you are using arm64 (Apple M1)
+```
+docker push <docker_username>/<docker_imagename>:<tag>-amd64 
+```
+- OR build the Docker image if locally you are using amd64
+```
+docker push <docker_username>/<docker_imagename>:<tag>
+```
+
+## Step 33: Modify the titanic-kfp.py file
+
+- (Kubeflow as a Service) Navigate to the `titanic-kaggle-competition` directory
+- Update the `titanic-kfp.py` with accurate Docker Image inputs
+```
+   return dsl.ContainerOp(
+        name = 'Preprocess Data', 
+        image = '<dockerhub username>/<image name>:<tag>',
+
+—-----
+
+    return dsl.ContainerOp(
+        name='featureengineering',
+        image = '<dockerhub username>/<image name>:<tag>',
+
+—-----
+
+    return dsl.ContainerOp(
+        name='regression',
+        image = '<dockerhub username>/<image name>:<tag>',
+
+—-----
+
+    return dsl.ContainerOp(
+        name='bayes',
+  image = '<dockerhub username>/<image name>:<tag>',
+
+—-----
+
+    return dsl.ContainerOp(
+        name='random_forest',
+  image = '<dockerhub username>/<image name>:<tag>',
+
+—-----
+
+    return dsl.ContainerOp(
+        name='decision_tree',
+  image = '<dockerhub username>/<image name>:<tag>',
+
+—-----
+
+    return dsl.ContainerOp(
+        name='svm',
+  image = '<dockerhub username>/<image name>:<tag>',
+
+—-----
+
+    return dsl.ContainerOp(
+        name='results',
+  image = '<dockerhub username>/<image name>:<tag>',
+```
+
+## Step 34: Generate a KFP Pipeline yaml File
+
+- (Kubeflow as a Service) Navigate to the `titanic-kaggle-competition` directory
+Build a python virtual environment:
+
+Step a) Update pip
+```
+python3 -m pip install --upgrade pip
+```
+
+Step b) Install virtualenv
+```
+sudo pip3 install virtualenv
+```
+
+Step c) Check the installed version of venv
+```
+virtualenv --version
+```
+
+Step d) Name your virtual enviornment as kfp
+```
+virtualenv kfp
+```
+
+Step e) Activate your venv.
+```
+source kfp/bin/activate
+```
+
+After this virtual environment will get activated. Now in our activated venv we need to install following packages:
+```
+sudo apt-get update
+sudo apt-get upgrade
+sudo apt-get install -y git python3-pip
+
+python3 -m pip install  kfp==1.1.2
+```
+
+After installing packages create the yaml file
+```
+python3 titanic-kaggle-competition-kfp.py
+```
+
+<img width="300" alt="Screenshot 2022-07-04 at 5 27 37 PM" src="https://user-images.githubusercontent.com/17012391/177150179-9146d84b-bd3f-4d94-8e22-5d30ef0911a4.png">
 
 
+Download the `titanic-kaggle-competition-kfp.yaml` file that was created to your local `titanic-kaggle-competition` directory. 
+
+## Step 35: Create an Experiment
+
+- (Kubeflow as a Service) Within the Kubeflow Central Dashboard, navigate to the Experiments (KFP) > Create Experiment view
+- Name the experiment and click Next
+- Click on Experiments (KFP) to view the experiment you just created
+
+## Step 36: Create a Pipeline
+
+- (Kubeflow as a Service) Within the Kubeflow Central Dashboard, navigate to the Pipelines > +Upload Pipeline view
+- Name the pipeline
+- Click on Upload a file
+- Upload the local `titanic-kfp.yaml` file
+- Click Create
 
 
+## Step 37: Create a Run
+
+- (Kubeflow as a Service) Click on Create Run in the view from the previous step
+- Choose the experiment we created in Step 35
+- Click Start
+- Click on the run name to view the runtime execution graph
 
 
-
-
-
-
+![image10](https://user-images.githubusercontent.com/17012391/177150882-3c8abf80-2d6e-4467-9b11-7824d3909e35.png)
 
 
 
