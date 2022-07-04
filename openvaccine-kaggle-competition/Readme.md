@@ -53,6 +53,26 @@ git clone https://github.com/ajinkya933/examples-1/
 - (Kubeflow as a Service) Navigate to the `openvaccine-kaggle-competition` directory
 - Create a `resource.yaml` file
 
+resource.yaml:
+```
+apiVersion: "kubeflow.org/v1alpha1"
+kind: PodDefault
+metadata:
+  name: kaggle-access
+spec:
+ selector:
+  matchLabels:
+    kaggle-secret: "true"
+ desc: "kaggle-access"
+ volumeMounts:
+ - name: secret-volume
+   mountPath: /secret/kaggle
+ volumes:
+ - name: secret-volume
+   secret:
+    secretName: kaggle-secret
+```
+
 ![image2](https://user-images.githubusercontent.com/17012391/177001253-3e525eb6-3415-428c-a52b-11803326af6b.png)
 
 - Apply created resource using: kubectl apply -f resource.yaml
