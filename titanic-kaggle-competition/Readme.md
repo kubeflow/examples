@@ -290,7 +290,7 @@ docker push <docker_username>/<docker_imagename>:<tag>
 ## Step 30: Explore the results directory
 
 - (Locally) Navigate to the `titanic-kaggle-competition/pipeline-components/results` directory
-- Open up the `svm.py` file
+- Open up the `result.py` file
 - Note the code in this file that will perform the actions required in the “results” pipeline step
 
 <img width="291" alt="Screenshot 2022-07-04 at 5 18 34 PM" src="https://user-images.githubusercontent.com/17012391/177148827-c6688435-1f3d-40e7-950c-bc7cfda0a7e8.png">
