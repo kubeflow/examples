@@ -221,17 +221,11 @@ def Eval(comp1, trial, epoch, batchsize, embeddim, hiddendim, dropout, spdropout
 
 ## Step 22: Generate a KFP Pipeline yaml File
 
-As a needed step we create a virtual enviornment, that contains all components we need to convert our python code to yaml file.
+- (Locally) Navigate to the `openvaccine-kaggle-competition` directory and delete the existing `openvaccine-kaggle-competition-kfp.yaml` file
+- (Kubeflow as a Service) Navigate to the bluebook-for-bulldozers-kaggle-competition directory
 
-If you are using a MAC use these steps to create needed env:
-```
-curl -O https://bootstrap.pypa.io/get-pip.py
-sudo python3 get-pip.py
-python3 -m pip install kfp==1.1.2
-```
+Build a python virtual environment :
 
-
-Steps to build a python virtual enviornment in Ubuntu:
 
 Step a) Update pip
 ```
