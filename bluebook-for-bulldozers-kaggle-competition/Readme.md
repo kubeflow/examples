@@ -223,7 +223,47 @@ def Test(comp3):
 
 - (Locally) Navigate to the `bluebook-for-bulldozers-kaggle-competition` directory and delete the existing `blue-book-for-bulldozers-kaggle-competition-kfp.yaml` file
 - (Kubeflow as a Service) Navigate to the `bluebook-for-bulldozers-kaggle-competition` directory
-- Run the following command to generate a `yaml` file for the Pipeline:
+
+Steps to build a python virtual enviornment in Ubuntu:
+
+Step a) Update pip
+```
+python3 -m pip install --upgrade pip
+```
+
+Step b) Install virtualenv
+```
+sudo pip3 install virtualenv
+```
+
+Step c) Check the installed version of venv
+```
+virtualenv --version
+```
+
+Step d) Name your virtual enviornment as kfp
+```
+virtualenv kfp
+```
+
+Step e) Activate your venv.
+```
+source kfp/bin/activate
+```
+
+After this virtual environment will get activated. Now in our activated venv we need to install following packages:
+```
+sudo apt-get update
+sudo apt-get upgrade
+sudo apt-get install -y git python3-pip
+
+python3 -m pip install  kfp==1.1.2
+```
+
+After installing packages create the yaml file
+
+Inside venv point your terminal to a path which contains our kfp file to build pipeline (blue-book-for-bulldozers-kaggle-competition-kfp.py) and run these commands to generate a `yaml` file for the Pipeline:
+
 ```
 blue-book-for-bulldozers-kaggle-competition-kfp.py
 ```
@@ -231,7 +271,6 @@ blue-book-for-bulldozers-kaggle-competition-kfp.py
 <img width="496" alt="Screenshot 2022-07-04 at 12 01 51 AM" src="https://user-images.githubusercontent.com/17012391/177052742-4dae4647-b51b-4f36-94b0-3114130c756b.png">
 
 - Download the `bluebook-for-bulldozers-kaggle-competition.yaml` file that was created to your local `bluebook-for-bulldozers-kaggle-competition` directory
-- Make sure the file is recognized as a `yaml` file. Depending on your local system, you might need to remove “py” from the extension
 
 ## Step 23: Create an Experiment
 
