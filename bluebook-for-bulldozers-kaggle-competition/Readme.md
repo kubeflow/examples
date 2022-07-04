@@ -54,6 +54,25 @@ git clone https://github.com/ajinkya933/examples-1/
 - (Kubeflow as a Service) Navigate to the `bluebook-for-bulldozers-kaggle-competition directory`
 - Create a resource.yaml file
 
+resource.yaml:
+```
+apiVersion: "kubeflow.org/v1alpha1"
+kind: PodDefault
+metadata:
+  name: kaggle-access
+spec:
+ selector:
+  matchLabels:
+    kaggle-secret: "true"
+ desc: "kaggle-access"
+ volumeMounts:
+ - name: secret-volume
+   mountPath: /secret/kaggle
+ volumes:
+ - name: secret-volume
+   secret:
+    secretName: kaggle-secret
+```
 
 <img width="660" alt="image3" src="https://user-images.githubusercontent.com/17012391/177049116-b4186ec3-becb-40ea-973a-27bc52f90619.png">
 
