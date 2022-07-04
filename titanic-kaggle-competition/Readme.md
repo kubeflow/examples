@@ -446,5 +446,19 @@ Download the `titanic-kaggle-competition-kfp.yaml` file that was created to your
 ![image10](https://user-images.githubusercontent.com/17012391/177150882-3c8abf80-2d6e-4467-9b11-7824d3909e35.png)
 
 
+## Frequently encountered errors:
+While running the pipeline as mentioned above you may come across this error:
+errorlog:
 
+```
+kaggle.rest.ApiException: (403)
+Reason: Forbidden
+HTTP response headers: HTTPHeaderDict({'Content-Type': 'application/json', 'Date': 'Thu, 23 Jun 2022 11:31:18 GMT', 'Access-Control-Allow-Credentials': 'true', 'Set-Cookie': 'ka_sessionid=6817a347c75399a531148e19cad0aaeb; max-age=2626560; path=/, GCLB=CIGths3--ebbUg; path=/; HttpOnly', 'Transfer-Encoding': 'chunked', 'Vary': 
+HTTP response body: b'{"code":403,"message":"You must accept this competition\\u0027s rules before you\\u0027ll be able to download files."}'
 
+```
+This error occours for two reasons:
+- Your Kaggle account is not verified with your phone number.
+- Rules for this specific competitions are not accepted.
+
+A solution to this is please verify your Kaggle account using your phone number and accept the rules for this specific competition, untill these two steps are satisfied pipeline wont accquire data from Kaggle API and it wont run.
