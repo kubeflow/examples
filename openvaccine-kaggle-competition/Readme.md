@@ -75,7 +75,7 @@ spec:
 
 ![image2](https://user-images.githubusercontent.com/17012391/177001253-3e525eb6-3415-428c-a52b-11803326af6b.png)
 
-- Apply created resource using: kubectl apply -f resource.yaml
+- Apply created resource using: `kubectl apply -f resource.yaml`
 
 ## Step 9: Explore the `load-data` directory
 
