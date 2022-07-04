@@ -4,7 +4,7 @@ This example is based on the Titanic Kaggle competition. The objective of this e
 
 ## Environment
 
-This pipeline was tested using Kubeflow 1.4 and kfp 1.1.2 and x86-64 based system which includes all Intel and AMD based CPU's. ARM based systems are not supported.
+This pipeline was tested using Kubeflow 1.4 and kfp 1.1.2 and x86-64 and ARM based system which includes all Intel and AMD based CPU's and M1/M2 series Macbooks
 
 ## Prerequisites for Building the Kubeflow Pipeline
 
