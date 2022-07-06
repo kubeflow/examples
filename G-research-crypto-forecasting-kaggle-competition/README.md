@@ -172,7 +172,7 @@ To create a KFP pipeline using the Kale JupyterLab extension
 
 5. Enable the Kale extension in JupyterLab 
 
-6. The notebook's cells are automatically annotated with Kale tags
+6. Ensure the notebook cells are annotated with Kale tags just as it is in the [g-research-crypto-forecast-kale.ipynb](https://github.com/josepholaide/examples/blob/G-research-crypto-forecasting/G-research-crypto-forecasting-kaggle-competition/g-research-crypto-forecast-kale.ipynb) Notebook
 
    To fully understand the different Kale tags available, visit Kale [documentation](https://docs.arrikto.com/user/kale/jupyterlab/cell-types.html?highlight=pipeline%20metrics#annotate-pipeline-step-cells)
    
