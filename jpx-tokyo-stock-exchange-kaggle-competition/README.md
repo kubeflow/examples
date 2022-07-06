@@ -112,7 +112,7 @@ Finally, the  [`create_run_from_pipeline_func`](https://kubeflow-pipelines.readt
 
 2. Create a new Terminal and clone this repo. After cloning, navigate to this directory.
 
-3. Open the [jpx-tokyo-stock-exchange-prediction-kfp](https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/jpx-tokyo-stock-exchange-prediction-kfp.ipynb) notebook 
+3. Open the [jpx-tokyo-stock-exchange-prediction-kfp](https://github.com/kubeflow/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/jpx-tokyo-stock-exchange-prediction-kfp.ipynb) notebook 
  
 4. Run the jpx-tokyo-stock-exchange-prediction-kfp notebook from start to finish
 
@@ -121,13 +121,13 @@ Finally, the  [`create_run_from_pipeline_func`](https://kubeflow-pipelines.readt
 ### View Pipeline
 
 <p align=center>
-<img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/kfp-pipeline.PNG?raw=true" alt="kubeflow pipeline"/>
+<img src="https://github.com/kubeflow/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/kfp-pipeline.PNG?raw=true" alt="kubeflow pipeline"/>
  </p>
  
  ### View Pipeline Metric
 
 <p align=center>
-<img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/kfp-metrics.PNG?raw=true" alt="kubeflow pipeline metrics"/>
+<img src="https://github.com/kubeflow/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/kfp-metrics.PNG?raw=true" alt="kubeflow pipeline metrics"/>
  </p>
 
 
@@ -140,7 +140,7 @@ To create a KFP pipeline using the Kale JupyterLab extension
 
 2. Create a new Terminal and clone this repo. After cloning, navigate to this directory.
 
-3. Launch the [jpx-tokyo-stock-exchange-prediction-kale.ipynb](https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/jpx-tokyo-stock-exchange-prediction-kale.ipynb) Notebook
+3. Launch the [jpx-tokyo-stock-exchange-prediction-kale.ipynb](https://github.com/kubeflow/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/jpx-tokyo-stock-exchange-prediction-kale.ipynb) Notebook
 
 4. Install the requirements.txt file. After installation, restart the kernel.
 
@@ -177,7 +177,7 @@ To create a KFP pipeline using the Kale JupyterLab extension
 7. Compile and run the Notebook by hitting the "Compile & Run" in Kale's left panel
 
 <p align=center>
-<img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/jpx-kale-deployment-panel.PNG?raw=true" alt="jpx-kale-deployment-panel"/>
+<img src="https://github.com/kubeflow/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/jpx-kale-deployment-panel.PNG?raw=true" alt="jpx-kale-deployment-panel"/>
  </p>
 
 ### View Pipeline
