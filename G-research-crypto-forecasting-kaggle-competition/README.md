@@ -30,7 +30,7 @@ Environment:
    To get started, visit Kale's [documentation](https://docs.arrikto.com/user/kale/index.html) to get acquainted with the 
    Kale user interface (UI) from a Jupyter Notebook, [notebook cell annotation](https://docs.arrikto.com/user/kale/jupyterlab/annotate.html) 
    and how to create a machine learning pipeline using Kale.
-   In the following example, we are going to use the Kale JupyterLab Extension to building our Kubeflow pipeline.
+   In the following example, we are going to use the Kale JupyterLab Extension to build our Kubeflow pipeline.
    
 ## Section 2: Prepare environment for data download
 
@@ -38,7 +38,7 @@ Environment:
    * Fill in your Notebook server name and leave the rest as default.
    * Launch Notebook Server.
 
-2. Download G-research dataset using Kaggle's API. To do this, do the following:
+2. Download the G-research dataset using Kaggle's API. To do this, do the following:
    
    * Login to Kaggle and click on your user profile picture.
    * Click on ‘Account’.
@@ -83,7 +83,7 @@ Environment:
    * Apply the pod YAML file
    `kubectl apply -f kaggle_pod.yaml` 
    * After successfully deploying the PodDefault, create a new Notebook Server and add the `kaggle-secret` configuration to the new Notebook Server
-     that runs kale or kfp pipeline.
+     that runs the Kale or KFP pipeline.
    <p align=center>
    <img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/notebook-ui-kaggle-config.png?raw=true" alt="notebook-ui-kaggle-config"/>
    </p>
@@ -166,7 +166,7 @@ To create a KFP pipeline using the Kale JupyterLab extension
 
 2. Create a new Terminal and clone this repo. After cloning, navigate to this directory.
 
-3. Launch the [g-research-crypto-forecast-kale.ipynb](https://github.com/josepholaide/examples/blob/G-research-crypto-forecasting/G-research-crypto-forecasting-kaggle-competition/g-research-crypto-forecast-kale.ipynb) Notebook
+3. Launch the [g-research-crypto-forecast-orig.ipynb](https://github.com/josepholaide/examples/blob/G-research-crypto-forecasting/G-research-crypto-forecasting-kaggle-competition/g-research-crypto-forecast-orig.ipynb) Notebook
 
 4. Install the requirements.txt file. After installation, restart the kernel.
 
