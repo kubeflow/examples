@@ -2,7 +2,7 @@
 In this example we are going to convert this generic [notebook](https://github.com/josepholaide/examples/blob/amex/american-express-default-kaggle-competition/american-express-default-prediction-kale.ipynb) 
 based on the [Kaggle American Express - Default Prediction](https://www.kaggle.com/competitions/amex-default-prediction) competition into a Kubeflow pipeline.
 
-The objective of this task is to correctly predicting credit default using a large scale industrial dataset from American Express
+The objective of this task is to correctly predict credit default using a large scale industrial dataset from American Express
 
 # Testing Environment
 
@@ -30,7 +30,7 @@ Environment:
    To get started, visit Kale's [documentation](https://docs.arrikto.com/user/kale/index.html) to get acquainted with the 
    Kale user interface (UI) from a Jupyter Notebook, [notebook cell annotation](https://docs.arrikto.com/user/kale/jupyterlab/annotate.html) 
    and how to create a machine learning pipeline using Kale.
-   In the following example, we are going to use the Kale JupyterLab Extension to building our Kubeflow pipeline.
+   In the following example, we are going to use the Kale JupyterLab Extension to build our Kubeflow pipeline.
    
 ## Section 2: Prepare environment for data download
 
@@ -83,7 +83,7 @@ Environment:
    * Apply the pod YAML file
    `kubectl apply -f kaggle_pod.yaml` 
    * After successfully deploying the PodDefault, create a new Notebook Server and add the `kaggle-secret` configuration to the new Notebook Server
-     that runs kale or kfp pipeline.
+     that runs the Kale or KFP pipeline.
    <p align=center>
    <img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/notebook-ui-kaggle-config.png?raw=true" alt="notebook-ui-kaggle-config"/>
    </p>
@@ -165,13 +165,13 @@ To create a KFP pipeline using the Kale JupyterLab extension
 
 2. Create a new Terminal and clone this repo. After cloning, navigate to this directory.
 
-3. Launch the [american-express-default-prediction-kale.ipynb](https://github.com/josepholaide/examples/blob/amex/american-express-default-kaggle-competition/american-express-default-prediction-kale.ipynb) Notebook
+3. Launch the [american-express-default-prediction-orig.ipynb](https://github.com/josepholaide/examples/blob/amex/american-express-default-kaggle-competition/american-express-default-prediction-orig.ipynb) Notebook
 
 4. Install the requirements.txt file. After installation, restart the kernel.
 
 5. Enable the Kale extension in JupyterLab 
 
-6. The notebook's cells are automatically annotated with Kale tags
+6. Ensure the notebook cells are annotated with the necessary Kale tags just as it is in the [american-express-default-prediction-kale.ipynb](https://github.com/josepholaide/examples/blob/amex/american-express-default-kaggle-competition/american-express-default-prediction-kale.ipynb) Notebook
 
    To fully understand the different Kale tags available, visit Kale [documentation](https://docs.arrikto.com/user/kale/jupyterlab/cell-types.html?highlight=pipeline%20metrics#annotate-pipeline-step-cells)
    
