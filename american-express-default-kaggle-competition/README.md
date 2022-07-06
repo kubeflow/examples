@@ -1,5 +1,5 @@
 # Objective
-In this example we are going to convert this generic [notebook](https://github.com/josepholaide/examples/blob/amex/american-express-default-kaggle-competition/american-express-default-prediction-kale.ipynb) 
+In this example we are going to convert this generic [notebook](https://github.com/josepholaide/examples/blob/amex/american-express-default-kaggle-competition/american-express-default-prediction-orig.ipynb) 
 based on the [Kaggle American Express - Default Prediction](https://www.kaggle.com/competitions/amex-default-prediction) competition into a Kubeflow pipeline.
 
 The objective of this task is to correctly predict credit default using a large scale industrial dataset from American Express
