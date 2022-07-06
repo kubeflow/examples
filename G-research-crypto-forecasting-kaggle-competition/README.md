@@ -1,5 +1,5 @@
 # Objective
-In this example we are going to convert this generic [notebook](https://github.com/josepholaide/examples/blob/G-research-crypto-forecasting/G-research-crypto-forecasting-kaggle-competition/g-research-crypto-forecast-kale.ipynb) based on the [Kaggle G-Research Crypto Forecast](https://www.kaggle.com/competitions/g-research-crypto-forecasting/overview) competition into a Kubeflow pipeline.
+In this example we are going to convert this generic [notebook](https://github.com/josepholaide/examples/blob/G-research-crypto-forecasting/G-research-crypto-forecasting-kaggle-competition/g-research-crypto-forecast-orig.ipynb) based on the [Kaggle G-Research Crypto Forecast](https://www.kaggle.com/competitions/g-research-crypto-forecasting/overview) competition into a Kubeflow pipeline.
 
 The objective of this task is to correctly forecast short term returns in 14 popular cryptocurrencies.
 The dataset provided contains information on historic trades for several cryptoassets, such as Bitcoin and Ethereum.
