@@ -217,7 +217,7 @@ View Pipeline by clicking "View" in Kale's left panel
  </p>
  
 <p align=center>
-<img src="https://github.com/josepholaide/examples/blob/G-research-crypto-forecasting/G-research-crypto-forecasting-kaggle-competition/images/g-research-crypto-forecast-kale-pipeline.PNG?raw=true" alt="kale-pipeline"/>
+<img src="https://github.com/josepholaide/examples/blob/master/G-research-crypto-forecasting-kaggle-competition/images/g-research-crypto-forecast-kale-pipeline.PNG?raw=true" alt="kale-pipeline"/>
  </p>
 
  ### View Pipeline Metric
