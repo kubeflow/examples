@@ -1,4 +1,5 @@
 # Objective
+
 In this example we are going to convert this generic [notebook](https://github.com/kubeflow/examples/blob/master/telco-customer-churn-kaggle-competition/telco-customer-churn-orig.ipynb) 
 based on the [Telco Customer Churn Prediction](https://www.kaggle.com/datasets/blastchar/telco-customer-churn) competition into a Kubeflow pipeline.
 
@@ -57,8 +58,11 @@ Finally, the  [`create_run_from_pipeline_func`](https://kubeflow-pipelines.readt
 1. Open your Kubeflow Cluster, create a Notebook Server and connect to it.
 
 2. Clone this repo and navigate to this directory.
+
 3. Open the [telco-customer-churn-kfp](https://github.com/kubeflow/examples/blob/master/telco-customer-churn-kaggle-competition/telco-customer-churn-kfp.ipynb) notebook 
+
 4. Run the telco-customer-churn-kfp notebook from start to finish
+
 5. View run details immediately after submitting pipeline.
 
 ### View Pipeline
@@ -125,8 +129,7 @@ To create pipeline using the Kale JupyterLab extension
 View Pipeline by clicking "View" in Kale's left panel
 
 <p align=center>
-<img src="https://github.com/kubeflow/examples/blob/master/telco-customer-churn-kaggle-competition/images/view-pipeline.PNG?raw=true" alt="view-pipeline
-"/>
+<img src="https://github.com/kubeflow/examples/blob/master/telco-customer-churn-kaggle-competition/images/view-pipeline.PNG?raw=true" alt="view-pipeline"/>
 </p>
 
 
@@ -137,5 +140,9 @@ View Pipeline by clicking "View" in Kale's left panel
 ### View Pipeline Visualization
 
 <p align=center>
+<<<<<<< master
 <img src="https://github.com/kubeflow/examples/blob/master/telco-customer-churn-kaggle-competition/images/telco-kale-pipeline-visualization.PNG?raw=true" alt="telco-kale-pipeline-visualization"/>
+=======
+<img src="https://github.com/josepholaide/examples/blob/master/telco-customer-churn-kaggle-competition/images/telco-kale-pipeline-visualization.PNG?raw=true" alt="telco-kale-pipeline-visualization"/>
+>>>>>>> master
 </p>
