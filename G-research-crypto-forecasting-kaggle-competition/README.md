@@ -1,5 +1,5 @@
 # Objective
-In this example we are going to convert this generic [notebook](https://github.com/josepholaide/examples/blob/G-research-crypto-forecasting/G-research-crypto-forecasting-kaggle-competition/g-research-crypto-forecast-orig.ipynb) based on the [Kaggle G-Research Crypto Forecast](https://www.kaggle.com/competitions/g-research-crypto-forecasting/overview) competition into a Kubeflow pipeline.
+In this example we are going to convert this generic [notebook](https://github.com/josepholaide/examples/blob/master/G-research-crypto-forecasting-kaggle-competition/g-research-crypto-forecast-orig.ipynb) based on the [Kaggle G-Research Crypto Forecast](https://www.kaggle.com/competitions/g-research-crypto-forecasting/overview) competition into a Kubeflow pipeline.
 
 The objective of this task is to correctly forecast short term returns in 14 popular cryptocurrencies.
 The dataset provided contains information on historic trades for several cryptoassets, such as Bitcoin and Ethereum.
@@ -44,7 +44,7 @@ Environment:
    * Click on ‘Account’.
    
    <p align=center>
-   <img src="https://github.com/josepholaide/examples/blob/G-research-crypto-forecasting/G-research-crypto-forecasting-kaggle-competition/images/kaggle-account.PNG?raw=true" alt="kaggle-click-account"/>
+   <img src="https://github.com/josepholaide/examples/blob/master/G-research-crypto-forecasting-kaggle-competition/images/kaggle-account.PNG?raw=true" alt="kaggle-click-account"/>
    </p>
    
    * Under ‘Account’, navigate to the ‘API’ section.
@@ -116,14 +116,14 @@ Finally, the  [`create_run_from_pipeline_func`](https://kubeflow-pipelines.readt
 
      * Set the CPU specification to 8 and RAM to 16 GB
    <p align=center>
-   <img src="https://github.com/josepholaide/examples/blob/G-research-crypto-forecasting/G-research-crypto-forecasting-kaggle-competition/images/cpu-ram-spec.PNG?raw=true" alt="cpu/ram spec"/>
+   <img src="https://github.com/josepholaide/examples/blob/master/G-research-crypto-forecasting-kaggle-competition/images/cpu-ram-spec.PNG?raw=true" alt="cpu/ram spec"/>
    </p>
 
      * Add the `kaggle-secret` configuration to the new Notebook Server.
 
 2. Create a new Terminal and clone this repo. After cloning, navigate to this directory.
 
-3. Open the [g-research-crypto-forecast-kfp](https://github.com/josepholaide/examples/blob/G-research-crypto-forecasting/G-research-crypto-forecasting-kaggle-competition/g-research-crypto-forecast-kfp.ipynb) notebook 
+3. Open the [g-research-crypto-forecast-kfp](https://github.com/josepholaide/examples/blob/master/G-research-crypto-forecasting-kaggle-competition/g-research-crypto-forecast-kfp.ipynb) notebook 
  
 4. Run the g-research-crypto-forecast notebook from start to finish
 
@@ -132,13 +132,13 @@ Finally, the  [`create_run_from_pipeline_func`](https://kubeflow-pipelines.readt
 ### View Pipeline
 
 <p align=center>
-<img src="https://github.com/josepholaide/examples/blob/G-research-crypto-forecasting/G-research-crypto-forecasting-kaggle-competition/images/g-research-crypto-forecast-kfp-pipeline.PNG?raw=true" alt="kubeflow pipeline"/>
+<img src="https://github.com/josepholaide/examples/blob/master/G-research-crypto-forecasting-kaggle-competition/images/g-research-crypto-forecast-kfp-pipeline.PNG?raw=true" alt="kubeflow pipeline"/>
  </p>
  
  ### View Pipeline Metric
 
 <p align=center>
-<img src="https://github.com/josepholaide/examples/blob/G-research-crypto-forecasting/G-research-crypto-forecasting-kaggle-competition/images/kfp-pipeline-metrics.PNG?raw=true" alt="kubeflow pipeline metrics"/>
+<img src="https://github.com/josepholaide/examples/blob/master/G-research-crypto-forecasting-kaggle-competition/images/kfp-pipeline-metrics.PNG?raw=true" alt="kubeflow pipeline metrics"/>
  </p>
 
 
@@ -153,26 +153,26 @@ To create a KFP pipeline using the Kale JupyterLab extension
 
      * Set the CPU specification to 8 and RAM to 16 GB
    <p align=center>
-   <img src="https://github.com/josepholaide/examples/blob/G-research-crypto-forecasting/G-research-crypto-forecasting-kaggle-competition/images/cpu-ram-spec.PNG?raw=true" alt="cpu/ram spec"/>
+   <img src="https://github.com/josepholaide/examples/blob/master/G-research-crypto-forecasting-kaggle-competition/images/cpu-ram-spec.PNG?raw=true" alt="cpu/ram spec"/>
    </p>
 
      * Increase the Workspace Volume to 15Gi 
 
    <p align=center>
-   <img src="https://github.com/josepholaide/examples/blob/G-research-crypto-forecasting/G-research-crypto-forecasting-kaggle-competition/images/kale-volume.PNG?raw=true" alt="kale volume"/>
+   <img src="https://github.com/josepholaide/examples/blob/master/G-research-crypto-forecasting-kaggle-competition/images/kale-volume.PNG?raw=true" alt="kale volume"/>
    </p>
 
      * Add the `kaggle-secret` configuration to the new Notebook Server.
 
 2. Create a new Terminal and clone this repo. After cloning, navigate to this directory.
 
-3. Launch the [g-research-crypto-forecast-orig.ipynb](https://github.com/josepholaide/examples/blob/G-research-crypto-forecasting/G-research-crypto-forecasting-kaggle-competition/g-research-crypto-forecast-orig.ipynb) Notebook
+3. Launch the [g-research-crypto-forecast-orig.ipynb](https://github.com/josepholaide/examples/blob/master/G-research-crypto-forecasting-kaggle-competition/g-research-crypto-forecast-orig.ipynb) Notebook
 
 4. Install the requirements.txt file. After installation, restart the kernel.
 
 5. Enable the Kale extension in JupyterLab 
 
-6. Ensure the notebook cells are annotated with Kale tags just as it is in the [g-research-crypto-forecast-kale.ipynb](https://github.com/josepholaide/examples/blob/G-research-crypto-forecasting/G-research-crypto-forecasting-kaggle-competition/g-research-crypto-forecast-kale.ipynb) Notebook
+6. Ensure the notebook cells are annotated with Kale tags just as it is in the [g-research-crypto-forecast-kale.ipynb](https://github.com/josepholaide/examples/blob/master/G-research-crypto-forecasting-kaggle-competition/g-research-crypto-forecast-kale.ipynb) Notebook
 
    To fully understand the different Kale tags available, visit Kale [documentation](https://docs.arrikto.com/user/kale/jupyterlab/cell-types.html?highlight=pipeline%20metrics#annotate-pipeline-step-cells)
    
@@ -205,7 +205,7 @@ To create a KFP pipeline using the Kale JupyterLab extension
 7. Compile and run the Notebook by hitting the "Compile & Run" in Kale's left panel
 
 <p align=center>
-<img src="https://github.com/josepholaide/examples/blob/G-research-crypto-forecasting/G-research-crypto-forecasting-kaggle-competition/images/kale-deployment-panel.PNG?raw=true" alt="kale-deployment-panel"/>
+<img src="https://github.com/josepholaide/examples/blob/master/G-research-crypto-forecasting-kaggle-competition/images/kale-deployment-panel.PNG?raw=true" alt="kale-deployment-panel"/>
  </p>
 
 ### View Pipeline
@@ -213,7 +213,7 @@ To create a KFP pipeline using the Kale JupyterLab extension
 View Pipeline by clicking "View" in Kale's left panel
 
 <p align=center>
-<img src="https://github.com/josepholaide/examples/blob/G-research-crypto-forecasting/G-research-crypto-forecasting-kaggle-competition/images/view-pipeline.PNG?raw=true" alt="view-pipeline"/>
+<img src="https://github.com/josepholaide/examples/blob/master/G-research-crypto-forecasting-kaggle-competition/images/view-pipeline.PNG?raw=true" alt="view-pipeline"/>
  </p>
  
 <p align=center>
@@ -223,5 +223,5 @@ View Pipeline by clicking "View" in Kale's left panel
  ### View Pipeline Metric
 
 <p align=center>
-<img src="https://github.com/josepholaide/examples/blob/G-research-crypto-forecasting/G-research-crypto-forecasting-kaggle-competition/images/kale-pipeline-metrics.PNG?raw=true" alt="kale-metrics"/>
+<img src="https://github.com/josepholaide/examples/blob/master/G-research-crypto-forecasting-kaggle-competition/images/kale-pipeline-metrics.PNG?raw=true" alt="kale-metrics"/>
  </p>
