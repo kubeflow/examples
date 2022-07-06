@@ -104,7 +104,7 @@ Pipeline function:
 </p>
 
 
-### Step 4 : Running the pipeline using kfp.client instance
+### Step 4 : Running the pipeline using the kfp.client instance
 
 There are different ways to run the pipeline function as mentioned in the [documentation](https://www.kubeflow.org/docs/components/pipelines/sdk/build-pipeline/#compile-and-run-your-pipeline). We would run the pipeline using the Kubeflow Pipelines SDK client.
 
