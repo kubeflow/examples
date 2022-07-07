@@ -1,6 +1,6 @@
 # Objective
 
-This example is based on the Titanic Kaggle competition. The objective of this exercise is to use machine learning to create a model that predicts which passengers survived the Titanic shipwreck.
+This example is based on the Titanic Kaggle competition (https://www.kaggle.com/c/titanic). The objective of this exercise is to use machine learning to create a model that predicts which passengers survived the Titanic shipwreck.
 
 ## Environment
 
@@ -19,7 +19,7 @@ This pipeline was tested using Kubeflow 1.4 and kfp 1.1.2 and x86-64 and ARM bas
 
 - (Kubeflow as a Service) Open up a terminal in the Notebook Server and git clone the `kubeflow/examples` repository
 ```
-git clone https://github.com/ajinkya933/examples-1/
+git clone https://github.com/kubeflow/examples
 ```
 
 ## Step 4: Setup DockerHub and Docker
@@ -44,7 +44,7 @@ kubectl create secret generic kaggle-secret --from-literal=KAGGLE_USERNAME=<user
 
 - (Locally) Git clone the kubeflow/examples repository
 ```
-git clone https://github.com/ajinkya933/examples-1/
+git clone https://github.com/kubeflow/examples
 ```
 ## Step 8: Create a `PodDefault` Resource
 
@@ -446,7 +446,7 @@ Download the `titanic-kaggle-competition-kfp.yaml` file that was created to your
 ![image10](https://user-images.githubusercontent.com/17012391/177150882-3c8abf80-2d6e-4467-9b11-7824d3909e35.png)
 
 
-## Frequently encountered errors:
+## Troubleshooting Tips:
 While running the pipeline as mentioned above you may come across this error:
 errorlog:
 
