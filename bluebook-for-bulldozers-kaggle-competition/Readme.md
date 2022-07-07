@@ -1,6 +1,6 @@
 # Objective
 
-This example is based on the Bluebook for bulldozers competition. The objective of this exercise is to predict the sale price of bulldozers sold at auctions.
+This example is based on the Bluebook for bulldozers competition (https://www.kaggle.com/competitions/bluebook-for-bulldozers/overview). The objective of this exercise is to predict the sale price of bulldozers sold at auctions.
 
 ## Environment
 
@@ -20,7 +20,7 @@ This pipeline was tested using Kubeflow 1.4 and kfp 1.1.2 and x86-64 and ARM bas
 
 - (Kubeflow as a Service) Open up a terminal in the Notebook Server and git clone the kubeflow/examples repository
 ```
-git clone https://github.com/ajinkya933/examples-1/
+git clone https://github.com/kubeflow/examples
 ```
 
 ## Step 4: Setup DockerHub and Docker
@@ -46,7 +46,7 @@ kubectl create secret generic kaggle-secret --from-literal=KAGGLE_USERNAME=<user
 
 - (Locally) Git clone the `kubeflow/examples` repository
 ```
-git clone https://github.com/ajinkya933/examples-1/
+git clone https://github.com/kubeflow/examples
 ```
 
 ## Step 8: Create a PodDefault Resource
@@ -315,7 +315,7 @@ Step 25: Create a Run
 <img width="285" alt="Screenshot 2022-07-04 at 12 04 43 AM" src="https://user-images.githubusercontent.com/17012391/177052835-d2cde097-7354-4cac-8876-7d89244864d3.png">
 
 
-## Frequently encountered errors:
+## Troubleshooting Tips:
 While running the pipeline as mentioned above you may come across this error:
 ![kaggle-secret-error-01](https://user-images.githubusercontent.com/17012391/175290593-aac58d80-0d9f-47bd-bd20-46e6f5207210.PNG)
 
