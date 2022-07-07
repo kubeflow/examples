@@ -1,6 +1,6 @@
 # Objective
 
-This example is based on the Titanic OpenVaccine competition. The objective of this exercise is to develop models and design rules for RNA degradation.
+This example is based on the Titanic OpenVaccine competition (https://www.kaggle.com/c/stanford-covid-vaccine). The objective of this exercise is to develop models and design rules for RNA degradation.
 
 ## Environment
 
@@ -19,7 +19,7 @@ This pipeline was tested using Kubeflow 1.4 and kfp 1.1.2 and x86-64 and ARM bas
 
 - (Kubeflow as a Service) Open up a terminal in the Notebook Server and git clone the `kubeflow/examples` repository
 ```
-git clone https://github.com/ajinkya933/examples-1/
+git clone https://github.com/kubeflow/examples
 ```
 ## Step 4: Setup DockerHub and Docker
 
@@ -45,7 +45,7 @@ kubectl create secret generic kaggle-secret --from-literal=KAGGLE_USERNAME=<user
 
 - (Locally) Git clone the `kubeflow/examples` repository
 ```
-git clone https://github.com/ajinkya933/examples-1/
+git clone https://github.com/kubeflow/examples
 ```
 
 ## Step 8: Create a PodDefault Resource
@@ -241,7 +241,7 @@ def Eval(comp1, trial, epoch, batchsize, embeddim, hiddendim, dropout, spdropout
 ## Step 22: Generate a KFP Pipeline yaml File
 
 - (Locally) Navigate to the `openvaccine-kaggle-competition` directory and delete the existing `openvaccine-kaggle-competition-kfp.yaml` file
-- (Kubeflow as a Service) Navigate to the bluebook-for-bulldozers-kaggle-competition directory
+- (Kubeflow as a Service) Navigate to the openvaccine-kaggle-competition directory
 
 Build a python virtual environment :
 
@@ -348,7 +348,7 @@ TRAIN_SEQUENCE_LENGTH = 107
 
 
 
-## Frequently encountered errors:
+## Troubleshooting Tips:
 While running the pipeline as mentioned above you may come across this error:
 ![kaggle-secret-error-01](https://user-images.githubusercontent.com/17012391/175290593-aac58d80-0d9f-47bd-bd20-46e6f5207210.PNG)
 
