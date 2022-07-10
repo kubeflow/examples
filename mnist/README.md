@@ -41,7 +41,7 @@ Follow these instructions to run the MNIST tutorial on GCP
 
 Follow these instructions to run the MNIST tutorial on AWS
 
-1. Follow the [AWS instructions](https://www.kubeflow.org/docs/aws/deploy/install-kubeflow/) to deploy Kubeflow on AWS
+1. Follow the [AWS instructions](https://www.kubeflow.org/docs/distributions/aws/) to deploy Kubeflow on AWS
 
 1. Launch a Jupyter notebook
 

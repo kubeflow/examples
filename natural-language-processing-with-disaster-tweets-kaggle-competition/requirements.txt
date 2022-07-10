@@ -1,0 +1,10 @@
+seaborn
+nltk
+sklearn
+collection
+gensim
+keras
+tensorflow
+pyspellchecker
+wget
+zipfile36
