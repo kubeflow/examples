@@ -4,7 +4,7 @@ The objective of this task is to predict keypoint positions on face images
 
 # Testing enviornment
 The pipeline is tested on `Kubeflow 1.4` and `kfp 1.1.2` , it should be compatible with previous releases of Kubeflow . kfp version used for testing is 1.1.2 which can be installed as `pip install kfp==1.1.2`  
-
+ 
 # Components used
 
 ## Docker
