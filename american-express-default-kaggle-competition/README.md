@@ -38,7 +38,7 @@ Environment:
    * Fill in your Notebook server name and leave the rest as default.
    * Launch Notebook Server.
 
-2. Download American Express dataset using Kaggle's API. To do this, do the following:
+2. Download the American Express dataset using Kaggle's API. To do this, do the following:
    
    * Login to Kaggle and click on your user profile picture.
    * Click on ‘Account’.
