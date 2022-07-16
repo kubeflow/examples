@@ -1,10 +1,8 @@
 # Objective
 
-<<<<<<< master
 In this example we are going to convert this generic [notebook](https://github.com/kubeflow/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/jpx-tokyo-stock-exchange-prediction-orig.ipynb) based on the [Kaggle JPX Tokyo Stock Exchange Prediction](https://www.kaggle.com/competitions/jpx-tokyo-stock-exchange-prediction) competition into a Kubeflow pipeline.
-=======
+
 In this example we are going to convert this generic [notebook](https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/jpx-tokyo-stock-exchange-prediction-orig.ipynb) based on the [Kaggle JPX Tokyo Stock Exchange Prediction](https://www.kaggle.com/competitions/jpx-tokyo-stock-exchange-prediction) competition into a Kubeflow pipeline.
->>>>>>> master
 
 The objective of this task is to correctly model real future returns of around 2,000 stocks. The stocks are ranked from highest 
 to lowest expected returns and they are evaluated on the difference in returns between the top and bottom 200 stocks.
@@ -116,11 +114,9 @@ Finally, the  [`create_run_from_pipeline_func`](https://kubeflow-pipelines.readt
 
 2. Create a new Terminal and clone this repo. After cloning, navigate to this directory.
 
-<<<<<<< master
 3. Open the [jpx-tokyo-stock-exchange-prediction-kfp](https://github.com/kubeflow/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/jpx-tokyo-stock-exchange-prediction-kfp.ipynb) notebook 
 =======
 3. Open the [jpx-tokyo-stock-exchange-prediction-kfp](https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/jpx-tokyo-stock-exchange-prediction-kfp.ipynb) notebook 
->>>>>>> master
  
 4. Run the jpx-tokyo-stock-exchange-prediction-kfp notebook from start to finish
 
@@ -129,7 +125,6 @@ Finally, the  [`create_run_from_pipeline_func`](https://kubeflow-pipelines.readt
 ### View Pipeline
 
 <p align=center>
-<<<<<<< master
 <img src="https://github.com/kubeflow/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/kfp-pipeline.PNG?raw=true" alt="kubeflow pipeline"/>
  </p>
  
@@ -139,7 +134,6 @@ Finally, the  [`create_run_from_pipeline_func`](https://kubeflow-pipelines.readt
 <img src="https://github.com/kubeflow/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/kfp-metrics.PNG?raw=true" alt="kubeflow pipeline metrics"/>
 =======
 <img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/kfp-pipeline.PNG?raw=true" alt="kubeflow pipeline"/>
->>>>>>> master
  </p>
  
  ### View Pipeline Metric
@@ -148,7 +142,6 @@ Finally, the  [`create_run_from_pipeline_func`](https://kubeflow-pipelines.readt
 <img src="https://github.com/josepholaide/examples/blob/master/jpx-tokyo-stock-exchange-kaggle-competition/images/kfp-metrics.PNG?raw=true" alt="kubeflow pipeline metrics"/>
  </p>
 
-<<<<<<< master
 ## Section 4: Kale KFP Pipeline
 
 To create a KFP pipeline using the Kale JupyterLab extension
@@ -185,7 +178,6 @@ To create a KFP pipeline using the Kale JupyterLab extension
 
 6. The notebook's cells are automatically annotated with Kale tags
 
->>>>>>> master
    To fully understand the different Kale tags available, visit Kale [documentation](https://docs.arrikto.com/user/kale/jupyterlab/cell-types.html?highlight=pipeline%20metrics#annotate-pipeline-step-cells)
    
    The following Kale tags were used in this example:
@@ -242,4 +234,3 @@ View Pipeline by clicking "View" in Kale's left panel
  </p>
 =======
  </p>
->>>>>>> master
