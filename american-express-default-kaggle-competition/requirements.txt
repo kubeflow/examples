@@ -1,0 +1,7 @@
+kaggle
+pandas
+tqdm
+wget
+lightgbm
+pyarrow
+fastparquet
