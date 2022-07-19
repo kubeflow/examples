@@ -1,5 +1,5 @@
 # Objective
-In this example we are going to convert this generic [notebook](https://github.com/josepholaide/examples/blob/telco/telco-customer-churn-kaggle-competition/telco-customer-churn-orig.ipynb) 
+In this example we are going to convert this generic [notebook](https://github.com/kubeflow/examples/blob/master/telco-customer-churn-kaggle-competition/telco-customer-churn-orig.ipynb) 
 based on the [Telco Customer Churn Prediction](https://www.kaggle.com/datasets/blastchar/telco-customer-churn) competition into a Kubeflow pipeline.
 
 The objective of this task is to analyze customer behavior in the telecommunication sector and to predict their tendency to churn.
@@ -57,20 +57,20 @@ Finally, the  [`create_run_from_pipeline_func`](https://kubeflow-pipelines.readt
 1. Open your Kubeflow Cluster, create a Notebook Server and connect to it.
 
 2. Clone this repo and navigate to this directory.
-3. Open the [telco-customer-churn-kfp](https://github.com/josepholaide/examples/blob/telco/telco-customer-churn-kaggle-competition/telco-customer-churn-kfp.ipynb) notebook 
+3. Open the [telco-customer-churn-kfp](https://github.com/kubeflow/examples/blob/master/telco-customer-churn-kaggle-competition/telco-customer-churn-kfp.ipynb) notebook 
 4. Run the telco-customer-churn-kfp notebook from start to finish
 5. View run details immediately after submitting pipeline.
 
 ### View Pipeline
 
 <p align=center>
-<img src="https://github.com/josepholaide/examples/blob/master/telco-customer-churn-kaggle-competition/images/telco-kfp-pipeline.PNG?raw=true" alt="telco-kfp-pipeline"/>
+<img src="https://github.com/kubeflow/examples/blob/master/telco-customer-churn-kaggle-competition/images/telco-kfp-pipeline.PNG?raw=true" alt="telco-kfp-pipeline"/>
 </p>
 
 ### View Pipeline Visualization
 
 <p align=center>
-<img src="https://github.com/josepholaide/examples/blob/master/telco-customer-churn-kaggle-competition/images/telco-kfp-pipeline-visualization.PNG?raw=true" alt="telco-kfp-pipeline-visualization"/>
+<img src="https://github.com/kubeflow/examples/blob/master/telco-customer-churn-kaggle-competition/images/telco-kfp-pipeline-visualization.PNG?raw=true" alt="telco-kfp-pipeline-visualization"/>
 </p>
 
 ## Section 2: Kale KFP Pipeline
@@ -80,7 +80,7 @@ To create pipeline using the Kale JupyterLab extension
 
 1. Clone GitHub repo and navigate to this directory
 
-2. Launch the [telco-customer-churn-kale](https://github.com/josepholaide/examples/blob/telco/telco-customer-churn-kaggle-competition/telco-customer-churn-kale.ipynb) Notebook
+2. Launch the [telco-customer-churn-kale](https://github.com/kubeflow/examples/blob/master/telco-customer-churn-kaggle-competition/telco-customer-churn-kale.ipynb) Notebook
 
 3. Install the requirements.txt file. After installation, restart kernel.
 
@@ -117,7 +117,7 @@ To create pipeline using the Kale JupyterLab extension
 6. Compile and run the Notebook by hitting the "Compile & Run" in Kale's left panel
 
 <p align=center>
-<img src="https://github.com/josepholaide/examples/blob/master/telco-customer-churn-kaggle-competition/images/kale-deployment-panel.PNG?raw=true" alt="kale-deployment-panel"/>
+<img src="https://github.com/kubeflow/examples/blob/master/telco-customer-churn-kaggle-competition/images/kale-deployment-panel.PNG?raw=true" alt="kale-deployment-panel"/>
 </p>
 
 ### View Pipeline
@@ -125,17 +125,17 @@ To create pipeline using the Kale JupyterLab extension
 View Pipeline by clicking "View" in Kale's left panel
 
 <p align=center>
-<img src="https://github.com/josepholaide/examples/blob/master/telco-customer-churn-kaggle-competition/images/view-pipeline.PNG?raw=true" alt="view-pipeline
+<img src="https://github.com/kubeflow/examples/blob/master/telco-customer-churn-kaggle-competition/images/view-pipeline.PNG?raw=true" alt="view-pipeline
 "/>
 </p>
 
 
 <p align=center>
-<img src="https://github.com/josepholaide/examples/blob/master/telco-customer-churn-kaggle-competition/images/telco-kale-pipeline.PNG?raw=true" alt="telco-kale-pipeline"/>
+<img src="https://github.com/kubeflow/examples/blob/master/telco-customer-churn-kaggle-competition/images/telco-kale-pipeline.PNG?raw=true" alt="telco-kale-pipeline"/>
 </p>
 
 ### View Pipeline Visualization
 
 <p align=center>
-<img src="https://github.com/josepholaide/examples/blob/master/telco-customer-churn-kaggle-competition/images/telco-kale-pipeline-visualization.PNG?raw=true" alt="telco-kale-pipeline-visualization"/>
+<img src="https://github.com/kubeflow/examples/blob/master/telco-customer-churn-kaggle-competition/images/telco-kale-pipeline-visualization.PNG?raw=true" alt="telco-kale-pipeline-visualization"/>
 </p>
