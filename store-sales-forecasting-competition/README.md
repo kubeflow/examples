@@ -27,7 +27,7 @@ If you don’t already have Kubeflow up and running, we recommend signing up for
     - If you are not a Kaggle user, you will first need to create a Kaggle account. After creation of the account, go to your Kaggle Account page and scroll down to API section. 
 
     <p align="center">
-    <img src="images/kaggle_api_token.PNG">
+    <img src="images/kaggle_api_token.png">
     </p>
 
     - Click on Create New API Token. A new API token in the form of kaggle.json file will be created which you can save locally. The kaggle.json file contains your Kaggle username and key.
@@ -96,7 +96,7 @@ After building all the pipeline components, we have to define a pipeline functio
 Pipeline function:
 
 <p align="center">
-    <img src="images/kfp_pipeline_func.PNG">
+    <img src="images/kfp_pipeline_func.png">
 </p>
 
 
@@ -105,7 +105,7 @@ Pipeline function:
 There are different ways to run the pipeline function as mentioned in the [documentation](https://www.kubeflow.org/docs/components/pipelines/sdk/build-pipeline/#compile-and-run-your-pipeline). We would run the pipeline using the Kubeflow Pipelines SDK client.
 
 <p align="center">
-    <img src="images/kfp_client.PNG">
+    <img src="images/kfp_client.png">
 </p>
 
 Once all the cells are executed successfully, you should see two hyperlinks ‘Experiment details’ and ‘Run details’. Click on ‘Run details’ link to observe the pipeline running. 
@@ -113,7 +113,7 @@ Once all the cells are executed successfully, you should see two hyperlinks ‘E
 The final pipeline graph would look as follow:
 
 <p align="center">
-    <img src="images/kfp_pipeline_graph.PNG">
+    <img src="images/kfp_pipeline_graph.png">
 </p>
 
 ## Kale KFP version
@@ -133,7 +133,7 @@ Run the second code cell to download the relevant data from Kaggle using the Kag
 The Kale notebook in the directory is already annotated. To see the annotations, open up the Kale Deployment panel and click on the Enable switch button. Once you have it switched on, you should see the following:
 
 <p align="center">
-    <img src="images/kale_deployment_panel.PNG">
+    <img src="images/kale_deployment_panel.png">
 </p>
 
 Please take time to understand how each cell is annotated by clicking on the cell and checking out the tag being used and what are is its dependencies. Kale provides us with six tags for annotations:
@@ -148,7 +148,7 @@ Please take time to understand how each cell is annotated by clicking on the cel
 You can also see the tags being created by checking out the Cell Metadata by clicking on the Property Inspector above the Kale Deployment Panel button.
 
 <p align="center">
-    <img src="images/kale_cell_metadata.PNG">
+    <img src="images/kale_cell_metadata.png">
 </p>
 
 ### Step 2: Run the Kubeflow Pipeline
@@ -164,7 +164,7 @@ Once you’ve tagged your notebook, click on the “Compile and Run” button in
 In the “Running pipeline” output, click on the “View” hyperlink. This will take you directly to the runtime execution graph where you can watch your pipeline execute and update in real-time.
 
 <p align="center">
-    <img src="images/kale_pipeline_graph.PNG">
+    <img src="images/kale_pipeline_graph.png">
 </p>
 
 ## Note:
