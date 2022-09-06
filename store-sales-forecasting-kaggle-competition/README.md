@@ -126,7 +126,15 @@ Run the first code cell to install all the required packages (not available unde
 
 ### Step 2: Download the data from Kaggle
 
-Run the second code cell to download the relevant data from Kaggle using the Kaggle Public API. You will require the API credentials from the kaggle.json file you got earlier in the Initial Steps. For the Kale notebook version, you don't have to create the secret, just need the API credentials to download the data. Once the code cell is run, you should see a new "data" directory being created with the zip files downloaded and unzipped. Please ensure that you run the cell only once so you don't create nested directories. Restart the kernel before running the code cell again. 
+Run this cell to download the data for this competition from Kaggle using the Kaggle Public API. You will need the username and API token from the kaggle.json file you generated previously for the the KFP SDK pipeline. For the Kale pipeline, you don't have to create a Kubernetes secret, just manually substitute your credentials in the following lines of code:
+
+```
+os.environ['KAGGLE_USERNAME'] = "KAGGLE_USERNAME"
+os.environ['KAGGLE_KEY'] = "KAGGLE_KEY"
+
+```
+
+Once the cell is run, you should see a new "data" directory being created with the zip files downloaded and unzipped. Please ensure that you run the cell only once so you don't create nested directories. Restart the kernel before running the code cell again. 
 
 ### Step 3: Annotate the notebook with Kale tags
 
