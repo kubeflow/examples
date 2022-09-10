@@ -1,0 +1,177 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: openvaccine-
+  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.1.2, pipelines.kubeflow.org/pipeline_compilation_time: '2022-06-26T07:19:56.822608',
+    pipelines.kubeflow.org/pipeline_spec: '{"description": "pipeline to run openvaccine",
+      "inputs": [{"name": "trial"}, {"name": "epoch"}, {"name": "batchsize"}, {"name":
+      "embeddim"}, {"name": "hiddendim"}, {"name": "dropout"}, {"name": "spdropout"},
+      {"name": "trainsequencelength"}], "name": "openvaccine"}'}
+  labels: {pipelines.kubeflow.org/kfp_sdk_version: 1.1.2}
+spec:
+  entrypoint: openvaccine
+  templates:
+  - name: evaluate
+    container:
+      args: [--LR, '{{inputs.parameters.trial}}', --EPOCHS, '{{inputs.parameters.epoch}}',
+        --BATCH_SIZE, '{{inputs.parameters.batchsize}}', --EMBED_DIM, '{{inputs.parameters.embeddim}}',
+        --HIDDEN_DIM, '{{inputs.parameters.hiddendim}}', --DROPOUT, '{{inputs.parameters.dropout}}',
+        --SP_DROPOUT, '{{inputs.parameters.spdropout}}', --TRAIN_SEQUENCE_LENGTH,
+        '{{inputs.parameters.trainsequencelength}}']
+      command: [python3, eval.py]
+      image: hubdocker76/eval:v4
+      volumeMounts:
+      - {mountPath: /data, name: pvc}
+    inputs:
+      parameters:
+      - {name: batchsize}
+      - {name: dropout}
+      - {name: embeddim}
+      - {name: epoch}
+      - {name: hiddendim}
+      - {name: pvc-name}
+      - {name: spdropout}
+      - {name: trainsequencelength}
+      - {name: trial}
+    volumes:
+    - name: pvc
+      persistentVolumeClaim: {claimName: '{{inputs.parameters.pvc-name}}'}
+  - name: load-data
+    container:
+      command: [python3, load.py]
+      image: hubdocker76/openvaccine:v10
+      volumeMounts:
+      - {mountPath: /data, name: pvc}
+    inputs:
+      parameters:
+      - {name: pvc-name}
+    metadata:
+      labels:
+        kaggle-secret: "true"
+    volumes:
+    - name: pvc
+      persistentVolumeClaim: {claimName: '{{inputs.parameters.pvc-name}}'}
+  - name: openvaccine
+    inputs:
+      parameters:
+      - {name: batchsize}
+      - {name: dropout}
+      - {name: embeddim}
+      - {name: epoch}
+      - {name: hiddendim}
+      - {name: spdropout}
+      - {name: trainsequencelength}
+      - {name: trial}
+    dag:
+      tasks:
+      - name: evaluate
+        template: evaluate
+        dependencies: [pvc, train]
+        arguments:
+          parameters:
+          - {name: batchsize, value: '{{inputs.parameters.batchsize}}'}
+          - {name: dropout, value: '{{inputs.parameters.dropout}}'}
+          - {name: embeddim, value: '{{inputs.parameters.embeddim}}'}
+          - {name: epoch, value: '{{inputs.parameters.epoch}}'}
+          - {name: hiddendim, value: '{{inputs.parameters.hiddendim}}'}
+          - {name: pvc-name, value: '{{tasks.pvc.outputs.parameters.pvc-name}}'}
+          - {name: spdropout, value: '{{inputs.parameters.spdropout}}'}
+          - {name: trainsequencelength, value: '{{inputs.parameters.trainsequencelength}}'}
+          - {name: trial, value: '{{inputs.parameters.trial}}'}
+      - name: load-data
+        template: load-data
+        dependencies: [pvc]
+        arguments:
+          parameters:
+          - {name: pvc-name, value: '{{tasks.pvc.outputs.parameters.pvc-name}}'}
+      - name: preprocess
+        template: preprocess
+        dependencies: [load-data, pvc]
+        arguments:
+          parameters:
+          - {name: pvc-name, value: '{{tasks.pvc.outputs.parameters.pvc-name}}'}
+      - {name: pvc, template: pvc}
+      - name: train
+        template: train
+        dependencies: [preprocess, pvc]
+        arguments:
+          parameters:
+          - {name: batchsize, value: '{{inputs.parameters.batchsize}}'}
+          - {name: dropout, value: '{{inputs.parameters.dropout}}'}
+          - {name: embeddim, value: '{{inputs.parameters.embeddim}}'}
+          - {name: epoch, value: '{{inputs.parameters.epoch}}'}
+          - {name: hiddendim, value: '{{inputs.parameters.hiddendim}}'}
+          - {name: pvc-name, value: '{{tasks.pvc.outputs.parameters.pvc-name}}'}
+          - {name: spdropout, value: '{{inputs.parameters.spdropout}}'}
+          - {name: trainsequencelength, value: '{{inputs.parameters.trainsequencelength}}'}
+          - {name: trial, value: '{{inputs.parameters.trial}}'}
+  - name: preprocess
+    container:
+      command: [python3, preprocess.py]
+      image: hubdocker76/preprocess-data:v10
+      volumeMounts:
+      - {mountPath: /data, name: pvc}
+    inputs:
+      parameters:
+      - {name: pvc-name}
+    volumes:
+    - name: pvc
+      persistentVolumeClaim: {claimName: '{{inputs.parameters.pvc-name}}'}
+  - name: pvc
+    resource:
+      action: create
+      manifest: |
+        apiVersion: v1
+        kind: PersistentVolumeClaim
+        metadata:
+          name: '{{workflow.name}}-pvc'
+        spec:
+          accessModes:
+          - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi
+    outputs:
+      parameters:
+      - name: pvc-manifest
+        valueFrom: {jsonPath: '{}'}
+      - name: pvc-name
+        valueFrom: {jsonPath: '{.metadata.name}'}
+      - name: pvc-size
+        valueFrom: {jsonPath: '{.status.capacity.storage}'}
+  - name: train
+    container:
+      args: [--LR, '{{inputs.parameters.trial}}', --EPOCHS, '{{inputs.parameters.epoch}}',
+        --BATCH_SIZE, '{{inputs.parameters.batchsize}}', --EMBED_DIM, '{{inputs.parameters.embeddim}}',
+        --HIDDEN_DIM, '{{inputs.parameters.hiddendim}}', --DROPOUT, '{{inputs.parameters.dropout}}',
+        --SP_DROPOUT, '{{inputs.parameters.spdropout}}', --TRAIN_SEQUENCE_LENGTH,
+        '{{inputs.parameters.trainsequencelength}}']
+      command: [python3, model.py]
+      image: hubdocker76/model-training:v21
+      volumeMounts:
+      - {mountPath: /data, name: pvc}
+    inputs:
+      parameters:
+      - {name: batchsize}
+      - {name: dropout}
+      - {name: embeddim}
+      - {name: epoch}
+      - {name: hiddendim}
+      - {name: pvc-name}
+      - {name: spdropout}
+      - {name: trainsequencelength}
+      - {name: trial}
+    volumes:
+    - name: pvc
+      persistentVolumeClaim: {claimName: '{{inputs.parameters.pvc-name}}'}
+  arguments:
+    parameters:
+    - {name: trial}
+    - {name: epoch}
+    - {name: batchsize}
+    - {name: embeddim}
+    - {name: hiddendim}
+    - {name: dropout}
+    - {name: spdropout}
+    - {name: trainsequencelength}
+  serviceAccountName: pipeline-runner

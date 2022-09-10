@@ -1,0 +1,18 @@
+FROM "ubuntu:bionic"
+
+WORKDIR /app
+
+RUN apt-get update 
+RUN apt-get upgrade -y
+RUN apt-get install -y python3-pip
+RUN pip3 install --upgrade pip
+RUN pip3 install numpy
+RUN pip3 install pandas
+RUN pip3 install sklearn
+RUN pip3 install matplotlib
+RUN pip3 install kaggle
+COPY . /app/
+
+
+ENTRYPOINT [ "python3", "decisiontree.py" ]
+
