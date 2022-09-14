@@ -1,0 +1,115 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: blue-book-for-bulldozers-
+  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.1.2, pipelines.kubeflow.org/pipeline_compilation_time: '2022-06-26T06:52:09.688014',
+    pipelines.kubeflow.org/pipeline_spec: '{"description": "pipeline to run blue book
+      for bulldozers", "name": "blue book for bulldozers"}'}
+  labels: {pipelines.kubeflow.org/kfp_sdk_version: 1.1.2}
+spec:
+  entrypoint: blue-book-for-bulldozers
+  templates:
+  - name: blue-book-for-bulldozers
+    dag:
+      tasks:
+      - name: load-data
+        template: load-data
+        dependencies: [pvc]
+        arguments:
+          parameters:
+          - {name: pvc-name, value: '{{tasks.pvc.outputs.parameters.pvc-name}}'}
+      - name: preprocess
+        template: preprocess
+        dependencies: [load-data, pvc]
+        arguments:
+          parameters:
+          - {name: pvc-name, value: '{{tasks.pvc.outputs.parameters.pvc-name}}'}
+      - {name: pvc, template: pvc}
+      - name: test
+        template: test
+        dependencies: [pvc, train]
+        arguments:
+          parameters:
+          - {name: pvc-name, value: '{{tasks.pvc.outputs.parameters.pvc-name}}'}
+      - name: train
+        template: train
+        dependencies: [preprocess, pvc]
+        arguments:
+          parameters:
+          - {name: pvc-name, value: '{{tasks.pvc.outputs.parameters.pvc-name}}'}
+  - name: load-data
+    container:
+      command: [python3, load.py]
+      image: hubdocker76/bulldozers:v6
+      volumeMounts:
+      - {mountPath: /data, name: pvc}
+    inputs:
+      parameters:
+      - {name: pvc-name}
+    metadata:
+      labels:
+        kaggle-secret: "true"
+    volumes:
+    - name: pvc
+      persistentVolumeClaim: {claimName: '{{inputs.parameters.pvc-name}}'}
+  - name: preprocess
+    container:
+      command: [python3, preprocess.py]
+      image: hubdocker76/bulldozers-preprocess:v1
+      volumeMounts:
+      - {mountPath: /data, name: pvc}
+    inputs:
+      parameters:
+      - {name: pvc-name}
+    volumes:
+    - name: pvc
+      persistentVolumeClaim: {claimName: '{{inputs.parameters.pvc-name}}'}
+  - name: pvc
+    resource:
+      action: create
+      manifest: |
+        apiVersion: v1
+        kind: PersistentVolumeClaim
+        metadata:
+          name: '{{workflow.name}}-pvc'
+        spec:
+          accessModes:
+          - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi
+    outputs:
+      parameters:
+      - name: pvc-manifest
+        valueFrom: {jsonPath: '{}'}
+      - name: pvc-name
+        valueFrom: {jsonPath: '{.metadata.name}'}
+      - name: pvc-size
+        valueFrom: {jsonPath: '{.status.capacity.storage}'}
+  - name: test
+    container:
+      command: [python3, test.py]
+      image: hubdocker76/bulldozers-test:v2
+      volumeMounts:
+      - {mountPath: /data, name: pvc}
+    inputs:
+      parameters:
+      - {name: pvc-name}
+    volumes:
+    - name: pvc
+      persistentVolumeClaim: {claimName: '{{inputs.parameters.pvc-name}}'}
+  - name: train
+    container:
+      command: [python3, train.py]
+      image: hubdocker76/bulldozers-train:v2
+      volumeMounts:
+      - {mountPath: /data, name: pvc}
+    inputs:
+      parameters:
+      - {name: pvc-name}
+    volumes:
+    - name: pvc
+      persistentVolumeClaim: {claimName: '{{inputs.parameters.pvc-name}}'}
+  arguments:
+    parameters: []
+  serviceAccountName: pipeline-runner
