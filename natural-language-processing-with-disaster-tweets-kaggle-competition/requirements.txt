@@ -1,10 +1,7 @@
-seaborn
-nltk
-sklearn
-collection
-gensim
-keras
-tensorflow
-pyspellchecker
-wget
-zipfile36
+matplotlib==3.3.4
+seaborn==0.9.0
+nltk==3.6.7
+scikit-learn==0.23.2
+gensim==4.2.0
+tensorflow==2.3.0
+wget==3.2
