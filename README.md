@@ -1,148 +1,52 @@
-# kubeflow-examples
+# Transfer_learning_Template-application
+This repo. Is intended for constructing a pipeline template for transfer learning applications.  Transfer learning is a technique which allows replacing of the hidden layer parameters in an AI training process where the input sample size is small.  The outcome of the training results from a small sample size is generally either biased or performs badly.  This repo. Introduces a template construct which allows the replacement action from a large data set such as Vgg-16 or Resnet.  Users don’t have to rewrite the transfer learning code and replace the big data hidden layers  manually.  After the transfer learning template is developed, it can be uploaded and shared on the Kubeflow pipeline UI.  A Pipelines component is a set of independent user code, packaged as a Docker image, that executes a step in a pipeline. For example, a component can be responsible for data preprocessing, data transformation, model training, etc., implemented as a Kubernetes CRD (Custom Resource Definition). So workflows can be managed using kubectl and integrated with other Kubernetes services such as volumes, secrets, and RBAC.
+The test data set used in this repo. Is from voice speech recognition application.  The voice patterns of three persons is converted in frequency spectrum via fourier transformation as the following example.
 
-A repository to share extended Kubeflow examples and tutorials to demonstrate machine learning
-concepts, data science workflows, and Kubeflow deployments. The examples illustrate the happy path,
-acting as a starting point for new users and a reference guide for experienced users.
+The transformed spectrum is reduced to a 100*100 image as shown below.  There are three categories of images from three different persons.  An eight twenty ratio of data division is used for training and testing of the proposed transfer learning template examples.  
 
-This repository is home to the following types of examples and demos:
-* [End-to-end](#end-to-end)
-* [Component-focused](#component-focused)
-* [Demos](#demos)
+![image](https://user-images.githubusercontent.com/89516000/195132853-29e6a45d-2e53-44c3-b2a1-e649510033b2.png)
+![image](https://user-images.githubusercontent.com/89516000/195132872-fae7fd6b-de8f-4b15-b641-4673decbc965.png)
 
-## End-to-end
+The following are steps to construct the transfer learning template pipeline.
+1.	Load the required package, define the required version through requirements.txt and run it.
 
-### [Named Entity Recognition](./named_entity_recognition)
-Author: [Sascha Heyer](https://github.com/saschaheyer)
+![image](https://user-images.githubusercontent.com/89516000/195132895-75c3b470-f0cf-4d3c-ae40-71247aac6d2b.png)
 
-This example covers the following concepts:
-1. Build reusable pipeline components
-2. Run Kubeflow Pipelines with Jupyter notebooks
-1. Train a Named Entity Recognition model on a Kubernetes cluster
-1. Deploy a Keras model to AI Platform
-1. Use Kubeflow metrics
-1. Use Kubeflow visualizations 
+2. The established pipeline diagram, using transfer learning, divides the model into three components.  They are divided into input data, model and output parts. The entire pipeline flow is divided into the parts of establishment, model input layer, and data training.
+3. The pipeline establishment process is to extract the training data first, and use two parameters (data_path, model_file) to load the dataset required by the model which are the directory where the original data is located, and the file name of the model respectively.  We use data_path to read the files needed.  It is revealed through built-in jupyter editor of Kubeflow.  All data can be run locally, and it is also convenient to find the data path for training when the model is loaded in later use.
+ 
+![image](https://user-images.githubusercontent.com/89516000/195132921-618ebf18-1f4b-4ca2-958d-c5a42a6772c2.png)
 
-### [GitHub issue summarization](./github_issue_summarization)
-Author: [Hamel Husain](https://github.com/hamelsmu)
+4.Then enter the data training stage, use the migration learning of CNN to process the data, first establish a preliminary CNN model, set the top input layer (include_top) to false (remove the input layer to fit into our input part), this Indicates that the VGG16 model will be loaded, excluding the convolutional layers added to the last 3 layers in order to obtain Features.  After the model is built, iterate 10 times to process the input data.
 
-This example covers the following concepts:
-1. Natural Language Processing (NLP) with Keras and Tensorflow
-1. Connecting to Jupyterhub
-1. Shared persistent storage
-1. Training a Tensorflow model
-    1. CPU
-    1. GPU
-1. Serving with Seldon Core
-1. Flask front-end
+![image](https://user-images.githubusercontent.com/89516000/195132946-ee44f391-ab84-49e3-90ad-bf63f2cf4112.png)
 
-### [Pachyderm Example - GitHub issue summarization](./github_issue_summarization/Pachyderm_Example)
-Author: [Nick Harvey](https://github.com/Nick-Harvey) & [Daniel Whitenack](https://github.com/dwhitena)
+5. Go to predict components and load my original data path (data_path) and model (model_file) to make predictions.
 
-This example covers the following concepts:
-1. A production pipeline for pre-processing, training, and model export
-1. CI/CD for model binaries, building and deploying a docker image for serving in Seldon
-1. Full tracking of what data produced which model, and what model is being used for inference
-1. Automatic updates of models based on changes to training data or code
-1. Training with single node Tensorflow and distributed TF-jobs
+![image](https://user-images.githubusercontent.com/89516000/195132995-c6dc82c8-ff83-4898-a5f8-8bca0da569d0.png)
 
-### [Pytorch MNIST](./pytorch_mnist)
-Author: [David Sabater](https://github.com/dsdinter)
+6. Next start to build the workflow.  load the components of train and predict into a container, use the function to convert it into a container to package it to build the data. Here, the parameters are the components of train and predict.  The formed image is then used to run all future operations.
 
-This example covers the following concepts:
-1. Distributed Data Parallel (DDP) training with Pytorch on CPU and GPU
-1. Shared persistent storage
-1. Training a Pytorch model
-    1. CPU
-    1. GPU
-1. Serving with Seldon Core
-1. Flask front-end
+![image](https://user-images.githubusercontent.com/89516000/195133037-657498b9-072d-4031-aaab-6329c875ecdd.png)
 
-### [MNIST](./mnist)
+7.This step package the image and configure the running status of the pipeline. The sequence is the input of the training model -> model -> training result.  I configure the generated image to /mnt/ of the built-in jupyter, so the path to the pipeline is also required.  The specified data_path is in /mnt/ in order to bring out the trained data, the model trained file is also generated in this path (tf_model.h5), and the predicted image name (0.jpg), in order to establish a working pipeline . Finally, compile the pipeline, package it into yaml and execute it.
+ 
+![image](https://user-images.githubusercontent.com/89516000/195133085-0247d840-5c44-4a28-93af-ef9ecaeefe39.png)
+![image](https://user-images.githubusercontent.com/89516000/195133107-d0c43393-8a93-4ccc-8d7a-2ac950ccd306.png)
 
-Author: [Elson Rodriguez](https://github.com/elsonrodriguez)
+8. The complete cycle is a set of pipelines with migration learning as a template. The model components are used to wrap the input layer of the model, and the model can also be replaced with a model based on keras (ex. Caffe, PyTorch, TensorFlow) for training.  The purpose is to apply the data to the trained model, set the image path and the path to generate the mirror image, and realize the deployment of various machine learning on the pipeline.
 
-This example covers the following concepts:
-1. Image recognition of handwritten digits
-1. S3 storage
-1. Training automation with Argo
-1. Monitoring with Argo UI and Tensorboard
-1. Serving with Tensorflow
+![image](https://user-images.githubusercontent.com/89516000/195133169-7260eae7-b761-4be3-ac9a-6121bd3ba02d.png)
 
-### [Distributed Object Detection](./object_detection)
+9.	The generated yaml file is used to package the model and the training template. Our model has been compiled into an image and packaged.  The generated file is uploaded to the pipeline for execution.
+ 
+![image](https://user-images.githubusercontent.com/89516000/195133204-7af28767-c99d-44fc-844a-f70783e54d77.png)
+![image](https://user-images.githubusercontent.com/89516000/195133219-4e2f65ea-fa56-4f56-9087-7321f2736de9.png)
 
-Author: [Daniel Castellanos](https://github.com/ldcastell)
+10. The output data is presented in the pod in the form of training, and 10 batches are repeated to process the images, and then the trained information is stored in tf_model.h5.
 
-This example covers the following concepts:
-1. Gathering and preparing the data for model training using K8s jobs
-1. Using Kubeflow tf-job and tf-operator to launch a distributed object training job
-1. Serving the model through Kubeflow's tf-serving
+![image](https://user-images.githubusercontent.com/89516000/195133259-979ba97d-45f4-4145-bc01-c4e0527da33c.png)
 
-### [Financial Time Series](./financial_time_series)
+11. Create a yaml file with pipeline components and output it to kubeflow for k8s as a container orchestration subordinate, and use minikube CLI to view pod logs on the local side.
 
-Author: [Sven Degroote](https://github.com/Svendegroote91)
-
-This example covers the following concepts:
-1. Deploying Kubeflow to a GKE cluster
-2. Exploration via JupyterHub (prospect data, preprocess data, develop ML model)
-3. Training several tensorflow models at scale with TF-jobs
-4. Deploy and serve with TF-serving
-5. Iterate training and serving
-6. Training on GPU
-7. Using Kubeflow Pipelines to automate ML workflow
-
-### [Pipelines](./pipelines)
-
-#### [Simple notebook pipeline](./pipelines/simple-notebook-pipeline)
-Author: [Zane Durante](https://github.com/zanedurante)
-
-This example covers the following concepts:
-1. How to create pipeline components from python functions in jupyter notebook
-2. How to compile and run a pipeline from jupyter notebook
-
-#### [MNIST Pipelines](./pipelines/mnist-pipelines)
-Author: [Dan Sanche](https://github.com/DanSanche) and [Jin Chi He](https://github.com/jinchihe)
-
-This example covers the following concepts:
-1. Run MNIST Pipelines sample on a Google Cloud Platform (GCP).
-2. Run MNIST Pipelines sample for on premises cluster.
-
-## Component-focused
-
-### [XGBoost - Ames housing price prediction](./xgboost_ames_housing)
-Author: [Puneith Kaul](https://github.com/puneith)
-
-This example covers the following concepts:
-1. Training an XGBoost model
-1. Shared persistent storage
-1. GCS and GKE
-1. Serving with Seldon Core
-
-## Demos
-
-Demos are for showing Kubeflow or one of its components publicly, with the
-intent of highlighting product vision, not necessarily teaching. In contrast,
-the goal of the **examples** is to provide a self-guided walkthrough of
-Kubeflow or one of its components, for the purpose of teaching you how to
-install and use the product.
-
-In an *example*, all commands should be embedded in the process and explained.
-In a *demo*, most details should be done behind the scenes, to optimize for
- on-stage rhythm and limited timing.
-
-You can find the demos in the [`/demos` directory](demos/).
-
-## Third-party hosted
-
-| Source | Example | Description |
-| ------ | ------- | ----------- |
-| | | | |
-
-## Get Involved
-
-* [Slack](https://join.slack.com/t/kubeflow/shared_invite/zt-cpr020z4-PfcAue_2nw67~iIDy7maAQ)
-* [Twitter](http://twitter.com/kubeflow)
-* [Mailing List](https://groups.google.com/forum/#!forum/kubeflow-discuss)
-
-In the interest of fostering an open and welcoming environment, we as contributors and maintainers pledge to making participation in our project and our community a harassment-free experience for everyone, regardless of age, body size, disability, ethnicity, gender identity and expression, level of experience, education, socio-economic status, nationality, personal appearance, race, religion, or sexual identity and orientation.
-
-The Kubeflow community is guided by our [Code of Conduct](https://github.com/kubeflow/community/blob/master/CODE_OF_CONDUCT.md), which we encourage everybody to read before participating.
+![image](https://user-images.githubusercontent.com/89516000/195133300-e00628d5-fddf-404a-be0b-ce5d4c222be8.png)
