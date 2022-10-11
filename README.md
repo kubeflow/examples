@@ -1,11 +1,13 @@
-Transfer_learning_Template-application
+#Transfer_learning_Template-application
 
-The transformed spectrum is reduced to a 100*100 image as shown below.  There are three categories of images from three different persons.  An eight twenty ratio of data division is used for training and testing of the proposed transfer learning template examples.  
+1.This repo. Is intended for constructing a pipeline template for transfer learning applications.  Transfer learning is a technique which allows replacing of the hidden layer parameters in an AI training process where the input sample size is small.  The outcome of the training results from a small sample size is generally either biased or performs badly.  This repo. Introduces a template construct which allows the replacement action from a large data set such as Vgg-16 or Resnet.  Users don’t have to rewrite the transfer learning code and replace the big data hidden layers  manually.  After the transfer learning template is developed, it can be uploaded and shared on the Kubeflow pipeline UI.  A Pipelines component is a set of independent user code, packaged as a Docker image, that executes a step in a pipeline. For example, a component can be responsible for data preprocessing, data transformation, model training, etc., implemented as a Kubernetes CRD (Custom Resource Definition). So workflows can be managed using kubectl and integrated with other Kubernetes services such as volumes, secrets, and RBAC.
+The test data set used in this repo. Is from voice speech recognition application.  The voice patterns of three persons is converted in frequency spectrum via fourier transformation as the following example.
+The transformed spectrum is reduced to a 100*100 image as shown below.  There are three categories of images from three different persons.  An eight twenty ratio of data division is used for training and testing of the proposed transfer learning template examples.The transformed spectrum is reduced to a 100*100 image as shown below.  There are three categories of images from three different persons.  An eight twenty ratio of data division is used for training and testing of the proposed transfer learning template examples.  
 
 ![image](https://user-images.githubusercontent.com/89516000/195132853-29e6a45d-2e53-44c3-b2a1-e649510033b2.png)
 ![image](https://user-images.githubusercontent.com/89516000/195132872-fae7fd6b-de8f-4b15-b641-4673decbc965.png)
 
-The following are steps to construct the transfer learning template pipeline.
+#The following are steps to construct the transfer learning template pipeline.
 1.	Load the required package, define the required version through requirements.txt and run it.
 
 ![image](https://user-images.githubusercontent.com/89516000/195132895-75c3b470-f0cf-4d3c-ae40-71247aac6d2b.png)
