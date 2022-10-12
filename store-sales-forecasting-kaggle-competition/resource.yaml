@@ -1,0 +1,16 @@
+apiVersion: "kubeflow.org/v1alpha1"
+kind: PodDefault
+metadata:
+  name: kaggle-access
+spec:
+ selector:
+  matchLabels:
+    kaggle-secret: "true"
+ desc: "kaggle-access"
+ volumeMounts:
+ - name: secret-volume
+   mountPath: /secret/kaggle
+ volumes:
+ - name: secret-volume
+   secret:
+    secretName: kaggle-secret
