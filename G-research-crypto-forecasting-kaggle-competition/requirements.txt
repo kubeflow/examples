@@ -2,4 +2,5 @@ kaggle
 pandas
 tqdm
 lightgbm
-talib-binary
+ta-lib-binary
+numpy==1.20.0
