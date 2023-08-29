@@ -1,0 +1,389 @@
+[
+    {
+        "id": "f6f2187d.f17ca8",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "a1b2b31b.65fe7",
+        "type": "tab",
+        "label": "python-shell test",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "3cc11d24.ff01a2",
+        "type": "comment",
+        "z": "f6f2187d.f17ca8",
+        "name": "WARNING: please check you have started this container with a volume that is mounted to /data\\n otherwise any flow changes are lost when you redeploy or upgrade the container\\n (e.g. upgrade to a more recent node-red docker image).\\n  If you are using named volumes you can ignore this warning.\\n Double click or see info side panel to learn how to start Node-RED in Docker to save your work",
+        "info": "\nTo start docker with a bind mount volume (-v option), for example:\n\n```\ndocker run -it -p 1880:1880 -v /home/user/node_red_data:/data --name mynodered nodered/node-red\n```\n\nwhere `/home/user/node_red_data` is a directory on your host machine where you want to store your flows.\n\nIf you do not do this then you can experiment and redploy flows, but if you restart or upgrade the container the flows will be disconnected and lost. \n\nThey will still exist in a hidden data volume, which can be recovered using standard docker techniques, but that is much more complex than just starting with a named volume as described above.",
+        "x": 350,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "c228c538ddfd97cc",
+        "type": "inject",
+        "z": "f6f2187d.f17ca8",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 300,
+        "y": 440,
+        "wires": [
+            [
+                "fae8437b33358ca0"
+            ]
+        ]
+    },
+    {
+        "id": "fae8437b33358ca0",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "",
+        "func": "// Create a Date object from the payload\nvar date = new Date(msg.payload);\n// Change the payload to be a formatted Date string\nmsg.payload = date.toString();\n// Return the message so it can be sent on\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 480,
+        "y": 440,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "7588c855ba3f1c81",
+        "type": "pythonshell in",
+        "z": "f6f2187d.f17ca8",
+        "name": "kfp python",
+        "pyfile": "/data/main/py/kfp_example.py",
+        "virtualenv": "",
+        "continuous": true,
+        "stdInData": false,
+        "python3": true,
+        "x": 670,
+        "y": 440,
+        "wires": [
+            [
+                "b126ea03f7d74573"
+            ]
+        ]
+    },
+    {
+        "id": "b126ea03f7d74573",
+        "type": "debug",
+        "z": "f6f2187d.f17ca8",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 870,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "692c86b087eed4a0",
+        "type": "pythonshell in",
+        "z": "f6f2187d.f17ca8",
+        "name": "install dependency",
+        "pyfile": "/data/main/py/install.py",
+        "virtualenv": "",
+        "continuous": true,
+        "stdInData": false,
+        "python3": true,
+        "x": 570,
+        "y": 300,
+        "wires": [
+            [
+                "0b5c3b39a424dc6a"
+            ]
+        ]
+    },
+    {
+        "id": "0b5c3b39a424dc6a",
+        "type": "debug",
+        "z": "f6f2187d.f17ca8",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 770,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "3b1a0675389769a1",
+        "type": "comment",
+        "z": "f6f2187d.f17ca8",
+        "name": "install python dependency",
+        "info": "",
+        "x": 590,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "04e11dfd70107dcf",
+        "type": "comment",
+        "z": "f6f2187d.f17ca8",
+        "name": "read experiemnt data from kfp",
+        "info": "",
+        "x": 600,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "3df34b3a.b6bb8c",
+        "type": "pythonshell in",
+        "z": "a1b2b31b.65fe7",
+        "name": "dataset",
+        "pyfile": "/data/main/py/TF_pipeline/dataset_modify.py",
+        "virtualenv": "",
+        "continuous": false,
+        "stdInData": false,
+        "python3": false,
+        "x": 320,
+        "y": 140,
+        "wires": [
+            [
+                "f811cd5c.e9dfe8"
+            ]
+        ]
+    },
+    {
+        "id": "f4dcbeae.1da998",
+        "type": "inject",
+        "z": "a1b2b31b.65fe7",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": "",
+        "topic": "",
+        "payload": "datapath = \"/data/new/py/example.py\"",
+        "payloadType": "str",
+        "x": 130,
+        "y": 140,
+        "wires": [
+            [
+                "3df34b3a.b6bb8c"
+            ]
+        ]
+    },
+    {
+        "id": "f811cd5c.e9dfe8",
+        "type": "debug",
+        "z": "a1b2b31b.65fe7",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 530,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "eb21bb3c5671b6da",
+        "type": "pythonshell in",
+        "z": "a1b2b31b.65fe7",
+        "name": "model",
+        "pyfile": "/data/main/py/TF_pipeline/model_modify.py",
+        "virtualenv": "",
+        "continuous": false,
+        "stdInData": false,
+        "python3": false,
+        "x": 310,
+        "y": 220,
+        "wires": [
+            [
+                "0f7a3117cc8d1f19"
+            ]
+        ]
+    },
+    {
+        "id": "0f7a3117cc8d1f19",
+        "type": "debug",
+        "z": "a1b2b31b.65fe7",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 530,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "111acb04222cec16",
+        "type": "inject",
+        "z": "a1b2b31b.65fe7",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": "",
+        "topic": "",
+        "payload": "datapath = \"/data/new/py/example.py\"",
+        "payloadType": "str",
+        "x": 130,
+        "y": 220,
+        "wires": [
+            [
+                "eb21bb3c5671b6da"
+            ]
+        ]
+    },
+    {
+        "id": "de7b9195aca1d2b8",
+        "type": "inject",
+        "z": "a1b2b31b.65fe7",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": "",
+        "topic": "",
+        "payload": "datapath = \"/data/new/py/example.py\"",
+        "payloadType": "str",
+        "x": 130,
+        "y": 300,
+        "wires": [
+            [
+                "93f8c7ecef9cdadb"
+            ]
+        ]
+    },
+    {
+        "id": "93f8c7ecef9cdadb",
+        "type": "pythonshell in",
+        "z": "a1b2b31b.65fe7",
+        "name": "train",
+        "pyfile": "/data/main/py/TF_pipeline/train_modify.py",
+        "virtualenv": "",
+        "continuous": false,
+        "stdInData": false,
+        "python3": false,
+        "x": 310,
+        "y": 300,
+        "wires": [
+            [
+                "38528b71abd4b5dd"
+            ]
+        ]
+    },
+    {
+        "id": "38528b71abd4b5dd",
+        "type": "debug",
+        "z": "a1b2b31b.65fe7",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 530,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "5f7f50e1a366be20",
+        "type": "pythonshell in",
+        "z": "a1b2b31b.65fe7",
+        "name": "deploy",
+        "pyfile": "/data/main/py/TF_pipeline/deploy.py",
+        "virtualenv": "",
+        "continuous": false,
+        "stdInData": false,
+        "python3": false,
+        "x": 310,
+        "y": 360,
+        "wires": [
+            [
+                "78de1be973fcac76"
+            ]
+        ]
+    },
+    {
+        "id": "78de1be973fcac76",
+        "type": "debug",
+        "z": "a1b2b31b.65fe7",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 530,
+        "y": 360,
+        "wires": []
+    }
+]
