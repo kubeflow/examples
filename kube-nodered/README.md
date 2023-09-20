@@ -2,61 +2,81 @@
 [![hackmd-github-sync-badge](https://hackmd.io/cocSOGQMR-qzo7DHdwgRsQ/badge)](https://hackmd.io/cocSOGQMR-qzo7DHdwgRsQ)
 
 Kube-node-red is aiming to integrate Kubeflow/Kubebeters with node-red, leveraging node-red's low-code modules, and using Kubeflow resources (e.g. Kubeflow pipeline, Kserve) to enhance its AI/ML ability.
-## Architecture
-![5A0ECFB3-D5AC-4A89-8AD5-14696A9E0449](https://github.com/NightLightTw/kubeflow-Node-RED/assets/78789817/7cce84cf-a4df-47a6-9992-9412bc70819b)
-## Demo
-[![demo](https://i.ytimg.com/vi/72tXYl6FcvU/hqdefault.jpg)](https://youtu.be/72tXYl6FcvU)
+## Table of Contents
+<!-- toc -->
 
-## Reference
-https://github.com/NightLightTw/kubeflow-Node-RED/tree/main
+- [Installation](#installation)
+  * [Prerequisites](#Prerequisites)
+  * [Building](#Building)
+  * [Install dependencies](#Install-dependencies)
+- [Using our nodes](#Using-our-nodes)
+- [Test python files to interact with kubeflow](#Test-python-files-to-interact-with-kubeflow)
+- [possible problems and solution](#possible-problems-and-solution)
+- [Modify your own custom nodes/pipeline](#Modify-your-own-custom-nodes/pipeline)
+  * [Kubeflow part](#Kubeflow-part)
+  * [Node-red part](#Node-red-part)
+- [Architecture](#Architecture)
+- [Demo](#Demo)
+- [Reference](#Reference)
 
-https://github.com/kubeflow/pipelines/tree/1.8.21/backend/api/python_http_client
+<!-- tocstop -->
 
-[Kubeflow-Node-red implementation Random Forest training flo](https://hackmd.io/@Nhi7So-lTz2m5R6pHyCLcA/Sk1eZFTbh)
-
-
-# Usage instruction
-## Prerequisite
-
+# Installation
+## Prerequisites
+- `Kubeflow`
 As this project focused on the node-red integration with Kubeflow, one running Kubeflow instance should be ready on a publicly available network.
-(If you need to provision your Kubeflow instance, you could refer to our [mulitkf](https://github.com/footprintai/multikf) project to allocate one instance for developing.)
+(If you need to provision your own Kubeflow instance, you could refer to our [mulitkf](https://github.com/footprintai/multikf) project to allocate one instance for developing.)
+- [`WSL`](https://learn.microsoft.com/en-us/windows/wsl/install) If you are Windows OS.
+- [`Docker`](https://www.docker.com) 
 
-## Build Container Image
+## Building
 
-You can proceed to the [examples](./examples/README.md) folder and run the `./build.sh` to build the image locally or just run the `./run.sh` which would download the base image from our public repository.
+We organized some examples under examples folder, and make sensitive information pass via environment variables. Please refer the following example to launch an individual example:
 
-## Running examples
-
-We organized some examples under [examples](./examples/README.md) folder, and make sensitive information pass via environment variables. Please refer to the following example to launch an individual example:
+1. In terminal (If you on Windows system, please use WSL)
 ```
-# If you use Windows system, it is recommended to use WSL
-$ git clone https://github.com/NightLightTw/kubeflow-Node-RED.git
-
-# enter folder
-cd kubeflow-Node-RED
-
-cd examples && \
+$ git clone https://github.com/NightLightTw/kube-nodered.git
+```
+2. Enter target folder 
+```
+cd kube-nodered/examples
+```
+3. Enter account information and start
+```
 KUBEFLOW_HOST=<your-kubeflow-instance-endpoint> \
 KUBEFLOW_USERNAME=<your-username-account> \
 KUBEFLOW_PASSWORD=<your-password> \
 ./run.sh <example-index>
 ```
-> **Info:** Here <example-index>please use 1.connect-kubeflow
+> **Info:** Here <example-index> please use 1.connect-kubeflow
         
-## User interface
+## Install dependencies
 
-1. then you can go to UI, and check it out: http://127.0.0.1:1880/
-![](https://hackmd.io/_uploads/HkoPcs4B3.png)
+1. Then you can go to UI, check it out: http://127.0.0.1:1880/
+![](https://hackmd.io/_uploads/HJ8Rbmdya.png)
 
-2. press the “install dependency” button to install dependency items such as specific Python libraries and wait for their completion
-![](https://hackmd.io/_uploads/SymtCs4Sn.png)
+2. Click the “install dependency” button to install dependency items such as specific python libraries and wait for its completion
+![](https://hackmd.io/_uploads/rygsMmuy6.png)
 
-3. switch different pipelines and press the time stamp button to trigger the flow process
-![](https://hackmd.io/_uploads/Byn7JnEBn.png)
-> **Info:** If the environment variable does not work, please fill in the account password directly in the Python file
-## Only test Python files to interact with kubeflow
+3. Click the “list experiments” button to test the environment work!
+![](https://hackmd.io/_uploads/HyXxfX_kp.png)
+
+## Using our nodes
+Switch to the "three-pipeline" flow and press the button to trigger the pipeline process
+
+![](https://hackmd.io/_uploads/Hkr4mXdk6.png)
+
+On kubeflow:
+![](https://hackmd.io/_uploads/H1_hEX_JT.png)
+
+
+
+> **Info:** If the environment variable does not work, please fill in the account password directly in the python file
+
+
+## Test python files to interact with kubeflow
 ```
-# Open another terminal and check the docker status
+# Open another terminal and check docker status
 docker ps
 #enter container
 docker exec -it <containerID> bash
@@ -69,30 +89,31 @@ python3 <file-name>
 You can test the file in api_example
 > **Info:** Some of these files require a custom name, description, or assigned id in <change yours>
 
-## possible problems&solution
+## Possible problems and solution
 Q1: MissingSchema Invalid URL ''
+    
 A1: This problem means that the login information is not accessed correctly, which may be caused by the environment variable not being read.
 You can directly override the login information of the specified file
 
 ex:![](https://hackmd.io/_uploads/ryx59rejBh.jpg)
 
-Change your login information
+Change to your own login information
 ```
 host = "https://example@test.com"
 username = "test01"
 password = "123456"
 ```
 
-# What to modify for your own custom nodes/pipeline
+# Modify your own custom nodes/pipeline
 ![implementation architecture](https://hackmd.io/_uploads/H1ZLgUsH2.png)
 
-## Kubeflow part:
+## Kubeflow part
 ### Custom make pipeline’s yaml file
-Please refer to [Kubeflow implementation： add Random Forest algorithm](https://hackmd.io/@Nhi7So-lTz2m5R6pHyCLcA/Sk1eZFTbh)
+Please refer to [Kubeflow implementation：add Random Forest algorithm](https://hackmd.io/@Nhi7So-lTz2m5R6pHyCLcA/Sk1eZFTbh)
 
 ### Take changing randomForest.py as an example
 
-Modify using your yaml file path
+Modify using your own yaml file path
 > **Info:** Line 66: uploadfile='pipelines/only_randomforest.yaml'
 
 > **Info:** Line 122~129 use json parser for filtering different outputs from get_run() 
@@ -123,7 +144,7 @@ auth_session = get_istio_auth_session(
     )
 
 # The client must configure the authentication and authorization parameters
-# by the API server security policy.
+# in accordance with the API server security policy.
 # Examples for each auth method are provided below, use the example that
 # satisfies your auth use case.
 
@@ -144,7 +165,7 @@ with kfp_server_api.ApiClient(configuration, cookie=auth_session["session_cookie
     # Create an instance of the  Experiment API class
     experiment_api_instance = kfp_server_api.ExperimentServiceApi(api_client)
     name="experiment-" + random_suffix()
-    description="This is an experiment for only_randomforest."
+    description="This is a experiment for only_randomforest."
     resource_reference_key_id = namespaces[0]
     resource_references=[kfp_server_api.models.ApiResourceReference(
         key=kfp_server_api.models.ApiResourceKey(
@@ -167,7 +188,7 @@ with kfp_server_api.ApiClient(configuration, cookie=auth_session["session_cookie
     name='pipeline-' + random_suffix()
     description="This is a only_randomForest pipline."
     try:
-        pipeline_api_response = api_instance.upload_pipeline(upload file, name=name, description=description)
+        pipeline_api_response = api_instance.upload_pipeline(uploadfile, name=name, description=description)
         pipeline_id = pipeline_api_response.id # str | The ID of the run to be retrieved.
     except ApiException as e:
         print("Exception when calling PipelineUploadServiceApi->upload_pipeline: %s\n" % e)
@@ -204,7 +225,7 @@ with kfp_server_api.ApiClient(configuration, cookie=auth_session["session_cookie
                 nodes = output['status']['nodes']
                 conditions = output['status']['conditions'] # Comfirm completion.
                 
-            except for KeyError:
+            except KeyError:
                 nodes = {}
                 conditions = []
 
@@ -231,16 +252,11 @@ with kfp_server_api.ApiClient(configuration, cookie=auth_session["session_cookie
         print("Parameter not found.")
         print(nodes)
 ```
-### Test the Python file
-```
-#ensure dependency items
-pip install kfp
-python <python-file>
-```
-## Node-red part: **package nodered pyshell node**
+
+## Node-red part
+**Package nodered pyshell node**
 
 **A node mainly consists of two files**
-
 * **Javascript file(.js)**
 define what the node does
 * **HTML file(.html)**
@@ -292,18 +308,18 @@ When it is established, you need to manually add the node-red attribute
     },
 ```
 ### **Javascript(main function)**
-1. open decisionTree.js
+1.Open decisionTree.js
 ```javascript=
 function PythonshellInNode(config) {
   if (!config.pyfile){
     throw 'pyfile not present';
   }
   this.pythonExec = config.python3 ? "python3" : "python";
-  # Replace the path or change the following path to config .pyfile
+  # Replace the path or change the following path to config.pyfile
   this.pyfile = "/data/1.connect-kubeflow/py/decisionTree.py";
   this.virtualenv = config.virtualenv;
 ```
-2.open deccisiontree.js 
+2.Open deccisiontree.js 
 ```javascript=
 var util = require("util");
 var httpclient;
@@ -313,9 +329,26 @@ var PythonshellNode = require('./decisionTree');
 # To change the name to be registered, it must be consistent with the change of .html
 RED.nodes.registerType("decisionTree", PythonshellInNode);
 ```
-### **connect nodered**
+
+### Connect nodered
 Import the folder where the above file is located to the node_modules directory of the container
 e.g. docker desktop
 ![](https://hackmd.io/_uploads/H1Hg7NJBn.png)
 e.g. wsl
 ![](https://hackmd.io/_uploads/rJwHQN1r2.png)
+
+## Architecture
+![5A0ECFB3-D5AC-4A89-8AD5-14696A9E0449](https://github.com/NightLightTw/kubeflow-Node-RED/assets/78789817/7cce84cf-a4df-47a6-9992-9412bc70819b)
+
+## Demo
+[![demo](https://i.ytimg.com/vi/72tXYl6FcvU/hqdefault.jpg)](https://youtu.be/72tXYl6FcvU)
+
+## Reference
+https://github.com/NightLightTw/kube-nodered
+
+https://github.com/kubeflow/pipelines/tree/1.8.21/backend/api/python_http_client
+
+[Kubeflow implementation：add Random Forest algorithm](https://hackmd.io/@ZJ2023/BJYQGMvJ6)
+
+
+
