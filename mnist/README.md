@@ -119,7 +119,7 @@ Follow these instructions to run the MNIST tutorial on IBM Cloud
 <a id=vanilla></a>
 # MNIST on Kubeflow on Vanilla k8s
 
-1. Follow these [instructions](https://www.kubeflow.org/docs/started/k8s/kfctl-k8s-istio/) to deploy Kubeflow.
+1. Follow these [instructions](https://www.kubeflow.org/docs/started/installing-kubeflow/) to deploy Kubeflow.
 
 1. [Setup docker credentials](#vanilla-docker).
 
