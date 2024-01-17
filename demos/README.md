@@ -12,6 +12,6 @@ that's suitable for presentation to public audiences.
 * [Simple pipeline](simple_pipeline/): highlights the use of pipelines and
   hyperparameter tuning on a GKE cluster with node autoprovisioning.
 
-* [Recurring Run](recurring_run/): A  simple demo that illustrates how to use
+* [Recurring Run](recurring/): A  simple demo that illustrates how to use
   the Kubeflow Pipelines SDK to provision [recurring
   runs](https://www.kubeflow.org/docs/components/pipelines/concepts/run/).
