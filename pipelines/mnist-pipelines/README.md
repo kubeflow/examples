@@ -130,7 +130,7 @@ def mnist_pipeline(model_export_dir='gs://your-bucket/export',
                    pvc_name=''):
 ```
 The pipeline is defined in the mnist_pipeline function. It includes a number of arguments, which are exposed in the Kubeflow Pipelines UI when creating a new Run. 
-Although passed as strings, these arguments are of type [`kfp.dsl.PipelineParam`](https://github.com/kubeflow/pipelines/blob/master/sdk/python/kfp/dsl/_pipeline_param.py)
+Although passed as strings, these arguments are of type [`kfp.dsl.PipelineParam`](https://github.com/kubeflow/pipelines/blob/master/sdk/python/kfp/deprecated/dsl/_pipeline_param.py)
 
 #### Train
 ```
@@ -146,7 +146,7 @@ train = dsl.ContainerOp(
         ]
 )
 ```
-This block defines the 'train' component. A component is made up of a [`kfp.dsl.ContainerOp`](https://github.com/kubeflow/pipelines/blob/master/sdk/python/kfp/dsl/_container_op.py) 
+This block defines the 'train' component. A component is made up of a [`kfp.dsl.ContainerOp`](https://github.com/kubeflow/pipelines/blob/master/sdk/python/kfp/deprecated/dsl/_container_op.py) 
 object with the container path and a name specified. The container image used is defined in the [Dockerfile.model in the MNIST example](https://github.com/kubeflow/examples/blob/master/mnist/Dockerfile.model)
 
 After defining the train component, we also set a number of environment variables for the training script
