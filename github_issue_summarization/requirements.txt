@@ -43,7 +43,7 @@ dask==0.16.1
 datashape==0.5.4
 decorator==4.2.1
 dill==0.2.7.1
-distributed==1.20.2
+distributed==2021.10.0
 docopt==0.6.2
 docutils==0.14
 en-core-web-sm==2.0.0
