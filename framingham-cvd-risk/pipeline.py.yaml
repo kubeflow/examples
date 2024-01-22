@@ -1,0 +1,770 @@
+# PIPELINE DEFINITION
+# Name: framingham-cvd-risk-pipeline
+components:
+  comp-createpvc:
+    executorLabel: exec-createpvc
+    inputDefinitions:
+      parameters:
+        access_modes:
+          description: 'AccessModes to request for the provisioned PVC. May
+
+            be one or more of ``''ReadWriteOnce''``, ``''ReadOnlyMany''``, ``''ReadWriteMany''``,
+            or
+
+            ``''ReadWriteOncePod''``. Corresponds to `PersistentVolumeClaim.spec.accessModes
+            <https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes>`_.'
+          parameterType: LIST
+        annotations:
+          description: Annotations for the PVC's metadata. Corresponds to `PersistentVolumeClaim.metadata.annotations
+            <https://kubernetes.io/docs/reference/kubernetes-api/config-and-storage-resources/persistent-volume-claim-v1/#PersistentVolumeClaim>`_.
+          isOptional: true
+          parameterType: STRUCT
+        pvc_name:
+          description: 'Name of the PVC. Corresponds to `PersistentVolumeClaim.metadata.name
+            <https://kubernetes.io/docs/reference/kubernetes-api/config-and-storage-resources/persistent-volume-claim-v1/#PersistentVolumeClaim>`_.
+            Only one of ``pvc_name`` and ``pvc_name_suffix`` can
+
+            be provided.'
+          isOptional: true
+          parameterType: STRING
+        pvc_name_suffix:
+          description: 'Prefix to use for a dynamically generated name, which
+
+            will take the form ``<argo-workflow-name>-<pvc_name_suffix>``. Only one
+
+            of ``pvc_name`` and ``pvc_name_suffix`` can be provided.'
+          isOptional: true
+          parameterType: STRING
+        size:
+          description: The size of storage requested by the PVC that will be provisioned.
+            For example, ``'5Gi'``. Corresponds to `PersistentVolumeClaim.spec.resources.requests.storage
+            <https://kubernetes.io/docs/reference/kubernetes-api/config-and-storage-resources/persistent-volume-claim-v1/#PersistentVolumeClaimSpec>`_.
+          parameterType: STRING
+        storage_class_name:
+          defaultValue: ''
+          description: 'Name of StorageClass from which to provision the PV
+
+            to back the PVC. ``None`` indicates to use the cluster''s default
+
+            storage_class_name. Set to ``''''`` for a statically specified PVC.'
+          isOptional: true
+          parameterType: STRING
+        volume_name:
+          description: 'Pre-existing PersistentVolume that should back the
+
+            provisioned PersistentVolumeClaim. Used for statically
+
+            specified PV only. Corresponds to `PersistentVolumeClaim.spec.volumeName
+            <https://kubernetes.io/docs/reference/kubernetes-api/config-and-storage-resources/persistent-volume-claim-v1/#PersistentVolumeClaimSpec>`_.'
+          isOptional: true
+          parameterType: STRING
+    outputDefinitions:
+      parameters:
+        name:
+          parameterType: STRING
+  comp-deletepvc:
+    executorLabel: exec-deletepvc
+    inputDefinitions:
+      parameters:
+        pvc_name:
+          description: Name of the PVC to delete. Supports passing a runtime-generated
+            name, such as a name provided by ``kubernetes.CreatePvcOp().outputs['name']``.
+          parameterType: STRING
+  comp-kaggle-dataset:
+    executorLabel: exec-kaggle-dataset
+  comp-select-best:
+    executorLabel: exec-select-best
+  comp-train-model-using:
+    executorLabel: exec-train-model-using
+    inputDefinitions:
+      parameters:
+        class_name:
+          parameterType: STRING
+        module_name:
+          parameterType: STRING
+  comp-train-model-using-2:
+    executorLabel: exec-train-model-using-2
+    inputDefinitions:
+      parameters:
+        class_name:
+          parameterType: STRING
+        module_name:
+          parameterType: STRING
+  comp-train-model-using-3:
+    executorLabel: exec-train-model-using-3
+    inputDefinitions:
+      parameters:
+        class_name:
+          parameterType: STRING
+        module_name:
+          parameterType: STRING
+  comp-train-model-using-4:
+    executorLabel: exec-train-model-using-4
+    inputDefinitions:
+      parameters:
+        class_name:
+          parameterType: STRING
+        module_name:
+          parameterType: STRING
+  comp-train-model-using-5:
+    executorLabel: exec-train-model-using-5
+    inputDefinitions:
+      parameters:
+        class_name:
+          parameterType: STRING
+        module_name:
+          parameterType: STRING
+  comp-train-model-using-6:
+    executorLabel: exec-train-model-using-6
+    inputDefinitions:
+      parameters:
+        class_name:
+          parameterType: STRING
+        module_name:
+          parameterType: STRING
+deploymentSpec:
+  executors:
+    exec-createpvc:
+      container:
+        image: argostub/createpvc
+    exec-deletepvc:
+      container:
+        image: argostub/deletepvc
+    exec-kaggle-dataset:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - kaggle_dataset
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.6.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
+          \  python3 -m pip install --quiet --no-warn-script-location 'kaggle' 'pandas'\
+          \ 'scikit-learn' && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef kaggle_dataset():\n    from kaggle.api.kaggle_api_extended import\
+          \ KaggleApi\n    kaggle = KaggleApi()\n    kaggle.authenticate()\n    kaggle.dataset_download_files(dataset='kamilpytlak/personal-key-indicators-of-heart-disease',\n\
+          \        path='archive/',\n        force=True,\n        quiet=False,\n \
+          \       unzip=True\n    )\n    import pandas as pd\n    train = pd.read_csv('archive/2020/heart_2020_cleaned.csv')\n\
+          \    numeric_features=['BMI', 'PhysicalHealth', 'MentalHealth', 'SleepTime']\n\
+          \    categorical_features=['HeartDisease', 'Smoking', 'AlcoholDrinking',\
+          \ 'Stroke', 'DiffWalking', 'Sex', 'AgeCategory',\n        'Race', 'Diabetic',\
+          \ 'PhysicalActivity', 'GenHealth','Asthma', 'KidneyDisease', 'SkinCancer']\n\
+          \n    from sklearn.preprocessing import OrdinalEncoder\n    enc = OrdinalEncoder()\n\
+          \    enc.fit(train[categorical_features])\n    train[categorical_features]\
+          \ = enc.transform(train[categorical_features])\n\n    y=train['HeartDisease']\n\
+          \    train.drop('HeartDisease',axis=1,inplace=True)\n\n    from sklearn.model_selection\
+          \ import train_test_split\n    X_train, X_test, y_train, y_test=train_test_split(train,y,test_size=0.1,random_state=42)\n\
+          \    print(X_train)\n\n    import pickle\n    def save_pickle(model, object_file):\n\
+          \        with open(object_file, \"wb\") as f:\n            pickle.dump(model,\
+          \ f)\n    save_pickle(X_train, '/data/X_train.pkl')\n    save_pickle(X_test,\
+          \ '/data/X_test.pkl')\n    save_pickle(y_train, '/data/y_train.pkl')\n \
+          \   save_pickle(y_test,'/data/y_test.pkl')\n    import os\n    print(os.listdir('/data'))\n\
+          \n"
+        image: registry.access.redhat.com/ubi8/python-39
+    exec-select-best:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - select_best
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.6.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
+          \  python3 -m pip install --quiet --no-warn-script-location 'pandas' 'scikit-learn'\
+          \ && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef select_best():\n    import os\n    import pickle\n    def load_pickle(object_file):\n\
+          \        with open(object_file, \"rb\") as f:\n            return pickle.load(f)\n\
+          \    all_files = os.listdir('/data')\n    print(all_files)\n    result_files\
+          \ = [file for file in all_files if file.endswith(\"_results.pkl\")]\n  \
+          \  results = []\n    for result_file in result_files:\n        file_path\
+          \ = os.path.join('/data', result_file)\n        single_result = load_pickle(file_path)\n\
+          \        print(f'Result from file {file_path}: {single_result}')\n     \
+          \   results.append(single_result)\n    best_result = max(results, key=lambda\
+          \ x: x['Accuracy_score'])\n    print(\"Best result:\")\n    import json\n\
+          \    print(json.dumps(best_result, indent=2))\n\n"
+        image: registry.access.redhat.com/ubi8/python-39
+    exec-train-model-using:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - train_model_using
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.6.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
+          \  python3 -m pip install --quiet --no-warn-script-location 'pandas' 'scikit-learn'\
+          \ 'xgboost' && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef train_model_using(module_name: str, class_name: str):\n    print(f'Using\
+          \ model_name: {module_name} {class_name}')\n    import os\n    print(os.listdir('/data'))\n\
+          \    import pickle\n    def save_pickle(model, object_file):\n        with\
+          \ open(object_file, \"wb\") as f:\n            pickle.dump(model, f)\n \
+          \   def load_pickle(object_file):\n        with open(object_file, \"rb\"\
+          ) as f:\n            return pickle.load(f)\n    X_train = load_pickle('/data/X_train.pkl')\n\
+          \    X_test = load_pickle('/data/X_test.pkl')\n    y_train = load_pickle('/data/y_train.pkl')\n\
+          \    y_test = load_pickle('/data/y_test.pkl')\n\n    from sklearn.metrics\
+          \ import accuracy_score\n    from sklearn.metrics import precision_score,recall_score\n\
+          \    from sklearn.metrics import f1_score\n    import importlib\n    def\
+          \ instantiate_class(module_name, class_name, *args, **kwargs):\n       \
+          \ try:\n            module = importlib.import_module(module_name)\n    \
+          \        class_ = getattr(module, class_name)\n            instance = class_(*args,\
+          \ **kwargs)\n            return instance\n        except ImportError as\
+          \ e:\n            print(f\"Error importing module {module_name}: {e}\")\n\
+          \        except AttributeError as e:\n            print(f\"Error getting\
+          \ class {class_name} from module {module_name}: {e}\")\n        except Exception\
+          \ as e:\n            print(f\"Error instantiating class {class_name} from\
+          \ module {module_name}: {e}\")\n    m = instantiate_class(module_name, class_name)\n\
+          \    m.fit(X_train, y_train)\n    y_pred = m.predict(X_test)\n\n    result\
+          \ = {\n        'model': str(m),\n        'Accuracy_score': accuracy_score(y_test,y_pred),\n\
+          \        'Precission_score': precision_score(y_test,y_pred),\n        'Recall_score':\
+          \ recall_score(y_test,y_pred),\n        'F1-score': f1_score(y_test,y_pred),\n\
+          \    }\n    print(result)\n    save_pickle(result,f'/data/{class_name}_results.pkl')\
+          \ # save result statistics, space-friendly for constrained environments\n\
+          \n"
+        image: registry.access.redhat.com/ubi8/python-39
+    exec-train-model-using-2:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - train_model_using
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.6.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
+          \  python3 -m pip install --quiet --no-warn-script-location 'pandas' 'scikit-learn'\
+          \ 'xgboost' && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef train_model_using(module_name: str, class_name: str):\n    print(f'Using\
+          \ model_name: {module_name} {class_name}')\n    import os\n    print(os.listdir('/data'))\n\
+          \    import pickle\n    def save_pickle(model, object_file):\n        with\
+          \ open(object_file, \"wb\") as f:\n            pickle.dump(model, f)\n \
+          \   def load_pickle(object_file):\n        with open(object_file, \"rb\"\
+          ) as f:\n            return pickle.load(f)\n    X_train = load_pickle('/data/X_train.pkl')\n\
+          \    X_test = load_pickle('/data/X_test.pkl')\n    y_train = load_pickle('/data/y_train.pkl')\n\
+          \    y_test = load_pickle('/data/y_test.pkl')\n\n    from sklearn.metrics\
+          \ import accuracy_score\n    from sklearn.metrics import precision_score,recall_score\n\
+          \    from sklearn.metrics import f1_score\n    import importlib\n    def\
+          \ instantiate_class(module_name, class_name, *args, **kwargs):\n       \
+          \ try:\n            module = importlib.import_module(module_name)\n    \
+          \        class_ = getattr(module, class_name)\n            instance = class_(*args,\
+          \ **kwargs)\n            return instance\n        except ImportError as\
+          \ e:\n            print(f\"Error importing module {module_name}: {e}\")\n\
+          \        except AttributeError as e:\n            print(f\"Error getting\
+          \ class {class_name} from module {module_name}: {e}\")\n        except Exception\
+          \ as e:\n            print(f\"Error instantiating class {class_name} from\
+          \ module {module_name}: {e}\")\n    m = instantiate_class(module_name, class_name)\n\
+          \    m.fit(X_train, y_train)\n    y_pred = m.predict(X_test)\n\n    result\
+          \ = {\n        'model': str(m),\n        'Accuracy_score': accuracy_score(y_test,y_pred),\n\
+          \        'Precission_score': precision_score(y_test,y_pred),\n        'Recall_score':\
+          \ recall_score(y_test,y_pred),\n        'F1-score': f1_score(y_test,y_pred),\n\
+          \    }\n    print(result)\n    save_pickle(result,f'/data/{class_name}_results.pkl')\
+          \ # save result statistics, space-friendly for constrained environments\n\
+          \n"
+        image: registry.access.redhat.com/ubi8/python-39
+    exec-train-model-using-3:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - train_model_using
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.6.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
+          \  python3 -m pip install --quiet --no-warn-script-location 'pandas' 'scikit-learn'\
+          \ 'xgboost' && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef train_model_using(module_name: str, class_name: str):\n    print(f'Using\
+          \ model_name: {module_name} {class_name}')\n    import os\n    print(os.listdir('/data'))\n\
+          \    import pickle\n    def save_pickle(model, object_file):\n        with\
+          \ open(object_file, \"wb\") as f:\n            pickle.dump(model, f)\n \
+          \   def load_pickle(object_file):\n        with open(object_file, \"rb\"\
+          ) as f:\n            return pickle.load(f)\n    X_train = load_pickle('/data/X_train.pkl')\n\
+          \    X_test = load_pickle('/data/X_test.pkl')\n    y_train = load_pickle('/data/y_train.pkl')\n\
+          \    y_test = load_pickle('/data/y_test.pkl')\n\n    from sklearn.metrics\
+          \ import accuracy_score\n    from sklearn.metrics import precision_score,recall_score\n\
+          \    from sklearn.metrics import f1_score\n    import importlib\n    def\
+          \ instantiate_class(module_name, class_name, *args, **kwargs):\n       \
+          \ try:\n            module = importlib.import_module(module_name)\n    \
+          \        class_ = getattr(module, class_name)\n            instance = class_(*args,\
+          \ **kwargs)\n            return instance\n        except ImportError as\
+          \ e:\n            print(f\"Error importing module {module_name}: {e}\")\n\
+          \        except AttributeError as e:\n            print(f\"Error getting\
+          \ class {class_name} from module {module_name}: {e}\")\n        except Exception\
+          \ as e:\n            print(f\"Error instantiating class {class_name} from\
+          \ module {module_name}: {e}\")\n    m = instantiate_class(module_name, class_name)\n\
+          \    m.fit(X_train, y_train)\n    y_pred = m.predict(X_test)\n\n    result\
+          \ = {\n        'model': str(m),\n        'Accuracy_score': accuracy_score(y_test,y_pred),\n\
+          \        'Precission_score': precision_score(y_test,y_pred),\n        'Recall_score':\
+          \ recall_score(y_test,y_pred),\n        'F1-score': f1_score(y_test,y_pred),\n\
+          \    }\n    print(result)\n    save_pickle(result,f'/data/{class_name}_results.pkl')\
+          \ # save result statistics, space-friendly for constrained environments\n\
+          \n"
+        image: registry.access.redhat.com/ubi8/python-39
+    exec-train-model-using-4:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - train_model_using
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.6.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
+          \  python3 -m pip install --quiet --no-warn-script-location 'pandas' 'scikit-learn'\
+          \ 'xgboost' && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef train_model_using(module_name: str, class_name: str):\n    print(f'Using\
+          \ model_name: {module_name} {class_name}')\n    import os\n    print(os.listdir('/data'))\n\
+          \    import pickle\n    def save_pickle(model, object_file):\n        with\
+          \ open(object_file, \"wb\") as f:\n            pickle.dump(model, f)\n \
+          \   def load_pickle(object_file):\n        with open(object_file, \"rb\"\
+          ) as f:\n            return pickle.load(f)\n    X_train = load_pickle('/data/X_train.pkl')\n\
+          \    X_test = load_pickle('/data/X_test.pkl')\n    y_train = load_pickle('/data/y_train.pkl')\n\
+          \    y_test = load_pickle('/data/y_test.pkl')\n\n    from sklearn.metrics\
+          \ import accuracy_score\n    from sklearn.metrics import precision_score,recall_score\n\
+          \    from sklearn.metrics import f1_score\n    import importlib\n    def\
+          \ instantiate_class(module_name, class_name, *args, **kwargs):\n       \
+          \ try:\n            module = importlib.import_module(module_name)\n    \
+          \        class_ = getattr(module, class_name)\n            instance = class_(*args,\
+          \ **kwargs)\n            return instance\n        except ImportError as\
+          \ e:\n            print(f\"Error importing module {module_name}: {e}\")\n\
+          \        except AttributeError as e:\n            print(f\"Error getting\
+          \ class {class_name} from module {module_name}: {e}\")\n        except Exception\
+          \ as e:\n            print(f\"Error instantiating class {class_name} from\
+          \ module {module_name}: {e}\")\n    m = instantiate_class(module_name, class_name)\n\
+          \    m.fit(X_train, y_train)\n    y_pred = m.predict(X_test)\n\n    result\
+          \ = {\n        'model': str(m),\n        'Accuracy_score': accuracy_score(y_test,y_pred),\n\
+          \        'Precission_score': precision_score(y_test,y_pred),\n        'Recall_score':\
+          \ recall_score(y_test,y_pred),\n        'F1-score': f1_score(y_test,y_pred),\n\
+          \    }\n    print(result)\n    save_pickle(result,f'/data/{class_name}_results.pkl')\
+          \ # save result statistics, space-friendly for constrained environments\n\
+          \n"
+        image: registry.access.redhat.com/ubi8/python-39
+    exec-train-model-using-5:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - train_model_using
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.6.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
+          \  python3 -m pip install --quiet --no-warn-script-location 'pandas' 'scikit-learn'\
+          \ 'xgboost' && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef train_model_using(module_name: str, class_name: str):\n    print(f'Using\
+          \ model_name: {module_name} {class_name}')\n    import os\n    print(os.listdir('/data'))\n\
+          \    import pickle\n    def save_pickle(model, object_file):\n        with\
+          \ open(object_file, \"wb\") as f:\n            pickle.dump(model, f)\n \
+          \   def load_pickle(object_file):\n        with open(object_file, \"rb\"\
+          ) as f:\n            return pickle.load(f)\n    X_train = load_pickle('/data/X_train.pkl')\n\
+          \    X_test = load_pickle('/data/X_test.pkl')\n    y_train = load_pickle('/data/y_train.pkl')\n\
+          \    y_test = load_pickle('/data/y_test.pkl')\n\n    from sklearn.metrics\
+          \ import accuracy_score\n    from sklearn.metrics import precision_score,recall_score\n\
+          \    from sklearn.metrics import f1_score\n    import importlib\n    def\
+          \ instantiate_class(module_name, class_name, *args, **kwargs):\n       \
+          \ try:\n            module = importlib.import_module(module_name)\n    \
+          \        class_ = getattr(module, class_name)\n            instance = class_(*args,\
+          \ **kwargs)\n            return instance\n        except ImportError as\
+          \ e:\n            print(f\"Error importing module {module_name}: {e}\")\n\
+          \        except AttributeError as e:\n            print(f\"Error getting\
+          \ class {class_name} from module {module_name}: {e}\")\n        except Exception\
+          \ as e:\n            print(f\"Error instantiating class {class_name} from\
+          \ module {module_name}: {e}\")\n    m = instantiate_class(module_name, class_name)\n\
+          \    m.fit(X_train, y_train)\n    y_pred = m.predict(X_test)\n\n    result\
+          \ = {\n        'model': str(m),\n        'Accuracy_score': accuracy_score(y_test,y_pred),\n\
+          \        'Precission_score': precision_score(y_test,y_pred),\n        'Recall_score':\
+          \ recall_score(y_test,y_pred),\n        'F1-score': f1_score(y_test,y_pred),\n\
+          \    }\n    print(result)\n    save_pickle(result,f'/data/{class_name}_results.pkl')\
+          \ # save result statistics, space-friendly for constrained environments\n\
+          \n"
+        image: registry.access.redhat.com/ubi8/python-39
+    exec-train-model-using-6:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - train_model_using
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.6.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
+          \  python3 -m pip install --quiet --no-warn-script-location 'pandas' 'scikit-learn'\
+          \ 'xgboost' && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef train_model_using(module_name: str, class_name: str):\n    print(f'Using\
+          \ model_name: {module_name} {class_name}')\n    import os\n    print(os.listdir('/data'))\n\
+          \    import pickle\n    def save_pickle(model, object_file):\n        with\
+          \ open(object_file, \"wb\") as f:\n            pickle.dump(model, f)\n \
+          \   def load_pickle(object_file):\n        with open(object_file, \"rb\"\
+          ) as f:\n            return pickle.load(f)\n    X_train = load_pickle('/data/X_train.pkl')\n\
+          \    X_test = load_pickle('/data/X_test.pkl')\n    y_train = load_pickle('/data/y_train.pkl')\n\
+          \    y_test = load_pickle('/data/y_test.pkl')\n\n    from sklearn.metrics\
+          \ import accuracy_score\n    from sklearn.metrics import precision_score,recall_score\n\
+          \    from sklearn.metrics import f1_score\n    import importlib\n    def\
+          \ instantiate_class(module_name, class_name, *args, **kwargs):\n       \
+          \ try:\n            module = importlib.import_module(module_name)\n    \
+          \        class_ = getattr(module, class_name)\n            instance = class_(*args,\
+          \ **kwargs)\n            return instance\n        except ImportError as\
+          \ e:\n            print(f\"Error importing module {module_name}: {e}\")\n\
+          \        except AttributeError as e:\n            print(f\"Error getting\
+          \ class {class_name} from module {module_name}: {e}\")\n        except Exception\
+          \ as e:\n            print(f\"Error instantiating class {class_name} from\
+          \ module {module_name}: {e}\")\n    m = instantiate_class(module_name, class_name)\n\
+          \    m.fit(X_train, y_train)\n    y_pred = m.predict(X_test)\n\n    result\
+          \ = {\n        'model': str(m),\n        'Accuracy_score': accuracy_score(y_test,y_pred),\n\
+          \        'Precission_score': precision_score(y_test,y_pred),\n        'Recall_score':\
+          \ recall_score(y_test,y_pred),\n        'F1-score': f1_score(y_test,y_pred),\n\
+          \    }\n    print(result)\n    save_pickle(result,f'/data/{class_name}_results.pkl')\
+          \ # save result statistics, space-friendly for constrained environments\n\
+          \n"
+        image: registry.access.redhat.com/ubi8/python-39
+pipelineInfo:
+  name: framingham-cvd-risk-pipeline
+root:
+  dag:
+    tasks:
+      createpvc:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-createpvc
+        inputs:
+          parameters:
+            access_modes:
+              runtimeValue:
+                constant:
+                - ReadWriteMany
+            pvc_name_suffix:
+              runtimeValue:
+                constant: -mypipeline-pvc
+            size:
+              runtimeValue:
+                constant: 500Mi
+            storage_class_name:
+              runtimeValue:
+                constant: standard-csi
+        taskInfo:
+          name: createpvc
+      deletepvc:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-deletepvc
+        dependentTasks:
+        - createpvc
+        - select-best
+        inputs:
+          parameters:
+            pvc_name:
+              taskOutputParameter:
+                outputParameterKey: name
+                producerTask: createpvc
+        taskInfo:
+          name: deletepvc
+      kaggle-dataset:
+        cachingOptions: {}
+        componentRef:
+          name: comp-kaggle-dataset
+        dependentTasks:
+        - createpvc
+        taskInfo:
+          name: kaggle-dataset
+      select-best:
+        cachingOptions: {}
+        componentRef:
+          name: comp-select-best
+        dependentTasks:
+        - createpvc
+        - train-model-using
+        - train-model-using-2
+        - train-model-using-3
+        - train-model-using-4
+        - train-model-using-5
+        - train-model-using-6
+        taskInfo:
+          name: select-best
+      train-model-using:
+        cachingOptions: {}
+        componentRef:
+          name: comp-train-model-using
+        dependentTasks:
+        - createpvc
+        - kaggle-dataset
+        inputs:
+          parameters:
+            class_name:
+              runtimeValue:
+                constant: KNeighborsClassifier
+            module_name:
+              runtimeValue:
+                constant: sklearn.neighbors
+        taskInfo:
+          name: train-model-using
+      train-model-using-2:
+        cachingOptions: {}
+        componentRef:
+          name: comp-train-model-using-2
+        dependentTasks:
+        - createpvc
+        - kaggle-dataset
+        inputs:
+          parameters:
+            class_name:
+              runtimeValue:
+                constant: LogisticRegression
+            module_name:
+              runtimeValue:
+                constant: sklearn.linear_model
+        taskInfo:
+          name: train-model-using-2
+      train-model-using-3:
+        cachingOptions: {}
+        componentRef:
+          name: comp-train-model-using-3
+        dependentTasks:
+        - createpvc
+        - kaggle-dataset
+        inputs:
+          parameters:
+            class_name:
+              runtimeValue:
+                constant: XGBClassifier
+            module_name:
+              runtimeValue:
+                constant: xgboost
+        taskInfo:
+          name: train-model-using-3
+      train-model-using-4:
+        cachingOptions: {}
+        componentRef:
+          name: comp-train-model-using-4
+        dependentTasks:
+        - createpvc
+        - kaggle-dataset
+        inputs:
+          parameters:
+            class_name:
+              runtimeValue:
+                constant: ExtraTreesClassifier
+            module_name:
+              runtimeValue:
+                constant: sklearn.ensemble
+        taskInfo:
+          name: train-model-using-4
+      train-model-using-5:
+        cachingOptions: {}
+        componentRef:
+          name: comp-train-model-using-5
+        dependentTasks:
+        - createpvc
+        - kaggle-dataset
+        inputs:
+          parameters:
+            class_name:
+              runtimeValue:
+                constant: RandomForestClassifier
+            module_name:
+              runtimeValue:
+                constant: sklearn.ensemble
+        taskInfo:
+          name: train-model-using-5
+      train-model-using-6:
+        cachingOptions: {}
+        componentRef:
+          name: comp-train-model-using-6
+        dependentTasks:
+        - createpvc
+        - kaggle-dataset
+        inputs:
+          parameters:
+            class_name:
+              runtimeValue:
+                constant: GradientBoostingClassifier
+            module_name:
+              runtimeValue:
+                constant: sklearn.ensemble
+        taskInfo:
+          name: train-model-using-6
+schemaVersion: 2.1.0
+sdkVersion: kfp-2.6.0
+---
+platforms:
+  kubernetes:
+    deploymentSpec:
+      executors:
+        exec-kaggle-dataset:
+          pvcMount:
+          - mountPath: /data
+            taskOutputParameter:
+              outputParameterKey: name
+              producerTask: createpvc
+          secretAsEnv:
+          - keyToEnv:
+            - envVar: KAGGLE_USERNAME
+              secretKey: KAGGLE_USERNAME
+            - envVar: KAGGLE_KEY
+              secretKey: KAGGLE_KEY
+            secretName: kaggle-api
+        exec-select-best:
+          pvcMount:
+          - mountPath: /data
+            taskOutputParameter:
+              outputParameterKey: name
+              producerTask: createpvc
+        exec-train-model-using:
+          pvcMount:
+          - mountPath: /data
+            taskOutputParameter:
+              outputParameterKey: name
+              producerTask: createpvc
+        exec-train-model-using-2:
+          pvcMount:
+          - mountPath: /data
+            taskOutputParameter:
+              outputParameterKey: name
+              producerTask: createpvc
+        exec-train-model-using-3:
+          pvcMount:
+          - mountPath: /data
+            taskOutputParameter:
+              outputParameterKey: name
+              producerTask: createpvc
+        exec-train-model-using-4:
+          pvcMount:
+          - mountPath: /data
+            taskOutputParameter:
+              outputParameterKey: name
+              producerTask: createpvc
+        exec-train-model-using-5:
+          pvcMount:
+          - mountPath: /data
+            taskOutputParameter:
+              outputParameterKey: name
+              producerTask: createpvc
+        exec-train-model-using-6:
+          pvcMount:
+          - mountPath: /data
+            taskOutputParameter:
+              outputParameterKey: name
+              producerTask: createpvc
