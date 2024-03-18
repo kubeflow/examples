@@ -6,7 +6,7 @@ anaconda-project==0.8.0
 annoy==1.10.0
 asn1crypto==0.22.0
 astroid==1.5.3
-astropy==2.0.2
+astropy==5.3.3
 Babel==2.5.0
 backports.functools-lru-cache==1.4
 backports.shutil-get-terminal-size==1.0.0
