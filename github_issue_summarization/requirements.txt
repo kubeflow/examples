@@ -66,7 +66,7 @@ h5py==2.7.1
 hdfs==2.1.0
 heapdict==1.0.0
 html5lib==1.0.1
-idna==2.6
+idna==3.7
 ijson==2.3
 imageio==2.2.0
 imagesize==0.7.1
