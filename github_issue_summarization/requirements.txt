@@ -214,7 +214,7 @@ torch==0.2.0.post4
 torchtext==0.2.0
 torchvision==0.1.9
 tornado==4.5.2
-tqdm==4.19.5
+tqdm==4.66.3
 traitlets==4.3.2
 typing==3.6.2
 ujson==1.35
