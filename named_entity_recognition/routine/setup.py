@@ -2,7 +2,7 @@ from setuptools import find_packages
 from setuptools import setup
 
 REQUIRED_PACKAGES = [
-    'Keras==2.2.4'
+    'Keras==2.13.1'
 ]
 
 setup(
