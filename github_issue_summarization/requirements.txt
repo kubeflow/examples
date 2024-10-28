@@ -195,7 +195,7 @@ spacy==2.0.5
 Sphinx==1.6.3
 sphinxcontrib-websupport==1.0.1
 spyder==3.2.3
-SQLAlchemy==1.1.13
+SQLAlchemy==1.2.19
 statsmodels==0.8.0
 sympy==1.1.1
 tables==3.4.2
