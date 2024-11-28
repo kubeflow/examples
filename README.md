@@ -1,4 +1,14 @@
-## Notice
+# :warning: **kubeflow/examples Repository is not Maintained**
+
+This repository is no longer actively maintained, and some examples may be outdated or non-functional.
+For the working examples, please refer to the GitHub repositories of
+[the individual Kubeflow components](https://github.com/kubeflow/kubeflow?tab=readme-ov-file#kubeflow-components).
+
+If you are interested in contributing to the `kubeflow/examples` repository, we encourage you to
+join [the Kubeflow community calls](https://www.kubeflow.org/docs/about/community/#list-of-available-meetings)
+and share your interest.
+
+## Help wanted blog post
 
 Blog post: [HELP WANTED: Repackaging Kaggle Getting Started into Kubeflow Examples](https://www.arrikto.com/blog/help-wanted-kaggle-competitors-to-contribute-to-the-open-source-kubeflow-machine-learning-project/)
 
@@ -6,7 +16,8 @@ higlights:
 - We'd like to help bolster the kubeflow/examples repo
 - Help people get involved in open source/kubeflow project/community
 - Give people an opportunity to make a little side hustle income
-# kubeflow-examples
+
+## Kubeflow Examples
 
 A repository to share extended Kubeflow examples and tutorials to demonstrate machine learning
 concepts, data science workflows, and Kubeflow deployments. The examples illustrate the happy path,
