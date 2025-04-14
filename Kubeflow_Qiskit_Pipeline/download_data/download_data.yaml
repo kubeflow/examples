@@ -1,0 +1,15 @@
+name: Download Data Function
+description: Download torchvision mnist datasets
+
+outputs:
+- {name: Data, type: LocalPath, description: 'Path where data will be stored.'}
+
+implementation:
+  container:
+    image: pyj93/quantum:mnistdata1
+    command: [
+      python, download_data.py,
+
+      --data,
+      {outputPath: Data},
+    ]

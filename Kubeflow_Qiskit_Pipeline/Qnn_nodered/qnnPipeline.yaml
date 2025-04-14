@@ -1,0 +1,117 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: first-pipeline-
+  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.8.9, pipelines.kubeflow.org/pipeline_compilation_time: '2023-06-16T02:27:32.622023',
+    pipelines.kubeflow.org/pipeline_spec: '{"description": "Applies Qnn for classification
+      problem.", "name": "First Pipeline"}'}
+  labels: {pipelines.kubeflow.org/kfp_sdk_version: 1.8.9}
+spec:
+  entrypoint: first-pipeline
+  templates:
+  - name: download-data-function
+    container:
+      args: []
+      command: [python, download_data.py, --data, /tmp/outputs/Data/data]
+      image: pyj93/quantum:mnistdata1
+    outputs:
+      artifacts:
+      - {name: download-data-function-Data, path: /tmp/outputs/Data/data}
+    metadata:
+      labels:
+        pipelines.kubeflow.org/kfp_sdk_version: 1.8.9
+        pipelines.kubeflow.org/pipeline-sdk-type: kfp
+        pipelines.kubeflow.org/enable_caching: "true"
+      annotations: {pipelines.kubeflow.org/component_spec: '{"description": "Download
+          torchvision mnist datasets", "implementation": {"container": {"command":
+          ["python", "download_data.py", "--data", {"outputPath": "Data"}], "image":
+          "pyj93/quantum:mnistdata1"}}, "name": "Download Data Function", "outputs":
+          [{"description": "Path where data will be stored.", "name": "Data", "type":
+          "LocalPath"}]}', pipelines.kubeflow.org/component_ref: '{"digest": "de29675d499f4ea23d445416b918cdb9a9cbab98a5c107b3565d6cc934937334",
+          "url": "mnist_data/download_data.yaml"}'}
+  - name: first-pipeline
+    dag:
+      tasks:
+      - {name: download-data-function, template: download-data-function}
+      - name: qnn
+        template: qnn
+        dependencies: [download-data-function]
+        arguments:
+          artifacts:
+          - {name: download-data-function-Data, from: '{{tasks.download-data-function.outputs.artifacts.download-data-function-Data}}'}
+      - name: show-results
+        template: show-results
+        dependencies: [qnn]
+        arguments:
+          parameters:
+          - {name: qnn-Accuracy, value: '{{tasks.qnn.outputs.parameters.qnn-Accuracy}}'}
+  - name: qnn
+    container:
+      args: []
+      command: [python, qnn.py, --data, /tmp/inputs/Data/data, --accuracy, /tmp/outputs/Accuracy/data]
+      image: pyj93/quantum:qnnt4
+    inputs:
+      artifacts:
+      - {name: download-data-function-Data, path: /tmp/inputs/Data/data}
+    outputs:
+      parameters:
+      - name: qnn-Accuracy
+        valueFrom: {path: /tmp/outputs/Accuracy/data}
+      artifacts:
+      - {name: qnn-Accuracy, path: /tmp/outputs/Accuracy/data}
+    metadata:
+      labels:
+        pipelines.kubeflow.org/kfp_sdk_version: 1.8.9
+        pipelines.kubeflow.org/pipeline-sdk-type: kfp
+        pipelines.kubeflow.org/enable_caching: "true"
+      annotations: {pipelines.kubeflow.org/component_spec: '{"description": "Trains
+          a qnn", "implementation": {"container": {"command": ["python", "qnn.py",
+          "--data", {"inputPath": "Data"}, "--accuracy", {"outputPath": "Accuracy"}],
+          "image": "pyj93/quantum:qnnt4"}}, "inputs": [{"description": "Path where
+          data is stored.", "name": "Data", "type": "LocalPath"}], "name": "qnn",
+          "outputs": [{"description": "Accuracy metric", "name": "Accuracy", "type":
+          "Float"}]}', pipelines.kubeflow.org/component_ref: '{"digest": "c3d06ab30234f265cd09678de25e44b1574b2f249d7a0db2574f605627e028d7",
+          "url": "qnn/qnn.yaml"}'}
+  - name: show-results
+    container:
+      args: [--qnn, '{{inputs.parameters.qnn-Accuracy}}']
+      command:
+      - sh
+      - -ec
+      - |
+        program_path=$(mktemp)
+        printf "%s" "$0" > "$program_path"
+        python3 -u "$program_path" "$@"
+      - |
+        def show_results(qnn):
+
+            print(qnn)
+
+        import argparse
+        _parser = argparse.ArgumentParser(prog='Show results', description='')
+        _parser.add_argument("--qnn", dest="qnn", type=str, required=True, default=argparse.SUPPRESS)
+        _parsed_args = vars(_parser.parse_args())
+
+        _outputs = show_results(**_parsed_args)
+      image: python:3.7
+    inputs:
+      parameters:
+      - {name: qnn-Accuracy}
+    metadata:
+      labels:
+        pipelines.kubeflow.org/kfp_sdk_version: 1.8.9
+        pipelines.kubeflow.org/pipeline-sdk-type: kfp
+        pipelines.kubeflow.org/enable_caching: "true"
+      annotations: {pipelines.kubeflow.org/component_spec: '{"implementation": {"container":
+          {"args": ["--qnn", {"inputValue": "qnn"}], "command": ["sh", "-ec", "program_path=$(mktemp)\nprintf
+          \"%s\" \"$0\" > \"$program_path\"\npython3 -u \"$program_path\" \"$@\"\n",
+          "def show_results(qnn):\n\n    print(qnn)\n\nimport argparse\n_parser =
+          argparse.ArgumentParser(prog=''Show results'', description='''')\n_parser.add_argument(\"--qnn\",
+          dest=\"qnn\", type=str, required=True, default=argparse.SUPPRESS)\n_parsed_args
+          = vars(_parser.parse_args())\n\n_outputs = show_results(**_parsed_args)\n"],
+          "image": "python:3.7"}}, "inputs": [{"name": "qnn", "type": "String"}],
+          "name": "Show results"}', pipelines.kubeflow.org/component_ref: '{}', pipelines.kubeflow.org/arguments.parameters: '{"qnn":
+          "{{inputs.parameters.qnn-Accuracy}}"}'}
+  arguments:
+    parameters: []
+  serviceAccountName: pipeline-runner
