@@ -210,7 +210,7 @@ textacy==0.5.0
 thinc==6.10.2
 thrift==0.10.0
 toolz==0.9.0
-torch==0.2.0.post4
+torch==2.2.0
 torchtext==0.2.0
 torchvision==0.1.9
 tornado==4.5.2
