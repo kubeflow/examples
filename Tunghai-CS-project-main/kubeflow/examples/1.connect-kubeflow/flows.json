@@ -1,0 +1,368 @@
+[
+    {
+        "id": "f6f2187d.f17ca8",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "34d396e7c091c5fd",
+        "type": "tab",
+        "label": "six-pipelines",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "3cc11d24.ff01a2",
+        "type": "comment",
+        "z": "f6f2187d.f17ca8",
+        "name": "WARNING: please check you have started this container with a volume that is mounted to /data\\n otherwise any flow changes are lost when you redeploy or upgrade the container\\n (e.g. upgrade to a more recent node-red docker image).\\n  If you are using named volumes you can ignore this warning.\\n Double click or see info side panel to learn how to start Node-RED in Docker to save your work",
+        "info": "\nTo start docker with a bind mount volume (-v option), for example:\n\n```\ndocker run -it -p 1880:1880 -v /home/user/node_red_data:/data --name mynodered nodered/node-red\n```\n\nwhere `/home/user/node_red_data` is a directory on your host machine where you want to store your flows.\n\nIf you do not do this then you can experiment and redploy flows, but if you restart or upgrade the container the flows will be disconnected and lost. \n\nThey will still exist in a hidden data volume, which can be recovered using standard docker techniques, but that is much more complex than just starting with a named volume as described above.",
+        "x": 350,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "c228c538ddfd97cc",
+        "type": "inject",
+        "z": "f6f2187d.f17ca8",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 300,
+        "y": 440,
+        "wires": [
+            [
+                "fae8437b33358ca0"
+            ]
+        ]
+    },
+    {
+        "id": "fae8437b33358ca0",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "",
+        "func": "// Create a Date object from the payload\nvar date = new Date(msg.payload);\n// Change the payload to be a formatted Date string\nmsg.payload = date.toString();\n// Return the message so it can be sent on\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 480,
+        "y": 440,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "7588c855ba3f1c81",
+        "type": "pythonshell in",
+        "z": "f6f2187d.f17ca8",
+        "name": "kfp python",
+        "pyfile": "/data/1.connect-kubeflow/py/kfp_example.py",
+        "virtualenv": "",
+        "continuous": true,
+        "stdInData": false,
+        "python3": true,
+        "x": 670,
+        "y": 440,
+        "wires": [
+            [
+                "b126ea03f7d74573"
+            ]
+        ]
+    },
+    {
+        "id": "b126ea03f7d74573",
+        "type": "debug",
+        "z": "f6f2187d.f17ca8",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 870,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "692c86b087eed4a0",
+        "type": "pythonshell in",
+        "z": "f6f2187d.f17ca8",
+        "name": "install dependency",
+        "pyfile": "/data/1.connect-kubeflow/py/install.py",
+        "virtualenv": "",
+        "continuous": true,
+        "stdInData": false,
+        "python3": true,
+        "x": 570,
+        "y": 300,
+        "wires": [
+            [
+                "0b5c3b39a424dc6a"
+            ]
+        ]
+    },
+    {
+        "id": "0b5c3b39a424dc6a",
+        "type": "debug",
+        "z": "f6f2187d.f17ca8",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 770,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "3b1a0675389769a1",
+        "type": "comment",
+        "z": "f6f2187d.f17ca8",
+        "name": "install python dependency",
+        "info": "",
+        "x": 590,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "04e11dfd70107dcf",
+        "type": "comment",
+        "z": "f6f2187d.f17ca8",
+        "name": "read experiemnt data from kfp",
+        "info": "",
+        "x": 600,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "ba8b7060f34ca920",
+        "type": "decisionTree",
+        "z": "34d396e7c091c5fd",
+        "name": "",
+        "pyfile": "/data/1.connect-kubeflow/py/decisionTree.py",
+        "virtualenv": "",
+        "continuous": true,
+        "stdInData": "",
+        "python3": true,
+        "x": 330,
+        "y": 200,
+        "wires": [
+            [
+                "4fe06d66df1b4abc"
+            ]
+        ]
+    },
+    {
+        "id": "0d9bc06821e4baee",
+        "type": "randomForest",
+        "z": "34d396e7c091c5fd",
+        "name": "",
+        "pyfile": "/data/1.connect-kubeflow/py/randomForest.py",
+        "virtualenv": "",
+        "continuous": true,
+        "stdInData": "",
+        "python3": true,
+        "x": 340,
+        "y": 320,
+        "wires": [
+            [
+                "f70f04576107ff77"
+            ]
+        ]
+    },
+    {
+        "id": "4fe06d66df1b4abc",
+        "type": "debug",
+        "z": "34d396e7c091c5fd",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 570,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "25502edaaffdbc08",
+        "type": "debug",
+        "z": "34d396e7c091c5fd",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 570,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "qf33kqombln4sqaw",
+        "type": "debug",
+        "z": "34d396e7c091c5fd",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 570,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "4l169z017wd7wxyue",
+        "type": "debug",
+        "z": "34d396e7c091c5fd",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 570,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "2l170z017wd8wxyue",
+        "type": "debug",
+        "z": "34d396e7c091c5fd",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 570,
+        "y": 20,
+        "wires": []
+
+    },
+    {
+        "id": "f70f04576107ff77",
+        "type": "debug",
+        "z": "34d396e7c091c5fd",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 570,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "7b45b43be009954d",
+        "type": "logisticRegression",
+        "z": "34d396e7c091c5fd",
+        "name": "",
+        "pyfile": "/data/1.connect-kubeflow/py/logisticRegression.py",
+        "virtualenv": "",
+        "continuous": true,
+        "stdInData": "",
+        "python3": true,
+        "x": 310,
+        "y": 260,
+        "wires": [
+            [
+                "25502edaaffdbc08"
+            ]
+        ]
+    },
+    {
+        "id": "0i3c0sd8y2rwgums",
+        "type": "fl",
+        "z": "34d396e7c091c5fd",
+        "name": "",
+        "pyfile": "/data/1.connect-kubeflow/py/fl.py",
+        "virtualenv": "",
+        "continuous": true,
+        "stdInData": "",
+        "python3": true,
+        "x": 300,
+        "y": 140,
+        "wires": [
+            [
+                "qf33kqombln4sqaw"
+            ]
+         ]
+     },
+     {
+        "id": "o16lwowjyp6ee0hrg",
+        "type": "mnist",
+        "z": "34d396e7c091c5fd",
+        "name": "",
+        "pyfile": "/data/1.connect-kubeflow/py/mnist.py",
+        "virtualenv": "",
+        "continuous": true,
+        "stdInData": "",
+        "python3": true,
+        "x": 290,
+        "y": 80,
+        "wires": [
+            [
+                "4l169z017wd7wxyue"
+            ]
+         ]
+     },
+     {
+        "id": "c172wowjyp6ed0hrg",
+        "type": "LSTM",
+        "z": "34d396e7c091c5fd",
+        "name": "",
+        "pyfile": "/data/1.connect-kubeflow/py/LSTM.py",
+        "virtualenv": "",
+        "continuous": true,
+        "stdInData": "",
+        "python3": true,
+        "x": 280,
+        "y": 20,
+        "wires": [
+            [
+                "2l170z017wd8wxyue"
+            ]
+         ]
+    }
+]

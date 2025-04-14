@@ -1,0 +1,639 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: fl-test-
+  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.8.9, pipelines.kubeflow.org/pipeline_compilation_time: '2023-12-13T03:33:40.267552',
+    pipelines.kubeflow.org/pipeline_spec: '{"inputs": [{"default": "kubeflow-user-thu01",
+      "name": "namespace", "optional": true}], "name": "FL test"}'}
+  labels: {pipelines.kubeflow.org/kfp_sdk_version: 1.8.9}
+spec:
+  entrypoint: fl-test
+  templates:
+  - name: client
+    container:
+      args: [--batch, '1', '----output-paths', /tmp/outputs/last_accuracy/data]
+      command:
+      - sh
+      - -c
+      - (PIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --quiet --no-warn-script-location
+        'requests' 'pandas' || PIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install
+        --quiet --no-warn-script-location 'requests' 'pandas' --user) && "$0" "$@"
+      - sh
+      - -ec
+      - |
+        program_path=$(mktemp)
+        printf "%s" "$0" > "$program_path"
+        python3 -u "$program_path" "$@"
+      - "def client(batch):\n    import json\n    import requests\n    import time\n\
+        \    import pandas as pd\n    import numpy as np\n    import tensorflow as\
+        \ tf\n    from tensorflow.keras.models import Sequential\n    from tensorflow.keras.layers\
+        \ import Conv1D\n    from tensorflow.keras.layers import MaxPooling1D\n  \
+        \  from tensorflow.keras.layers import Activation\n    from tensorflow.keras.layers\
+        \ import Flatten\n    from tensorflow.keras.layers import Dense\n    from\
+        \ tensorflow.keras.optimizers import SGD\n    from tensorflow.keras import\
+        \ backend as K\n\n    normal_url='https://drive.google.com/u/0/uc?id=1TQHKkP6yzuhcxw_JCtby9jQwY2AMLiNi&export=download'\
+        \ \n    abnormal_url='https://drive.google.com/uc?export=download&id=1i22tQI2vib0fsd1wwVP1tEydmGEksmpy'\n\
+        \    normal_data = pd.read_csv(normal_url)\n    abnormal_data = pd.read_csv(abnormal_url)\n\
+        \    num_features = len(normal_data.columns)\n    print(num_features)\n  \
+        \  normal_label = np.array([[1, 0]] * len(normal_data))\n    abnormal_label\
+        \ = np.array([[0, 1]] * len(abnormal_data))\n\n    data = np.vstack((normal_data,\
+        \ abnormal_data))\n    data_label = np.vstack((normal_label, abnormal_label))\n\
+        \n    shuffler = np.random.permutation(len(data))\n    data = data[shuffler]\n\
+        \    data_label = data_label[shuffler]\n\n    data = data.reshape(len(data),\
+        \ num_features, 1)\n    data_label = data_label.reshape(len(data_label), 2)\n\
+        \n    full_data = list(zip(data, data_label))\n    data_length=len(full_data)\n\
+        \n    class SimpleMLP:\n        @staticmethod\n        def build(shape, classes):\n\
+        \            model = Sequential()\n            model.add(Conv1D(filters=4,\
+        \ kernel_size=3, input_shape=(17,1)))\n            model.add(MaxPooling1D(3))\n\
+        \            model.add(Flatten())\n            model.add(Dense(8, activation=\"\
+        relu\"))\n            model.add(Dense(2, activation = 'softmax'))\n\n    \
+        \        return model\n\n    if(batch==1):\n        full_data=full_data[0:int(data_length/2)]\
+        \ #batch data\n    else:\n        full_data=full_data[int(data_length/2):data_length]\
+        \ #The client should have its own data, not like this. It's a lazy method.\n\
+        \n    print('data len= ',len(full_data))\n    def batch_data(data_shard, bs=32):\n\
+        \n        #seperate shard into data and labels lists\n        data, label\
+        \ = zip(*data_shard)\n        dataset = tf.data.Dataset.from_tensor_slices((list(data),\
+        \ list(label)))\n        return dataset.shuffle(len(label)).batch(bs)\n\n\
+        \    dataset=batch_data(full_data)\n    #print(dataset)\n\n    bs = next(iter(dataset))[0].shape[0]\n\
+        \    local_count = tf.data.experimental.cardinality(dataset).numpy()*bs\n\n\
+        \    loss='categorical_crossentropy'\n    metrics = ['accuracy']\n    optimizer\
+        \ = 'adam'\n\n    smlp_model = SimpleMLP()\n\n    server_url=\"http://http-service:5000/data\"\
+        \n    for comm_round in range(1):\n        print('The ',comm_round+1, 'round')\n\
+        \        client_model = smlp_model.build(17, 1)\n        client_model.compile(loss=loss,\
+        \ \n                      optimizer=optimizer, \n                      metrics=metrics)\n\
+        \n        if(comm_round == 0):\n            history = client_model.fit(dataset,\
+        \ epochs=5, verbose=1)\n        else:\n            client_model.set_weights(avg_weight)\n\
+        \            history = client_model.fit(dataset, epochs=5, verbose=1)\n\n\
+        \        local_weight = client_model.get_weights()\n        local_weight =\
+        \ [np.array(w).tolist() for w in local_weight]\n\n        client_data = {\"\
+        local_count\": local_count,'bs': bs, 'local_weight': json.dumps(local_weight)}\n\
+        \n        while True:\n            try:\n                weight = (requests.post(server_url,data=client_data))\n\
+        \n                if weight.status_code == 200:\n                    print(f\"\
+        exist\")\n\n                    break\n                else:\n           \
+        \         print(f\"server error\")\n\n            except requests.exceptions.RequestException:\n\
+        \n                print(f\"not exist\")\n\n            time.sleep(5)\n\n \
+        \       data = weight.json()\n        avg_weight = data.get('result')\n  \
+        \      avg_weight = json.loads(avg_weight)\n        avg_weight = [np.array(lst)\
+        \ for lst in avg_weight]\n\n    shutdown_url=\"http://http-service:5000/shutdown\"\
+        \    \n    try:\n        response = requests.get(shutdown_url)\n    except\
+        \ requests.exceptions.ConnectionError:\n        print('already shutdown')\n\
+        \    last_accuracy = history.history['accuracy'][-1]\n    print(last_accuracy)\n\
+        \    return([last_accuracy])\n\ndef _serialize_float(float_value: float) ->\
+        \ str:\n    if isinstance(float_value, str):\n        return float_value\n\
+        \    if not isinstance(float_value, (float, int)):\n        raise TypeError('Value\
+        \ \"{}\" has type \"{}\" instead of float.'.format(\n            str(float_value),\
+        \ str(type(float_value))))\n    return str(float_value)\n\nimport argparse\n\
+        _parser = argparse.ArgumentParser(prog='Client', description='')\n_parser.add_argument(\"\
+        --batch\", dest=\"batch\", type=int, required=True, default=argparse.SUPPRESS)\n\
+        _parser.add_argument(\"----output-paths\", dest=\"_output_paths\", type=str,\
+        \ nargs=1)\n_parsed_args = vars(_parser.parse_args())\n_output_files = _parsed_args.pop(\"\
+        _output_paths\", [])\n\n_outputs = client(**_parsed_args)\n\n_output_serializers\
+        \ = [\n    _serialize_float,\n\n]\n\nimport os\nfor idx, output_file in enumerate(_output_files):\n\
+        \    try:\n        os.makedirs(os.path.dirname(output_file))\n    except OSError:\n\
+        \        pass\n    with open(output_file, 'w') as f:\n        f.write(_output_serializers[idx](_outputs[idx]))\n"
+      image: tensorflow/tensorflow
+      resources:
+        limits: {cpu: '0.2'}
+        requests: {cpu: '0.2'}
+    outputs:
+      parameters:
+      - name: client-last_accuracy
+        valueFrom: {path: /tmp/outputs/last_accuracy/data}
+      artifacts:
+      - {name: client-last_accuracy, path: /tmp/outputs/last_accuracy/data}
+    metadata:
+      labels:
+        pipelines.kubeflow.org/kfp_sdk_version: 1.8.9
+        pipelines.kubeflow.org/pipeline-sdk-type: kfp
+        pipelines.kubeflow.org/enable_caching: "true"
+      annotations: {pipelines.kubeflow.org/component_spec: '{"implementation": {"container":
+          {"args": ["--batch", {"inputValue": "batch"}, "----output-paths", {"outputPath":
+          "last_accuracy"}], "command": ["sh", "-c", "(PIP_DISABLE_PIP_VERSION_CHECK=1
+          python3 -m pip install --quiet --no-warn-script-location ''requests'' ''pandas''
+          || PIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --quiet --no-warn-script-location
+          ''requests'' ''pandas'' --user) && \"$0\" \"$@\"", "sh", "-ec", "program_path=$(mktemp)\nprintf
+          \"%s\" \"$0\" > \"$program_path\"\npython3 -u \"$program_path\" \"$@\"\n",
+          "def client(batch):\n    import json\n    import requests\n    import time\n    import
+          pandas as pd\n    import numpy as np\n    import tensorflow as tf\n    from
+          tensorflow.keras.models import Sequential\n    from tensorflow.keras.layers
+          import Conv1D\n    from tensorflow.keras.layers import MaxPooling1D\n    from
+          tensorflow.keras.layers import Activation\n    from tensorflow.keras.layers
+          import Flatten\n    from tensorflow.keras.layers import Dense\n    from
+          tensorflow.keras.optimizers import SGD\n    from tensorflow.keras import
+          backend as K\n\n    normal_url=''https://drive.google.com/u/0/uc?id=1TQHKkP6yzuhcxw_JCtby9jQwY2AMLiNi&export=download''
+          \n    abnormal_url=''https://drive.google.com/uc?export=download&id=1i22tQI2vib0fsd1wwVP1tEydmGEksmpy''\n    normal_data
+          = pd.read_csv(normal_url)\n    abnormal_data = pd.read_csv(abnormal_url)\n    num_features
+          = len(normal_data.columns)\n    print(num_features)\n    normal_label =
+          np.array([[1, 0]] * len(normal_data))\n    abnormal_label = np.array([[0,
+          1]] * len(abnormal_data))\n\n    data = np.vstack((normal_data, abnormal_data))\n    data_label
+          = np.vstack((normal_label, abnormal_label))\n\n    shuffler = np.random.permutation(len(data))\n    data
+          = data[shuffler]\n    data_label = data_label[shuffler]\n\n    data = data.reshape(len(data),
+          num_features, 1)\n    data_label = data_label.reshape(len(data_label), 2)\n\n    full_data
+          = list(zip(data, data_label))\n    data_length=len(full_data)\n\n    class
+          SimpleMLP:\n        @staticmethod\n        def build(shape, classes):\n            model
+          = Sequential()\n            model.add(Conv1D(filters=4, kernel_size=3, input_shape=(17,1)))\n            model.add(MaxPooling1D(3))\n            model.add(Flatten())\n            model.add(Dense(8,
+          activation=\"relu\"))\n            model.add(Dense(2, activation = ''softmax''))\n\n            return
+          model\n\n    if(batch==1):\n        full_data=full_data[0:int(data_length/2)]
+          #batch data\n    else:\n        full_data=full_data[int(data_length/2):data_length]
+          #The client should have its own data, not like this. It''s a lazy method.\n\n    print(''data
+          len= '',len(full_data))\n    def batch_data(data_shard, bs=32):\n\n        #seperate
+          shard into data and labels lists\n        data, label = zip(*data_shard)\n        dataset
+          = tf.data.Dataset.from_tensor_slices((list(data), list(label)))\n        return
+          dataset.shuffle(len(label)).batch(bs)\n\n    dataset=batch_data(full_data)\n    #print(dataset)\n\n    bs
+          = next(iter(dataset))[0].shape[0]\n    local_count = tf.data.experimental.cardinality(dataset).numpy()*bs\n\n    loss=''categorical_crossentropy''\n    metrics
+          = [''accuracy'']\n    optimizer = ''adam''\n\n    smlp_model = SimpleMLP()\n\n    server_url=\"http://http-service:5000/data\"\n    for
+          comm_round in range(1):\n        print(''The '',comm_round+1, ''round'')\n        client_model
+          = smlp_model.build(17, 1)\n        client_model.compile(loss=loss, \n                      optimizer=optimizer,
+          \n                      metrics=metrics)\n\n        if(comm_round == 0):\n            history
+          = client_model.fit(dataset, epochs=5, verbose=1)\n        else:\n            client_model.set_weights(avg_weight)\n            history
+          = client_model.fit(dataset, epochs=5, verbose=1)\n\n        local_weight
+          = client_model.get_weights()\n        local_weight = [np.array(w).tolist()
+          for w in local_weight]\n\n        client_data = {\"local_count\": local_count,''bs'':
+          bs, ''local_weight'': json.dumps(local_weight)}\n\n        while True:\n            try:\n                weight
+          = (requests.post(server_url,data=client_data))\n\n                if weight.status_code
+          == 200:\n                    print(f\"exist\")\n\n                    break\n                else:\n                    print(f\"server
+          error\")\n\n            except requests.exceptions.RequestException:\n\n                print(f\"not
+          exist\")\n\n            time.sleep(5)\n\n        data = weight.json()\n        avg_weight
+          = data.get(''result'')\n        avg_weight = json.loads(avg_weight)\n        avg_weight
+          = [np.array(lst) for lst in avg_weight]\n\n    shutdown_url=\"http://http-service:5000/shutdown\"    \n    try:\n        response
+          = requests.get(shutdown_url)\n    except requests.exceptions.ConnectionError:\n        print(''already
+          shutdown'')\n    last_accuracy = history.history[''accuracy''][-1]\n    print(last_accuracy)\n    return([last_accuracy])\n\ndef
+          _serialize_float(float_value: float) -> str:\n    if isinstance(float_value,
+          str):\n        return float_value\n    if not isinstance(float_value, (float,
+          int)):\n        raise TypeError(''Value \"{}\" has type \"{}\" instead of
+          float.''.format(\n            str(float_value), str(type(float_value))))\n    return
+          str(float_value)\n\nimport argparse\n_parser = argparse.ArgumentParser(prog=''Client'',
+          description='''')\n_parser.add_argument(\"--batch\", dest=\"batch\", type=int,
+          required=True, default=argparse.SUPPRESS)\n_parser.add_argument(\"----output-paths\",
+          dest=\"_output_paths\", type=str, nargs=1)\n_parsed_args = vars(_parser.parse_args())\n_output_files
+          = _parsed_args.pop(\"_output_paths\", [])\n\n_outputs = client(**_parsed_args)\n\n_output_serializers
+          = [\n    _serialize_float,\n\n]\n\nimport os\nfor idx, output_file in enumerate(_output_files):\n    try:\n        os.makedirs(os.path.dirname(output_file))\n    except
+          OSError:\n        pass\n    with open(output_file, ''w'') as f:\n        f.write(_output_serializers[idx](_outputs[idx]))\n"],
+          "image": "tensorflow/tensorflow"}}, "inputs": [{"name": "batch", "type":
+          "Integer"}], "name": "Client", "outputs": [{"name": "last_accuracy", "type":
+          "Float"}]}', pipelines.kubeflow.org/component_ref: '{}', pipelines.kubeflow.org/arguments.parameters: '{"batch":
+          "1"}'}
+  - name: client-2
+    container:
+      args: [--batch, '2', '----output-paths', /tmp/outputs/last_accuracy/data]
+      command:
+      - sh
+      - -c
+      - (PIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --quiet --no-warn-script-location
+        'requests' 'pandas' || PIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install
+        --quiet --no-warn-script-location 'requests' 'pandas' --user) && "$0" "$@"
+      - sh
+      - -ec
+      - |
+        program_path=$(mktemp)
+        printf "%s" "$0" > "$program_path"
+        python3 -u "$program_path" "$@"
+      - "def client(batch):\n    import json\n    import requests\n    import time\n\
+        \    import pandas as pd\n    import numpy as np\n    import tensorflow as\
+        \ tf\n    from tensorflow.keras.models import Sequential\n    from tensorflow.keras.layers\
+        \ import Conv1D\n    from tensorflow.keras.layers import MaxPooling1D\n  \
+        \  from tensorflow.keras.layers import Activation\n    from tensorflow.keras.layers\
+        \ import Flatten\n    from tensorflow.keras.layers import Dense\n    from\
+        \ tensorflow.keras.optimizers import SGD\n    from tensorflow.keras import\
+        \ backend as K\n\n    normal_url='https://drive.google.com/u/0/uc?id=1TQHKkP6yzuhcxw_JCtby9jQwY2AMLiNi&export=download'\
+        \ \n    abnormal_url='https://drive.google.com/uc?export=download&id=1i22tQI2vib0fsd1wwVP1tEydmGEksmpy'\n\
+        \    normal_data = pd.read_csv(normal_url)\n    abnormal_data = pd.read_csv(abnormal_url)\n\
+        \    num_features = len(normal_data.columns)\n    print(num_features)\n  \
+        \  normal_label = np.array([[1, 0]] * len(normal_data))\n    abnormal_label\
+        \ = np.array([[0, 1]] * len(abnormal_data))\n\n    data = np.vstack((normal_data,\
+        \ abnormal_data))\n    data_label = np.vstack((normal_label, abnormal_label))\n\
+        \n    shuffler = np.random.permutation(len(data))\n    data = data[shuffler]\n\
+        \    data_label = data_label[shuffler]\n\n    data = data.reshape(len(data),\
+        \ num_features, 1)\n    data_label = data_label.reshape(len(data_label), 2)\n\
+        \n    full_data = list(zip(data, data_label))\n    data_length=len(full_data)\n\
+        \n    class SimpleMLP:\n        @staticmethod\n        def build(shape, classes):\n\
+        \            model = Sequential()\n            model.add(Conv1D(filters=4,\
+        \ kernel_size=3, input_shape=(17,1)))\n            model.add(MaxPooling1D(3))\n\
+        \            model.add(Flatten())\n            model.add(Dense(8, activation=\"\
+        relu\"))\n            model.add(Dense(2, activation = 'softmax'))\n\n    \
+        \        return model\n\n    if(batch==1):\n        full_data=full_data[0:int(data_length/2)]\
+        \ #batch data\n    else:\n        full_data=full_data[int(data_length/2):data_length]\
+        \ #The client should have its own data, not like this. It's a lazy method.\n\
+        \n    print('data len= ',len(full_data))\n    def batch_data(data_shard, bs=32):\n\
+        \n        #seperate shard into data and labels lists\n        data, label\
+        \ = zip(*data_shard)\n        dataset = tf.data.Dataset.from_tensor_slices((list(data),\
+        \ list(label)))\n        return dataset.shuffle(len(label)).batch(bs)\n\n\
+        \    dataset=batch_data(full_data)\n    #print(dataset)\n\n    bs = next(iter(dataset))[0].shape[0]\n\
+        \    local_count = tf.data.experimental.cardinality(dataset).numpy()*bs\n\n\
+        \    loss='categorical_crossentropy'\n    metrics = ['accuracy']\n    optimizer\
+        \ = 'adam'\n\n    smlp_model = SimpleMLP()\n\n    server_url=\"http://http-service:5000/data\"\
+        \n    for comm_round in range(1):\n        print('The ',comm_round+1, 'round')\n\
+        \        client_model = smlp_model.build(17, 1)\n        client_model.compile(loss=loss,\
+        \ \n                      optimizer=optimizer, \n                      metrics=metrics)\n\
+        \n        if(comm_round == 0):\n            history = client_model.fit(dataset,\
+        \ epochs=5, verbose=1)\n        else:\n            client_model.set_weights(avg_weight)\n\
+        \            history = client_model.fit(dataset, epochs=5, verbose=1)\n\n\
+        \        local_weight = client_model.get_weights()\n        local_weight =\
+        \ [np.array(w).tolist() for w in local_weight]\n\n        client_data = {\"\
+        local_count\": local_count,'bs': bs, 'local_weight': json.dumps(local_weight)}\n\
+        \n        while True:\n            try:\n                weight = (requests.post(server_url,data=client_data))\n\
+        \n                if weight.status_code == 200:\n                    print(f\"\
+        exist\")\n\n                    break\n                else:\n           \
+        \         print(f\"server error\")\n\n            except requests.exceptions.RequestException:\n\
+        \n                print(f\"not exist\")\n\n            time.sleep(5)\n\n \
+        \       data = weight.json()\n        avg_weight = data.get('result')\n  \
+        \      avg_weight = json.loads(avg_weight)\n        avg_weight = [np.array(lst)\
+        \ for lst in avg_weight]\n\n    shutdown_url=\"http://http-service:5000/shutdown\"\
+        \    \n    try:\n        response = requests.get(shutdown_url)\n    except\
+        \ requests.exceptions.ConnectionError:\n        print('already shutdown')\n\
+        \    last_accuracy = history.history['accuracy'][-1]\n    print(last_accuracy)\n\
+        \    return([last_accuracy])\n\ndef _serialize_float(float_value: float) ->\
+        \ str:\n    if isinstance(float_value, str):\n        return float_value\n\
+        \    if not isinstance(float_value, (float, int)):\n        raise TypeError('Value\
+        \ \"{}\" has type \"{}\" instead of float.'.format(\n            str(float_value),\
+        \ str(type(float_value))))\n    return str(float_value)\n\nimport argparse\n\
+        _parser = argparse.ArgumentParser(prog='Client', description='')\n_parser.add_argument(\"\
+        --batch\", dest=\"batch\", type=int, required=True, default=argparse.SUPPRESS)\n\
+        _parser.add_argument(\"----output-paths\", dest=\"_output_paths\", type=str,\
+        \ nargs=1)\n_parsed_args = vars(_parser.parse_args())\n_output_files = _parsed_args.pop(\"\
+        _output_paths\", [])\n\n_outputs = client(**_parsed_args)\n\n_output_serializers\
+        \ = [\n    _serialize_float,\n\n]\n\nimport os\nfor idx, output_file in enumerate(_output_files):\n\
+        \    try:\n        os.makedirs(os.path.dirname(output_file))\n    except OSError:\n\
+        \        pass\n    with open(output_file, 'w') as f:\n        f.write(_output_serializers[idx](_outputs[idx]))\n"
+      image: tensorflow/tensorflow
+      resources:
+        limits: {cpu: '0.2'}
+        requests: {cpu: '0.2'}
+    outputs:
+      artifacts:
+      - {name: client-2-last_accuracy, path: /tmp/outputs/last_accuracy/data}
+    metadata:
+      labels:
+        pipelines.kubeflow.org/kfp_sdk_version: 1.8.9
+        pipelines.kubeflow.org/pipeline-sdk-type: kfp
+        pipelines.kubeflow.org/enable_caching: "true"
+      annotations: {pipelines.kubeflow.org/component_spec: '{"implementation": {"container":
+          {"args": ["--batch", {"inputValue": "batch"}, "----output-paths", {"outputPath":
+          "last_accuracy"}], "command": ["sh", "-c", "(PIP_DISABLE_PIP_VERSION_CHECK=1
+          python3 -m pip install --quiet --no-warn-script-location ''requests'' ''pandas''
+          || PIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --quiet --no-warn-script-location
+          ''requests'' ''pandas'' --user) && \"$0\" \"$@\"", "sh", "-ec", "program_path=$(mktemp)\nprintf
+          \"%s\" \"$0\" > \"$program_path\"\npython3 -u \"$program_path\" \"$@\"\n",
+          "def client(batch):\n    import json\n    import requests\n    import time\n    import
+          pandas as pd\n    import numpy as np\n    import tensorflow as tf\n    from
+          tensorflow.keras.models import Sequential\n    from tensorflow.keras.layers
+          import Conv1D\n    from tensorflow.keras.layers import MaxPooling1D\n    from
+          tensorflow.keras.layers import Activation\n    from tensorflow.keras.layers
+          import Flatten\n    from tensorflow.keras.layers import Dense\n    from
+          tensorflow.keras.optimizers import SGD\n    from tensorflow.keras import
+          backend as K\n\n    normal_url=''https://drive.google.com/u/0/uc?id=1TQHKkP6yzuhcxw_JCtby9jQwY2AMLiNi&export=download''
+          \n    abnormal_url=''https://drive.google.com/uc?export=download&id=1i22tQI2vib0fsd1wwVP1tEydmGEksmpy''\n    normal_data
+          = pd.read_csv(normal_url)\n    abnormal_data = pd.read_csv(abnormal_url)\n    num_features
+          = len(normal_data.columns)\n    print(num_features)\n    normal_label =
+          np.array([[1, 0]] * len(normal_data))\n    abnormal_label = np.array([[0,
+          1]] * len(abnormal_data))\n\n    data = np.vstack((normal_data, abnormal_data))\n    data_label
+          = np.vstack((normal_label, abnormal_label))\n\n    shuffler = np.random.permutation(len(data))\n    data
+          = data[shuffler]\n    data_label = data_label[shuffler]\n\n    data = data.reshape(len(data),
+          num_features, 1)\n    data_label = data_label.reshape(len(data_label), 2)\n\n    full_data
+          = list(zip(data, data_label))\n    data_length=len(full_data)\n\n    class
+          SimpleMLP:\n        @staticmethod\n        def build(shape, classes):\n            model
+          = Sequential()\n            model.add(Conv1D(filters=4, kernel_size=3, input_shape=(17,1)))\n            model.add(MaxPooling1D(3))\n            model.add(Flatten())\n            model.add(Dense(8,
+          activation=\"relu\"))\n            model.add(Dense(2, activation = ''softmax''))\n\n            return
+          model\n\n    if(batch==1):\n        full_data=full_data[0:int(data_length/2)]
+          #batch data\n    else:\n        full_data=full_data[int(data_length/2):data_length]
+          #The client should have its own data, not like this. It''s a lazy method.\n\n    print(''data
+          len= '',len(full_data))\n    def batch_data(data_shard, bs=32):\n\n        #seperate
+          shard into data and labels lists\n        data, label = zip(*data_shard)\n        dataset
+          = tf.data.Dataset.from_tensor_slices((list(data), list(label)))\n        return
+          dataset.shuffle(len(label)).batch(bs)\n\n    dataset=batch_data(full_data)\n    #print(dataset)\n\n    bs
+          = next(iter(dataset))[0].shape[0]\n    local_count = tf.data.experimental.cardinality(dataset).numpy()*bs\n\n    loss=''categorical_crossentropy''\n    metrics
+          = [''accuracy'']\n    optimizer = ''adam''\n\n    smlp_model = SimpleMLP()\n\n    server_url=\"http://http-service:5000/data\"\n    for
+          comm_round in range(1):\n        print(''The '',comm_round+1, ''round'')\n        client_model
+          = smlp_model.build(17, 1)\n        client_model.compile(loss=loss, \n                      optimizer=optimizer,
+          \n                      metrics=metrics)\n\n        if(comm_round == 0):\n            history
+          = client_model.fit(dataset, epochs=5, verbose=1)\n        else:\n            client_model.set_weights(avg_weight)\n            history
+          = client_model.fit(dataset, epochs=5, verbose=1)\n\n        local_weight
+          = client_model.get_weights()\n        local_weight = [np.array(w).tolist()
+          for w in local_weight]\n\n        client_data = {\"local_count\": local_count,''bs'':
+          bs, ''local_weight'': json.dumps(local_weight)}\n\n        while True:\n            try:\n                weight
+          = (requests.post(server_url,data=client_data))\n\n                if weight.status_code
+          == 200:\n                    print(f\"exist\")\n\n                    break\n                else:\n                    print(f\"server
+          error\")\n\n            except requests.exceptions.RequestException:\n\n                print(f\"not
+          exist\")\n\n            time.sleep(5)\n\n        data = weight.json()\n        avg_weight
+          = data.get(''result'')\n        avg_weight = json.loads(avg_weight)\n        avg_weight
+          = [np.array(lst) for lst in avg_weight]\n\n    shutdown_url=\"http://http-service:5000/shutdown\"    \n    try:\n        response
+          = requests.get(shutdown_url)\n    except requests.exceptions.ConnectionError:\n        print(''already
+          shutdown'')\n    last_accuracy = history.history[''accuracy''][-1]\n    print(last_accuracy)\n    return([last_accuracy])\n\ndef
+          _serialize_float(float_value: float) -> str:\n    if isinstance(float_value,
+          str):\n        return float_value\n    if not isinstance(float_value, (float,
+          int)):\n        raise TypeError(''Value \"{}\" has type \"{}\" instead of
+          float.''.format(\n            str(float_value), str(type(float_value))))\n    return
+          str(float_value)\n\nimport argparse\n_parser = argparse.ArgumentParser(prog=''Client'',
+          description='''')\n_parser.add_argument(\"--batch\", dest=\"batch\", type=int,
+          required=True, default=argparse.SUPPRESS)\n_parser.add_argument(\"----output-paths\",
+          dest=\"_output_paths\", type=str, nargs=1)\n_parsed_args = vars(_parser.parse_args())\n_output_files
+          = _parsed_args.pop(\"_output_paths\", [])\n\n_outputs = client(**_parsed_args)\n\n_output_serializers
+          = [\n    _serialize_float,\n\n]\n\nimport os\nfor idx, output_file in enumerate(_output_files):\n    try:\n        os.makedirs(os.path.dirname(output_file))\n    except
+          OSError:\n        pass\n    with open(output_file, ''w'') as f:\n        f.write(_output_serializers[idx](_outputs[idx]))\n"],
+          "image": "tensorflow/tensorflow"}}, "inputs": [{"name": "batch", "type":
+          "Integer"}], "name": "Client", "outputs": [{"name": "last_accuracy", "type":
+          "Float"}]}', pipelines.kubeflow.org/component_ref: '{}', pipelines.kubeflow.org/arguments.parameters: '{"batch":
+          "2"}'}
+  - name: delete-service
+    resource:
+      action: delete
+      flags: [--wait=false]
+      manifest: |
+        apiVersion: v1
+        kind: Service
+        metadata:
+          name: http-service
+        spec:
+          ports:
+          - port: 80
+            protocol: TCP
+            targetPort: 8080
+          selector:
+            app: http-service
+          type: NodePort
+    metadata:
+      labels:
+        pipelines.kubeflow.org/kfp_sdk_version: 1.8.9
+        pipelines.kubeflow.org/pipeline-sdk-type: kfp
+        pipelines.kubeflow.org/enable_caching: "true"
+  - name: fl-test
+    dag:
+      tasks:
+      - {name: client, template: client}
+      - {name: client-2, template: client-2}
+      - name: delete-service
+        template: delete-service
+        dependencies: [server]
+      - {name: http-service, template: http-service}
+      - name: server
+        template: server
+        dependencies: [http-service]
+      - name: show-results
+        template: show-results
+        dependencies: [client]
+        arguments:
+          parameters:
+          - {name: client-last_accuracy, value: '{{tasks.client.outputs.parameters.client-last_accuracy}}'}
+  - name: http-service
+    resource:
+      action: create
+      manifest: |
+        apiVersion: v1
+        kind: Service
+        metadata:
+          name: http-service
+        spec:
+          ports:
+          - port: 5000
+            protocol: TCP
+            targetPort: 8080
+          selector:
+            app: http-service
+    outputs:
+      parameters:
+      - name: http-service-manifest
+        valueFrom: {jsonPath: '{}'}
+      - name: http-service-name
+        valueFrom: {jsonPath: '{.metadata.name}'}
+    metadata:
+      labels:
+        pipelines.kubeflow.org/kfp_sdk_version: 1.8.9
+        pipelines.kubeflow.org/pipeline-sdk-type: kfp
+        pipelines.kubeflow.org/enable_caching: "true"
+  - name: server
+    container:
+      args: []
+      command:
+      - sh
+      - -c
+      - (PIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --quiet --no-warn-script-location
+        'flask' 'pandas' || PIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install
+        --quiet --no-warn-script-location 'flask' 'pandas' --user) && "$0" "$@"
+      - sh
+      - -ec
+      - |
+        program_path=$(mktemp)
+        printf "%s" "$0" > "$program_path"
+        python3 -u "$program_path" "$@"
+      - "def server():\n    import json\n    import pandas as pd\n    import numpy\
+        \ as np\n    import pickle\n    import threading\n    import time\n    import\
+        \ tensorflow as tf\n    from flask import Flask, jsonify,request\n    import\
+        \ os\n\n    app = Flask(__name__)\n    clients_local_count = []\n    scaled_local_weight_list\
+        \ = []\n    global_value = { #Share variable\n                    'last_run_statue'\
+        \ : False, #last run finish or not\n                    'data_statue' : None,\
+        \      #global_count finish or not\n                    'global_count' : None,\n\
+        \                    'scale_statue' : None,\n                    'weight_statue'\
+        \ : None,\n                    'average_weights' : None,\n               \
+        \     'shutdown' : 0}\n\n    NUM_OF_CLIENTS = 2 #number of clients\n\n   \
+        \ init_lock = threading.Lock()\n    clients_local_count_lock = threading.Lock()\n\
+        \    scaled_local_weight_list_lock = threading.Lock()\n    cal_weight_lock\
+        \ = threading.Lock()\n    shutdown_lock = threading.Lock()\n\n    @app.before_request\n\
+        \    def before_request():\n        print('get request')\n\n    @app.route('/data',\
+        \ methods=['POST'])\n    def flask_server():\n        with init_lock:  #check\
+        \ last run is finish and init varible\n\n            while True:\n\n     \
+        \           if(len(clients_local_count)==0 and global_value['last_run_statue']\
+        \ == False):#init the variable by first client enter\n                   \
+        \ global_value['last_run_statue'] = True\n                    global_value['data_statue']\
+        \ = False\n                    global_value['scale_statue'] = False\n    \
+        \                global_value['weight_statue'] = False\n                 \
+        \   break\n\n                elif(global_value['last_run_statue'] == True):\n\
+        \                    break\n                time.sleep(3)\n\n        local_count\
+        \ = int(request.form.get('local_count'))          #get data\n        bs =\
+        \ int(request.form.get('bs'))\n        local_weight = json.loads(request.form.get('local_weight'))\n\
+        \        local_weight = [np.array(lst) for lst in local_weight]\n\n      \
+        \  def scale_model_weights(weight, scalar):\n            weight_final = []\n\
+        \            steps = len(weight)\n            for i in range(steps):\n   \
+        \             weight_final.append(scalar * weight[i])\n            return\
+        \ weight_final\n        def sum_scaled_weights(scaled_weight_list):\n\n  \
+        \          avg_grad = list()\n            #get the average grad accross all\
+        \ client gradients\n            for grad_list_tuple in zip(*scaled_weight_list):\n\
+        \                layer_mean = tf.math.reduce_sum(grad_list_tuple, axis=0)\n\
+        \                avg_grad.append(layer_mean)\n\n            return avg_grad\n\
+        \n        with clients_local_count_lock:\n            clients_local_count.append(int(local_count))\n\
+        \n        with scaled_local_weight_list_lock:\n            while True:\n\n\
+        \                if (len(clients_local_count) == NUM_OF_CLIENTS and global_value['data_statue']\
+        \ != True):\n                    global_value['last_run_statue'] = False\n\
+        \                    sum_of_local_count=sum(clients_local_count)\n\n     \
+        \               global_value['global_count'] = sum_of_local_count     \n\n\
+        \                    scaling_factor=local_count/global_value['global_count']\n\
+        \                    scaled_weights = scale_model_weights(local_weight, scaling_factor)\n\
+        \                    scaled_local_weight_list.append(scaled_weights)\n\n \
+        \                   global_value['scale_statue'] = True \n               \
+        \     global_value['data_statue'] = True\n                    break\n    \
+        \            elif (global_value['data_statue'] == True and global_value['scale_statue']\
+        \ == True):\n                    scaling_factor=local_count/global_value['global_count']\n\
+        \                    scaled_weights =scale_model_weights(local_weight, scaling_factor)\n\
+        \                    scaled_local_weight_list.append(scaled_weights)\n\n \
+        \                   break\n                time.sleep(1)\n\n        with cal_weight_lock:\n\
+        \n            while True:\n                if(len(scaled_local_weight_list)\
+        \ == NUM_OF_CLIENTS and global_value['weight_statue'] != True):\n\n      \
+        \              global_value['average_weights'] = sum_scaled_weights(scaled_local_weight_list)\n\
+        \                    global_value['weight_statue'] = True\n              \
+        \      global_value['average_weights'] = json.dumps([np.array(w).tolist()\
+        \ for w in global_value['average_weights']])\n\n                    break\n\
+        \n                elif(global_value['weight_statue'] == True):\n\n       \
+        \             break\n\n                time.sleep(1)\n\n        clients_local_count.clear()\n\
+        \        scaled_local_weight_list.clear()\n\n        return jsonify({'result':\
+        \ (global_value['average_weights'])})\n\n    @app.route('/shutdown', methods=['GET'])\n\
+        \    def shutdown_server():\n        global_value['shutdown'] +=1 \n     \
+        \   with shutdown_lock:\n            while True:\n                if(global_value['shutdown']\
+        \ == NUM_OF_CLIENTS):\n                    os._exit(0)\n                 \
+        \   return 'Server shutting down...'\n                time.sleep(1)\n\n  \
+        \  app.run(host=\"0.0.0.0\", port=8080)\n\nimport argparse\n_parser = argparse.ArgumentParser(prog='Server',\
+        \ description='')\n_parsed_args = vars(_parser.parse_args())\n\n_outputs =\
+        \ server(**_parsed_args)\n"
+      image: tensorflow/tensorflow
+      ports:
+      - {containerPort: 8080, name: my-port}
+      resources:
+        limits: {cpu: '0.2'}
+        requests: {cpu: '0.2'}
+    metadata:
+      labels:
+        app: http-service
+        pipelines.kubeflow.org/kfp_sdk_version: 1.8.9
+        pipelines.kubeflow.org/pipeline-sdk-type: kfp
+        pipelines.kubeflow.org/enable_caching: "true"
+      annotations: {pipelines.kubeflow.org/component_spec: '{"implementation": {"container":
+          {"args": [], "command": ["sh", "-c", "(PIP_DISABLE_PIP_VERSION_CHECK=1 python3
+          -m pip install --quiet --no-warn-script-location ''flask'' ''pandas'' ||
+          PIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --quiet --no-warn-script-location
+          ''flask'' ''pandas'' --user) && \"$0\" \"$@\"", "sh", "-ec", "program_path=$(mktemp)\nprintf
+          \"%s\" \"$0\" > \"$program_path\"\npython3 -u \"$program_path\" \"$@\"\n",
+          "def server():\n    import json\n    import pandas as pd\n    import numpy
+          as np\n    import pickle\n    import threading\n    import time\n    import
+          tensorflow as tf\n    from flask import Flask, jsonify,request\n    import
+          os\n\n    app = Flask(__name__)\n    clients_local_count = []\n    scaled_local_weight_list
+          = []\n    global_value = { #Share variable\n                    ''last_run_statue''
+          : False, #last run finish or not\n                    ''data_statue'' :
+          None,      #global_count finish or not\n                    ''global_count''
+          : None,\n                    ''scale_statue'' : None,\n                    ''weight_statue''
+          : None,\n                    ''average_weights'' : None,\n                    ''shutdown''
+          : 0}\n\n    NUM_OF_CLIENTS = 2 #number of clients\n\n    init_lock = threading.Lock()\n    clients_local_count_lock
+          = threading.Lock()\n    scaled_local_weight_list_lock = threading.Lock()\n    cal_weight_lock
+          = threading.Lock()\n    shutdown_lock = threading.Lock()\n\n    @app.before_request\n    def
+          before_request():\n        print(''get request'')\n\n    @app.route(''/data'',
+          methods=[''POST''])\n    def flask_server():\n        with init_lock:  #check
+          last run is finish and init varible\n\n            while True:\n\n                if(len(clients_local_count)==0
+          and global_value[''last_run_statue''] == False):#init the variable by first
+          client enter\n                    global_value[''last_run_statue''] = True\n                    global_value[''data_statue'']
+          = False\n                    global_value[''scale_statue''] = False\n                    global_value[''weight_statue'']
+          = False\n                    break\n\n                elif(global_value[''last_run_statue'']
+          == True):\n                    break\n                time.sleep(3)\n\n        local_count
+          = int(request.form.get(''local_count''))          #get data\n        bs
+          = int(request.form.get(''bs''))\n        local_weight = json.loads(request.form.get(''local_weight''))\n        local_weight
+          = [np.array(lst) for lst in local_weight]\n\n        def scale_model_weights(weight,
+          scalar):\n            weight_final = []\n            steps = len(weight)\n            for
+          i in range(steps):\n                weight_final.append(scalar * weight[i])\n            return
+          weight_final\n        def sum_scaled_weights(scaled_weight_list):\n\n            avg_grad
+          = list()\n            #get the average grad accross all client gradients\n            for
+          grad_list_tuple in zip(*scaled_weight_list):\n                layer_mean
+          = tf.math.reduce_sum(grad_list_tuple, axis=0)\n                avg_grad.append(layer_mean)\n\n            return
+          avg_grad\n\n        with clients_local_count_lock:\n            clients_local_count.append(int(local_count))\n\n        with
+          scaled_local_weight_list_lock:\n            while True:\n\n                if
+          (len(clients_local_count) == NUM_OF_CLIENTS and global_value[''data_statue'']
+          != True):\n                    global_value[''last_run_statue''] = False\n                    sum_of_local_count=sum(clients_local_count)\n\n                    global_value[''global_count'']
+          = sum_of_local_count     \n\n                    scaling_factor=local_count/global_value[''global_count'']\n                    scaled_weights
+          = scale_model_weights(local_weight, scaling_factor)\n                    scaled_local_weight_list.append(scaled_weights)\n\n                    global_value[''scale_statue'']
+          = True \n                    global_value[''data_statue''] = True\n                    break\n                elif
+          (global_value[''data_statue''] == True and global_value[''scale_statue'']
+          == True):\n                    scaling_factor=local_count/global_value[''global_count'']\n                    scaled_weights
+          =scale_model_weights(local_weight, scaling_factor)\n                    scaled_local_weight_list.append(scaled_weights)\n\n                    break\n                time.sleep(1)\n\n        with
+          cal_weight_lock:\n\n            while True:\n                if(len(scaled_local_weight_list)
+          == NUM_OF_CLIENTS and global_value[''weight_statue''] != True):\n\n                    global_value[''average_weights'']
+          = sum_scaled_weights(scaled_local_weight_list)\n                    global_value[''weight_statue'']
+          = True\n                    global_value[''average_weights''] = json.dumps([np.array(w).tolist()
+          for w in global_value[''average_weights'']])\n\n                    break\n\n                elif(global_value[''weight_statue'']
+          == True):\n\n                    break\n\n                time.sleep(1)\n\n        clients_local_count.clear()\n        scaled_local_weight_list.clear()\n\n        return
+          jsonify({''result'': (global_value[''average_weights''])})\n\n    @app.route(''/shutdown'',
+          methods=[''GET''])\n    def shutdown_server():\n        global_value[''shutdown'']
+          +=1 \n        with shutdown_lock:\n            while True:\n                if(global_value[''shutdown'']
+          == NUM_OF_CLIENTS):\n                    os._exit(0)\n                    return
+          ''Server shutting down...''\n                time.sleep(1)\n\n    app.run(host=\"0.0.0.0\",
+          port=8080)\n\nimport argparse\n_parser = argparse.ArgumentParser(prog=''Server'',
+          description='''')\n_parsed_args = vars(_parser.parse_args())\n\n_outputs
+          = server(**_parsed_args)\n"], "image": "tensorflow/tensorflow"}}, "name":
+          "Server"}', pipelines.kubeflow.org/component_ref: '{}'}
+  - name: show-results
+    container:
+      args: [--test-acc, '{{inputs.parameters.client-last_accuracy}}', '----output-paths',
+        /tmp/outputs/test_accuracy/data]
+      command:
+      - sh
+      - -ec
+      - |
+        program_path=$(mktemp)
+        printf "%s" "$0" > "$program_path"
+        python3 -u "$program_path" "$@"
+      - |
+        def show_results(test_acc):
+            return([test_acc])
+
+        def _serialize_float(float_value: float) -> str:
+            if isinstance(float_value, str):
+                return float_value
+            if not isinstance(float_value, (float, int)):
+                raise TypeError('Value "{}" has type "{}" instead of float.'.format(
+                    str(float_value), str(type(float_value))))
+            return str(float_value)
+
+        import argparse
+        _parser = argparse.ArgumentParser(prog='Show results', description='')
+        _parser.add_argument("--test-acc", dest="test_acc", type=float, required=True, default=argparse.SUPPRESS)
+        _parser.add_argument("----output-paths", dest="_output_paths", type=str, nargs=1)
+        _parsed_args = vars(_parser.parse_args())
+        _output_files = _parsed_args.pop("_output_paths", [])
+
+        _outputs = show_results(**_parsed_args)
+
+        _output_serializers = [
+            _serialize_float,
+
+        ]
+
+        import os
+        for idx, output_file in enumerate(_output_files):
+            try:
+                os.makedirs(os.path.dirname(output_file))
+            except OSError:
+                pass
+            with open(output_file, 'w') as f:
+                f.write(_output_serializers[idx](_outputs[idx]))
+      image: python:3.7
+      resources:
+        limits: {cpu: '0.2'}
+        requests: {cpu: '0.2'}
+    inputs:
+      parameters:
+      - {name: client-last_accuracy}
+    outputs:
+      artifacts:
+      - {name: show-results-test_accuracy, path: /tmp/outputs/test_accuracy/data}
+    metadata:
+      labels:
+        pipelines.kubeflow.org/kfp_sdk_version: 1.8.9
+        pipelines.kubeflow.org/pipeline-sdk-type: kfp
+        pipelines.kubeflow.org/enable_caching: "true"
+      annotations: {pipelines.kubeflow.org/component_spec: '{"implementation": {"container":
+          {"args": ["--test-acc", {"inputValue": "test_acc"}, "----output-paths",
+          {"outputPath": "test_accuracy"}], "command": ["sh", "-ec", "program_path=$(mktemp)\nprintf
+          \"%s\" \"$0\" > \"$program_path\"\npython3 -u \"$program_path\" \"$@\"\n",
+          "def show_results(test_acc):\n    return([test_acc])\n\ndef _serialize_float(float_value:
+          float) -> str:\n    if isinstance(float_value, str):\n        return float_value\n    if
+          not isinstance(float_value, (float, int)):\n        raise TypeError(''Value
+          \"{}\" has type \"{}\" instead of float.''.format(\n            str(float_value),
+          str(type(float_value))))\n    return str(float_value)\n\nimport argparse\n_parser
+          = argparse.ArgumentParser(prog=''Show results'', description='''')\n_parser.add_argument(\"--test-acc\",
+          dest=\"test_acc\", type=float, required=True, default=argparse.SUPPRESS)\n_parser.add_argument(\"----output-paths\",
+          dest=\"_output_paths\", type=str, nargs=1)\n_parsed_args = vars(_parser.parse_args())\n_output_files
+          = _parsed_args.pop(\"_output_paths\", [])\n\n_outputs = show_results(**_parsed_args)\n\n_output_serializers
+          = [\n    _serialize_float,\n\n]\n\nimport os\nfor idx, output_file in enumerate(_output_files):\n    try:\n        os.makedirs(os.path.dirname(output_file))\n    except
+          OSError:\n        pass\n    with open(output_file, ''w'') as f:\n        f.write(_output_serializers[idx](_outputs[idx]))\n"],
+          "image": "python:3.7"}}, "inputs": [{"name": "test_acc", "type": "Float"}],
+          "name": "Show results", "outputs": [{"name": "test_accuracy", "type": "Float"}]}',
+        pipelines.kubeflow.org/component_ref: '{}', pipelines.kubeflow.org/arguments.parameters: '{"test_acc":
+          "{{inputs.parameters.client-last_accuracy}}"}'}
+  arguments:
+    parameters:
+    - {name: namespace, value: kubeflow-user-thu01}
+  serviceAccountName: pipeline-runner

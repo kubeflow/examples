@@ -1,0 +1,149 @@
+f<!--
+  Copyright 2014 Sense Tecnic Systems, Inc.
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<script type="text/x-red" data-template-name="fl">
+  <div class="form-tips"><p>Provide a python file with full path</p>
+  
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-tag"></i> Name </label>
+    <input type="text" id="node-input-name" value="/data/1.connect-kubeflow/py/fl.py" readonly>
+  </div>
+  <div class="form-row">
+    <label for="node-input-pyfile"><i class="fa fa-tag"></i> Py file </label>
+    <input type="text" id="node-input-pyfile"  readonly>
+  </div>
+  <div class="form-row">
+    <label for="node-input-virtualenv"><i class="fa fa-tag"></i> Virtual Environment Path </label>
+    <input type="text" id="node-input-virtualenv" placeholder="/home/user/venv">
+  </div>
+  <div class="form-row">
+  <label>Use Python 3?</label>
+    <input type="checkbox" id="node-input-python3" style="display: inline-block; width: auto; vertical-align: top;">
+  </div>
+  <div class="form-row">
+    <label>Continuous?</label>
+    <input type="checkbox" id="node-input-continuous" style="display: inline-block; width: auto; vertical-align: top;">
+  </div>
+  <div class="form-row">
+    <input type="hidden" id="node-input-stdInData" value="false">
+  </div>
+
+  <div class="form-tips">
+    <p>
+      <b>Continuous:</b> this means the script will continuously produce data (good for trigger once, run forever scripts). This option will always be checked if Stdin Input is checked.
+    </p>
+    <p>
+      <b>Stdin Input:</b> when this is checked, input to the node will be fed to the stdin of the scripts. That is, one the very first input, the script will be launched and wait for data from its stdin.
+    </p>
+  </div>
+
+</script>
+
+<script type="text/x-red" data-help-name="fl">
+    <p>This node interacts with a python process, it run a python script and treats input payload as the arguments of the script. Script output will be forwarded to the node output</p>
+
+    <p>
+      Virtual environment can be used, please specify the path to it.
+    </p>
+
+    <p>
+      <b>
+        Note:
+      </b>
+      If <b>Continuous</b> mode is checked, clicking on the trigger of the node itself will terminate the script. Also, when the script is producing data, any new input will be ignored
+    </p>
+</script>
+
+<style type="text/css">
+  .node_label_white {
+    fill: white;
+  }
+
+  .node_label_white_italic {
+    fill: white;
+    font-style: italic;
+  }
+  #palette_node_pythonshell_in > div.palette_label {
+    color: white;
+  }
+</style>
+
+<script type="text/javascript">
+
+  RED.nodes.registerType('fl',{
+    category: 'input',
+    defaults: {
+      name: {required: false},
+      pyfile: {value:"/data/1.connect-kubeflow/py/fl.py"},
+      virtualenv: {required: false},
+      continuous: {required: false},
+      stdInData: {required: false},
+      python3: {required: false}
+    },
+    color:"#1c4e63",
+    inputs: 1,
+    outputs:1,
+    icon: "bridge.png",
+    align: "left",
+    label: function() {
+        return this.name || "fl";
+    },
+    labelStyle: function() {
+      return this.name ? "node_label_white_italic" : "node_label_white";
+    },
+    oneditprepare: function() {
+      $("#node-input-stdInData").change(function(e) {
+        if(e.target.checked) {
+          $('#node-input-continuous').prop('checked', true);
+        }
+      });
+      $("#node-input-python3").change(function(e) {
+        if(e.target.checked) {
+          $('#node-input-python3').prop('checked', true);
+        }
+      });
+      $("#node-input-continuous").change(function(e) {
+        if(!e.target.checked && $('#node-input-stdInData').is(':checked')) {
+          $('#node-input-continuous').prop('checked', true);
+        }
+      });
+    },
+    oneditsave: function(){
+      if ($('#node-input-continuous').is(':checked') && !$('#node-input-stdInData').is(':checked')){
+        this.inputs = 0;
+      }
+    },
+    button: {
+      onclick: function() {
+        var node = this;
+        $.ajax({
+          url: "pythonshell/"+this.id,
+          type:"POST",
+          success: function(resp) {
+            RED.notify(node._("success"),"success");
+          },
+          error: function(jqXHR,textStatus,errorThrown) {
+            if (jqXHR.status == 404) {
+                RED.notify(node._("common.notification.error",{message:node._("common.notification.errors.not-deployed")}),"error");
+            } else if (jqXHR.status == 500) {
+                RED.notify(node._("common.notification.error",{message:node._("pythonshell.errors.failed")}),"error");
+            } else if (jqXHR.status == 0) {
+                RED.notify(node._("common.notification.error",{message:node._("common.notification.errors.no-response")}),"error");
+            } else {
+                RED.notify(node._("common.notification.error",{message:node._("common.notification.errors.unexpected",{status:jqXHR.status,message:textStatus})}),"error");
+            }
+          }
+        });
+      }
+    }
+  }); 
+</script>

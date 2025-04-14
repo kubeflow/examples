@@ -1,0 +1,211 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: mnist-pipeline-
+  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.8.9, pipelines.kubeflow.org/pipeline_compilation_time: '2023-12-26T13:06:02.352865',
+    pipelines.kubeflow.org/pipeline_spec: '{"description": "A pipeline to train a
+      model on mnist dataset and start a tensorboard.", "name": "mnist pipeline"}'}
+  labels: {pipelines.kubeflow.org/kfp_sdk_version: 1.8.9}
+spec:
+  entrypoint: mnist-pipeline
+  templates:
+  - name: create-tensorboard-visualization
+    container:
+      args: []
+      command:
+      - sh
+      - -ex
+      - -c
+      - |
+        log_dir="$0"
+        output_metadata_path="$1"
+        pod_template_spec="$2"
+        image="$3"
+
+        mkdir -p "$(dirname "$output_metadata_path")"
+
+        echo '
+            {
+              "outputs" : [{
+                "type": "tensorboard",
+                "source": "'"$log_dir"'",
+                "image": "'"$image"'",
+                "pod_template_spec": '"$pod_template_spec"'
+              }]
+            }
+        ' >"$output_metadata_path"
+      - volume://mypvc/logs
+      - /tmp/outputs/mlpipeline-ui-metadata/data
+      - '{"spec": {"containers": [{"volumeMounts": [{"mountPath": "/data", "name":
+        "mypvc"}], "resources": {"requests": {"cpu": "250m"}, "limits": {"cpu": "500m"}}}],
+        "serviceAccountName": "default-editor", "volumes": [{"name": "mypvc", "persistentVolumeClaim":
+        {"claimName": "my-awesome-kf-workshop-1703595962"}}]}}'
+      - footprintai/tensorboard:2.7.0
+      image: alpine
+      resources:
+        limits: {cpu: '1'}
+        requests: {cpu: '1'}
+    outputs:
+      artifacts:
+      - {name: mlpipeline-ui-metadata, path: /tmp/outputs/mlpipeline-ui-metadata/data}
+    metadata:
+      annotations: {author: Alexey Volkov <alexey.volkov@ark-kun.com>, canonical_location: 'https://raw.githubusercontent.com/Ark-kun/pipeline_components/master/components/tensorflow/tensorboard/prepare_tensorboard/component.yaml',
+        pipelines.kubeflow.org/component_spec: '{"description": "Pre-creates Tensorboard
+          visualization for a given Log dir URI.\nThis way the Tensorboard can be
+          viewed before the training completes.\nThe output Log dir URI should be
+          passed to a trainer component that will write Tensorboard logs to that directory.\n",
+          "implementation": {"container": {"command": ["sh", "-ex", "-c", "log_dir=\"$0\"\noutput_metadata_path=\"$1\"\npod_template_spec=\"$2\"\nimage=\"$3\"\n\nmkdir
+          -p \"$(dirname \"$output_metadata_path\")\"\n\necho ''\n    {\n      \"outputs\"
+          : [{\n        \"type\": \"tensorboard\",\n        \"source\": \"''\"$log_dir\"''\",\n        \"image\":
+          \"''\"$image\"''\",\n        \"pod_template_spec\": ''\"$pod_template_spec\"''\n      }]\n    }\n''
+          >\"$output_metadata_path\"\n", {"inputValue": "Log dir URI"}, {"outputPath":
+          "mlpipeline-ui-metadata"}, {"inputValue": "Pod Template Spec"}, {"inputValue":
+          "Image"}], "image": "alpine"}}, "inputs": [{"name": "Log dir URI", "type":
+          "String"}, {"default": "", "name": "Image", "type": "String"}, {"default":
+          "null", "name": "Pod Template Spec", "type": "String"}], "metadata": {"annotations":
+          {"author": "Alexey Volkov <alexey.volkov@ark-kun.com>", "canonical_location":
+          "https://raw.githubusercontent.com/Ark-kun/pipeline_components/master/components/tensorflow/tensorboard/prepare_tensorboard/component.yaml"}},
+          "name": "Create Tensorboard visualization", "outputs": [{"name": "mlpipeline-ui-metadata",
+          "type": "kfp.v1.ui-metadata"}]}', pipelines.kubeflow.org/component_ref: '{"digest":
+          "cc3c37c54619129e4f57e4564bc5df0ba9719a305e6145238f2ae7e54d87f2ef", "url":
+          "https://raw.githubusercontent.com/kubeflow/pipelines/1b107eb4bb2510ecb99fd5f4fb438cbf7c96a87a/components/contrib/tensorflow/tensorboard/prepare_tensorboard/component.yaml"}',
+        pipelines.kubeflow.org/arguments.parameters: '{"Image": "footprintai/tensorboard:2.7.0",
+          "Log dir URI": "volume://mypvc/logs", "Pod Template Spec": "{\"spec\": {\"containers\":
+          [{\"volumeMounts\": [{\"mountPath\": \"/data\", \"name\": \"mypvc\"}], \"resources\":
+          {\"requests\": {\"cpu\": \"250m\"}, \"limits\": {\"cpu\": \"500m\"}}}],
+          \"serviceAccountName\": \"default-editor\", \"volumes\": [{\"name\": \"mypvc\",
+          \"persistentVolumeClaim\": {\"claimName\": \"my-awesome-kf-workshop-1703595962\"}}]}}"}'}
+      labels:
+        pipelines.kubeflow.org/kfp_sdk_version: 1.8.9
+        pipelines.kubeflow.org/pipeline-sdk-type: kfp
+        pipelines.kubeflow.org/enable_caching: "true"
+  - name: mnist-func
+    container:
+      args: [--log-folder, /data, '----output-paths', /tmp/outputs/logdir/data]
+      command:
+      - sh
+      - -ec
+      - |
+        program_path=$(mktemp)
+        printf "%s" "$0" > "$program_path"
+        python3 -u "$program_path" "$@"
+      - "def mnist_func(log_folder):\n\n    print('mnist_func:', log_folder)\n   \
+        \ import tensorflow as tf\n    import json\n    mnist = tf.keras.datasets.mnist\n\
+        \    (x_train,y_train), (x_test, y_test) = mnist.load_data()\n    x_train,\
+        \ x_test = x_train/255.0, x_test/255.0\n\n    def create_model():\n      \
+        \  return tf.keras.models.Sequential([\n            tf.keras.layers.Flatten(input_shape\
+        \ = (28,28)),\n            tf.keras.layers.Dense(512, activation = 'relu'),\n\
+        \            tf.keras.layers.Dropout(0.2),\n            tf.keras.layers.Dense(10,\
+        \ activation = 'softmax')\n        ])\n    model = create_model()\n    model.compile(optimizer='adam',\n\
+        \                  loss='sparse_categorical_crossentropy',\n             \
+        \     metrics=['accuracy'])\n    import datetime\n    import os\n\n    ###\
+        \ add tensorboard logout callback\n    log_dir = os.path.join(log_folder,\
+        \ \"logs\", datetime.datetime.now().strftime(\"%Y%m%d-%H%M%S\"))\n    tensorboard_callback\
+        \ = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)\n  \
+        \  ######\n\n    model.fit(x=x_train, \n              y=y_train, \n      \
+        \        epochs=5, \n              validation_data=(x_test, y_test), \n  \
+        \            callbacks=[tensorboard_callback])\n\n    print('At least tensorboard\
+        \ callbacks are correct')\n    print('logdir:', log_dir)\n    return ([log_dir])\n\
+        \ndef _serialize_str(str_value: str) -> str:\n    if not isinstance(str_value,\
+        \ str):\n        raise TypeError('Value \"{}\" has type \"{}\" instead of\
+        \ str.'.format(\n            str(str_value), str(type(str_value))))\n    return\
+        \ str_value\n\nimport argparse\n_parser = argparse.ArgumentParser(prog='Mnist\
+        \ func', description='')\n_parser.add_argument(\"--log-folder\", dest=\"log_folder\"\
+        , type=str, required=True, default=argparse.SUPPRESS)\n_parser.add_argument(\"\
+        ----output-paths\", dest=\"_output_paths\", type=str, nargs=1)\n_parsed_args\
+        \ = vars(_parser.parse_args())\n_output_files = _parsed_args.pop(\"_output_paths\"\
+        , [])\n\n_outputs = mnist_func(**_parsed_args)\n\n_output_serializers = [\n\
+        \    _serialize_str,\n\n]\n\nimport os\nfor idx, output_file in enumerate(_output_files):\n\
+        \    try:\n        os.makedirs(os.path.dirname(output_file))\n    except OSError:\n\
+        \        pass\n    with open(output_file, 'w') as f:\n        f.write(_output_serializers[idx](_outputs[idx]))\n"
+      image: tensorflow/tensorflow:2.0.0-py3
+      resources:
+        limits: {cpu: '1'}
+        requests: {cpu: '1'}
+      volumeMounts:
+      - {mountPath: /data, name: mypvc}
+    inputs:
+      parameters:
+      - {name: mypvc-name}
+    outputs:
+      artifacts:
+      - {name: mnist-func-logdir, path: /tmp/outputs/logdir/data}
+    metadata:
+      labels:
+        pipelines.kubeflow.org/kfp_sdk_version: 1.8.9
+        pipelines.kubeflow.org/pipeline-sdk-type: kfp
+        pipelines.kubeflow.org/enable_caching: "true"
+      annotations: {pipelines.kubeflow.org/component_spec: '{"implementation": {"container":
+          {"args": ["--log-folder", {"inputValue": "log_folder"}, "----output-paths",
+          {"outputPath": "logdir"}], "command": ["sh", "-ec", "program_path=$(mktemp)\nprintf
+          \"%s\" \"$0\" > \"$program_path\"\npython3 -u \"$program_path\" \"$@\"\n",
+          "def mnist_func(log_folder):\n\n    print(''mnist_func:'', log_folder)\n    import
+          tensorflow as tf\n    import json\n    mnist = tf.keras.datasets.mnist\n    (x_train,y_train),
+          (x_test, y_test) = mnist.load_data()\n    x_train, x_test = x_train/255.0,
+          x_test/255.0\n\n    def create_model():\n        return tf.keras.models.Sequential([\n            tf.keras.layers.Flatten(input_shape
+          = (28,28)),\n            tf.keras.layers.Dense(512, activation = ''relu''),\n            tf.keras.layers.Dropout(0.2),\n            tf.keras.layers.Dense(10,
+          activation = ''softmax'')\n        ])\n    model = create_model()\n    model.compile(optimizer=''adam'',\n                  loss=''sparse_categorical_crossentropy'',\n                  metrics=[''accuracy''])\n    import
+          datetime\n    import os\n\n    ### add tensorboard logout callback\n    log_dir
+          = os.path.join(log_folder, \"logs\", datetime.datetime.now().strftime(\"%Y%m%d-%H%M%S\"))\n    tensorboard_callback
+          = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)\n    ######\n\n    model.fit(x=x_train,
+          \n              y=y_train, \n              epochs=5, \n              validation_data=(x_test,
+          y_test), \n              callbacks=[tensorboard_callback])\n\n    print(''At
+          least tensorboard callbacks are correct'')\n    print(''logdir:'', log_dir)\n    return
+          ([log_dir])\n\ndef _serialize_str(str_value: str) -> str:\n    if not isinstance(str_value,
+          str):\n        raise TypeError(''Value \"{}\" has type \"{}\" instead of
+          str.''.format(\n            str(str_value), str(type(str_value))))\n    return
+          str_value\n\nimport argparse\n_parser = argparse.ArgumentParser(prog=''Mnist
+          func'', description='''')\n_parser.add_argument(\"--log-folder\", dest=\"log_folder\",
+          type=str, required=True, default=argparse.SUPPRESS)\n_parser.add_argument(\"----output-paths\",
+          dest=\"_output_paths\", type=str, nargs=1)\n_parsed_args = vars(_parser.parse_args())\n_output_files
+          = _parsed_args.pop(\"_output_paths\", [])\n\n_outputs = mnist_func(**_parsed_args)\n\n_output_serializers
+          = [\n    _serialize_str,\n\n]\n\nimport os\nfor idx, output_file in enumerate(_output_files):\n    try:\n        os.makedirs(os.path.dirname(output_file))\n    except
+          OSError:\n        pass\n    with open(output_file, ''w'') as f:\n        f.write(_output_serializers[idx](_outputs[idx]))\n"],
+          "image": "tensorflow/tensorflow:2.0.0-py3"}}, "inputs": [{"name": "log_folder",
+          "type": "String"}], "name": "Mnist func", "outputs": [{"name": "logdir",
+          "type": "String"}]}', pipelines.kubeflow.org/component_ref: '{}', pipelines.kubeflow.org/arguments.parameters: '{"log_folder":
+          "/data"}'}
+    volumes:
+    - name: mypvc
+      persistentVolumeClaim: {claimName: '{{inputs.parameters.mypvc-name}}'}
+  - name: mnist-pipeline
+    dag:
+      tasks:
+      - {name: create-tensorboard-visualization, template: create-tensorboard-visualization}
+      - name: mnist-func
+        template: mnist-func
+        dependencies: [create-tensorboard-visualization, mypvc]
+        arguments:
+          parameters:
+          - {name: mypvc-name, value: '{{tasks.mypvc.outputs.parameters.mypvc-name}}'}
+      - {name: mypvc, template: mypvc}
+  - name: mypvc
+    resource:
+      action: create
+      manifest: |
+        apiVersion: v1
+        kind: PersistentVolumeClaim
+        metadata:
+          name: '{{workflow.name}}-my-awesome-kf-workshop-1703595962'
+        spec:
+          accessModes:
+          - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi
+    outputs:
+      parameters:
+      - name: mypvc-manifest
+        valueFrom: {jsonPath: '{}'}
+      - name: mypvc-name
+        valueFrom: {jsonPath: '{.metadata.name}'}
+      - name: mypvc-size
+        valueFrom: {jsonPath: '{.status.capacity.storage}'}
+    metadata:
+      labels:
+        pipelines.kubeflow.org/kfp_sdk_version: 1.8.9
+        pipelines.kubeflow.org/pipeline-sdk-type: kfp
+        pipelines.kubeflow.org/enable_caching: "true"
+  arguments:
+    parameters: []
+  serviceAccountName: pipeline-runner

@@ -1,0 +1,33 @@
+################################################################################
+# Node-RED Stack or Compose
+################################################################################
+# docker stack deploy node-red --compose-file docker-compose-node-red.yml
+# docker-compose -f docker-compose-node-red.yml -p myNoderedProject up
+################################################################################
+version: "3.7"
+
+services:
+  node-red:
+    image: reg.footprint-ai.com/public/kube-nodered:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      labels:
+        # workaround around a docker-compose bug when image is also used by docker run (https://github.com/docker/compose/issues/10162)
+        com.docker.compose.container-number: "1"
+    environment:
+      - TZ=Asia/Taipei
+      - USERDIR=$USERDIR
+      - NODE_RED_CREDENTIAL_SECRET=noderedtutorial
+      - KUBEFLOW_HOST=$KUBEFLOW_HOST
+      - KUBEFLOW_USERNAME=$KUBEFLOW_USERNAME
+      - KUBEFLOW_PASSWORD=$KUBEFLOW_PASSWORD
+    ports:
+      - "1880:1880"
+    networks:
+      - node-red-net
+    volumes:
+      - ./:/data
+
+networks:
+  node-red-net:
