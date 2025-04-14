@@ -1,0 +1,10 @@
+pandas
+numpy
+matplotlib
+seaborn
+missingno
+scipy
+jinja2
+scikit-learn
+xgboost
+kaggle
