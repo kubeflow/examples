@@ -3,4 +3,4 @@ pandas
 tqdm
 lightgbm
 ta-lib-binary
-numpy==1.20.0
+numpy==1.22.0
