@@ -57,7 +57,7 @@ Flask-Cors==3.0.3
 ftfy==4.4.3
 future==0.16.0
 gensim==3.2.0
-gevent==1.2.2
+gevent==23.9.1
 glob2==0.5
 gmpy2==2.0.8
 graphviz==0.8.1
